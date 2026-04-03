@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Wallet</title>
+    <meta
+        name="description"
+        content="Design Wallet is a curated landing page for discovering design tools, assets, prompts, workflows, and inspiration."
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Sora:wght@500;600;700;800&amp;display=swap"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header">
+            <a class="brand" href="#home" aria-label="Design Wallet home">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span class="brand-copy">Design Wallet</span>
+            </a>
+
+            <button
+                class="nav-toggle"
+                type="button"
+                aria-expanded="false"
+                aria-controls="primary-nav"
+                aria-label="Toggle navigation"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <nav class="site-nav" id="primary-nav">
+                <a href="#catalog">Catalog</a>
+                <a href="#roles">Roles</a>
+                <a href="#submit">List your tool</a>
+                <a class="glass-button" href="#catalog">
+                    Explore full assets
+                    <span class="button-arrow" aria-hidden="true">-></span>
+                </a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="hero" id="home">
+                <div class="hero-glow" aria-hidden="true"></div>
+
+                <div class="floating-tile tile-dribbble" aria-hidden="true">Dr</div>
+                <div class="floating-tile tile-ai" aria-hidden="true">AI</div>
+                <div class="floating-tile tile-grid" aria-hidden="true">UI</div>
+                <div class="floating-tile tile-motion" aria-hidden="true">Mo</div>
+
+                <div class="role-tag tag-ui" aria-hidden="true">UI Designer</div>
+                <div class="role-tag tag-ux" aria-hidden="true">UX Designer</div>
+                <div class="role-tag tag-web" aria-hidden="true">Web Designer</div>
+                <div class="role-tag tag-video" aria-hidden="true">Video Editor</div>
+                <div class="role-tag tag-visual" aria-hidden="true">Visual Designer</div>
+                <div class="role-tag tag-illustration" aria-hidden="true">Illustration Artist</div>
+
+                <div class="hero-content">
+                    <div class="hero-note" data-reveal>
+                        <span class="badge-pill">Curated resources</span>
+                        <span>Built for product teams, freelancers, and fast-moving design studios.</span>
+                    </div>
+
+                    <h1 data-reveal>Collect the tools, assets, and inspiration that keep good design moving.</h1>
+
+                    <p class="hero-copy" data-reveal>
+                        Designer Wallet brings together trusted tools, prompts, templates, AI resources,
+                        workflows, and visual references so you can spend less time hunting and more time shipping.
+                    </p>
+
+                    <div class="hero-actions" data-reveal>
+                        <a class="primary-button" href="#catalog">Browse the wallet</a>
+                        <a class="secondary-button" href="#submit">Submit a resource</a>
+                    </div>
+
+                    <div class="hero-proof" id="roles" data-reveal>
+                        <span class="proof-chip">1,200+ curated picks</span>
+                        <span class="proof-chip">Updated weekly</span>
+                        <span class="proof-chip">Built for UI, UX, motion, and brand teams</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="divider-strip" aria-label="Designer roles">
+                <p>
+                    Trusted by UI designers, UX researchers, illustrators, motion teams, and founders who need a
+                    cleaner way to discover what is worth using.
+                </p>
+            </section>
+
+            <section class="catalog-section" id="catalog">
+                <div class="section-copy" data-reveal>
+                    <p class="section-kicker">Full Catalog</p>
+                    <h2>Find the right resource without falling into link-hoarding.</h2>
+                    <p>
+                        Search, filter, and scan collections made for real design workflows. Each card is organized
+                        by use case, role, and pricing so the page stays practical instead of noisy.
+                    </p>
+                </div>
+
+                <div class="catalog-shell">
+                    <aside class="filter-panel" data-reveal>
+                        <div class="filter-block">
+                            <label class="filter-label" for="resource-search">Search resources</label>
+                            <div class="search-field">
+                                <input
+                                    id="resource-search"
+                                    type="search"
+                                    placeholder="Search tools, prompts, templates"
+                                    autocomplete="off"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="filter-block">
+                            <p class="filter-title">Type</p>
+                            <label class="check-row">
+                                <input type="checkbox" value="tool" data-filter-group="type" checked>
+                                <span>Tool</span>
+                            </label>
+                            <label class="check-row">
+                                <input type="checkbox" value="asset" data-filter-group="type" checked>
+                                <span>Asset</span>
+                            </label>
+                            <label class="check-row">
+                                <input type="checkbox" value="template" data-filter-group="type" checked>
+                                <span>Template</span>
+                            </label>
+                            <label class="check-row">
+                                <input type="checkbox" value="workflow" data-filter-group="type" checked>
+                                <span>Workflow</span>
+                            </label>
+                            <label class="check-row">
+                                <input type="checkbox" value="ai" data-filter-group="type" checked>
+                                <span>AI</span>
+                            </label>
+                        </div>
+
+                        <div class="filter-block">
+                            <p class="filter-title">Best for</p>
+                            <div class="filter-chips">
+                                <button class="filter-chip is-active" type="button" data-filter-group="role" data-filter-value="all">All</button>
+                                <button class="filter-chip" type="button" data-filter-group="role" data-filter-value="ui">UI</button>
+                                <button class="filter-chip" type="button" data-filter-group="role" data-filter-value="ux">UX</button>
+                                <button class="filter-chip" type="button" data-filter-group="role" data-filter-value="brand">Brand</button>
+                                <button class="filter-chip" type="button" data-filter-group="role" data-filter-value="motion">Motion</button>
+                                <button class="filter-chip" type="button" data-filter-group="role" data-filter-value="illustration">Illustration</button>
+                            </div>
+                        </div>
+
+                        <div class="filter-block">
+                            <p class="filter-title">Pricing</p>
+                            <label class="check-row">
+                                <input type="checkbox" value="free" data-filter-group="price" checked>
+                                <span>Free</span>
+                            </label>
+                            <label class="check-row">
+                                <input type="checkbox" value="paid" data-filter-group="price" checked>
+                                <span>Paid</span>
+                            </label>
+                        </div>
+
+                        <div class="filter-block summary-card">
+                            <p class="summary-label">Why this catalog works</p>
+                            <ul>
+                                <li>Curated by workflow, not hype.</li>
+                                <li>Resource cards are fast to scan on desktop and mobile.</li>
+                                <li>Useful filters help the collection stay navigable.</li>
+                            </ul>
+                        </div>
+                    </aside>
+
+                    <div class="catalog-main">
+                        <div class="catalog-toolbar" data-reveal>
+                            <div class="toolbar-copy">
+                                <p class="toolbar-label">Showing</p>
+                                <strong id="result-count" aria-live="polite">12 resources</strong>
+                            </div>
+
+                            <div class="toolbar-pills" aria-label="Highlights">
+                                <span class="mini-pill">Dark UI</span>
+                                <span class="mini-pill">Glass buttons</span>
+                                <span class="mini-pill">Curated stacks</span>
+                            </div>
+                        </div>
+
+                        <div class="resource-grid" id="resource-grid">
+                            <article
+                                class="resource-card"
+                                data-type="asset"
+                                data-role="ui ux"
+                                data-price="paid"
+                                data-search="dribbble pro feed inspiration ui ux paid examples references gallery"
+                                data-reveal
+                            >
+                                <div class="card-cap accent-coral"></div>
+                                <div class="card-shell">
+                                    <div class="card-top">
+                                        <div class="logo-badge brand-dr">Dr</div>
+                                        <span class="price-badge">Paid</span>
+                                    </div>
+                                    <h3>Dribbble Pro Feed</h3>
+                                    <p>Fresh interface references and visual directions for product teams that need quick inspiration without endless scrolling.</p>
+                                    <div class="card-footer">
+                                        <div class="card-tags">
+                                            <span class="tag">Inspiration</span>
+                                            <span class="tag">AI Tools</span>
+                                        </div>
+                                        <a class="card-link" href="#submit">Open</a>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article
+                                class="resource-card"
+                                data-type="tool"
+                                data-role="ui ux"
+                                data-price="paid"
+                                data-search="mobbin flows mobile patterns ui ux paid app references product design"
+                                data-reveal
+                            >
+                                <div class="card-cap accent-sand"></div>
+                                <div class="card-shell">
+                                    <div class="card-top">
+                                        <div class="logo-badge brand-mb">Mb</div>
+                                        <span class="price-badge">Paid</span>
+                                    </div>
+                                    <h3>Mobbin Flows</h3>
+                                    <p>Screen-by-screen product patterns for onboarding, growth loops, dashboards, and mobile interactions.</p>
+                                    <div class="card-footer">
+                                        <div class="card-tags">
+                                            <span class="tag">Patterns</span>
+                                            <span class="tag">Product</span>
+                                        </div>
+                                        <a class="card-link" href="#submit">Open</a>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article
+                                class="resource-card"
+                                data-type="tool"
+                                data-role="brand ui"
+                                data-price="free"
+                                data-search="typescale studio typography scale free brand ui font system"
+                                data-reveal
+                            >
+                                <div class="card-cap accent-mint"></div>
+                                <div class="card-shell">
+                                    <div class="card-top">
+                                        <div class="logo-badge brand-ts">Ts</div>
+                                        <span class="price-badge price-free">Free</span>
+                                    </div>
+                                    <h3>TypeScale Studio</h3>
+                                    <p>Generate disciplined heading and body scales for landing pages, design systems, and editorial layouts.</p>
+                                    <div class="card-footer">
+                                        <div class="card-tags">
+                                            <span class="tag">Typography</span>
+                                            <span class="tag">System</span>
+                                        </div>
+                                        <a class="card-link" href="#submit">Open</a>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article
+                                class="resource-card"
+                                data-type="template"
+                                data-role="ui brand"
+                                data-price="paid"
+                                data-search="magic mockups template ui brand paid presentation device scenes"
+                                data-reveal
+                            >
+                                <div class="card-cap accent-amber"></div>
+                                <div class="card-shell">
+                                    <div class="card-top">
+                                        <div class="logo-badge brand-mm">Mm</div>
+                                        <span class="price-badge">Paid</span>
+                                    </div>
+                                    <h3>Magic Mockups</h3>
+                                    <p>Premium device scenes and presentation frames that make launch posts, decks, and case studies feel polished.</p>
+                                    <div class="card-footer">
+                                        <div class="card-tags">
+                                            <span class="tag">Mockups</span>
+                                            <span class="tag">Presentation</span>
+                                        </div>
+                                        <a class="card-link" href="#submit">Open</a>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article
+                                class="resource-card"
+                                data-type="ai"
+                                data-role="ux ui"
+                                data-price="paid"
+                                data-search="relume sitemap ai ux ui paid wireframes content maps"
+                                data-reveal
+                            >
+                                <div class="card-cap accent-cyan"></div>
+                                <div class="card-shell">
+                                    <div class="card-top">
+                                        <div class="logo-badge brand-rl">Rl</div>
+                                        <span class="price-badge">Paid</span>
+                                    </div>
+                                    <h3>Relume Sitemap</h3>
+                                    <p>AI-assisted site planning for landing pages and product sites when you need structure before high-fidelity screens.</p>
+                                    <div class="card-footer">
+                                        <div class="card-tags">
+                                            <span class="tag">Wireframes</span>
+                                            <span class="tag">Planning</span>
+                                        </div>
+                                        <a class="card-link" href="#submit">Open</a>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article
+                                class="resource-card"
+                                data-type="asset"
+                                data-role="motion illustration"
+                                data-price="paid"
+                                data-search="motion library kit asset motion illustration paid transitions loops icons"
+                                data-reveal
+                            >
+                                <div class="card-cap accent-vivid"></div>
+                                <div class="card-shell">
+                                    <div class="card-top">
+                                        <div class="logo-badge brand-ml">Ml</div>
+                                        <span class="price-badge">Paid</span>
+                                    </div>
+                                    <h3>Motion Library Kit</h3>
+                                    <p>Looping scenes, loaders, and transition packs for designers who need movement without rebuilding everything from scratch.</p>
+                                    <div class="card-footer">
+                                        <div class="card-tags">
+                                            <span class="tag">Motion</span>
+                                            <span class="tag">Asset Pack</span>
+                                        </div>
+                                        <a class="card-link" href="#submit">Open</a>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article
+                                class="resource-card"
+                                data-type="asset"
+                                data-role="brand ui"
+                                data-price="free"
+                                data-search="color vault pro asset brand ui free palettes gradients tokens"
+                                data-reveal
+                            >
+                                <div class="card-cap accent-sky"></div>
+                                <div class="card-shell">
+                                    <div class="card-top">
+                                        <div class="logo-badge brand-cv">Cv</div>
+                                        <span class="price-badge price-free">Free</span>
+                                    </div>
+                                    <h3>Color Vault Pro</h3>
+                                    <p>Palette combinations, surface tokens, and gradient pairings for teams building dark interfaces with more character.</p>
+                                    <div class="card-footer">
+                                        <div class="card-tags">
+                                            <span class="tag">Color</span>
+                                            <span class="tag">Tokens</span>
+                                        </div>
+                                        <a class="card-link" href="#submit">Open</a>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article
+                                class="resource-card"
+                                data-type="ai"
+                                data-role="ui ux"
+                                data-price="paid"
+                                data-search="prompt stack designers ai ui ux paid prompts research concepts"
+                                data-reveal
+                            >
+                                <div class="card-cap accent-coral"></div>
+                                <div class="card-shell">
+                                    <div class="card-top">
+                                        <div class="logo-badge brand-ps">Ps</div>
+                                        <span class="price-badge">Paid</span>
+                                    </div>
+                                    <h3>Prompt Stack for Designers</h3>
+                                    <p>Battle-tested prompt collections for concepts, research synthesis, UX writing, and design critique workflows.</p>
+                                    <div class="card-footer">
+                                        <div class="card-tags">
+                                            <span class="tag">Prompts</span>
+                                            <span class="tag">Research</span>
+                                        </div>
+                                        <a class="card-link" href="#submit">Open</a>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article
+                                class="resource-card"
+                                data-type="asset"
+                                data-role="illustration brand"
+                                data-price="paid"
+                                data-search="illustration orbit asset illustration brand paid scenes editorial graphics"
+                                data-reveal
+                            >
+                                <div class="card-cap accent-mint"></div>
+                                <div class="card-shell">
+                                    <div class="card-top">
+                                        <div class="logo-badge brand-io">Io</div>
+                                        <span class="price-badge">Paid</span>
+                                    </div>
+                                    <h3>Illustration Orbit</h3>
+                                    <p>Modular illustration scenes and spot graphics for marketing pages, storytelling sections, and launch campaigns.</p>
+                                    <div class="card-footer">
+                                        <div class="card-tags">
+                                            <span class="tag">Illustration</span>
+                                            <span class="tag">Editorial</span>
+                                        </div>
+                                        <a class="card-link" href="#submit">Open</a>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article
+                                class="resource-card"
+                                data-type="workflow"
+                                data-role="ux brand ui"
+                                data-price="free"
+                                data-search="notion creative os workflow ux brand ui free planning briefs handoff"
+                                data-reveal
+                            >
+                                <div class="card-cap accent-amber"></div>
+                                <div class="card-shell">
+                                    <div class="card-top">
+                                        <div class="logo-badge brand-no">No</div>
+                                        <span class="price-badge price-free">Free</span>
+                                    </div>
+                                    <h3>Notion Creative OS</h3>
+                                    <p>Briefs, feedback loops, roadmaps, and handoff pages organized into a workflow system for design teams.</p>
+                                    <div class="card-footer">
+                                        <div class="card-tags">
+                                            <span class="tag">Workflow</span>
+                                            <span class="tag">Ops</span>
+                                        </div>
+                                        <a class="card-link" href="#submit">Open</a>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article
+                                class="resource-card"
+                                data-type="tool"
+                                data-role="ui ux"
+                                data-price="free"
+                                data-search="figma plugin radar tool ui ux free plugins productivity library"
+                                data-reveal
+                            >
+                                <div class="card-cap accent-cyan"></div>
+                                <div class="card-shell">
+                                    <div class="card-top">
+                                        <div class="logo-badge brand-fr">Fr</div>
+                                        <span class="price-badge price-free">Free</span>
+                                    </div>
+                                    <h3>Figma Plugin Radar</h3>
+                                    <p>Useful plugin picks for grids, accessibility, content swapping, localization, and faster interface polishing.</p>
+                                    <div class="card-footer">
+                                        <div class="card-tags">
+                                            <span class="tag">Plugins</span>
+                                            <span class="tag">Productivity</span>
+                                        </div>
+                                        <a class="card-link" href="#submit">Open</a>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article
+                                class="resource-card"
+                                data-type="template"
+                                data-role="brand ux"
+                                data-price="paid"
+                                data-search="freelance proposal pack template brand ux paid client deck scope"
+                                data-reveal
+                            >
+                                <div class="card-cap accent-vivid"></div>
+                                <div class="card-shell">
+                                    <div class="card-top">
+                                        <div class="logo-badge brand-fp">Fp</div>
+                                        <span class="price-badge">Paid</span>
+                                    </div>
+                                    <h3>Freelance Proposal Pack</h3>
+                                    <p>Proposal pages, pricing sections, and scope templates for designers who need a sharper client-facing workflow.</p>
+                                    <div class="card-footer">
+                                        <div class="card-tags">
+                                            <span class="tag">Client Ops</span>
+                                            <span class="tag">Template</span>
+                                        </div>
+                                        <a class="card-link" href="#submit">Open</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <p class="empty-state" id="empty-state" hidden>
+                            No resources match those filters yet. Clear a couple of choices or try a broader keyword.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="submit-strip" id="submit" data-reveal>
+                <div class="submit-copy">
+                    <p class="section-kicker">Submit A Resource</p>
+                    <h2>Have a tool, asset, or workflow worth sharing?</h2>
+                    <p>
+                        Designer Wallet is designed to spotlight practical resources that help designers move faster.
+                        Put your product in front of the right audience with a clean, curated listing.
+                    </p>
+                </div>
+
+                <a class="primary-button" href="mailto:hello@designwallet.example">List your tool</a>
+            </section>
+        </main>
+
+        <footer class="site-footer">
+            <p>Design Wallet. Curated resources for better design decisions.</p>
+            <div class="footer-links">
+                <a href="#home">Back to top</a>
+                <a href="#catalog">Catalog</a>
+                <span>&copy; <span id="current-year">2026</span></span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
