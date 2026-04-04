@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Design Wallet</title>
+    <title>Design Wallet™ - All-in-one design library for curious designers.</title>
     <meta
         name="description"
         content="Design Wallet is a curated landing page for discovering design tools, assets, prompts, workflows, and inspiration."
@@ -14,7 +14,12 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
         rel="stylesheet"
     >
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="public/Logo/favicon-img/icon32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="public/Logo/favicon-img/icon16.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="public/Logo/favicon-img/icon128.png">
     <link rel="stylesheet" href="style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <div class="page-shell">
@@ -36,13 +41,15 @@
             </button>
 
             <nav class="site-nav" id="primary-nav">
-                <a href="#catalog">Catalog</a>
-                <a href="#roles">Roles</a>
-                <a href="#submit">List your tool</a>
-                <a class="glass-button" href="#catalog">
-                    Explore full assets
-                    <span class="button-arrow" aria-hidden="true">-></span>
-                </a>
+                <a href="#submit">GOOD DEALS 🔥</a>
+                <a href="#submit">LIST YOUR TOOLS</a>
+                <button class="nav-fav-count" id="nav-fav-count" type="button" aria-label="Favourites" hidden>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    <span id="nav-fav-number">0</span>
+                </button>
+                <button class="nav-user-btn" id="nav-user-btn" type="button" aria-label="Login">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </button>
             </nav>
         </header>
 
@@ -50,17 +57,7 @@
             <section class="hero" id="home">
                 <div class="hero-glow" aria-hidden="true"></div>
 
-                <div class="floating-tile tile-dribbble" aria-hidden="true">Dr</div>
-                <div class="floating-tile tile-ai" aria-hidden="true">AI</div>
-                <div class="floating-tile tile-grid" aria-hidden="true">UI</div>
-                <div class="floating-tile tile-motion" aria-hidden="true">Mo</div>
-
-                <div class="role-tag tag-ui" aria-hidden="true">UI Designer</div>
-                <div class="role-tag tag-ux" aria-hidden="true">UX Designer</div>
-                <div class="role-tag tag-web" aria-hidden="true">Web Designer</div>
-                <div class="role-tag tag-video" aria-hidden="true">Video Editor</div>
-                <div class="role-tag tag-visual" aria-hidden="true">Visual Designer</div>
-                <div class="role-tag tag-illustration" aria-hidden="true">Illustration Artist</div>
+                <div class="stars-field" id="stars-field" aria-hidden="true"></div>
 
                 <div class="hero-content">
                     <div class="hero-note" data-reveal>
@@ -74,31 +71,45 @@
                         <span class="hero-note-text">Trusted by 600+ Designers</span>
                     </div>
 
-                    <h1 data-reveal>Collect the tools, assets, and inspiration that keep good design moving.</h1>
+                    <h1 data-reveal>All-in-one design library for curious designers.</h1>
 
                     <p class="hero-copy" data-reveal>
-                        Designer Wallet brings together trusted tools, prompts, templates, AI resources,
-                        workflows, and visual references so you can spend less time hunting and more time shipping.
+                        Subscribe for best weekly resources, freebies, and exclusive discounts.
                     </p>
 
-                    <div class="hero-actions" data-reveal>
-                        <a class="primary-button" href="#catalog">Browse the wallet</a>
-                        <a class="secondary-button" href="#submit">Submit a resource</a>
-                    </div>
-
-                    <div class="hero-proof" id="roles" data-reveal>
-                        <span class="proof-chip">1,200+ curated picks</span>
-                        <span class="proof-chip">Updated weekly</span>
-                        <span class="proof-chip">Built for UI, UX, motion, and brand teams</span>
-                    </div>
+                    <form class="hero-email-form" data-reveal>
+                        <input type="email" class="hero-email-input" placeholder="Enter your email" required>
+                        <button type="submit" class="primary-button">SUBSCRIBE</button>
+                    </form>
                 </div>
             </section>
 
             <section class="divider-strip" aria-label="Designer roles">
-                <p>
-                    Trusted by UI designers, UX researchers, illustrators, motion teams, and founders who need a
-                    cleaner way to discover what is worth using.
-                </p>
+                <p>TRUSTED BY TEAMS</p>
+                <div class="logo-marquee">
+                    <div class="logo-track">
+                        <img src="public/Logo/Company Logos/Chargebee.png" alt="Chargebee">
+                        <img src="public/Logo/Company Logos/Factors.ai.png" alt="Factors.ai">
+                        <img src="public/Logo/Company Logos/Freshworks.png" alt="Freshworks">
+                        <img src="public/Logo/Company Logos/Rocketlane.png" alt="Rocketlane">
+                        <img src="public/Logo/Company Logos/Superops.png" alt="Superops">
+                        <img src="public/Logo/Company Logos/Zluri.png" alt="Zluri">
+                        <img src="public/Logo/Company Logos/Zoho.png" alt="Zoho">
+                        <img src="public/Logo/Company Logos/Chargebee.png" alt="Chargebee">
+                        <img src="public/Logo/Company Logos/Factors.ai.png" alt="Factors.ai">
+                        <img src="public/Logo/Company Logos/Freshworks.png" alt="Freshworks">
+                        <img src="public/Logo/Company Logos/Rocketlane.png" alt="Rocketlane">
+                        <img src="public/Logo/Company Logos/Superops.png" alt="Superops">
+                        <img src="public/Logo/Company Logos/Zluri.png" alt="Zluri">
+                        <img src="public/Logo/Company Logos/Zoho.png" alt="Zoho">
+                    </div>
+                </div>
+            </section>
+
+            <section class="featured-section" id="featured">
+                <div class="featured-list" id="featured-grid">
+                    <p class="featured-loading">Loading featured tools...</p>
+                </div>
             </section>
 
             <section
@@ -107,26 +118,26 @@
                 data-sheet-id="1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8"
                 data-sheet-gid="0"
             >
-                <div class="section-copy" data-reveal>
-                    <p class="section-kicker">Full Catalog</p>
-                    <h2>Find the right resource without falling into link-hoarding.</h2>
-                    <p>
-                        Search, filter, and scan collections made for real design workflows. This catalog now pulls
-                        directly from your Google Sheet, so new listings can go live without editing the page by hand.
-                    </p>
+                <div class="catalog-search-bar" data-reveal>
+                    <div class="search-field">
+                        <input
+                            id="resource-search"
+                            type="search"
+                            placeholder="Explore from 0 tools on Design Wallet"
+                            autocomplete="off"
+                        >
+                    </div>
                 </div>
 
                 <div class="catalog-shell">
                     <aside class="filter-panel" data-reveal>
                         <div class="filter-block">
-                            <label class="filter-label" for="resource-search">Search resources</label>
-                            <div class="search-field">
-                                <input
-                                    id="resource-search"
-                                    type="search"
-                                    placeholder="Search tools, prompts, templates"
-                                    autocomplete="off"
-                                >
+                            <p class="filter-title">Pricing</p>
+                            <div class="pricing-list" id="price-filters">
+                                <label class="check-row">
+                                    <input type="radio" name="price-filter" value="all" data-filter-group="price" checked disabled>
+                                    <span>Loading pricing options...</span>
+                                </label>
                             </div>
                         </div>
 
@@ -137,39 +148,10 @@
                             </div>
                         </div>
 
-                        <div class="filter-block">
-                            <p class="filter-title">Pricing</p>
-                            <div class="pricing-list" id="price-filters">
-                                <label class="check-row">
-                                    <input type="checkbox" value="free" data-filter-group="price" checked disabled>
-                                    <span>Loading pricing options...</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="filter-block summary-card">
-                            <p class="summary-label">How listings work</p>
-                            <ul>
-                                <li>Add or edit rows in Google Sheets.</li>
-                                <li>The website reads the sheet live and rebuilds the cards.</li>
-                                <li>Categories and pricing filters are generated automatically from your sheet data.</li>
-                            </ul>
-                        </div>
                     </aside>
 
                     <div class="catalog-main">
-                        <div class="catalog-toolbar" data-reveal>
-                            <div class="toolbar-copy">
-                                <p class="toolbar-label">Showing</p>
-                                <strong id="result-count" aria-live="polite">12 resources</strong>
-                            </div>
-
-                            <div class="toolbar-pills" id="catalog-highlights" aria-label="Catalog highlights">
-                                <span class="mini-pill">Google Sheets powered</span>
-                            </div>
-                        </div>
-
-                        <p class="catalog-note" id="catalog-note">Live listings from your Google Sheet.</p>
+                        <strong id="result-count" aria-live="polite" hidden>12 resources</strong>
 
                         <p class="catalog-loading" id="catalog-loading">Loading listings from Google Sheets...</p>
 
@@ -204,6 +186,16 @@
                 <span>&copy; <span id="current-year">2026</span></span>
             </div>
         </footer>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="login-modal-overlay" id="login-modal" hidden>
+        <div class="login-modal">
+            <button class="login-modal-close" id="login-modal-close" type="button" aria-label="Close">&times;</button>
+            <h3>Sign in to save favourites</h3>
+            <p>Login with your Google account to bookmark your favourite design resources.</p>
+            <div id="google-signin-btn"></div>
+        </div>
     </div>
 
     <script src="script.js"></script>
