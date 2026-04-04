@@ -1,12 +1,128 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Content Manager</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Wallet Admin</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d0d0d;
+      --panel: #151515;
+      --border: rgba(255, 255, 255, 0.12);
+      --text: #f5f1ea;
+      --muted: #b8afa4;
+      --accent: #ff744d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top, rgba(255, 116, 77, 0.18), transparent 28%),
+        #0d0d0d;
+      color: var(--text);
+      font: 500 16px/1.6 "Inter", "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(760px, 100%);
+      padding: 32px;
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      background: rgba(21, 21, 21, 0.94);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font: 800 clamp(2rem, 6vw, 3.4rem)/0.96 "Inter", sans-serif;
+      letter-spacing: -0.06em;
+    }
+
+    p {
+      margin: 16px 0 0;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .primary {
+      border-color: rgba(255, 116, 77, 0.35);
+      background: linear-gradient(135deg, #ff744d, #ff5d2d);
+      color: #170d08;
+      font-weight: 800;
+    }
+
+    ul {
+      margin: 24px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+  </style>
 </head>
 <body>
-  <!-- Include the script that builds the page and powers Netlify CMS -->
-  <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
+  <main>
+    <p class="eyebrow">Design Wallet Admin</p>
+    <h1>Manage listings in Google Sheets.</h1>
+    <p>
+      This website now reads the catalog directly from your Google Sheet instead of the old Git-based CMS.
+      Add or edit rows in the sheet and refresh the site to see the updated listings.
+    </p>
+
+    <div class="actions">
+      <a
+        class="primary"
+        href="https://docs.google.com/spreadsheets/d/1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8/edit?gid=0#gid=0"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Open Google Sheet
+      </a>
+      <a href="../index.html">Open Website</a>
+    </div>
+
+    <ul>
+      <li>Required columns can include: Image, Title, Subtitle, Categories, Pricing, Link, Thumbnails, and Slug.</li>
+      <li>Categories should be comma-separated if you want one listing to appear in multiple filters.</li>
+      <li>Pricing values like FREE, FREEMIUM, and PAID are supported automatically.</li>
+    </ul>
+  </main>
 </body>
 </html>

@@ -1,3 +1,5 @@
+# Legacy Decap CMS config.
+# The live catalog is now managed in Google Sheets and loaded by script.js.
 backend:
   name: git-gateway
   branch: main

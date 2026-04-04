@@ -31,11 +31,10 @@ body {
     margin: 0;
     min-height: 100vh;
     background:
-        radial-gradient(circle at top, rgba(255, 116, 77, 0.16), transparent 30%),
         radial-gradient(circle at 20% 16%, rgba(255, 255, 255, 0.06), transparent 24%),
         var(--bg);
     color: var(--text);
-    font-family: "Manrope", "Avenir Next", "Segoe UI", sans-serif;
+    font-family: "Inter", "Segoe UI", sans-serif;
     line-height: 1.6;
 }
 
@@ -106,11 +105,11 @@ input {
     gap: 24px;
     margin-bottom: 18px;
     padding: 18px 24px;
-    border: 1px solid var(--border);
+    border: none;
     border-radius: 24px;
-    background: rgba(13, 13, 13, 0.84);
-    backdrop-filter: blur(20px);
-    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.24);
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
 }
 
 .brand {
@@ -120,35 +119,13 @@ input {
     min-width: 0;
 }
 
-.brand-mark {
-    position: relative;
-    width: 42px;
-    height: 42px;
-    border-radius: 14px;
+.brand-logo {
+    height: 32px;
     flex-shrink: 0;
-    background: linear-gradient(135deg, #ff8f67, #ff5c2d);
-    box-shadow: 0 14px 28px rgba(255, 116, 77, 0.28);
-}
-
-.brand-mark::before,
-.brand-mark::after {
-    content: "";
-    position: absolute;
-    background: rgba(13, 13, 13, 0.9);
-}
-
-.brand-mark::before {
-    inset: 8px 18px 8px 8px;
-    border-radius: 10px 4px 10px 10px;
-}
-
-.brand-mark::after {
-    inset: 10px 10px 10px 21px;
-    border-radius: 3px 10px 10px 3px;
 }
 
 .brand-copy {
-    font-family: "Sora", "Avenir Next", sans-serif;
+    font-family: "Inter", sans-serif;
     font-size: 1.1rem;
     font-weight: 700;
     letter-spacing: -0.05em;
@@ -268,15 +245,7 @@ input {
 }
 
 .hero-glow {
-    position: absolute;
-    inset: auto 50% 120px;
-    width: 520px;
-    height: 520px;
-    transform: translateX(-50%);
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 116, 77, 0.18), transparent 66%);
-    filter: blur(8px);
-    pointer-events: none;
+    display: none;
 }
 
 .hero-content {
@@ -291,15 +260,58 @@ input {
 .hero-note {
     display: inline-flex;
     align-items: center;
-    gap: 12px;
-    max-width: min(100%, 620px);
-    padding: 10px 14px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--muted-strong);
-    font-size: 0.94rem;
-    backdrop-filter: blur(16px);
+    gap: 8px;
+    padding: 10px 22px 10px 10px;
+    border-radius: 48px;
+    background: rgba(255, 255, 255, 0.10);
+    color: var(--text);
+    font-size: 1.05rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: relative;
+    border: none;
+}
+
+.hero-note::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 48px;
+    padding: 1px;
+    background: linear-gradient(30deg, rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+.avatar-stack {
+    display: flex;
+    align-items: center;
+}
+
+.avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    object-fit: cover;
+    margin-left: -12px;
+}
+
+.avatar:first-child {
+    margin-left: 0;
+}
+
+.hero-note-text {
+    font-family: "Inter", sans-serif;
+    font-size: 1rem;
+    font-weight: 200;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    white-space: nowrap;
 }
 
 .badge-pill,
@@ -321,7 +333,7 @@ input {
 .hero h1,
 .section-copy h2,
 .submit-copy h2 {
-    font-family: "Sora", "Avenir Next", sans-serif;
+    font-family: "Inter", sans-serif;
     letter-spacing: -0.08em;
     line-height: 0.98;
     margin: 0;
@@ -414,7 +426,7 @@ input {
     border-radius: 16px;
     background: linear-gradient(145deg, #f8efe5, #d9d0c5);
     color: #141414;
-    font-family: "Sora", sans-serif;
+    font-family: "Inter", sans-serif;
     font-size: 1rem;
     font-weight: 800;
     box-shadow: 0 18px 42px rgba(0, 0, 0, 0.26);
@@ -609,6 +621,11 @@ input {
     gap: 10px;
 }
 
+.pricing-list {
+    display: grid;
+    gap: 10px;
+}
+
 .filter-chip {
     padding: 10px 14px;
     color: var(--muted-strong);
@@ -652,7 +669,7 @@ input {
 }
 
 #result-count {
-    font-family: "Sora", sans-serif;
+    font-family: "Inter", sans-serif;
     font-size: 1.6rem;
     letter-spacing: -0.05em;
 }
@@ -664,6 +681,20 @@ input {
     gap: 10px;
 }
 
+.catalog-note {
+    margin: 0 0 18px;
+    color: var(--muted);
+}
+
+.catalog-loading {
+    margin: 0 0 18px;
+    padding: 18px 20px;
+    border: 1px dashed var(--border-strong);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--muted-strong);
+}
+
 .resource-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -672,149 +703,159 @@ input {
 
 .resource-card {
     position: relative;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: 26px;
-    background: var(--panel-strong);
-    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(52, 52, 52, 0.95), rgba(30, 30, 30, 0.97));
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.resource-card:hover {
+.resource-card::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 140px;
+    height: 30px;
+    border-radius: 28px 0 16px 0;
+    background: linear-gradient(180deg, rgba(68, 68, 68, 0.98), rgba(48, 48, 48, 0.96));
+    clip-path: polygon(0 0, 80% 0, 100% 100%, 0 100%);
+}
+
+.resource-card:hover,
+.resource-card:focus-visible {
     transform: translateY(-6px);
-    border-color: var(--border-strong);
-    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.34);
 }
 
-.card-cap {
-    width: 104px;
-    height: 14px;
-    clip-path: polygon(0 0, 86% 0, 100% 100%, 0 100%);
+.resource-card:focus-visible {
+    outline: none;
 }
 
-.accent-coral {
-    background: linear-gradient(90deg, #ff8f67, #ff6e46);
+.resource-card:hover .card-action,
+.resource-card:focus-visible .card-action {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.12);
 }
 
-.accent-sand {
-    background: linear-gradient(90deg, #f3d7a0, #e7b767);
+.resource-card:hover .card-action-arrow,
+.resource-card:focus-visible .card-action-arrow {
+    transform: translate(2px, -2px);
 }
 
-.accent-mint {
-    background: linear-gradient(90deg, #b9f7d2, #6ed0a5);
-}
-
-.accent-amber {
-    background: linear-gradient(90deg, #ffd68d, #ffb547);
-}
-
-.accent-cyan {
-    background: linear-gradient(90deg, #8be6ff, #53bfdc);
-}
-
-.accent-vivid {
-    background: linear-gradient(90deg, #ff8bb6, #ff5c8d);
+.resource-card:focus-visible .card-shell {
+    box-shadow: inset 0 0 0 1px rgba(255, 116, 77, 0.36);
 }
 
 .card-shell {
-    padding: 18px 18px 20px;
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-rows: auto 1fr auto auto;
+    flex: 1;
+    padding: 16px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 18px;
+    background: #0d0d0d;
 }
 
 .card-top {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 18px;
+    margin-bottom: 20px;
 }
 
 .logo-badge {
     display: grid;
     place-items: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    color: #101010;
-    font-family: "Sora", sans-serif;
-    font-size: 0.94rem;
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #ef4f8b, #f2569f);
+    color: #fff;
+    font-family: "Inter", sans-serif;
+    font-size: 1.1rem;
     font-weight: 800;
+    flex-shrink: 0;
 }
 
-.brand-dr {
-    background: linear-gradient(135deg, #ffbdd5, #ff7ea6);
+.logo-badge.has-image {
+    overflow: hidden;
+    background: linear-gradient(135deg, #ef4f8b, #f2569f);
 }
 
-.brand-mb {
-    background: linear-gradient(135deg, #f0e2bb, #d3b167);
-}
-
-.brand-ts {
-    background: linear-gradient(135deg, #cbf6dc, #87dfb1);
-}
-
-.brand-mm {
-    background: linear-gradient(135deg, #ffe3c7, #ffb76a);
-}
-
-.brand-rl {
-    background: linear-gradient(135deg, #b4efff, #69c9e5);
-}
-
-.brand-ml {
-    background: linear-gradient(135deg, #e8d6ff, #b68aff);
-}
-
-.brand-cv {
-    background: linear-gradient(135deg, #c6efff, #89c9eb);
-}
-
-.brand-ps {
-    background: linear-gradient(135deg, #ffd6ca, #ff906f);
-}
-
-.brand-io {
-    background: linear-gradient(135deg, #ddffd6, #8ad786);
-}
-
-.brand-no {
-    background: linear-gradient(135deg, #f6e5c3, #ddb05a);
-}
-
-.brand-fr {
-    background: linear-gradient(135deg, #d1f0ff, #79c4ef);
-}
-
-.brand-fp {
-    background: linear-gradient(135deg, #ffdee7, #ff99b4);
+.logo-badge.has-image img {
+    width: 62%;
+    height: 62%;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
 }
 
 .price-badge {
-    padding: 6px 12px;
-    color: var(--muted-strong);
+    padding: 8px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.58);
     font-size: 0.78rem;
     font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
 }
 
 .price-free {
-    background: rgba(185, 247, 210, 0.14);
-    border-color: rgba(185, 247, 210, 0.28);
+    color: #b7f3cf;
+    background: rgba(143, 238, 189, 0.08);
+    border-color: rgba(143, 238, 189, 0.16);
+}
+
+.price-freemium {
+    color: #9fe6fb;
+    background: rgba(139, 230, 255, 0.08);
+    border-color: rgba(139, 230, 255, 0.16);
+}
+
+.card-content {
+    /* no fixed height — card grows with content */
 }
 
 .resource-card h3 {
-    margin: 0 0 10px;
-    font-family: "Sora", sans-serif;
-    font-size: 1.18rem;
-    letter-spacing: -0.04em;
+    margin: 0 0 12px;
+    font-family: "Manrope", "Avenir Next", sans-serif;
+    font-size: clamp(1.4rem, 1.4vw + 0.9rem, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.06em;
+    line-height: 1.05;
+    color: #f7f4ef;
 }
 
-.resource-card p {
-    margin: 0 0 22px;
-    min-height: 92px;
-    font-size: 0.95rem;
+.card-description {
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: rgba(245, 241, 234, 0.52);
+    font-size: 0.92rem;
+    line-height: 1.4;
+}
+
+.card-divider {
+    height: 1px;
+    margin: 18px -20px 16px;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .card-footer {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
     gap: 16px;
 }
@@ -822,12 +863,36 @@ input {
 .card-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
 }
 
-.card-link {
-    color: var(--text);
-    font-weight: 700;
+.tag {
+    padding: 10px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.07);
+    color: #f5f1ea;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.card-action {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.06);
+    transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
+
+.card-action-arrow {
+    color: #f5f1ea;
+    font-size: 2rem;
+    line-height: 1;
+    transition: transform 0.25s ease;
 }
 
 .empty-state {
@@ -1097,6 +1162,10 @@ input:focus-visible {
     .toolbar-pills {
         justify-content: flex-start;
     }
+
+    .card-content {
+        /* no fixed height on mobile either */
+    }
 }
 
 @media (max-width: 560px) {
@@ -1130,6 +1199,29 @@ input:focus-visible {
     .filter-panel,
     .catalog-main {
         padding: 18px;
+    }
+
+    .card-shell {
+        padding: 16px;
+    }
+
+    .card-divider {
+        margin-left: -16px;
+        margin-right: -16px;
+    }
+
+    .card-footer {
+        align-items: center;
+    }
+
+    .card-action {
+        width: 58px;
+        height: 58px;
+        border-radius: 16px;
+    }
+
+    .card-action-arrow {
+        font-size: 1.8rem;
     }
 }
 
