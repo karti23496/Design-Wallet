@@ -925,8 +925,13 @@ input {
     font-size: 12px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 4px;
     color: var(--muted-strong);
+}
+
+.check-row span {
+    position: relative;
+    top: 2px;
 }
 
 .check-row + .check-row {
@@ -1139,14 +1144,14 @@ input {
 }
 
 .price-badge {
-    padding: 8px 12px;
+    padding: 4px 8px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.04);
     color: rgba(255, 255, 255, 0.58);
-    font-size: 0.78rem;
+    font-size: 0.6rem;
     font-weight: 300;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1rem;
     text-transform: uppercase;
 }
 
