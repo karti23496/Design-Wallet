@@ -47,9 +47,7 @@
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     <span id="nav-fav-number">0</span>
                 </button>
-                <button class="nav-user-btn" id="nav-user-btn" type="button" aria-label="Login">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </button>
+                <button class="nav-login-btn" id="nav-user-btn" type="button">LOGIN</button>
             </nav>
         </header>
 
@@ -58,6 +56,12 @@
                 <div class="hero-glow" aria-hidden="true"></div>
 
                 <div class="stars-field" id="stars-field" aria-hidden="true"></div>
+
+                <!-- Floating header icons -->
+                <img class="hero-float-icon hero-float-1" src="public/images/header-icons/Dribble.png" alt="" aria-hidden="true">
+                <img class="hero-float-icon hero-float-2" src="public/images/header-icons/Iconscout.png" alt="" aria-hidden="true">
+                <img class="hero-float-icon hero-float-3" src="public/images/header-icons/Webflow.png" alt="" aria-hidden="true">
+                <img class="hero-float-icon hero-float-4" src="public/images/header-icons/icon8.png" alt="" aria-hidden="true">
 
                 <div class="hero-content">
                     <div class="hero-note" data-reveal>
@@ -123,32 +127,24 @@
                         <input
                             id="resource-search"
                             type="search"
-                            placeholder="Explore from 0 tools on Design Wallet"
+                            placeholder="Search"
                             autocomplete="off"
                         >
+                    </div>
+                    <div class="catalog-filter-bar">
+                    <div class="pricing-list" id="price-filters">
+                        <label class="check-row">
+                            <input type="radio" name="price-filter" value="all" data-filter-group="price" checked disabled>
+                            <span>Loading pricing options...</span>
+                        </label>
+                    </div>
+                    <select class="category-dropdown" id="category-dropdown">
+                        <option value="all">All Categories</option>
+                    </select>
                     </div>
                 </div>
 
                 <div class="catalog-shell">
-                    <aside class="filter-panel" data-reveal>
-                        <div class="filter-block">
-                            <p class="filter-title">Pricing</p>
-                            <div class="pricing-list" id="price-filters">
-                                <label class="check-row">
-                                    <input type="radio" name="price-filter" value="all" data-filter-group="price" checked disabled>
-                                    <span>Loading pricing options...</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="filter-block">
-                            <p class="filter-title">Categories</p>
-                            <div class="filter-chips" id="category-filters" aria-label="Category filters">
-                                <button class="filter-chip is-active" type="button" data-filter-group="category" data-filter-value="all">All</button>
-                            </div>
-                        </div>
-
-                    </aside>
 
                     <div class="catalog-main">
                         <strong id="result-count" aria-live="polite" hidden>12 resources</strong>
@@ -164,28 +160,9 @@
                 </div>
             </section>
 
-            <section class="submit-strip" id="submit" data-reveal>
-                <div class="submit-copy">
-                    <p class="section-kicker">Submit A Resource</p>
-                    <h2>Have a tool, asset, or workflow worth sharing?</h2>
-                    <p>
-                        Designer Wallet is designed to spotlight practical resources that help designers move faster.
-                        Put your product in front of the right audience with a clean, curated listing.
-                    </p>
-                </div>
-
-                <a class="primary-button" href="mailto:hello@designwallet.example">List your tool</a>
-            </section>
         </main>
 
-        <footer class="site-footer">
-            <p>Design Wallet. Curated resources for better design decisions.</p>
-            <div class="footer-links">
-                <a href="#home">Back to top</a>
-                <a href="#catalog">Catalog</a>
-                <span>&copy; <span id="current-year">2026</span></span>
-            </div>
-        </footer>
+        <footer class="site-footer"></footer>
     </div>
 
     <!-- Login Modal -->
@@ -198,6 +175,7 @@
         </div>
     </div>
 
+    <script src="footer.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

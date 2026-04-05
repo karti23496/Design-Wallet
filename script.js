@@ -1,5 +1,22 @@
 document.addEventListener("DOMContentLoaded", function () {
 
+    /* ── Hero heading cursor shine ── */
+    (function () {
+        var heading = document.querySelector(".hero h1");
+        if (!heading) return;
+
+        heading.addEventListener("mousemove", function (e) {
+            var rect = heading.getBoundingClientRect();
+            heading.style.setProperty("--mouse-x", (e.clientX - rect.left) + "px");
+            heading.style.setProperty("--mouse-y", (e.clientY - rect.top) + "px");
+        });
+
+        heading.addEventListener("mouseleave", function () {
+            heading.style.setProperty("--mouse-x", "-200px");
+            heading.style.setProperty("--mouse-y", "-200px");
+        });
+    })();
+
     /* ── Generate orbiting stars ── */
     (function () {
         var field = document.getElementById("stars-field");
@@ -85,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var navToggle = document.querySelector(".nav-toggle");
     var navLinks = document.querySelectorAll(".site-nav a");
     var searchInput = document.getElementById("resource-search");
-    var categoryFilters = document.getElementById("category-filters");
+    var categoryFilters = document.getElementById("category-dropdown");
     var priceFilters = document.getElementById("price-filters");
     var resourceGrid = document.getElementById("resource-grid");
     var resultCount = document.getElementById("result-count");
@@ -136,16 +153,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return String(cell.v).trim();
     }
 
-    function toTitleCase(value) {
-        return String(value || "")
-            .split(/[\s/-]+/)
-            .filter(Boolean)
-            .map(function (part) {
-                return part.charAt(0).toUpperCase() + part.slice(1);
-            })
-            .join(" ");
-    }
-
     function normalizePrice(value) {
         var cleaned = String(value || "").trim().toLowerCase();
 
@@ -169,7 +176,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function formatPrice(value) {
-        return toTitleCase(String(value || "").replace(/-/g, " "));
+        return String(value || "").replace(/-/g, " ").toUpperCase();
     }
 
     function parseCategories(value) {
@@ -274,19 +281,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return left.localeCompare(right);
         });
 
-        categoryFilters.innerHTML = [
-            '<button class="filter-chip is-active" type="button" data-filter-group="category" data-filter-value="all">All</button>'
-        ].concat(
+        categoryFilters.innerHTML = '<option value="all">All Categories</option>' +
             uniqueCategories.map(function (category) {
-                return [
-                    '<button class="filter-chip" type="button" data-filter-group="category" data-filter-value="',
-                    escapeHtml(category),
-                    '">',
-                    escapeHtml(category),
-                    "</button>"
-                ].join("");
-            })
-        ).join("");
+                return '<option value="' + escapeHtml(category) + '">' + escapeHtml(category) + '</option>';
+            }).join("");
     }
 
     function createPriceFilters(items) {
@@ -309,7 +307,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         priceFilters.innerHTML = '<label class="check-row">' +
             '<input type="radio" name="price-filter" value="all" data-filter-group="price" checked>' +
-            "<span>All</span></label>" +
+            "<span>ALL</span></label>" +
             uniquePrices.map(function (price) {
                 return [
                     '<label class="check-row">',
@@ -347,7 +345,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function createCardMarkup(item) {
-        var description = item.description || item.subtitle || "Curated design resource.";
         var primaryCategory = item.categories[0] || "Curated Listing";
         var logo = item.icon
             ? [
@@ -390,11 +387,9 @@ document.addEventListener("DOMContentLoaded", function () {
             escapeHtml(item.priceLabel),
             "</span>",
             "</div>",
-            '<div class="card-content">',
-            '<p class="card-description">',
-            escapeHtml(description),
-            "</p>",
-            "</div>",
+            item.thumbnail
+                ? '<div class="card-thumb-wrap"><img class="card-thumb" src="' + escapeHtml(item.thumbnail) + '" alt="" loading="lazy"></div>'
+                : '',
             '<div class="card-divider" aria-hidden="true"></div>',
             '<div class="card-footer">',
             '<div class="card-footer-actions">',
@@ -455,19 +450,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function handleCategoryFilterClick(event) {
-        var button = event.target.closest('button[data-filter-group="category"]');
-
-        if (!button || !categoryFilters) {
-            return;
-        }
-
-        activeCategory = button.dataset.filterValue || "all";
-
-        Array.from(categoryFilters.querySelectorAll(".filter-chip")).forEach(function (candidate) {
-            candidate.classList.toggle("is-active", candidate === button);
-        });
-
+    function handleCategoryChange() {
+        if (!categoryFilters) return;
+        activeCategory = categoryFilters.value;
         applyFilters();
     }
 
@@ -477,7 +462,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (categoryFilters) {
-            categoryFilters.addEventListener("click", handleCategoryFilterClick);
+            categoryFilters.addEventListener("change", handleCategoryChange);
         }
 
         if (priceFilters) {
@@ -516,13 +501,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function buildSheetUrl() {
-        if (!catalogSection) {
-            return "";
-        }
+    var SHEET_ID = "1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8";
+    var SHEET_GID = "0";
 
-        var sheetId = catalogSection.dataset.sheetId || "";
-        var sheetGid = catalogSection.dataset.sheetGid || "0";
+    function buildSheetUrl() {
+        var sheetId = (catalogSection && catalogSection.dataset.sheetId) || SHEET_ID;
+        var sheetGid = (catalogSection && catalogSection.dataset.sheetGid) || SHEET_GID;
 
         if (!sheetId) {
             return "";
@@ -601,8 +585,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 var searchInput = document.getElementById("resource-search");
                 if (searchInput) {
-                    searchInput.placeholder = "Explore from " + listings.length + " tools on Design Wallet";
+                    searchInput.placeholder = "Search...";
                 }
+
+                /* If on favourites page, render favourites now */
+                if (typeof renderFavPage === "function") renderFavPage();
             },
             function () {
                 listings = [];
@@ -712,7 +699,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 return '<a class="featured-card" href="' + escapeHtml(link) + '" target="_blank" rel="noopener">' +
                     '<div class="featured-card-info">' +
-                        '<span class="featured-card-kicker">&#9733; FEATURED PRODUCT</span>' +
+                        '<span class="featured-card-kicker"><svg class="featured-star-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M341.5 45.1C337.4 37.1 329.1 32 320.1 32C311.1 32 302.8 37.1 298.7 45.1L225.1 189.3L65.2 214.7C56.3 216.1 48.9 222.4 46.1 231C43.3 239.6 45.6 249 51.9 255.4L166.3 369.9L141.1 529.8C139.7 538.7 143.4 547.7 150.7 553C158 558.3 167.6 559.1 175.7 555L320.1 481.6L464.4 555C472.4 559.1 482.1 558.3 489.4 553C496.7 547.7 500.4 538.8 499 529.8L473.7 369.9L588.1 255.4C594.5 249 596.7 239.6 593.9 231C591.1 222.4 583.8 216.1 574.8 214.7L415 189.3L341.5 45.1z"/></svg> FEATURED PRODUCT</span>' +
                         logoHtml +
                         '<span class="featured-card-title">' + title + '</span>' +
                         tagHtml +
@@ -726,6 +713,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /* Load featured immediately — uses its own JSONP callback, no conflict */
     loadFeatured();
+
+    /* ── Hide nav when catalog section reaches top ── */
+    (function () {
+        var catalogSection = document.getElementById("catalog");
+        var header = document.querySelector(".site-header");
+        if (!catalogSection || !header) return;
+
+        var headerHeight = 80;
+        var isHidden = false;
+
+        window.addEventListener("scroll", function () {
+            var rect = catalogSection.getBoundingClientRect();
+            var shouldHide = rect.top <= headerHeight;
+
+            if (shouldHide && !isHidden) {
+                header.classList.add("is-hidden");
+                isHidden = true;
+            } else if (!shouldHide && isHidden) {
+                header.classList.remove("is-hidden");
+                isHidden = false;
+            }
+        }, { passive: true });
+    })();
 
     /* ── Google Sign-In & Favourites ── */
     var GOOGLE_CLIENT_ID = "488109146197-vnlm4eub8pbe7m66giqlhovkuev72gdl.apps.googleusercontent.com";
@@ -809,10 +819,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateUserUI() {
         if (!navUserBtn) return;
         if (currentUser) {
-            navUserBtn.innerHTML = '<img class="nav-user-avatar" src="' + currentUser.picture + '" alt="' + (currentUser.name || "") + '">';
+            var firstName = (currentUser.name || "").split(" ")[0];
+            navUserBtn.innerHTML = '<span class="nav-user-name">' + firstName + '</span><img class="nav-user-avatar" src="' + currentUser.picture + '" alt="' + (currentUser.name || "") + '">';
             navUserBtn.title = currentUser.name || "Logged in";
         } else {
-            navUserBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+            navUserBtn.innerHTML = "Login";
             navUserBtn.title = "Login";
         }
         updateNavFavCount(getFavourites().length);
@@ -899,4 +910,45 @@ document.addEventListener("DOMContentLoaded", function () {
     if (resourceGrid) {
         observer.observe(resourceGrid, { childList: true });
     }
+
+    // Favourites page
+    var navFavCountBtn = document.getElementById("nav-fav-count");
+    var favGrid = document.getElementById("fav-grid");
+    var favPageEmpty = document.getElementById("fav-page-empty");
+    var favPageLogin = document.getElementById("fav-page-login");
+
+    function renderFavPage() {
+        if (!favGrid) return;
+        if (!currentUser) {
+            favPageLogin && (favPageLogin.hidden = false);
+            favPageEmpty && (favPageEmpty.hidden = true);
+            favGrid.innerHTML = "";
+            return;
+        }
+        favPageLogin && (favPageLogin.hidden = true);
+        var favs = getFavourites();
+        var favItems = listings.filter(function (item) {
+            return favs.indexOf(item.title) !== -1;
+        });
+
+        if (favItems.length === 0) {
+            favGrid.innerHTML = "";
+            favPageEmpty && (favPageEmpty.hidden = false);
+        } else {
+            favPageEmpty && (favPageEmpty.hidden = true);
+            favGrid.innerHTML = favItems.map(createCardMarkup).join("");
+            updateFavIcons();
+        }
+    }
+
+    if (navFavCountBtn) {
+        navFavCountBtn.addEventListener("click", function () {
+            if (currentUser) {
+                window.location.href = "favourites.html";
+            }
+        });
+    }
+
+    // renderFavPage is called from loadListings callback when data is ready
+
 });
