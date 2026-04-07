@@ -7,7 +7,7 @@ function loadFooter() {
             '<a href="#">About</a>' +
             '<a href="#">FAQ</a>' +
             '<a href="#">Terms</a>' +
-            '<a href="#">Privacy</a>' +
+            '<a href="privacy.html">Privacy</a>' +
             '<a href="mailto:hello@designwallet.com">Contact us</a>' +
         '</nav>' +
         '<div class="footer-social">' +
