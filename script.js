@@ -345,7 +345,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function createCardMarkup(item) {
-        var primaryCategory = item.categories[0] || "Curated Listing";
         var logo = item.icon
             ? [
                 '<span class="logo-badge has-image">',
@@ -557,6 +556,48 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.appendChild(script);
     }
 
+    var CACHE_KEY = "dw_listings_cache";
+    var CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
+    function getCachedListings() {
+        try {
+            var raw = localStorage.getItem(CACHE_KEY);
+            if (!raw) return null;
+            var cached = JSON.parse(raw);
+            if (Date.now() - cached.timestamp > CACHE_TTL) {
+                localStorage.removeItem(CACHE_KEY);
+                return null;
+            }
+            return cached.rows;
+        } catch (e) { return null; }
+    }
+
+    function setCachedListings(rows) {
+        try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), rows: rows }));
+        } catch (e) { /* quota exceeded — ignore */ }
+    }
+
+    function applyListingsData(rows) {
+        listings = buildListings(rows);
+
+        if (!listings.length) {
+            throw new Error("No listings found in the sheet.");
+        }
+
+        createCategoryFilters(listings);
+        createPriceFilters(listings);
+        updateHighlights(listings);
+        applyFilters();
+
+        var searchInput = document.getElementById("resource-search");
+        if (searchInput) {
+            searchInput.placeholder = "Search...";
+        }
+
+        if (typeof renderFavPage === "function") renderFavPage();
+    }
+
     function loadListings() {
         var sheetUrl = buildSheetUrl();
 
@@ -565,36 +606,38 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        setLoadingState("Loading listings from Google Sheets...");
+        // Try cache first for instant load
+        var cachedRows = getCachedListings();
+        if (cachedRows) {
+            try {
+                applyListingsData(cachedRows);
+            } catch (e) {
+                // Cache was bad, fall through to network
+                cachedRows = null;
+            }
+        }
 
+        if (!cachedRows) {
+            setLoadingState("Loading listings from Google Sheets...");
+        }
+
+        // Always fetch fresh data in the background
         requestSheetData(
             sheetUrl,
             function (payload) {
                 var rows = payload && payload.table && payload.table.rows ? payload.table.rows : [];
-
-                listings = buildListings(rows);
-
-                if (!listings.length) {
-                    throw new Error("No listings found in the sheet.");
+                setCachedListings(rows);
+                // Only re-render if we didn't already load from cache, or data changed
+                if (!cachedRows) {
+                    applyListingsData(rows);
                 }
-
-                createCategoryFilters(listings);
-                createPriceFilters(listings);
-                updateHighlights(listings);
-                applyFilters();
-
-                var searchInput = document.getElementById("resource-search");
-                if (searchInput) {
-                    searchInput.placeholder = "Search...";
-                }
-
-                /* If on favourites page, render favourites now */
-                if (typeof renderFavPage === "function") renderFavPage();
             },
             function () {
-                listings = [];
-                renderCards([]);
-                setErrorState("Could not load Google Sheets data.");
+                if (!cachedRows) {
+                    listings = [];
+                    renderCards([]);
+                    setErrorState("Could not load Google Sheets data.");
+                }
             }
         );
     }
@@ -603,9 +646,26 @@ document.addEventListener("DOMContentLoaded", function () {
     loadListings();
 
     /* ── Featured section from Google Sheets (separate JSONP to avoid conflict) ── */
+    var FEATURED_CACHE_KEY = "dw_featured_cache";
+
     function loadFeatured() {
         var featuredGrid = document.getElementById("featured-grid");
         if (!featuredGrid) return;
+
+        // Try cache first
+        var cachedFeatured = null;
+        try {
+            var raw = localStorage.getItem(FEATURED_CACHE_KEY);
+            if (raw) {
+                var cached = JSON.parse(raw);
+                if (Date.now() - cached.timestamp < CACHE_TTL) {
+                    cachedFeatured = cached.html;
+                    featuredGrid.innerHTML = cachedFeatured;
+                } else {
+                    localStorage.removeItem(FEATURED_CACHE_KEY);
+                }
+            }
+        } catch (e) {}
 
         var sheetId = "1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8";
         var gid = "1218813985";
@@ -629,13 +689,13 @@ document.addEventListener("DOMContentLoaded", function () {
             clearTimeout(timeoutId);
             script.remove();
             delete window[callbackName];
-            featuredGrid.innerHTML = '<p class="featured-loading">Could not load featured tools.</p>';
+            if (!cachedFeatured) featuredGrid.innerHTML = '<p class="featured-loading">Could not load featured tools.</p>';
         };
 
         timeoutId = setTimeout(function () {
             script.remove();
             delete window[callbackName];
-            featuredGrid.innerHTML = '<p class="featured-loading">Featured tools timed out.</p>';
+            if (!cachedFeatured) featuredGrid.innerHTML = '<p class="featured-loading">Featured tools timed out.</p>';
         }, 12000);
 
         document.body.appendChild(script);
@@ -708,6 +768,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     thumbsHtml +
                 '</a>';
             }).join("");
+
+            // Cache the rendered HTML
+            try {
+                localStorage.setItem(FEATURED_CACHE_KEY, JSON.stringify({ timestamp: Date.now(), html: featuredGrid.innerHTML }));
+            } catch (e) {}
         }
     }
 
@@ -793,6 +858,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function showLoginModal() {
         if (loginModal) loginModal.hidden = false;
+        loadGoogleSignIn();
     }
 
     function hideLoginModal() {
@@ -856,13 +922,24 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Poll for Google library (loads async)
-    var gsiCheck = setInterval(function () {
-        if (typeof google !== "undefined" && google.accounts) {
-            clearInterval(gsiCheck);
-            initGoogleSignIn();
-        }
-    }, 200);
+    // Lazy-load Google Sign-In SDK
+    var gsiLoaded = false;
+    function loadGoogleSignIn() {
+        if (gsiLoaded) return;
+        gsiLoaded = true;
+        var s = document.createElement("script");
+        s.src = "https://accounts.google.com/gsi/client";
+        s.async = true;
+        s.onload = function () {
+            var gsiCheck = setInterval(function () {
+                if (typeof google !== "undefined" && google.accounts) {
+                    clearInterval(gsiCheck);
+                    initGoogleSignIn();
+                }
+            }, 100);
+        };
+        document.head.appendChild(s);
+    }
 
     // Nav user button click
     if (navUserBtn) {
