@@ -3,12 +3,8 @@ function loadFooter() {
     var html = '<div class="footer-inner">' +
         '<a class="footer-brand" href="index.html" aria-label="Design Wallet home"><img src="public/Logo/Website-logo.svg" alt="Design Wallet"></a>' +
         '<nav class="footer-nav">' +
-            '<a href="index.html#catalog">Catalog</a>' +
-            '<a href="#">About</a>' +
-            '<a href="#">FAQ</a>' +
-            '<a href="#">Terms</a>' +
+            '<a href="terms.html">Terms</a>' +
             '<a href="privacy.html">Privacy</a>' +
-            '<a href="mailto:hello@designwallet.com">Contact us</a>' +
         '</nav>' +
         '<div class="footer-social">' +
             '<a href="https://www.linkedin.com/company/design-wallet/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">' +
