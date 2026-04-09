@@ -920,6 +920,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 width: 280
             });
         }
+        var customGoogleBtn = document.getElementById("login-google-custom");
+        if (customGoogleBtn) {
+            customGoogleBtn.addEventListener("click", function () {
+                google.accounts.id.prompt();
+            });
+        }
     }
 
     // Lazy-load Google Sign-In SDK

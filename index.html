@@ -41,7 +41,7 @@
 
             <nav class="site-nav" id="primary-nav">
                 <a href="#submit">GOOD DEALS 🔥</a>
-                <a href="#submit">LIST YOUR TOOLS</a>
+                <a href="pricing.html">LIST YOUR TOOLS</a>
                 <button class="nav-fav-count" id="nav-fav-count" type="button" aria-label="Favourites" hidden>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     <span id="nav-fav-number">0</span>
@@ -168,9 +168,20 @@
     <div class="login-modal-overlay" id="login-modal" hidden>
         <div class="login-modal">
             <button class="login-modal-close" id="login-modal-close" type="button" aria-label="Close">&times;</button>
-            <h3>Sign in to save favourites</h3>
-            <p>Login with your Google account to bookmark your favourite design resources.</p>
-            <div id="google-signin-btn"></div>
+            <h3>Sign in to continue</h3>
+            <p>Log in to explore design wallet.⚡️</p>
+            <div class="login-google-btn" id="login-google-custom">
+                <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.19a24.0 24.0 0 0 0 0 21.56l7.98-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                <span>Sign up with Google</span>
+            </div>
+            <div id="google-signin-btn" style="display:none;"></div>
+            <div class="login-divider">
+                <span>OR</span>
+            </div>
+            <form class="login-email-form" id="login-email-form">
+                <input type="email" class="login-email-input" placeholder="Enter your email" required>
+                <button type="submit" class="login-create-btn">Create account</button>
+            </form>
         </div>
     </div>
 
