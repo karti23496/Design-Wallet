@@ -1,10 +1,10 @@
 function loadFooter() {
     var year = new Date().getFullYear();
     var html = '<div class="footer-inner">' +
-        '<a class="footer-brand" href="index.html" aria-label="Design Wallet home"><img src="public/Logo/Website-logo.svg" alt="Design Wallet"></a>' +
+        '<a class="footer-brand" href="/" aria-label="Design Wallet home"><img src="/public/Logo/Website-logo.svg" alt="Design Wallet"></a>' +
         '<nav class="footer-nav">' +
-            '<a href="terms.html">Terms</a>' +
-            '<a href="privacy.html">Privacy</a>' +
+            '<a href="/terms/">Terms</a>' +
+            '<a href="/privacy/">Privacy</a>' +
         '</nav>' +
         '<div class="footer-social">' +
             '<a href="https://www.linkedin.com/company/design-wallet/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">' +

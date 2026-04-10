@@ -2298,8 +2298,8 @@ input:focus-visible {
     background: transparent;
     border: 0;
     color: var(--muted);
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 200;
     line-height: 1;
     cursor: pointer;
     transition: color 0.2s ease;
@@ -2311,19 +2311,18 @@ input:focus-visible {
 
 .pr-billing-switch {
     position: relative;
-    width: 66px;
-    height: 42px;
-    padding: 5px;
+    width: 48px;
+    height: 32px;
     border: 0;
-    border-radius: 999px;
-    background: linear-gradient(135deg, #6c5ce7 0%, #7c6cff 100%);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    border-radius: 48px;
+    background: transparent;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .pr-billing-switch-thumb {
     display: block;
-    width: 32px;
-    height: 32px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background: #fff;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.26);
@@ -2332,19 +2331,19 @@ input:focus-visible {
 }
 
 .pr-billing-switch.is-yearly .pr-billing-switch-thumb {
-    transform: translateX(24px);
+    transform: translateX(18px);
 }
 
 .pr-billing-save {
     display: inline-flex;
     align-items: center;
-    min-height: 42px;
-    padding: 0 16px;
-    border-radius: 14px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ffffff10;
     background: rgba(255, 255, 255, 0.06);
     color: var(--text);
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 0.7rem;
+    font-weight: 300;
     line-height: 1;
     white-space: nowrap;
 }
