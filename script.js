@@ -1035,3 +1035,234 @@ document.addEventListener("DOMContentLoaded", function () {
     // renderFavPage is called from loadListings callback when data is ready
 
 });
+
+/* ═══════════════════════════════════════════
+   Books Page – Google Sheets → Book Cards
+   ═══════════════════════════════════════════ */
+(function () {
+    var booksGrid = document.getElementById("books-grid");
+    if (!booksGrid) return; // not on books page
+
+    var SHEET_ID = "1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8";
+    var GID = "1540089306";
+    var CACHE_KEY = "dw_books_cache";
+    var CACHE_TTL = 10 * 60 * 1000;
+
+    function getCached() {
+        try {
+            var raw = localStorage.getItem(CACHE_KEY);
+            if (!raw) return null;
+            var cached = JSON.parse(raw);
+            if (Date.now() - cached.timestamp > CACHE_TTL) {
+                localStorage.removeItem(CACHE_KEY);
+                return null;
+            }
+            return cached.data;
+        } catch (e) { return null; }
+    }
+
+    function setCache(data) {
+        try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data: data }));
+        } catch (e) {}
+    }
+
+    function cellValue(cell) {
+        if (!cell) return "";
+        return (cell.v != null ? String(cell.v) : "").trim();
+    }
+
+    function parseBooks(payload) {
+        var rows = payload && payload.table && payload.table.rows ? payload.table.rows : [];
+        var books = [];
+        for (var i = 0; i < rows.length; i++) {
+            var c = rows[i].c || [];
+            var title = cellValue(c[1]);
+            if (!title) continue;
+            books.push({
+                thumbnail: cellValue(c[0]),
+                title: title,
+                author: cellValue(c[2]),
+                rating: parseFloat(cellValue(c[3])) || 0,
+                link: cellValue(c[4])
+            });
+        }
+        return books;
+    }
+
+    function buildStars(rating) {
+        var html = '<div class="book-stars">';
+        var clipId = "star-clip-" + Math.random().toString(36).substr(2, 9);
+        for (var i = 0; i < 5; i++) {
+            var fill = Math.min(1, Math.max(0, rating - i));
+            var pct = (fill * 100).toFixed(1);
+            var uid = clipId + "-" + i;
+            html += '<svg class="book-star" width="12" height="12" viewBox="0 0 24 24">' +
+                '<defs><clipPath id="' + uid + '"><rect x="0" y="0" width="' + pct + '%" height="100%"/></clipPath></defs>' +
+                '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#333" stroke="none"/>' +
+                '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#F59E0B" clip-path="url(#' + uid + ')"/>' +
+                '</svg>';
+        }
+        html += '<span class="book-rating-num">' + rating.toFixed(2) + '</span></div>';
+        return html;
+    }
+
+    var PAGE_SIZE = 20;
+    var allBooks = [];
+    var currentPage = 0;
+    var isLoading = false;
+    var allLoaded = false;
+
+    function buildCardHtml(b, index) {
+        var thumbHtml = b.thumbnail
+            ? '<img src="' + b.thumbnail + '" alt="' + b.title + '" loading="lazy">'
+            : '';
+        var linkOpen = b.link ? '<a href="' + b.link + '" target="_blank" rel="noopener noreferrer" class="book-card-link">' : '<div class="book-card-link">';
+        var linkClose = b.link ? '</a>' : '</div>';
+        var tagHtml = index < 5 ? '<span class="book-bestseller-tag">Best Seller</span>' : '';
+
+        return linkOpen +
+            '<div class="book-card">' +
+                '<div class="book-thumb">' + tagHtml + thumbHtml + '<span class="book-buy-btn">Buy Now</span></div>' +
+                '<div class="book-info">' +
+                    '<h3 class="book-title">' + b.title + '</h3>' +
+                    '<div class="book-meta">' +
+                        '<p class="book-author">' + b.author.toUpperCase() + '</p>' +
+                        buildStars(b.rating) +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            linkClose;
+    }
+
+    function buildSkeletonHtml(count) {
+        var html = '';
+        for (var i = 0; i < count; i++) {
+            html += '<div class="book-skeleton">' +
+                '<div class="book-skeleton-thumb"></div>' +
+                '<div class="book-skeleton-info">' +
+                    '<div class="book-skeleton-line --title"></div>' +
+                    '<div class="book-skeleton-line --author"></div>' +
+                    '<div class="book-skeleton-line --stars"></div>' +
+                '</div>' +
+            '</div>';
+        }
+        return html;
+    }
+
+    function removeSkeletons() {
+        var skeletons = booksGrid.querySelectorAll('.book-skeleton');
+        for (var i = 0; i < skeletons.length; i++) {
+            skeletons[i].remove();
+        }
+    }
+
+    function loadNextPage() {
+        if (isLoading || allLoaded) return;
+        isLoading = true;
+
+        var start = currentPage * PAGE_SIZE;
+        var end = start + PAGE_SIZE;
+        var batch = allBooks.slice(start, end);
+
+        if (!batch.length) {
+            allLoaded = true;
+            isLoading = false;
+            return;
+        }
+
+        // Show skeletons
+        var remainingCount = Math.min(PAGE_SIZE, allBooks.length - start);
+        booksGrid.insertAdjacentHTML('beforeend', buildSkeletonHtml(remainingCount));
+
+        // Simulate a brief delay so skeleton is visible, then swap in real cards
+        setTimeout(function () {
+            removeSkeletons();
+            var html = '';
+            for (var i = 0; i < batch.length; i++) {
+                html += buildCardHtml(batch[i], start + i);
+            }
+            booksGrid.insertAdjacentHTML('beforeend', html);
+            currentPage++;
+            isLoading = false;
+
+            if (end >= allBooks.length) {
+                allLoaded = true;
+            }
+        }, 600);
+    }
+
+    function initBooks(books) {
+        allBooks = books;
+        currentPage = 0;
+        allLoaded = false;
+        booksGrid.innerHTML = '';
+
+        if (!books.length) {
+            booksGrid.innerHTML = '<p class="books-loading">No books found.</p>';
+            return;
+        }
+
+        loadNextPage();
+    }
+
+    // Infinite scroll observer
+    var sentinel = document.createElement('div');
+    sentinel.id = 'books-sentinel';
+    sentinel.style.height = '1px';
+    booksGrid.parentNode.insertBefore(sentinel, booksGrid.nextSibling);
+
+    var scrollObserver = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting && !isLoading && !allLoaded) {
+            loadNextPage();
+        }
+    }, { rootMargin: '400px' });
+
+    scrollObserver.observe(sentinel);
+
+    function loadBooks() {
+        var cached = getCached();
+        if (cached) {
+            initBooks(cached);
+        }
+
+        var callbackName = "__booksSheetCallback_" + Date.now();
+        var url = "https://docs.google.com/spreadsheets/d/" + SHEET_ID +
+            "/gviz/tq?tqx=out:json;responseHandler:" + callbackName + "&gid=" + GID;
+
+        var script = document.createElement("script");
+        var timeoutId;
+
+        window[callbackName] = function (payload) {
+            clearTimeout(timeoutId);
+            script.remove();
+            delete window[callbackName];
+            var books = parseBooks(payload);
+            setCache(books);
+            if (!cached) initBooks(books);
+        };
+
+        script.async = true;
+        script.src = url;
+        script.onerror = function () {
+            clearTimeout(timeoutId);
+            script.remove();
+            delete window[callbackName];
+            if (!cached) {
+                booksGrid.innerHTML = '<p class="books-loading">Could not load books.</p>';
+            }
+        };
+
+        timeoutId = setTimeout(function () {
+            script.remove();
+            delete window[callbackName];
+            if (!cached) {
+                booksGrid.innerHTML = '<p class="books-loading">Books timed out.</p>';
+            }
+        }, 12000);
+
+        document.body.appendChild(script);
+    }
+
+    loadBooks();
+})();
