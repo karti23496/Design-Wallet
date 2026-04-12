@@ -8,7 +8,10 @@ function loadHeader() {
         '<nav class="site-nav" id="primary-nav">' +
             '<a href="/#submit">GOOD DEALS \uD83D\uDD25</a>' +
             '<a href="/books/">BOOKS</a>' +
-            '<a href="/pricing/" style="padding: 6px 24px; background-color: rgba(255, 255, 255, 0.05); border: 1px solid #ffffff10; border-radius: 24px">LIST YOUR TOOLS</a>' +
+            '<div class="list-tool-wrap" style="display: flex; align-items: center; gap: 8px;">' +
+                '<span style="padding: 6px 24px; background-color: rgba(255, 255, 255, 0.05); border: 1px solid #ffffff10; border-radius: 24px; cursor: default; opacity: 0.5">LIST YOUR TOOLS</span>' +
+                '<span style="font-size: 10px; padding: 4px 16px; background-color: #ffffff15; border: 1px solid #ffffff45; border-radius: 12px; color: #ffffff; text-transform: uppercase;">Coming Soon</span>' +
+            '</div>' +
         '</nav>';
 
     var headers = document.querySelectorAll('.site-header');
