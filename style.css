@@ -1,5 +1,5 @@
 :root {
-    --bg: #b46f6f;
+    --bg: #0a0a0a;
     --panel: #121212;
     --panel-strong: #171717;
     --panel-soft: rgba(255, 255, 255, 0.04);
@@ -162,7 +162,7 @@ input {
 .site-nav {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 48px;
 }
 
 .site-nav a {
@@ -2488,7 +2488,7 @@ input:focus-visible {
 .pr-card-features li svg {
     flex-shrink: 0;
     margin-top: 2px;
-    color: #ffffff;
+    color: #a7a7a7;
 }
 
 .pr-card-btn {
