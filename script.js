@@ -362,10 +362,17 @@ document.addEventListener("DOMContentLoaded", function () {
             priceBadgeClass += " price-freemium";
         }
 
+        var cardHref = item.slug
+            ? '/tools/?t=' + encodeURIComponent(item.slug.replace(/^\//, '').trim().toLowerCase())
+            : item.link;
+        var cardTarget = item.slug ? '' : ' target="_blank" rel="noreferrer"';
+
         return [
             '<a class="resource-card" href="',
-            escapeHtml(item.link),
-            '" target="_blank" rel="noreferrer" aria-label="Open ',
+            escapeHtml(cardHref),
+            '"',
+            cardTarget,
+            ' aria-label="Open ',
             escapeHtml(item.title),
             '" data-categories="',
             escapeHtml(item.categories.join("|").toLowerCase()),

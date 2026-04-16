@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HLX9Y7DQV7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool — Design Wallet™</title>
+    <meta name="description" content="Discover this curated design tool on Design Wallet.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header"></header>
+
+        <main class="tool-page">
+            <div class="tool-container">
+                <a href="/" class="tool-back-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M5 12L12 19M5 12L12 5"/></svg>
+                    Back to all tools
+                </a>
+
+                <div class="tool-loading" id="tool-loading">Loading tool details...</div>
+
+                <div class="tool-content" id="tool-content" hidden>
+                    <div class="tool-header">
+                        <div class="tool-header-left">
+                            <div class="tool-icon" id="tool-icon"></div>
+                            <div class="tool-header-info">
+                                <h1 id="tool-title"></h1>
+                                <p class="tool-subtitle" id="tool-subtitle"></p>
+                            </div>
+                        </div>
+                        <div class="tool-header-right">
+                            <a class="tool-visit-btn" id="tool-visit-btn" href="#" target="_blank" rel="noreferrer">
+                                Visit Website
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="tool-meta">
+                        <div class="tool-meta-item" id="tool-categories-wrap">
+                            <span class="tool-meta-label">Categories</span>
+                            <div class="tool-meta-tags" id="tool-categories"></div>
+                        </div>
+                        <div class="tool-meta-item">
+                            <span class="tool-meta-label">Pricing</span>
+                            <span class="tool-meta-value" id="tool-pricing"></span>
+                        </div>
+                    </div>
+
+                    <div class="tool-screenshot" id="tool-screenshot"></div>
+
+                    <div class="tool-nav" id="tool-nav">
+                        <a class="tool-nav-link tool-nav-prev" id="tool-prev" href="#">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M5 12L12 19M5 12L12 5"/></svg>
+                            <span id="tool-prev-name"></span>
+                        </a>
+                        <a class="tool-nav-link tool-nav-next" id="tool-next" href="#">
+                            <span id="tool-next-name"></span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12H19M19 12L12 5M19 12L12 19"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="tool-not-found" id="tool-not-found" hidden>
+                    <h2>Tool not found</h2>
+                    <p>The tool you're looking for doesn't exist or has been removed.</p>
+                    <a href="/" class="tool-visit-btn">Browse all tools</a>
+                </div>
+            </div>
+        </main>
+
+        <footer class="site-footer"></footer>
+    </div>
+
+    <script src="/header.js"></script>
+    <script src="/footer.js"></script>
+    <script src="/tools/tools.js"></script>
+</body>
+</html>
