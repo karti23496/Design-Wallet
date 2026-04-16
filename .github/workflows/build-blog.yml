@@ -1,9 +1,9 @@
 name: Build Blog from Notion
 
 on:
-  repository_dispatch:
-    types: [notion_update]
-  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"  # runs every 30 minutes
+  workflow_dispatch:       # allows manual trigger
 
 jobs:
   build:
