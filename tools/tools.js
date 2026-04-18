@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function buildTools(rows) {
-        if (!rows.length) return [];
+        if (!Array.isArray(rows) || !rows.length) return [];
         var headers = (rows[0].c || []).map(function (cell) { return normalizeHeader(getCellValue(cell)); });
 
         return rows.slice(1).map(function (row) {
@@ -86,34 +86,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Icon
         var iconEl = document.getElementById("tool-icon");
-        if (tool.icon) {
-            iconEl.innerHTML = '<img src="' + escapeHtml(tool.icon) + '" alt="' + escapeHtml(tool.title) + '">';
-        } else {
-            var initials = tool.title.split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join("");
-            iconEl.textContent = initials || "DW";
-            iconEl.classList.add("tool-icon-fallback");
+        if (iconEl) {
+            if (tool.icon) {
+                iconEl.innerHTML = '<img src="' + escapeHtml(tool.icon) + '" alt="' + escapeHtml(tool.title) + '">';
+            } else {
+                var initials = tool.title.split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join("");
+                iconEl.textContent = initials || "DW";
+                iconEl.classList.add("tool-icon-fallback");
+            }
         }
 
         // Title & subtitle
-        document.getElementById("tool-title").textContent = tool.title;
-        document.getElementById("tool-subtitle").textContent = tool.subtitle;
+        var titleEl = document.getElementById("tool-title");
+        var subtitleEl = document.getElementById("tool-subtitle");
+        if (titleEl) titleEl.textContent = tool.title;
+        if (subtitleEl) subtitleEl.textContent = tool.subtitle;
 
         // Visit button
         var visitBtn = document.getElementById("tool-visit-btn");
-        visitBtn.href = addReferralParam(tool.link);
+        if (visitBtn) visitBtn.href = addReferralParam(tool.link);
 
         // Categories
         var categoriesEl = document.getElementById("tool-categories");
-        categoriesEl.innerHTML = tool.categories.map(function (cat) {
-            return '<span class="tool-tag">' + escapeHtml(cat) + '</span>';
-        }).join("");
+        if (categoriesEl) {
+            categoriesEl.innerHTML = tool.categories.map(function (cat) {
+                return '<span class="tool-tag">' + escapeHtml(cat) + '</span>';
+            }).join("");
+        }
 
         // Screenshot
         var screenshotEl = document.getElementById("tool-screenshot");
-        if (tool.thumbnail) {
-            screenshotEl.innerHTML = '<img src="' + escapeHtml(tool.thumbnail) + '" alt="' + escapeHtml(tool.title) + ' screenshot" loading="lazy">';
-        } else {
-            screenshotEl.hidden = true;
+        if (screenshotEl) {
+            if (tool.thumbnail) {
+                screenshotEl.innerHTML = '<img src="' + escapeHtml(tool.thumbnail) + '" alt="' + escapeHtml(tool.title) + ' screenshot" loading="lazy">';
+                screenshotEl.hidden = false;
+            } else {
+                screenshotEl.hidden = true;
+            }
         }
 
         // Prev/Next navigation
@@ -130,28 +139,37 @@ document.addEventListener("DOMContentLoaded", function () {
         var prevName = document.getElementById("tool-prev-name");
         var nextName = document.getElementById("tool-next-name");
 
-        if (prevTool) {
+        if (prevLink && prevName && prevTool) {
             prevLink.href = "/tools/?t=" + encodeURIComponent(prevTool.slug);
             prevName.textContent = prevTool.title;
-        } else {
+            prevLink.style.visibility = "";
+        } else if (prevLink) {
             prevLink.style.visibility = "hidden";
         }
 
-        if (nextTool) {
+        if (nextLink && nextName && nextTool) {
             nextLink.href = "/tools/?t=" + encodeURIComponent(nextTool.slug);
             nextName.textContent = nextTool.title;
-        } else {
+            nextLink.style.visibility = "";
+        } else if (nextLink) {
             nextLink.style.visibility = "hidden";
         }
 
         // Show content
-        loadingEl.hidden = true;
-        contentEl.hidden = false;
+        if (loadingEl) loadingEl.hidden = true;
+        if (contentEl) contentEl.hidden = false;
     }
 
-    function showNotFound() {
-        loadingEl.hidden = true;
-        notFoundEl.hidden = false;
+    function showNotFound(title, message) {
+        if (loadingEl) loadingEl.hidden = true;
+        if (contentEl) contentEl.hidden = true;
+        if (notFoundEl) {
+            var heading = notFoundEl.querySelector("h2");
+            var copy = notFoundEl.querySelector("p");
+            if (heading && title) heading.textContent = title;
+            if (copy && message) copy.textContent = message;
+            notFoundEl.hidden = false;
+        }
     }
 
     function getCachedRows() {
@@ -160,37 +178,38 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!raw) return null;
             var cached = JSON.parse(raw);
             if (Date.now() - cached.timestamp > CACHE_TTL) return null;
-            return cached.rows;
+            return Array.isArray(cached.rows) ? cached.rows : null;
         } catch (e) { return null; }
+    }
+
+    function addResponseHandler(url, callbackName) {
+        if (url.indexOf("tqx=") !== -1) {
+            return url.replace(/tqx=([^&]*)/, function (match, value) {
+                return "tqx=" + value + ";responseHandler:" + callbackName;
+            });
+        }
+
+        return url + (url.indexOf("?") === -1 ? "?" : "&") + "tqx=out:json;responseHandler:" + callbackName;
     }
 
     function requestSheetData(url, onSuccess, onError) {
         var script = document.createElement("script");
         var timeoutId = 0;
-
-        var prevSetResponse = (window.google && window.google.visualization && window.google.visualization.Query)
-            ? window.google.visualization.Query.setResponse : undefined;
+        var callbackName = "__dwToolSheetCallback_" + Date.now() + "_" + Math.random().toString(36).slice(2);
 
         function cleanup() {
             clearTimeout(timeoutId);
             script.remove();
-            if (prevSetResponse) {
-                window.google.visualization.Query.setResponse = prevSetResponse;
-            } else if (window.google && window.google.visualization && window.google.visualization.Query) {
-                delete window.google.visualization.Query.setResponse;
-            }
+            delete window[callbackName];
         }
 
-        window.google = window.google || {};
-        window.google.visualization = window.google.visualization || {};
-        window.google.visualization.Query = window.google.visualization.Query || {};
-        window.google.visualization.Query.setResponse = function (payload) {
+        window[callbackName] = function (payload) {
             cleanup();
             onSuccess(payload);
         };
 
         script.async = true;
-        script.src = url;
+        script.src = addResponseHandler(url, callbackName);
         script.onerror = function () { cleanup(); onError(); };
         timeoutId = window.setTimeout(function () { cleanup(); onError(); }, 12000);
         document.body.appendChild(script);
@@ -201,15 +220,20 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!slug) { showNotFound(); return; }
 
         function processRows(rows) {
-            var tools = buildTools(rows);
-            var tool = null;
-            for (var i = 0; i < tools.length; i++) {
-                if (tools[i].slug === slug) { tool = tools[i]; break; }
-            }
-            if (tool) {
-                renderTool(tool, tools);
-            } else {
-                showNotFound();
+            try {
+                var tools = buildTools(rows);
+                var tool = null;
+                for (var i = 0; i < tools.length; i++) {
+                    if (tools[i].slug === slug) { tool = tools[i]; break; }
+                }
+                if (tool) {
+                    renderTool(tool, tools);
+                } else {
+                    showNotFound();
+                }
+            } catch (error) {
+                console.error("Could not render tool details:", error);
+                showNotFound("Could not load this tool", "Please refresh the page or try another listing.");
             }
         }
 
@@ -225,7 +249,7 @@ document.addEventListener("DOMContentLoaded", function () {
             var rows = payload && payload.table && payload.table.rows ? payload.table.rows : [];
             processRows(rows);
         }, function () {
-            showNotFound();
+            showNotFound("Could not load this tool", "Please refresh the page or try another listing.");
         });
     }
 
