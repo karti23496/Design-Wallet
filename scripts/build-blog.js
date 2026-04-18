@@ -10,10 +10,43 @@ const notion = new Client({
 });
 
 const databaseId = process.env.NOTION_DATABASE_ID;
+const fallbackCoverImages = [
+  "/public/images/star-bg.jpg",
+  "/public/images/Star - Background iamge.png",
+];
 
 function getPlainText(richText) {
   if (!richText) return "";
   return richText.map(t => t.plain_text).join("");
+}
+
+function getFileUrl(file) {
+  if (!file) return "";
+  if (file.type === "external") return file.external?.url || "";
+  if (file.type === "file") return file.file?.url || "";
+  return "";
+}
+
+function getPropertyUrl(property) {
+  if (!property) return "";
+
+  if (property.type === "url") {
+    return property.url || "";
+  }
+
+  if (property.type === "rich_text") {
+    return getPlainText(property.rich_text);
+  }
+
+  if (property.type === "files") {
+    return property.files.map(getFileUrl).find(Boolean) || "";
+  }
+
+  if (property.type === "title") {
+    return getPlainText(property.title);
+  }
+
+  return "";
 }
 
 function escapeHtml(value) {
@@ -168,12 +201,13 @@ async function main() {
     const slug = getPlainText(props.Slug?.rich_text);
     const date = props.Date?.date?.start || "";
     const displayDate = formatDate(date);
+    const coverUrl = getPropertyUrl(props["Cover URL"]).trim();
 
     const blocks = await getBlocks(page.id);
     const content = blocksToHtml(blocks);
     const excerpt = getExcerpt(blocks);
 
-    generatedPosts.push({ title, slug, date, displayDate, excerpt });
+    generatedPosts.push({ title, slug, date, displayDate, excerpt, coverUrl });
 
     const postDir = path.join(blogDir, slug);
     fs.mkdirSync(postDir, { recursive: true });
@@ -220,75 +254,24 @@ ${siteHead(`${title} - Design Wallet`, `Read ${title} on the Design Wallet blog.
   }
 
   const postUrl = (post) => `/blog/${escapeHtml(post.slug)}/`;
-  const placeholders = [
-    {
-      title: "Resource roundups for sharper design work",
-      excerpt: "Curated tools, references and creative systems from the Design Wallet library.",
-      label: "Coming soon",
-      mediaClass: "design-story-media-blue",
-      mediaText: "DW",
-    },
-    {
-      title: "Workflow notes from modern design teams",
-      excerpt: "Practical notes on creative routines, research flows and lightweight systems.",
-      label: "Coming soon",
-      mediaClass: "design-story-media-violet",
-      mediaText: "AI",
-    },
-    {
-      title: "How to build a habit of collecting better references",
-      excerpt: "A simple approach to turning inspiration into a useful design practice.",
-      label: "Coming soon",
-      mediaClass: "design-story-media-lime",
-      mediaText: "UI",
-    },
-    {
-      title: "The Design Wallet guide to building a personal creative library",
-      excerpt: "Save, sort and return to the resources that actually improve your work.",
-      label: "Coming soon",
-      image: "/public/images/Star - Background iamge.png",
-      wide: true,
-    },
-  ];
-
-  const realPostCards = generatedPosts.map((post, index) => ({
-    title: post.title,
-    excerpt: post.excerpt,
-    label: `Habits / ${post.displayDate}`,
-    image: index % 2 === 0 ? "/public/images/star-bg.jpg" : "/public/images/Star - Background iamge.png",
-    href: postUrl(post),
-  }));
-
-  const storyCards = [...realPostCards, ...placeholders].slice(0, 5).map((story, index) => {
-    const cardClasses = [
-      "design-story-card",
-      index === 0 ? "design-story-card-large" : "",
-      story.wide ? "design-story-card-wide" : "",
-      story.href ? "" : "design-story-card-muted",
-    ].filter(Boolean).join(" ");
-    const media = story.image
-      ? `<div class="design-story-media">
+  const storyCards = generatedPosts.map((post, index) => {
+    const story = {
+      title: post.title,
+      excerpt: post.excerpt,
+      label: `Habits / ${post.displayDate}`,
+      image: post.coverUrl || fallbackCoverImages[index % fallbackCoverImages.length],
+      href: postUrl(post),
+    };
+    const cardClasses = "design-story-card";
+    const media = `<div class="design-story-media">
                                 <img src="${escapeHtml(story.image)}" alt="">
-                            </div>`
-      : `<div class="design-story-media ${escapeHtml(story.mediaClass || "")}" aria-hidden="true">
-                                <span>${escapeHtml(story.mediaText || "DW")}</span>
                             </div>`;
-    const meta = story.href && story.label.indexOf("/") !== -1
-      ? `<span class="design-story-label">${escapeHtml(story.label)}</span>`
-      : `<span class="design-story-label">${escapeHtml(story.label)}</span>`;
     const content = `${media}
                             <div class="design-story-copy">
-                                ${meta}
+                                <span class="design-story-label">${escapeHtml(story.label)}</span>
                                 <h2>${escapeHtml(story.title)}</h2>
                                 <p>${escapeHtml(story.excerpt)}</p>
                             </div>`;
-
-    if (!story.href) {
-      return `
-                    <article class="${cardClasses}" data-reveal>
-                        ${content}
-                    </article>`;
-    }
 
     return `
                     <article class="${cardClasses}" data-reveal>

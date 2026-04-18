@@ -59,7 +59,6 @@ body::before {
 }
 
 img {
-    max-width: 100%;
     display: block;
 }
 
@@ -572,9 +571,10 @@ input {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 10px 48px;
+    padding: 16px 48px;
     border-radius: 44px;
     color: #ffffff;
+    text-transform: uppercase;
     font-weight: 400;
     font-size: 14px;
 }
@@ -2127,6 +2127,7 @@ body.blog-index-page {
     --border-strong: rgba(255, 255, 255, 0.18);
     background: #101010;
     color: var(--text);
+    font-family: "Geist Mono", monospace;
 }
 
 body.blog-index-page::before {
@@ -2177,9 +2178,9 @@ body.blog-index-page::before {
 }
 
 .design-index {
-    max-width: 1920px;
+    max-width: var(--content-width);
     margin: 0 auto;
-    padding: 34px 8px 96px;
+    padding: 34px 0 96px;
 }
 
 .design-index-header {
@@ -2195,18 +2196,16 @@ body.blog-index-page::before {
 .design-index-header h1 {
     margin: 0;
     color: var(--text);
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     font-size: 96px;
-    font-weight: 800;
-    letter-spacing: 0.16em;
+    font-weight: 200;
     line-height: 0.9;
-    text-transform: uppercase;
 }
 
 .design-index-header p:not(.design-index-kicker) {
     margin: 18px 0 0;
     color: rgba(255, 255, 255, 0.5);
-    font-family: "Inter", sans-serif;
+    font-family: "Geist Mono", monospace;
     font-size: 24px;
     font-weight: 500;
     letter-spacing: 0.03em;
@@ -2231,7 +2230,7 @@ body.blog-index-page::before {
     border-radius: 999px;
     color: rgba(255, 255, 255, 0.56);
     background: rgba(255, 255, 255, 0.04);
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     font-size: 18px;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -2251,8 +2250,8 @@ body.blog-index-page::before {
 
 .design-story-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 72px 68px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
 }
 
 .design-story-card {
@@ -2293,7 +2292,7 @@ body.blog-index-page::before {
     right: 28px;
     bottom: 20px;
     color: rgba(255, 255, 255, 0.92);
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     font-size: 82px;
     font-weight: 800;
     letter-spacing: 0.02em;
@@ -2326,7 +2325,7 @@ body.blog-index-page::before {
     display: inline-flex;
     margin-bottom: 10px;
     color: rgba(255, 255, 255, 0.42);
-    font-family: "Inter", sans-serif;
+    font-family: "Geist Mono", monospace;
     font-size: 13px;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -2337,30 +2336,22 @@ body.blog-index-page::before {
 .design-story-copy h2 {
     margin: 0;
     color: var(--text);
-    font-family: "Inter", sans-serif;
-    font-size: 32px;
-    font-weight: 800;
-    letter-spacing: 0;
+    font-family: "Geist", sans-serif;
+    font-size: 24px;
+    font-weight: 200;
+    letter-spacing: -1px;
     line-height: 1.08;
 }
 
 .design-story-copy p {
     margin: 8px 0 0;
     color: rgba(255, 255, 255, 0.52);
-    font-family: "Inter", sans-serif;
-    font-size: 22px;
-    font-weight: 500;
+    font-family: "Geist Mono", monospace;
+    font-size: 12px;
+    font-weight: 200;
     letter-spacing: 0.03em;
     line-height: 1.25;
-}
-
-.design-story-card-large .design-story-copy h2 {
-    font-size: 56px;
-    line-height: 1.12;
-}
-
-.design-story-card-large .design-story-copy p {
-    display: none;
+    text-transform: uppercase;
 }
 
 .design-story-card-wide {
@@ -2378,10 +2369,6 @@ body.blog-index-page::before {
 
     .design-story-grid {
         gap: 56px 32px;
-    }
-
-    .design-story-card-large .design-story-copy h2 {
-        font-size: 44px;
     }
 
     .design-story-copy h2 {
@@ -2447,7 +2434,6 @@ body.blog-index-page::before {
         padding-top: 18px;
     }
 
-    .design-story-card-large .design-story-copy h2,
     .design-story-copy h2 {
         font-size: 34px;
     }
@@ -2466,7 +2452,6 @@ body.blog-index-page::before {
         font-size: 15px;
     }
 
-    .design-story-card-large .design-story-copy h2,
     .design-story-copy h2 {
         font-size: 28px;
     }
@@ -2846,6 +2831,7 @@ body.blog-index-page::before {
     gap: 10px;
     margin-bottom: 52px;
     color: rgba(255, 255, 255, 0.42);
+    font-family: "Geist Mono", monospace;
     font-size: 0.72rem;
     font-weight: 400;
     letter-spacing: 0.14em;
@@ -2867,6 +2853,7 @@ body.blog-index-page::before {
 
 .blog-article-header h1 {
     margin: 0 0 24px;
+    font-family: "Geist", sans-serif;
     font-size: 4rem;
 }
 
@@ -2874,6 +2861,7 @@ body.blog-index-page::before {
     display: flex;
     flex-wrap: wrap;
     gap: 10px 18px;
+    font-family: "Geist Mono", monospace;
 }
 
 .blog-article-meta span {
@@ -2899,11 +2887,13 @@ body.blog-index-page::before {
 .blog-content p,
 .blog-content li {
     color: rgba(255, 255, 255, 0.62);
+    font-family: "Geist Mono", monospace;
     font-size: 1rem;
     font-weight: 200;
     line-height: 1.9;
 }
 
+.blog-content h1,
 .blog-content h2,
 .blog-content h3 {
     font-family: "Geist", sans-serif;
@@ -2911,6 +2901,11 @@ body.blog-index-page::before {
     font-weight: 300;
     letter-spacing: 0;
     line-height: 1.2;
+}
+
+.blog-content h1 {
+    margin: 56px 0 20px;
+    font-size: 2.2rem;
 }
 
 .blog-content h2 {
