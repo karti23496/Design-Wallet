@@ -44,6 +44,16 @@ document.addEventListener("DOMContentLoaded", function () {
         return cleaned;
     }
 
+    function addReferralParam(link) {
+        try {
+            var url = new URL(link);
+            url.searchParams.set("via", "designwallet");
+            return url.toString();
+        } catch (e) {
+            return link;
+        }
+    }
+
     function buildTools(rows) {
         if (!rows.length) return [];
         var headers = (rows[0].c || []).map(function (cell) { return normalizeHeader(getCellValue(cell)); });
@@ -90,18 +100,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Visit button
         var visitBtn = document.getElementById("tool-visit-btn");
-        visitBtn.href = tool.link;
+        visitBtn.href = addReferralParam(tool.link);
 
         // Categories
         var categoriesEl = document.getElementById("tool-categories");
         categoriesEl.innerHTML = tool.categories.map(function (cat) {
             return '<span class="tool-tag">' + escapeHtml(cat) + '</span>';
         }).join("");
-
-        // Pricing
-        var pricingEl = document.getElementById("tool-pricing");
-        pricingEl.textContent = tool.price.toUpperCase();
-        pricingEl.className = "tool-meta-value tool-price-" + tool.price;
 
         // Screenshot
         var screenshotEl = document.getElementById("tool-screenshot");

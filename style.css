@@ -4190,7 +4190,7 @@ body.blog-index-page::before {
 }
 
 .tool-container {
-    max-width: 900px;
+    max-width: var(--content-width);
     margin: 0 auto;
     padding: 0 24px;
 }
@@ -4227,6 +4227,22 @@ body.blog-index-page::before {
 .tool-not-found p {
     color: var(--muted);
     margin-bottom: 24px;
+}
+
+.tool-layout {
+    display: grid;
+    grid-template-columns: minmax(260px, 0.34fr) minmax(0, 0.66fr);
+    gap: clamp(32px, 6vw, 90px);
+    align-items: start;
+    margin-bottom: 40px;
+}
+
+.tool-info-panel {
+    min-width: 0;
+}
+
+.tool-preview-panel {
+    min-width: 0;
 }
 
 /* Tool header */
@@ -4276,17 +4292,19 @@ body.blog-index-page::before {
 
 .tool-header-info h1 {
     font-size: 1.75rem;
-    font-weight: 700;
+    font-weight: 200;
     color: var(--text);
+    letter-spacing: -0.05rem;
     margin: 0 0 4px;
     line-height: 1.2;
 }
 
 .tool-subtitle {
-    font-size: 0.95rem;
+    font-size: 0.7rem;
     color: var(--muted);
     margin: 0;
     line-height: 1.4;
+    text-transform: uppercase;
 }
 
 .tool-visit-btn {
@@ -4296,12 +4314,13 @@ body.blog-index-page::before {
     padding: 10px 24px;
     background: var(--text);
     color: var(--bg);
-    font-size: 0.875rem;
-    font-weight: 600;
-    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 400;
+    border-radius: 24px;
     text-decoration: none;
     white-space: nowrap;
     transition: opacity 0.2s;
+    text-transform: uppercase;
 }
 
 .tool-visit-btn:hover {
@@ -4311,9 +4330,9 @@ body.blog-index-page::before {
 /* Meta section */
 .tool-meta {
     display: flex;
+    justify-content: space-between;
     gap: 40px;
-    padding: 20px 0;
-    border-top: 1px solid var(--border);
+    padding: 0 0 20px 0;
     border-bottom: 1px solid var(--border);
     margin-bottom: 32px;
 }
@@ -4340,21 +4359,27 @@ body.blog-index-page::before {
 
 .tool-tag {
     padding: 4px 12px;
+    text-transform: uppercase;
     background: var(--panel-strong);
     border: 1px solid var(--border);
     border-radius: 20px;
     font-size: 0.8rem;
-    color: var(--muted-strong);
+    color: #ffffff70;
 }
 
 .tool-meta-value {
     font-size: 0.875rem;
-    font-weight: 600;
+    font-weight: 300;
+    align-items: center;
     color: var(--text);
 }
 
 .tool-price-free {
-    color: #4ade80;
+    padding: 8px;
+    background-color: #ffffff10;
+    border-radius: 24px;
+    width: 64px;
+    border: 1px solid #ffffff20;
 }
 
 .tool-price-freemium {
@@ -4370,7 +4395,7 @@ body.blog-index-page::before {
     border-radius: var(--radius-md);
     overflow: hidden;
     border: 1px solid var(--border);
-    margin-bottom: 40px;
+    margin-bottom: 0;
     background: var(--panel);
 }
 
@@ -4408,6 +4433,13 @@ body.blog-index-page::before {
 }
 
 /* Responsive */
+@media (max-width: 900px) {
+    .tool-layout {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+}
+
 @media (max-width: 640px) {
     .tool-header {
         flex-direction: column;

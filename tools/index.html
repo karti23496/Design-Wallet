@@ -28,42 +28,44 @@
 
         <main class="tool-page">
             <div class="tool-container">
-                <a href="/" class="tool-back-link">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M5 12L12 19M5 12L12 5"/></svg>
-                    Back to all tools
-                </a>
-
                 <div class="tool-loading" id="tool-loading">Loading tool details...</div>
 
                 <div class="tool-content" id="tool-content" hidden>
-                    <div class="tool-header">
-                        <div class="tool-header-left">
-                            <div class="tool-icon" id="tool-icon"></div>
-                            <div class="tool-header-info">
-                                <h1 id="tool-title"></h1>
-                                <p class="tool-subtitle" id="tool-subtitle"></p>
+                    <div class="tool-layout">
+                        <div class="tool-info-panel">
+                            <a href="/" class="tool-back-link">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M5 12L12 19M5 12L12 5"/></svg>
+                                Back to all tools
+                            </a>
+
+                            <div class="tool-header">
+                                <div class="tool-header-left">
+                                    <div class="tool-icon" id="tool-icon"></div>
+                                    <div class="tool-header-info">
+                                        <h1 id="tool-title"></h1>
+                                        <p class="tool-subtitle" id="tool-subtitle"></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tool-meta">
+                                <div class="tool-meta-item" id="tool-categories-wrap">
+                                    <div class="tool-meta-tags" id="tool-categories"></div>
+                                </div>
+                            </div>
+
+                            <div class="tool-header-right">
+                                <a class="tool-visit-btn" id="tool-visit-btn" href="#" target="_blank" rel="noreferrer">
+                                    Visit Website
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+                                </a>
                             </div>
                         </div>
-                        <div class="tool-header-right">
-                            <a class="tool-visit-btn" id="tool-visit-btn" href="#" target="_blank" rel="noreferrer">
-                                Visit Website
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
-                            </a>
+
+                        <div class="tool-preview-panel">
+                            <div class="tool-screenshot" id="tool-screenshot"></div>
                         </div>
                     </div>
-
-                    <div class="tool-meta">
-                        <div class="tool-meta-item" id="tool-categories-wrap">
-                            <span class="tool-meta-label">Categories</span>
-                            <div class="tool-meta-tags" id="tool-categories"></div>
-                        </div>
-                        <div class="tool-meta-item">
-                            <span class="tool-meta-label">Pricing</span>
-                            <span class="tool-meta-value" id="tool-pricing"></span>
-                        </div>
-                    </div>
-
-                    <div class="tool-screenshot" id="tool-screenshot"></div>
 
                     <div class="tool-nav" id="tool-nav">
                         <a class="tool-nav-link tool-nav-prev" id="tool-prev" href="#">
