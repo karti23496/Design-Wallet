@@ -53,10 +53,89 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     })();
 
-    /* ── Email form submission to Google Sheets ── */
+    /* ── Waitlist modal and submission to Google Sheets ── */
     var SHEET_URL = "https://script.google.com/macros/s/AKfycbyyFhF70bpxR6nJbjULkETuxYNjAfEFfoshx_ven2Z3JrwC3Zjp61eJIBjx2SCouHYVig/exec";
-    var emailForm = document.querySelector(".hero-email-form");
-    if (emailForm) {
+    var waitlistModal = document.getElementById("waitlist-modal");
+    var waitlistForm = waitlistModal ? waitlistModal.querySelector(".waitlist-form") : null;
+    var waitlistOpeners = document.querySelectorAll("[data-waitlist-open]");
+    var waitlistClosers = document.querySelectorAll("[data-waitlist-close]");
+    var waitlistPath = "/join-waitlist";
+    var isStandaloneWaitlistPage = document.body.hasAttribute("data-waitlist-route-page");
+    var previousFocus = null;
+
+    function isWaitlistPath() {
+        return window.location.pathname.replace(/\/$/, "") === waitlistPath;
+    }
+
+    function openWaitlistModal(shouldPushPath) {
+        if (!waitlistModal) return;
+
+        previousFocus = document.activeElement;
+        waitlistModal.hidden = false;
+        document.body.classList.add("waitlist-modal-open");
+
+        if (shouldPushPath && !isWaitlistPath() && window.history && window.history.pushState) {
+            window.history.pushState({ waitlistModal: true }, "", waitlistPath);
+        }
+
+        window.setTimeout(function () {
+            var input = waitlistModal.querySelector(".waitlist-email-input");
+            if (input) input.focus();
+        }, 50);
+    }
+
+    function closeWaitlistModal(shouldUpdatePath) {
+        if (!waitlistModal) return;
+
+        if (isStandaloneWaitlistPage && shouldUpdatePath) {
+            window.location.href = "/";
+            return;
+        }
+
+        waitlistModal.hidden = true;
+        document.body.classList.remove("waitlist-modal-open");
+
+        if (shouldUpdatePath && isWaitlistPath() && window.history && window.history.replaceState) {
+            window.history.replaceState({ waitlistModal: false }, "", "/");
+        }
+
+        if (previousFocus && typeof previousFocus.focus === "function") {
+            previousFocus.focus();
+        }
+    }
+
+    waitlistOpeners.forEach(function (opener) {
+        opener.addEventListener("click", function (event) {
+            event.preventDefault();
+            openWaitlistModal(true);
+        });
+    });
+
+    waitlistClosers.forEach(function (closer) {
+        closer.addEventListener("click", function () {
+            closeWaitlistModal(true);
+        });
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && waitlistModal && !waitlistModal.hidden) {
+            closeWaitlistModal(true);
+        }
+    });
+
+    window.addEventListener("popstate", function () {
+        if (isWaitlistPath()) {
+            openWaitlistModal(false);
+        } else {
+            closeWaitlistModal(false);
+        }
+    });
+
+    if (isWaitlistPath()) {
+        openWaitlistModal(false);
+    }
+
+    if (waitlistForm) {
         /* Create hidden iframe for form submission */
         var iframe = document.createElement("iframe");
         iframe.name = "hidden-sheet-frame";
@@ -74,13 +153,14 @@ document.addEventListener("DOMContentLoaded", function () {
         hiddenForm.appendChild(hiddenEmail);
         document.body.appendChild(hiddenForm);
 
-        emailForm.addEventListener("submit", function (e) {
+        waitlistForm.addEventListener("submit", function (e) {
             e.preventDefault();
-            var input = emailForm.querySelector(".hero-email-input");
-            var btn = emailForm.querySelector(".primary-button");
+            var input = waitlistForm.querySelector(".waitlist-email-input");
+            var btn = waitlistForm.querySelector(".waitlist-submit-button");
             var email = input.value.trim();
             if (!email) return;
 
+            var defaultButtonText = btn.textContent;
             btn.textContent = "Submitting...";
             btn.disabled = true;
 
@@ -91,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 input.value = "";
                 btn.textContent = "Subscribed!";
                 setTimeout(function () {
-                    btn.textContent = "Get Early Access";
+                    btn.textContent = defaultButtonText;
                     btn.disabled = false;
                 }, 3000);
             }, 1500);
@@ -646,8 +726,10 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
-    attachFilterListeners();
-    loadListings();
+    if (catalogSection) {
+        attachFilterListeners();
+        loadListings();
+    }
 
     /* ── Featured section from Google Sheets (separate JSONP to avoid conflict) ── */
     var FEATURED_CACHE_KEY = "dw_featured_cache";

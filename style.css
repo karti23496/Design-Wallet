@@ -454,6 +454,55 @@ input {
     margin-top: 34px;
 }
 
+.hero-waitlist-button {
+    --waitlist-shimmer-speed: 6s;
+    --waitlist-shimmer-opacity: 0.5;
+    position: relative;
+    min-width: 260px;
+    border: 2px solid #ffffff50;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.02);
+    padding: 16px 48px;
+    text-transform: uppercase;
+    overflow: hidden;
+}
+
+.hero-waitlist-button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+        115deg,
+        transparent 0%,
+        transparent 38%,
+        rgba(255, 255, 255, calc(var(--waitlist-shimmer-opacity) * 0.18)) 44%,
+        rgba(255, 255, 255, var(--waitlist-shimmer-opacity)) 50%,
+        rgba(255, 255, 255, calc(var(--waitlist-shimmer-opacity) * 0.18)) 56%,
+        transparent 62%,
+        transparent 100%
+    );
+    background-size: 220% 100%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: waitlist-border-shimmer var(--waitlist-shimmer-speed) linear infinite;
+}
+
+@keyframes waitlist-border-shimmer {
+    from {
+        background-position: 180% 0;
+    }
+
+    to {
+        background-position: -180% 0;
+    }
+}
+
 .hero-email-form {
     position: relative;
     display: flex;
@@ -532,6 +581,239 @@ input {
 
 .secondary-button {
     color: var(--muted-strong);
+}
+
+body.waitlist-modal-open {
+    overflow: hidden;
+}
+
+.waitlist-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.waitlist-modal[hidden] {
+    display: none !important;
+}
+
+.waitlist-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(4, 4, 4, 0.3);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(8px);
+}
+
+.waitlist-modal-card {
+    --waitlist-modal-shimmer-speed: 6s;
+    --waitlist-modal-shimmer-opacity: 0.65;
+    --waitlist-modal-padding: 24px;
+    --waitlist-modal-padding-negative: -56px;
+    position: relative;
+    z-index: 1;
+    width: min(100%, 720px);
+    border: 2px solid rgba(255, 255, 255, 0.14);
+    border-radius: 24px;
+    background: rgba(18, 18, 18, 0.96);
+    box-shadow: 0 30px 100px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    padding: 0 var(--waitlist-modal-padding) var(--waitlist-modal-padding);
+}
+
+.waitlist-modal-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+        120deg,
+        transparent 0%,
+        transparent 40%,
+        rgba(255, 255, 255, calc(var(--waitlist-modal-shimmer-opacity) * 0.2)) 46%,
+        rgba(255, 255, 255, var(--waitlist-modal-shimmer-opacity)) 50%,
+        rgba(255, 255, 255, calc(var(--waitlist-modal-shimmer-opacity) * 0.2)) 54%,
+        transparent 60%,
+        transparent 100%
+    );
+    background-size: 240% 100%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: waitlist-modal-border-shimmer var(--waitlist-modal-shimmer-speed) linear infinite;
+}
+
+@keyframes waitlist-modal-border-shimmer {
+    from {
+        background-position: 180% 0;
+    }
+
+    to {
+        background-position: -180% 0;
+    }
+}
+
+.waitlist-modal-image {
+    width: 120%;
+    max-width: none;
+    aspect-ratio: 16 / 7;
+    object-fit: cover;
+    border: none;
+    background: rgba(255, 255, 255, 0.04);
+    margin: 0 var(--waitlist-modal-padding-negative) 32px;
+}
+
+.waitlist-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    backdrop-filter: blur(4px);
+    border: 1px solid #ffffffbd;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.waitlist-modal-kicker {
+    margin: 10px 44px 0 0;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 0;
+}
+
+.waitlist-modal-card h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: clamp(2.5rem, 8vw, 3.3rem);
+    font-weight: 200;
+    letter-spacing: -0.15rem;
+    line-height: 1.05;
+}
+
+.waitlist-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.waitlist-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.waitlist-field span {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+}
+
+.waitlist-email-input {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+    outline: none;
+    padding: 14px 16px;
+    font-size: 0.95rem;
+}
+
+.waitlist-email-input::placeholder {
+    color: rgba(255, 255, 255, 0.32);
+}
+
+.waitlist-email-input:focus {
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.waitlist-submit-button {
+    width: 100%;
+    border: none;
+    background: #ffffff;
+    color: #000000;
+    padding: 14px 20px;
+    text-transform: uppercase;
+}
+
+.waitlist-route-page {
+    background: #080808;
+}
+
+.waitlist-route-shell {
+    position: relative;
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 24px;
+}
+
+.waitlist-route-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.11), transparent 32%),
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: auto, 80px 80px, 80px 80px;
+    opacity: 0.55;
+}
+
+.waitlist-route-brand {
+    position: absolute;
+    top: 28px;
+    left: 28px;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: #ffffff;
+    font-family: "Inter", sans-serif;
+    font-weight: 700;
+}
+
+.waitlist-route-brand img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+.waitlist-route-copy {
+    position: absolute;
+    right: 28px;
+    bottom: 28px;
+    z-index: 1;
+    max-width: 360px;
+    color: rgba(255, 255, 255, 0.42);
+    font-family: "Geist", sans-serif;
+    font-size: clamp(2rem, 8vw, 5rem);
+    font-weight: 200;
+    line-height: 0.95;
+    text-align: right;
+}
+
+.waitlist-route-copy p {
+    margin: 0;
 }
 
 .hero-proof {
@@ -1686,6 +1968,26 @@ input:focus-visible {
     .hero-copy {
         font-size: 0.82rem;
         margin-top: 16px;
+    }
+
+    .waitlist-modal {
+        padding: 14px;
+    }
+
+    .waitlist-modal-card {
+        --waitlist-modal-padding: 18px;
+        --waitlist-modal-padding-negative: -18px;
+        border-radius: 20px;
+        padding: 0 var(--waitlist-modal-padding) var(--waitlist-modal-padding);
+    }
+
+    .waitlist-route-brand {
+        top: 18px;
+        left: 18px;
+    }
+
+    .waitlist-route-copy {
+        display: none;
     }
 
     .hero-float-icon {

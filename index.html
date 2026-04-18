@@ -62,10 +62,9 @@
                         Subscribe for best weekly resources, freebies, and exclusive discounts.
                     </p>
 
-                    <form class="hero-email-form" data-reveal>
-                        <input type="email" class="hero-email-input" placeholder="Enter your email" required>
-                        <button type="submit" class="primary-button">JOIN THE WAITLIST</button>
-                    </form>
+                    <div class="hero-actions" data-reveal>
+                        <a href="/join-waitlist" class="primary-button hero-waitlist-button" data-waitlist-open>Join Waitlist</a>
+                    </div>
                 </div>
             </section>
 
@@ -144,6 +143,23 @@
         </main>
 
         <footer class="site-footer"></footer>
+    </div>
+
+    <div class="waitlist-modal" id="waitlist-modal" role="dialog" aria-modal="true" aria-labelledby="waitlist-modal-title" hidden>
+        <div class="waitlist-modal-backdrop" data-waitlist-close></div>
+        <div class="waitlist-modal-card">
+            <button type="button" class="waitlist-modal-close" data-waitlist-close aria-label="Close waitlist form">x</button>
+            <img class="waitlist-modal-image" src="/public/images/9a569248-298d-4ea7-a061-15573df76ee5.png" alt="" aria-hidden="true" loading="lazy">
+            <h2 id="waitlist-modal-title">Designer’s Weekly Drop.</h2>
+            <p class="waitlist-modal-kicker">Get curated resources, tools, and inspiration—straight to your inbox.</p>
+            <form class="waitlist-form">
+                <label class="waitlist-field">
+                    <span>Email ID</span>
+                    <input type="email" class="waitlist-email-input" name="email" placeholder="you@example.com" required>
+                </label>
+                <button type="submit" class="primary-button waitlist-submit-button">Submit</button>
+            </form>
+        </div>
     </div>
 
     <script src="/header.js"></script>
