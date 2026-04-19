@@ -9,8 +9,8 @@ function loadHeader() {
             '<a href="/#submit">GOOD DEALS \uD83D\uDD25</a>' +
             '<a href="/books/">BOOKS</a>' +
             '<div class="list-tool-wrap" style="display: flex; align-items: center; gap: 8px;">' +
-                '<span style="padding: 6px 24px; background-color: rgba(255, 255, 255, 0.05); border: 1px solid #ffffff10; border-radius: 24px; cursor: default; opacity: 0.5">LIST YOUR TOOLS</span>' +
-                '<span style="font-size: 10px; padding: 4px 16px; background-color: #ffffff15; border: 1px solid #ffffff45; border-radius: 12px; color: #ffffff; text-transform: uppercase;">Coming Soon</span>' +
+                '<span style="display: inline-flex; align-items: center; justify-content: center; padding: 12px 14px; background-color: rgba(255, 255, 255, 0.05); border: 1px solid #ffffff40; border-radius: 24px; cursor: default; font-size: 12px; line-height: 1; letter-spacing: 0.04em;">LIST YOUR TOOLS</span>' +
+                '<span style="font-size: 10px; padding: 4px 8px; background-color: #ffffff15; border: 1px solid #ffffff45; border-radius: 8px; color: #ffffff; text-transform: uppercase; opacity:0.5;">Coming Soon</span>' +
             '</div>' +
         '</nav>';
 

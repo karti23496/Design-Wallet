@@ -288,6 +288,14 @@ document.addEventListener("DOMContentLoaded", function () {
             .join("") || "DW";
     }
 
+    function slugify(value) {
+        return String(value || "")
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+    }
+
     function buildListings(rows) {
         if (!rows.length) {
             return [];
@@ -400,6 +408,25 @@ document.addEventListener("DOMContentLoaded", function () {
                     "</label>"
                 ].join("");
             }).join("");
+
+        updatePriceFilterStates();
+    }
+
+    function updatePriceFilterStates() {
+        if (!priceFilters) {
+            return;
+        }
+
+        var selected = priceFilters.querySelector('input[data-filter-group="price"]:checked');
+        var selectedValue = selected ? selected.value : "all";
+        priceFilters.dataset.priceSelected = selectedValue;
+
+        Array.from(priceFilters.querySelectorAll(".check-row")).forEach(function (row) {
+            var input = row.querySelector('input[data-filter-group="price"]');
+            var isSelected = input && input.value === selectedValue;
+            row.dataset.priceState = isSelected ? "active" : "inactive";
+            row.dataset.priceMuted = isSelected ? "false" : "true";
+        });
     }
 
     function updateHighlights(items) {
@@ -509,6 +536,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!resultCount || !emptyState || !resourceGrid) {
             return;
         }
+
+        updatePriceFilterStates();
 
         var query = searchInput ? searchInput.value.trim().toLowerCase() : "";
         var activePrices = getActivePrices();
@@ -732,7 +761,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     /* ── Featured section from Google Sheets (separate JSONP to avoid conflict) ── */
-    var FEATURED_CACHE_KEY = "dw_featured_cache";
+    var FEATURED_CACHE_KEY = "dw_featured_cache_v2";
 
     function loadFeatured() {
         var featuredGrid = document.getElementById("featured-grid");
@@ -817,11 +846,13 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("Featured item sample:", items[0]);
 
             featuredGrid.innerHTML = items.map(function (item) {
-                var title = escapeHtml(item.title || item.name || "");
+                var rawTitle = item.title || item.name || "";
+                var title = escapeHtml(rawTitle);
                 var desc = escapeHtml(item.description || "");
                 var logo = item.image || item.logo || "";
                 var category = escapeHtml(item.categories || item.category || item.subtitle || "");
-                var link = item.link || item.url || "#";
+                var slug = slugify(item.slug || rawTitle);
+                var link = slug ? "/tools/?t=" + encodeURIComponent(slug) : "#";
                 var thumbnailStr = item.thumbnails || item.thumbnail || item.banner_image || item.bannerimage || "";
 
                 /* Parse multiple thumbnails separated by comma or newline */
@@ -843,7 +874,7 @@ document.addEventListener("DOMContentLoaded", function () {
                       '</div>'
                     : '';
 
-                return '<a class="featured-card" href="' + escapeHtml(link) + '" target="_blank" rel="noopener">' +
+                return '<a class="featured-card" href="' + escapeHtml(link) + '">' +
                     '<div class="featured-card-info">' +
                         '<span class="featured-card-kicker"><svg class="featured-star-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M341.5 45.1C337.4 37.1 329.1 32 320.1 32C311.1 32 302.8 37.1 298.7 45.1L225.1 189.3L65.2 214.7C56.3 216.1 48.9 222.4 46.1 231C43.3 239.6 45.6 249 51.9 255.4L166.3 369.9L141.1 529.8C139.7 538.7 143.4 547.7 150.7 553C158 558.3 167.6 559.1 175.7 555L320.1 481.6L464.4 555C472.4 559.1 482.1 558.3 489.4 553C496.7 547.7 500.4 538.8 499 529.8L473.7 369.9L588.1 255.4C594.5 249 596.7 239.6 593.9 231C591.1 222.4 583.8 216.1 574.8 214.7L415 189.3L341.5 45.1z"/></svg> FEATURED PRODUCT</span>' +
                         logoHtml +

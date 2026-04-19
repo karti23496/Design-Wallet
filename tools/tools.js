@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     var SHEET_ID = "1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8";
-    var SHEET_GID = "0";
-    var CACHE_KEY = "dw_listings_cache";
+    var SHEET_GIDS = ["0", "1218813985"];
+    var CACHE_KEY = "dw_tool_detail_cache_v3";
     var CACHE_TTL = 10 * 60 * 1000;
 
     var loadingEl = document.getElementById("tool-loading");
@@ -35,6 +35,32 @@ document.addEventListener("DOMContentLoaded", function () {
         return String(value || "").split(/[,;]/).map(function (p) { return p.trim(); }).filter(Boolean);
     }
 
+    function slugify(value) {
+        return String(value || "")
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+    }
+
+    function splitThumbnailLinks(value) {
+        return String(value || "").split(/[,\n]+/).map(function (p) { return p.trim(); }).filter(Boolean);
+    }
+
+    function collectThumbnailLinks(record) {
+        var links = [];
+
+        Object.keys(record).forEach(function (key) {
+            if (key.indexOf("thumbnail") === -1 && key.indexOf("banner") === -1) {
+                return;
+            }
+
+            links = links.concat(splitThumbnailLinks(record[key]));
+        });
+
+        return Array.from(new Set(links));
+    }
+
     function normalizePrice(value) {
         var cleaned = String(value || "").trim().toLowerCase();
         if (!cleaned) return "free";
@@ -65,15 +91,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (header) record[header] = getCellValue(cells[index]);
             });
 
-            var slug = (record.slug || "").replace(/^\//, "").trim().toLowerCase();
+            var title = record.title || record.name || "";
+            var slug = slugify(record.slug || title);
+            var thumbnails = collectThumbnailLinks(record);
             return {
-                title: record.title || record.name || "",
+                title: title,
                 subtitle: record.subtitle || record.description || "",
-                categories: parseCategories(record.categories),
+                categories: parseCategories(record.categories || record.category),
                 price: normalizePrice(record.pricing || record.price),
-                link: record.link || "",
+                link: record.link || record.url || "",
                 icon: record.image || record.logo || "",
-                thumbnail: record.thumbnails || record.thumbnail || record.banner_image || "",
+                thumbnail: thumbnails[0] || "",
+                thumbnails: thumbnails,
                 slug: slug
             };
         }).filter(function (item) { return item.title && item.slug; });
@@ -117,10 +146,19 @@ document.addEventListener("DOMContentLoaded", function () {
         // Screenshot
         var screenshotEl = document.getElementById("tool-screenshot");
         if (screenshotEl) {
-            if (tool.thumbnail) {
-                screenshotEl.innerHTML = '<img src="' + escapeHtml(tool.thumbnail) + '" alt="' + escapeHtml(tool.title) + ' screenshot" loading="lazy">';
+            var thumbnails = Array.isArray(tool.thumbnails) && tool.thumbnails.length ? tool.thumbnails : (tool.thumbnail ? [tool.thumbnail] : []);
+            screenshotEl.classList.toggle("is-gallery", thumbnails.length > 1);
+
+            if (thumbnails.length) {
+                screenshotEl.innerHTML = thumbnails.map(function (src, index) {
+                    var alt = index === 0
+                        ? tool.title + " screenshot"
+                        : tool.title + " screenshot " + (index + 1);
+                    return '<img src="' + escapeHtml(src) + '" alt="' + escapeHtml(alt) + '" loading="lazy">';
+                }).join("");
                 screenshotEl.hidden = false;
             } else {
+                screenshotEl.innerHTML = "";
                 screenshotEl.hidden = true;
             }
         }
@@ -155,6 +193,12 @@ document.addEventListener("DOMContentLoaded", function () {
             nextLink.style.visibility = "hidden";
         }
 
+        if (nextLink && tool.slug === "saasframe") {
+            nextLink.style.display = "none";
+        } else if (nextLink) {
+            nextLink.style.display = "";
+        }
+
         // Show content
         if (loadingEl) loadingEl.hidden = true;
         if (contentEl) contentEl.hidden = false;
@@ -172,14 +216,20 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function getCachedRows() {
+    function getCachedTools() {
         try {
             var raw = localStorage.getItem(CACHE_KEY);
             if (!raw) return null;
             var cached = JSON.parse(raw);
             if (Date.now() - cached.timestamp > CACHE_TTL) return null;
-            return Array.isArray(cached.rows) ? cached.rows : null;
+            return Array.isArray(cached.tools) ? cached.tools : null;
         } catch (e) { return null; }
+    }
+
+    function setCachedTools(tools) {
+        try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), tools: tools }));
+        } catch (e) {}
     }
 
     function addResponseHandler(url, callbackName) {
@@ -215,13 +265,47 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.appendChild(script);
     }
 
+    function buildSheetUrl(gid) {
+        return "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&gid=" + encodeURIComponent(gid);
+    }
+
+    function loadAllTools(onSuccess, onError) {
+        var remaining = SHEET_GIDS.length;
+        var allTools = [];
+
+        SHEET_GIDS.forEach(function (gid) {
+            requestSheetData(buildSheetUrl(gid), function (payload) {
+                var rows = payload && payload.table && payload.table.rows ? payload.table.rows : [];
+                allTools = allTools.concat(buildTools(rows));
+                remaining -= 1;
+                if (remaining === 0) {
+                    if (allTools.length) {
+                        setCachedTools(allTools);
+                        onSuccess(allTools);
+                    } else {
+                        onError();
+                    }
+                }
+            }, function () {
+                remaining -= 1;
+                if (remaining === 0) {
+                    if (allTools.length) {
+                        setCachedTools(allTools);
+                        onSuccess(allTools);
+                    } else {
+                        onError();
+                    }
+                }
+            });
+        });
+    }
+
     function init() {
         var slug = getSlugFromUrl();
         if (!slug) { showNotFound(); return; }
 
-        function processRows(rows) {
+        function processTools(tools) {
             try {
-                var tools = buildTools(rows);
                 var tool = null;
                 for (var i = 0; i < tools.length; i++) {
                     if (tools[i].slug === slug) { tool = tools[i]; break; }
@@ -237,18 +321,13 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        var cachedRows = getCachedRows();
-        if (cachedRows) {
-            processRows(cachedRows);
+        var cachedTools = getCachedTools();
+        if (cachedTools) {
+            processTools(cachedTools);
             return;
         }
 
-        var sheetUrl = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&gid=" + SHEET_GID;
-
-        requestSheetData(sheetUrl, function (payload) {
-            var rows = payload && payload.table && payload.table.rows ? payload.table.rows : [];
-            processRows(rows);
-        }, function () {
+        loadAllTools(processTools, function () {
             showNotFound("Could not load this tool", "Please refresh the page or try another listing.");
         });
     }

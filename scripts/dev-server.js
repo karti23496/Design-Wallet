@@ -218,7 +218,7 @@ function serveFile(response, filePath) {
       body = Buffer.from(
         data
           .toString("utf8")
-          .replace("</body>", `${getLiveReloadSnippet()}\\n</body>`),
+          .replace("</body>", `${getLiveReloadSnippet()}\n</body>`),
         "utf8",
       );
     }
