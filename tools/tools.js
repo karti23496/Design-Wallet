@@ -10,7 +10,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function getSlugFromUrl() {
         var params = new URLSearchParams(window.location.search);
-        return (params.get("t") || "").trim().toLowerCase();
+        var querySlug = slugify(params.get("t") || "");
+
+        if (querySlug) {
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, "", "/tools/" + encodeURIComponent(querySlug));
+            }
+            return querySlug;
+        }
+
+        var pathParts = window.location.pathname.split("/").filter(Boolean);
+        var toolsIndex = pathParts.indexOf("tools");
+        if (toolsIndex !== -1 && pathParts[toolsIndex + 1]) {
+            return slugify(decodeURIComponent(pathParts[toolsIndex + 1]));
+        }
+
+        return "";
     }
 
     function normalizeHeader(value) {
@@ -178,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var nextName = document.getElementById("tool-next-name");
 
         if (prevLink && prevName && prevTool) {
-            prevLink.href = "/tools/?t=" + encodeURIComponent(prevTool.slug);
+            prevLink.href = "/tools/" + encodeURIComponent(prevTool.slug);
             prevName.textContent = prevTool.title;
             prevLink.style.visibility = "";
         } else if (prevLink) {
@@ -186,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (nextLink && nextName && nextTool) {
-            nextLink.href = "/tools/?t=" + encodeURIComponent(nextTool.slug);
+            nextLink.href = "/tools/" + encodeURIComponent(nextTool.slug);
             nextName.textContent = nextTool.title;
             nextLink.style.visibility = "";
         } else if (nextLink) {

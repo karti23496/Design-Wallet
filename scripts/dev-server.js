@@ -268,6 +268,13 @@ function handleRequest(request, response) {
   }
 
   if (!fs.existsSync(filePath)) {
+    const pathname = new URL(request.url, "http://localhost").pathname;
+    if (/^\/tools\/[^/]+\/?$/.test(pathname)) {
+      filePath = path.join(rootDir, "tools", "index.html");
+    }
+  }
+
+  if (!fs.existsSync(filePath)) {
     response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
     response.end("Not found");
     return;
