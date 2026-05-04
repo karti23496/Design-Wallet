@@ -21,7 +21,8 @@ document.addEventListener("DOMContentLoaded", function () {
     (function () {
         var field = document.getElementById("stars-field");
         if (!field) return;
-        var count = 100;
+        var isCompactViewport = window.matchMedia && window.matchMedia("(max-width: 760px)").matches;
+        var count = isCompactViewport ? 0 : 100;
         for (var i = 0; i < count; i++) {
             var orbit = document.createElement("div");
             orbit.className = "star-orbit";
@@ -51,6 +52,44 @@ document.addEventListener("DOMContentLoaded", function () {
             orbit.appendChild(star);
             field.appendChild(orbit);
         }
+    })();
+
+    /* ── Attribute-controlled shimmer timing ── */
+    (function () {
+        var shimmerItems = document.querySelectorAll("[data-shimmer-speed]");
+        if (!shimmerItems.length) return;
+
+        shimmerItems.forEach(function (item) {
+            var speed = item.getAttribute("data-shimmer-speed");
+            if (/^\d+(\.\d+)?m?s$/.test(speed)) {
+                item.style.setProperty("--shimmer-speed", speed);
+            }
+        });
+    })();
+
+    /* ── Current month/year labels ── */
+    (function () {
+        var labels = document.querySelectorAll("[data-current-month-year]");
+        if (!labels.length) return;
+
+        function updateMonthYear() {
+            var now = new Date();
+            var month = now.toLocaleDateString("en-US", { month: "long" });
+            var year = now.toLocaleDateString("en-US", { year: "numeric" });
+            var monthYear = month + " " + year;
+
+            labels.forEach(function (label) {
+                if (label.hasAttribute("data-current-month-year-break")) {
+                    label.replaceChildren(month, document.createElement("br"), year);
+                    return;
+                }
+
+                label.textContent = monthYear;
+            });
+        }
+
+        updateMonthYear();
+        window.setInterval(updateMonthYear, 60 * 60 * 1000);
     })();
 
     /* ── Waitlist modal and submission to Google Sheets ── */
@@ -192,6 +231,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var catalogLoading = document.getElementById("catalog-loading");
     var catalogNote = document.getElementById("catalog-note");
     var catalogHighlights = document.getElementById("catalog-highlights");
+    var homeCategoryCloud = document.getElementById("home-category-cloud");
     var activeCategory = "all";
     var listings = [];
 
@@ -216,6 +256,72 @@ document.addEventListener("DOMContentLoaded", function () {
             navToggle.setAttribute("aria-expanded", "false");
         });
     });
+
+    /* ── Blog category filters ── */
+    (function () {
+        var blogPage = document.querySelector(".blog-index-page");
+        if (!blogPage) return;
+
+        var filterLinks = Array.from(document.querySelectorAll(".design-topic-pills a"));
+        var blogCards = Array.from(document.querySelectorAll("[data-blog-card]"));
+        if (!filterLinks.length || !blogCards.length) return;
+
+        function normalizeCategory(value) {
+            return String(value || "").trim().toLowerCase();
+        }
+
+        function setActiveFilter(activeLink) {
+            filterLinks.forEach(function (link) {
+                var isActive = link === activeLink;
+                link.toggleAttribute("aria-current", isActive);
+            });
+        }
+
+        function filterCards(category) {
+            var normalizedCategory = normalizeCategory(category);
+
+            blogCards.forEach(function (card) {
+                if (!normalizedCategory) {
+                    card.hidden = false;
+                    return;
+                }
+
+                var cardCategories = String(card.getAttribute("data-blog-categories") || "")
+                    .split("|")
+                    .map(normalizeCategory);
+
+                card.hidden = cardCategories.indexOf(normalizedCategory) === -1;
+            });
+        }
+
+        filterLinks.forEach(function (link) {
+            link.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                var category = link.getAttribute("data-blog-category") || "";
+                setActiveFilter(link);
+                filterCards(category);
+
+                if (window.history && window.history.replaceState) {
+                    var nextUrl = category ? "/blog/?category=" + encodeURIComponent(category) : "/blog/";
+                    window.history.replaceState({ blogCategory: category }, "", nextUrl);
+                }
+            });
+        });
+
+        var params = new URLSearchParams(window.location.search);
+        var initialCategory = params.get("category") || "";
+        if (initialCategory) {
+            var initialLink = filterLinks.find(function (link) {
+                return normalizeCategory(link.getAttribute("data-blog-category")) === normalizeCategory(initialCategory);
+            });
+
+            if (initialLink) {
+                setActiveFilter(initialLink);
+                filterCards(initialLink.getAttribute("data-blog-category") || "");
+            }
+        }
+    })();
 
     function normalizeHeader(value) {
         return String(value || "")
@@ -294,6 +400,12 @@ document.addEventListener("DOMContentLoaded", function () {
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/^-+|-+$/g, "");
+    }
+
+    function splitMediaLinks(value) {
+        return String(value || "").split(/\n+|,\s*(?=https?:\/\/)/).map(function (part) {
+            return part.trim();
+        }).filter(Boolean);
     }
 
     function buildListings(rows) {
@@ -705,7 +817,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         var searchInput = document.getElementById("resource-search");
         if (searchInput) {
-            searchInput.placeholder = "Search...";
+            searchInput.placeholder = "What are you looking for today?";
         }
 
         if (typeof renderFavPage === "function") renderFavPage();
@@ -759,6 +871,79 @@ document.addEventListener("DOMContentLoaded", function () {
         attachFilterListeners();
         loadListings();
     }
+
+    function renderHomeCategoryCloud(rows) {
+        if (!homeCategoryCloud) return;
+
+        var categoryMap = {};
+        buildListings(rows).forEach(function (item) {
+            item.categories.forEach(function (category) {
+                if (!category) return;
+                var key = slugify(category);
+                if (!categoryMap[key]) {
+                    categoryMap[key] = {
+                        title: category,
+                        slug: key,
+                        count: 0
+                    };
+                }
+                categoryMap[key].count += 1;
+            });
+        });
+
+        var categories = Object.keys(categoryMap)
+            .map(function (key) { return categoryMap[key]; })
+            .sort(function (left, right) {
+                return right.count - left.count || left.title.localeCompare(right.title);
+            })
+            .slice(0, 24);
+
+        if (!categories.length) {
+            homeCategoryCloud.innerHTML = '<p class="home-category-cloud-loading">No categories found yet.</p>';
+            return;
+        }
+
+        homeCategoryCloud.innerHTML = categories.map(function (category) {
+            return [
+                '<span class="home-category-pill">',
+                '<strong>',
+                escapeHtml(category.title),
+                '</strong>',
+                '<span class="home-category-pill-count">',
+                category.count,
+                ' tool',
+                category.count === 1 ? '' : 's',
+                '</span>',
+                '</span>'
+            ].join("");
+        }).join("");
+    }
+
+    function loadHomeCategoryCloud() {
+        if (!homeCategoryCloud) return;
+
+        var cachedRows = getCachedListings();
+        if (cachedRows) {
+            try {
+                renderHomeCategoryCloud(cachedRows);
+                return;
+            } catch (e) {}
+        }
+
+        requestSheetData(
+            buildSheetUrl(),
+            function (payload) {
+                var rows = payload && payload.table && payload.table.rows ? payload.table.rows : [];
+                setCachedListings(rows);
+                renderHomeCategoryCloud(rows);
+            },
+            function () {
+                homeCategoryCloud.innerHTML = '<p class="home-category-cloud-loading">Could not load categories right now.</p>';
+            }
+        );
+    }
+
+    loadHomeCategoryCloud();
 
     /* ── Featured section from Google Sheets (separate JSONP to avoid conflict) ── */
     var FEATURED_CACHE_KEY = "dw_featured_cache_v2";
@@ -856,7 +1041,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 var thumbnailStr = item.thumbnails || item.thumbnail || item.banner_image || item.bannerimage || "";
 
                 /* Parse multiple thumbnails separated by comma or newline */
-                var thumbs = thumbnailStr.split(/[,\n]+/).map(function (t) { return t.trim(); }).filter(Boolean);
+                var thumbs = splitMediaLinks(thumbnailStr);
 
                 var logoHtml = logo
                     ? '<img class="featured-card-logo" src="' + escapeHtml(logo) + '" alt="' + title + '">'

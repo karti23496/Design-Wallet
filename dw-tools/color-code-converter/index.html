@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HLX9Y7DQV7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Code Converter - HEX to RGB, HSL, HSV, OKLCH, CMYK | Design Wallet</title>
+    <meta
+        name="description"
+        content="Convert color codes between HEX, RGB, HSL, HSV, OKLCH, and CMYK with instant previews and CSS-ready values from Design Wallet."
+    >
+    <link rel="canonical" href="https://designwallet.in/dw-tools/color-code-converter/">
+    <meta property="og:title" content="Color Code Converter - Design Wallet">
+    <meta property="og:description" content="Convert HEX, RGB, HSL, HSV, OKLCH, and CMYK color codes with instant previews and copy-ready CSS values.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://designwallet.in/dw-tools/color-code-converter/">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
+    <link rel="stylesheet" href="/style.css?v=20260421-2">
+</head>
+<body class="dw-tool-page color-converter-page">
+    <div class="page-shell">
+        <header class="site-header"></header>
+
+        <main class="converter-main">
+            <section class="converter-hero" aria-labelledby="converter-title">
+                <div class="converter-hero-copy" data-reveal>
+                    <a href="/" class="tool-back-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M5 12L12 19M5 12L12 5"/></svg>
+                        Back to Design Wallet
+                    </a>
+                    <p class="converter-kicker">Design Wallet Tools</p>
+                    <h1 id="converter-title">Color Code Converter</h1>
+                    <p class="converter-intro">Convert HEX to RGB, HSL, HSV, OKLCH, and CMYK with generated shades, export options, and CSS-ready values.</p>
+                    <div class="converter-format-pills" aria-label="Supported output formats">
+                        <span>HEX</span>
+                        <span>RGB</span>
+                        <span>HSL</span>
+                        <span>HSV</span>
+                        <span>OKLCH</span>
+                        <span>CMYK</span>
+                    </div>
+                </div>
+
+                <section class="converter-workbench" aria-label="Color code converter">
+                    <div class="converter-input-group">
+                        <label for="color-code-input">Color value</label>
+                        <div class="converter-input-row">
+                            <div class="converter-input-stack">
+                                <input id="color-code-input" class="converter-input" type="text" value="#FF6B3D" autocomplete="off" spellcheck="false" aria-describedby="converter-error">
+                                <button class="converter-secondary-action" id="random-color-button" type="button">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+                                    Random color
+                                </button>
+                            </div>
+                            <div class="converter-color-space" aria-label="Color space picker">
+                                <div class="converter-color-plane" id="converter-color-space" role="slider" tabindex="0" aria-label="Saturation and brightness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="76" aria-valuetext="Saturation 76%, brightness 100%">
+                                    <span id="converter-color-space-handle" class="converter-color-space-handle" aria-hidden="true"></span>
+                                </div>
+                                <div class="converter-color-controls">
+                                    <div class="converter-current-color" id="converter-current-color" aria-hidden="true"></div>
+                                    <div class="converter-hue-slider" id="converter-hue-slider" role="slider" tabindex="0" aria-label="Hue" aria-valuemin="0" aria-valuemax="360" aria-valuenow="14">
+                                        <span id="converter-hue-handle" class="converter-hue-handle" aria-hidden="true"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="converter-error" id="converter-error" role="alert" hidden></p>
+                    </div>
+
+                    <div class="converter-shade-shell">
+                        <div class="converter-shade-strip" id="converter-shade-strip" aria-label="11 generated shades for the selected color"></div>
+                        <div class="converter-shade-actions">
+                            <button type="button" class="converter-icon-button" id="shade-detail-toggle" aria-label="Show shade details" title="Show shade details" aria-expanded="false">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 9 5-5 5 5"/><path d="m7 15 5 5 5-5"/></svg>
+                            </button>
+                            <button type="button" class="converter-icon-button" id="export-palette-button" aria-label="Export color codes" title="Export color codes">
+                                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 13v7h14v-7"/></svg>
+                            </button>
+                        </div>
+                        <div class="converter-shade-detail-grid" id="converter-shade-detail-grid" hidden></div>
+                    </div>
+
+                    <div class="converter-output-table" aria-live="polite">
+                        <div class="converter-output-row">
+                            <span>HEX</span>
+                            <code id="hex-output">#FF6B3D</code>
+                            <button type="button" class="converter-copy-button" data-copy-target="hex-output" aria-label="Copy HEX value" title="Copy HEX">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                        </div>
+                        <div class="converter-output-row">
+                            <span>RGB</span>
+                            <code id="rgb-output">rgb(255 107 61)</code>
+                            <button type="button" class="converter-copy-button" data-copy-target="rgb-output" aria-label="Copy RGB value" title="Copy RGB">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                        </div>
+                        <div class="converter-output-row">
+                            <span>HSL</span>
+                            <code id="hsl-output">hsl(14 100% 62%)</code>
+                            <button type="button" class="converter-copy-button" data-copy-target="hsl-output" aria-label="Copy HSL value" title="Copy HSL">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                        </div>
+                        <div class="converter-output-row">
+                            <span>HSV</span>
+                            <code id="hsv-output">hsv(14 76% 100%)</code>
+                            <button type="button" class="converter-copy-button" data-copy-target="hsv-output" aria-label="Copy HSV value" title="Copy HSV">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                        </div>
+                        <div class="converter-output-row">
+                            <span>OKLCH</span>
+                            <code id="oklch-output">oklch(70.23% 0.1712 35.4)</code>
+                            <button type="button" class="converter-copy-button" data-copy-target="oklch-output" aria-label="Copy OKLCH value" title="Copy OKLCH">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                        </div>
+                        <div class="converter-output-row">
+                            <span>CMYK</span>
+                            <code id="cmyk-output">cmyk(0% 58% 76% 0%)</code>
+                            <button type="button" class="converter-copy-button" data-copy-target="cmyk-output" aria-label="Copy CMYK value" title="Copy CMYK">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="converter-css-panel">
+                        <div class="converter-css-head">
+                            <span>CSS values</span>
+                            <button type="button" class="converter-copy-button" data-copy-target="css-output" aria-label="Copy CSS values" title="Copy CSS">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                        </div>
+                        <pre id="css-output">--color: #FF6B3D;
+--color-rgb: 255 107 61;
+--color-hsl: 14 100% 62%;</pre>
+                    </div>
+                </section>
+            </section>
+
+        </main>
+
+        <footer class="site-footer"></footer>
+    </div>
+
+    <div class="converter-toast" id="converter-toast" role="status" aria-live="polite" hidden>Copied</div>
+
+    <div class="converter-export-modal" id="converter-export-modal" role="dialog" aria-modal="true" aria-labelledby="converter-export-title" hidden>
+        <div class="converter-export-backdrop" data-export-close></div>
+        <section class="converter-export-sheet">
+            <header class="converter-export-header">
+                <h2 id="converter-export-title">Export color codes</h2>
+                <button type="button" class="converter-export-download" id="converter-export-download">Export Color Sheet</button>
+            </header>
+
+            <div class="converter-export-body">
+                <nav class="converter-export-nav" aria-label="Export type">
+                    <button type="button" data-export-type="tailwind-v4" class="converter-export-nav-item">
+                        <strong>Tailwind v4</strong>
+                        <span>Tailwind CSS variables</span>
+                    </button>
+                    <button type="button" data-export-type="tailwind-v3" class="converter-export-nav-item">
+                        <strong>Tailwind v3</strong>
+                        <span>Tailwind config object</span>
+                    </button>
+                    <button type="button" data-export-type="figma" class="converter-export-nav-item is-active">
+                        <strong>Figma</strong>
+                        <span>Figma color object</span>
+                    </button>
+                    <button type="button" data-export-type="css-prefixes" class="converter-export-nav-item">
+                        <strong>CSS prefixes</strong>
+                        <span>#, rgb(), hsl(), oklch()</span>
+                    </button>
+                    <button type="button" data-export-type="codes" class="converter-export-nav-item">
+                        <strong>Just the codes</strong>
+                        <span>Hex, rgb, hsl, oklch</span>
+                    </button>
+                </nav>
+
+                <div class="converter-export-main">
+                    <div class="converter-export-toolbar">
+                        <div class="converter-export-tabs" role="tablist" aria-label="Export format">
+                            <button type="button" data-export-format="hex" class="is-active">Hex</button>
+                            <button type="button" data-export-format="rgb">RGB</button>
+                            <button type="button" data-export-format="hsl">HSL</button>
+                            <button type="button" data-export-format="oklch">OKLCH</button>
+                        </div>
+                        <label class="converter-prefix-field">
+                            <span>Prefix</span>
+                            <input id="converter-export-prefix" type="text" placeholder="prefix" autocomplete="off">
+                        </label>
+                    </div>
+
+                    <div class="converter-export-content">
+                        <div class="converter-export-palette" id="converter-export-palette" aria-label="Generated shade values"></div>
+                        <div class="converter-export-code-wrap">
+                            <pre id="converter-export-code"></pre>
+                            <button type="button" class="converter-copy-export" id="converter-copy-export">
+                                Copy codes
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="/content.js"></script>
+    <script src="/header.js?v=20260426-2"></script>
+    <script src="/footer.js"></script>
+    <script src="/script.js?v=20260419-5"></script>
+    <script src="/dw-tools/color-code-converter/color-converter.js?v=20260421-2"></script>
+</body>
+</html>

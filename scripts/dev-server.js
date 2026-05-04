@@ -1,5 +1,6 @@
 import fs from "fs";
 import http from "http";
+import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -7,6 +8,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
 const preferredPort = Number(process.env.PORT || 8000);
+const host = getCliValue("--host") || process.env.HOST || "localhost";
+const shouldLogRequests = process.argv.includes("--log-requests");
+const shouldUseLiveReload = !process.argv.includes("--no-live-reload");
 const clients = new Set();
 const fileSignatures = new Map();
 const watchers = [];
@@ -40,6 +44,39 @@ const reloadExtensions = new Set([
   ".svg",
   ".webp",
 ]);
+
+function getCliValue(name) {
+  const exactArg = process.argv.find((arg) => arg.startsWith(`${name}=`));
+  if (exactArg) {
+    return exactArg.slice(name.length + 1);
+  }
+
+  const argIndex = process.argv.indexOf(name);
+  if (argIndex === -1) {
+    return null;
+  }
+
+  const nextArg = process.argv[argIndex + 1];
+  if (!nextArg || nextArg.startsWith("-")) {
+    return "0.0.0.0";
+  }
+
+  return nextArg;
+}
+
+function getNetworkUrls(port) {
+  const interfaces = os.networkInterfaces();
+  const urls = [];
+
+  for (const entries of Object.values(interfaces)) {
+    for (const entry of entries || []) {
+      if (entry.family !== "IPv4" || entry.internal) continue;
+      urls.push(`http://${entry.address}:${port}/`);
+    }
+  }
+
+  return urls;
+}
 
 function getLiveReloadSnippet() {
   return `
@@ -91,13 +128,25 @@ function getRelativePath(filePath) {
 }
 
 function sendReload(changedPath) {
+  if (!shouldUseLiveReload) return;
+
   clearTimeout(reloadTimer);
   reloadTimer = setTimeout(() => {
     reloadVersion = Date.now();
     console.log(`[reload] ${getRelativePath(changedPath)}`);
 
     clients.forEach((client) => {
-      client.write(`event: reload\\ndata: ${reloadVersion}\\n\\n`);
+      if (client.destroyed || client.writableEnded) {
+        clients.delete(client);
+        return;
+      }
+
+      try {
+        client.write(`event: reload\\ndata: ${reloadVersion}\\n\\n`);
+      } catch (error) {
+        clients.delete(client);
+        console.warn(`Dropped live reload client: ${error.message}`);
+      }
     });
   }, 120);
 }
@@ -214,7 +263,7 @@ function serveFile(response, filePath) {
     }
 
     let body = data;
-    if (extension === ".html") {
+    if (extension === ".html" && shouldUseLiveReload) {
       body = Buffer.from(
         data
           .toString("utf8")
@@ -233,7 +282,17 @@ function serveFile(response, filePath) {
 }
 
 function handleRequest(request, response) {
+  if (shouldLogRequests) {
+    console.log(`[request] ${request.socket.remoteAddress} ${request.method} ${request.url}`);
+  }
+
   if (request.url === "/__live-reload") {
+    if (!shouldUseLiveReload) {
+      response.writeHead(204, { "Cache-Control": "no-cache" });
+      response.end();
+      return;
+    }
+
     response.writeHead(200, {
       "Cache-Control": "no-cache",
       Connection: "keep-alive",
@@ -241,6 +300,10 @@ function handleRequest(request, response) {
     });
     response.write(": connected\\n\\n");
     clients.add(response);
+    response.on("error", (error) => {
+      clients.delete(response);
+      console.warn(`Live reload connection closed: ${error.message}`);
+    });
     request.on("close", () => clients.delete(response));
     return;
   }
@@ -269,7 +332,7 @@ function handleRequest(request, response) {
 
   if (!fs.existsSync(filePath)) {
     const pathname = new URL(request.url, "http://localhost").pathname;
-    if (/^\/tools\/[^/]+\/?$/.test(pathname)) {
+    if (/^\/tools(?:\/.*)?\/?$/.test(pathname)) {
       filePath = path.join(rootDir, "tools", "index.html");
     }
   }
@@ -295,9 +358,18 @@ function startServer(port) {
     throw error;
   });
 
-  server.listen(port, () => {
+  server.listen(port, host, () => {
     watchTree(rootDir);
-    console.log(`Live preview: http://localhost:${port}/blog/`);
+    console.log(`Live preview: http://localhost:${port}/`);
+
+    if (host === "0.0.0.0" || host === "::") {
+      for (const url of getNetworkUrls(port)) {
+        console.log(`Network preview: ${url}`);
+      }
+    } else if (host !== "localhost" && host !== "127.0.0.1") {
+      console.log(`Host preview: http://${host}:${port}/`);
+    }
+
     console.log("Watching HTML, CSS, JS, and asset changes...");
   });
 }

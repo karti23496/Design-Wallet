@@ -1,14 +1,35 @@
 document.addEventListener("DOMContentLoaded", function () {
     var SHEET_ID = "1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8";
     var SHEET_GIDS = ["0", "1218813985"];
-    var CACHE_KEY = "dw_tool_detail_cache_v3";
+    var CACHE_KEY = "dw_tool_detail_cache_v4";
     var CACHE_TTL = 10 * 60 * 1000;
 
     var loadingEl = document.getElementById("tool-loading");
     var contentEl = document.getElementById("tool-content");
     var notFoundEl = document.getElementById("tool-not-found");
+    var categoryIndexEl = document.getElementById("category-index-content");
+    var categoryListEl = document.getElementById("category-list-content");
+    var categoryGridEl = document.getElementById("category-grid");
+    var categoryToolGridEl = document.getElementById("category-tool-grid");
+    var categoryTitleEl = document.getElementById("category-title");
+    var categoryCountEl = document.getElementById("category-count");
+    var categorySearchModal = document.getElementById("category-search-modal");
+    var categorySearchInput = document.getElementById("category-search-input");
+    var categorySearchResults = document.getElementById("category-search-results");
+    var categorySearchOpeners = document.querySelectorAll("[data-category-search-open]");
+    var categorySearchClosers = document.querySelectorAll("[data-category-search-close]");
+    var categorySearchGroups = [];
+    var categorySearchPreviousFocus = null;
+    var CATEGORY_SLUG_ALIASES = {
+        "learning": "learn-design",
+        "inspiration": "design-inspirations",
+        "community": "design-communities",
+        "color-tools": "color-palatte",
+        "mockups-kits": "ui-kits",
+        "web-builders": "website-builder-tools"
+    };
 
-    function getSlugFromUrl() {
+    function getRouteSlugFromUrl() {
         var params = new URLSearchParams(window.location.search);
         var querySlug = slugify(params.get("t") || "");
 
@@ -23,6 +44,25 @@ document.addEventListener("DOMContentLoaded", function () {
         var toolsIndex = pathParts.indexOf("tools");
         if (toolsIndex !== -1 && pathParts[toolsIndex + 1]) {
             return slugify(decodeURIComponent(pathParts[toolsIndex + 1]));
+        }
+
+        return "";
+    }
+
+    function isToolsRoute() {
+        var pathParts = window.location.pathname.split("/").filter(Boolean);
+        return pathParts.indexOf("tools") !== -1 || Boolean(new URLSearchParams(window.location.search).get("t"));
+    }
+
+    function getCategorySlugFromUrl() {
+        var params = new URLSearchParams(window.location.search);
+        var queryCategory = slugify(params.get("category") || "");
+        if (queryCategory) return normalizeCategorySlug(queryCategory);
+
+        var pathParts = window.location.pathname.split("/").filter(Boolean);
+        var toolsIndex = pathParts.indexOf("tools");
+        if (toolsIndex !== -1 && pathParts[toolsIndex + 1] === "category" && pathParts[toolsIndex + 2]) {
+            return normalizeCategorySlug(slugify(decodeURIComponent(pathParts[toolsIndex + 2])));
         }
 
         return "";
@@ -58,8 +98,12 @@ document.addEventListener("DOMContentLoaded", function () {
             .replace(/^-+|-+$/g, "");
     }
 
+    function normalizeCategorySlug(slug) {
+        return CATEGORY_SLUG_ALIASES[slug] || slug;
+    }
+
     function splitThumbnailLinks(value) {
-        return String(value || "").split(/[,\n]+/).map(function (p) { return p.trim(); }).filter(Boolean);
+        return String(value || "").split(/\n+|,\s*(?=https?:\/\/)/).map(function (p) { return p.trim(); }).filter(Boolean);
     }
 
     function collectThumbnailLinks(record) {
@@ -83,6 +127,19 @@ document.addEventListener("DOMContentLoaded", function () {
         if (cleaned.indexOf("paid") !== -1 || cleaned.indexOf("premium") !== -1) return "paid";
         if (cleaned.indexOf("free") !== -1) return "free";
         return cleaned;
+    }
+
+    function formatPrice(value) {
+        return String(value || "").replace(/-/g, " ").toUpperCase();
+    }
+
+    function getInitials(title) {
+        return String(title || "")
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(function (part) { return part.charAt(0).toUpperCase(); })
+            .join("") || "DW";
     }
 
     function addReferralParam(link) {
@@ -112,15 +169,278 @@ document.addEventListener("DOMContentLoaded", function () {
             return {
                 title: title,
                 subtitle: record.subtitle || record.description || "",
+                description: record.description || record.subtitle || "Curated design resource.",
                 categories: parseCategories(record.categories || record.category),
                 price: normalizePrice(record.pricing || record.price),
+                priceLabel: formatPrice(normalizePrice(record.pricing || record.price)),
                 link: record.link || record.url || "",
                 icon: record.image || record.logo || "",
                 thumbnail: thumbnails[0] || "",
                 thumbnails: thumbnails,
-                slug: slug
+                slug: slug,
+                initials: getInitials(title)
             };
         }).filter(function (item) { return item.title && item.slug; });
+    }
+
+    function dedupeTools(tools) {
+        var seen = {};
+        return tools.filter(function (tool) {
+            if (seen[tool.slug]) return false;
+            seen[tool.slug] = true;
+            return true;
+        });
+    }
+
+    function getCategoryGroups(tools) {
+        var groups = {};
+        tools.forEach(function (tool) {
+            tool.categories.forEach(function (category) {
+                var slug = slugify(category);
+                if (!slug) return;
+                if (!groups[slug]) {
+                    groups[slug] = { title: category, slug: slug, tools: [], previewImage: "" };
+                }
+                groups[slug].tools.push(tool);
+                if (!groups[slug].previewImage) {
+                    groups[slug].previewImage = tool.thumbnail || tool.icon || "";
+                }
+            });
+        });
+
+        return Object.keys(groups)
+            .map(function (key) { return groups[key]; })
+            .sort(function (left, right) { return left.title.localeCompare(right.title); });
+    }
+
+    function findCategoryGroup(tools, categorySlug) {
+        var groups = getCategoryGroups(tools);
+        for (var i = 0; i < groups.length; i++) {
+            if (groups[i].slug === categorySlug) return groups[i];
+        }
+        return null;
+    }
+
+    function renderCategorySearchResults(query) {
+        if (!categorySearchResults) return;
+
+        var normalizedQuery = String(query || "").trim().toLowerCase();
+        var matches = categorySearchGroups.filter(function (group) {
+            var haystack = [
+                group.title,
+                group.slug,
+                group.tools.map(function (tool) { return tool.title; }).join(" ")
+            ].join(" ").toLowerCase();
+            return !normalizedQuery || haystack.indexOf(normalizedQuery) !== -1;
+        }).slice(0, 12);
+
+        if (!categorySearchGroups.length) {
+            categorySearchResults.innerHTML = '<p class="category-search-empty">Categories are still loading...</p>';
+            return;
+        }
+
+        if (!matches.length) {
+            categorySearchResults.innerHTML = '<p class="category-search-empty">No categories match that search.</p>';
+            return;
+        }
+
+        categorySearchResults.innerHTML = matches.map(function (group) {
+            var sampleTools = group.tools.slice(0, 3).map(function (tool) {
+                return escapeHtml(tool.title);
+            }).join(", ");
+
+            return [
+                '<a class="category-search-result" href="/tools/category/',
+                encodeURIComponent(group.slug),
+                '/">',
+                '<span>',
+                '<strong>',
+                escapeHtml(group.title),
+                '</strong>',
+                '<small>',
+                escapeHtml(sampleTools || "View category tools"),
+                '</small>',
+                '</span>',
+                '<em>',
+                group.tools.length,
+                ' tool',
+                group.tools.length === 1 ? '' : 's',
+                '</em>',
+                '</a>'
+            ].join("");
+        }).join("");
+    }
+
+    function openCategorySearch() {
+        if (!categorySearchModal) return;
+        categorySearchPreviousFocus = document.activeElement;
+        categorySearchModal.hidden = false;
+        document.body.classList.add("category-search-open");
+        renderCategorySearchResults(categorySearchInput ? categorySearchInput.value : "");
+
+        window.setTimeout(function () {
+            if (categorySearchInput) {
+                categorySearchInput.focus();
+                categorySearchInput.select();
+            }
+        }, 30);
+    }
+
+    function closeCategorySearch() {
+        if (!categorySearchModal) return;
+        categorySearchModal.hidden = true;
+        document.body.classList.remove("category-search-open");
+
+        if (categorySearchInput) {
+            categorySearchInput.value = "";
+        }
+
+        if (categorySearchPreviousFocus && typeof categorySearchPreviousFocus.focus === "function") {
+            categorySearchPreviousFocus.focus();
+        }
+    }
+
+    function attachCategorySearchListeners() {
+        categorySearchOpeners.forEach(function (opener) {
+            opener.addEventListener("click", openCategorySearch);
+        });
+
+        categorySearchClosers.forEach(function (closer) {
+            closer.addEventListener("click", closeCategorySearch);
+        });
+
+        if (categorySearchInput) {
+            categorySearchInput.addEventListener("input", function () {
+                renderCategorySearchResults(categorySearchInput.value);
+            });
+        }
+
+        if (categorySearchResults) {
+            categorySearchResults.addEventListener("click", function (event) {
+                var link = event.target.closest ? event.target.closest("a") : null;
+                if (link) closeCategorySearch();
+            });
+        }
+
+        document.addEventListener("keydown", function (event) {
+            var isSearchShortcut = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
+            if (isSearchShortcut) {
+                event.preventDefault();
+                openCategorySearch();
+                return;
+            }
+
+            if (event.key === "Escape" && categorySearchModal && !categorySearchModal.hidden) {
+                closeCategorySearch();
+            }
+        });
+    }
+
+    function createToolCardMarkup(tool) {
+        var logo = tool.icon
+            ? '<span class="logo-badge has-image"><img src="' + escapeHtml(tool.icon) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>'
+            : '<span class="logo-badge">' + escapeHtml(tool.initials || getInitials(tool.title)) + '</span>';
+        var priceBadgeClass = "price-badge";
+        if (tool.price === "free") priceBadgeClass += " price-free";
+        if (tool.price === "freemium") priceBadgeClass += " price-freemium";
+
+        return [
+            '<a class="resource-card" href="/tools/',
+            encodeURIComponent(tool.slug),
+            '/" aria-label="Open ',
+            escapeHtml(tool.title),
+            '">',
+            '<div class="card-shell">',
+            '<div class="card-top">',
+            logo,
+            '<h3>',
+            escapeHtml(tool.title),
+            '</h3>',
+            '<span class="',
+            priceBadgeClass,
+            '">',
+            escapeHtml(tool.priceLabel || formatPrice(tool.price)),
+            '</span>',
+            '</div>',
+            tool.thumbnail
+                ? '<div class="card-thumb-wrap"><img class="card-thumb" src="' + escapeHtml(tool.thumbnail) + '" alt="" loading="lazy"></div>'
+                : '',
+            '<div class="card-divider" aria-hidden="true"></div>',
+            '<div class="card-footer"><div class="card-footer-actions"><span class="card-action" aria-hidden="true">',
+            '<svg class="card-action-arrow" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.00005 19L19 5.99996M19 5.99996V18.48M19 5.99996H6.52005" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
+            '</span></div></div>',
+            '</div>',
+            '</a>'
+        ].join("");
+    }
+
+    function hideAllViews() {
+        if (loadingEl) loadingEl.hidden = true;
+        if (categoryIndexEl) categoryIndexEl.hidden = true;
+        if (categoryListEl) categoryListEl.hidden = true;
+        if (contentEl) contentEl.hidden = true;
+        if (notFoundEl) notFoundEl.hidden = true;
+    }
+
+    function renderCategoryIndex(tools) {
+        var groups = getCategoryGroups(tools);
+        categorySearchGroups = groups;
+        renderCategorySearchResults("");
+        document.title = "Tool Categories — Design Wallet™";
+        var metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) metaDesc.setAttribute("content", "Browse Design Wallet tools by category.");
+
+        if (categoryGridEl) {
+            categoryGridEl.innerHTML = groups.map(function (group) {
+                var previewTools = group.tools.slice(0, 3).map(function (tool) {
+                    return '<span>' + escapeHtml(tool.title) + '</span>';
+                }).join("");
+
+                return [
+                    '<a class="category-card" href="/tools/category/',
+                    encodeURIComponent(group.slug),
+                    '/" aria-label="Browse ',
+                    escapeHtml(group.title),
+                    ' tools">',
+                    '<div class="category-card-image">',
+                    group.previewImage ? '<img src="' + escapeHtml(group.previewImage) + '" alt="Preview for ' + escapeHtml(group.title) + ' category" loading="lazy">' : '<div class="category-card-image-fallback">' + escapeHtml(group.title.charAt(0)) + '</div>',
+                    '</div>',
+                    '<div class="category-card-top">',
+                    '<h2>',
+                    escapeHtml(group.title),
+                    '</h2>',
+                    '<span>',
+                    group.tools.length,
+                    '</span>',
+                    '</div>',
+                    '<div class="category-card-preview">',
+                    previewTools || '<span>View tools</span>',
+                    '</div>',
+                    '<div class="category-card-action">View category',
+                    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                    '</div>',
+                    '</a>'
+                ].join("");
+            }).join("");
+        }
+
+        hideAllViews();
+        if (categoryIndexEl) categoryIndexEl.hidden = false;
+    }
+
+    function renderCategoryList(group) {
+        document.title = group.title + " Tools — Design Wallet™";
+        var metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) metaDesc.setAttribute("content", "Browse " + group.title + " tools on Design Wallet.");
+
+        if (categoryTitleEl) categoryTitleEl.textContent = group.title;
+        if (categoryCountEl) {
+            categoryCountEl.textContent = group.tools.length + " tool" + (group.tools.length === 1 ? "" : "s") + " mapped to this category.";
+        }
+        if (categoryToolGridEl) categoryToolGridEl.innerHTML = group.tools.map(createToolCardMarkup).join("");
+
+        hideAllViews();
+        if (categoryListEl) categoryListEl.hidden = false;
     }
 
     function renderTool(tool, allTools) {
@@ -215,13 +535,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Show content
-        if (loadingEl) loadingEl.hidden = true;
+        hideAllViews();
         if (contentEl) contentEl.hidden = false;
     }
 
     function showNotFound(title, message) {
-        if (loadingEl) loadingEl.hidden = true;
-        if (contentEl) contentEl.hidden = true;
+        hideAllViews();
         if (notFoundEl) {
             var heading = notFoundEl.querySelector("h2");
             var copy = notFoundEl.querySelector("p");
@@ -294,6 +613,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 allTools = allTools.concat(buildTools(rows));
                 remaining -= 1;
                 if (remaining === 0) {
+                    allTools = dedupeTools(allTools);
                     if (allTools.length) {
                         setCachedTools(allTools);
                         onSuccess(allTools);
@@ -304,6 +624,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }, function () {
                 remaining -= 1;
                 if (remaining === 0) {
+                    allTools = dedupeTools(allTools);
                     if (allTools.length) {
                         setCachedTools(allTools);
                         onSuccess(allTools);
@@ -316,11 +637,43 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function init() {
-        var slug = getSlugFromUrl();
-        if (!slug) { showNotFound(); return; }
+        var slug = getRouteSlugFromUrl();
+        var categorySlug = getCategorySlugFromUrl();
+
+        attachCategorySearchListeners();
+
+        if (!isToolsRoute()) {
+            showNotFound("Page not found", "The page you're looking for doesn't exist or has been moved.");
+            return;
+        }
 
         function processTools(tools) {
             try {
+                tools = dedupeTools(tools);
+                categorySearchGroups = getCategoryGroups(tools);
+                renderCategorySearchResults("");
+
+                if (categorySlug) {
+                    var categoryGroup = findCategoryGroup(tools, categorySlug);
+                    if (categoryGroup) {
+                        renderCategoryList(categoryGroup);
+                    } else {
+                        showNotFound("Category not found", "This category does not exist yet.");
+                    }
+                    return;
+                }
+
+                if (!slug) {
+                    renderCategoryIndex(tools);
+                    return;
+                }
+
+                var implicitCategoryGroup = findCategoryGroup(tools, slug);
+                if (implicitCategoryGroup) {
+                    renderCategoryList(implicitCategoryGroup);
+                    return;
+                }
+
                 var tool = null;
                 for (var i = 0; i < tools.length; i++) {
                     if (tools[i].slug === slug) { tool = tools[i]; break; }

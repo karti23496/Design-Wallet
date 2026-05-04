@@ -28,43 +28,51 @@
 
         <main>
             <section class="design-index">
-                <header class="design-index-header" data-reveal>
-                    <p class="design-index-kicker">Design Wallet Blog</p>
-                    <h1>Design</h1>
-                    <p>Where design resources, creative habits and better workflows collide</p>
-                </header>
+                <aside class="design-index-sidebar" data-reveal>
+                    <header class="design-index-header">
+                        <p class="design-index-kicker">Design Wallet Blog</p>
+                        <h1>Design Wallet Daily.</h1>
+                        <p>Practical notes on resources, creative habits, tools, and sharper workflows for designers who like to keep exploring.</p>
+                    </header>
 
-                <nav class="design-topic-pills" aria-label="Blog topics" data-reveal>
-                    <a href="/blog/">UI Design</a>
-                    <a href="/blog/">Branding</a>
-                    <a href="/blog/">Inspiration</a>
-                    <a href="/blog/">Product Design</a>
-                    <a href="/blog/">AI Tools</a>
-                    <a href="/blog/">Workflow</a>
-                </nav>
+                    <nav class="design-topic-pills" aria-label="Blog topics">
+                        <p class="design-topic-title">Categories</p>
+                        <a href="/blog/" aria-current="page">All Articles</a>
+                        <a href="/blog/" data-blog-category="Image Generation">Image Generation</a>
+                        <a href="/blog/" data-blog-category="AI Tools">AI Tools</a>
+                    </nav>
+                </aside>
 
-                <div class="design-story-grid" aria-label="Latest design stories">
-                    <article class="design-story-card" data-reveal>
+                <div class="design-story-grid" aria-label="Latest blog stories">
+                    <article class="design-story-card" data-reveal data-blog-card data-blog-categories="Image Generation">
                         <a class="design-story-link" href="/blog/sampleblog01/">
                             <div class="design-story-media">
-                                <img src="https://ik.imagekit.io/saasflix/design-wallet-thumbnails/Creative%20Pep%20Talk.png?updatedAt=1773569895578" alt="">
+                                <img src="/public/images/star-bg.jpg" alt="">
                             </div>
                             <div class="design-story-copy">
-                                <span class="design-story-label">Habits / April 15, 2026</span>
+                                <span class="design-story-label">Image Generation</span>
                                 <h2>The Quiet Power of Small Habits</h2>
                                 <p>We often imagine change as something dramatic — a sudden burst of motivation, a bold decision, or a life-altering moment. But in reality, the most...</p>
+                                <div class="design-story-meta">
+                                    <span class="design-author"><img class="design-author-avatar" src="/public/images/authors/karthik-s-krishnan.jpeg" alt="" loading="lazy" aria-hidden="true"><span>Karthik S Krishnan</span></span>
+                                    <span>2 min</span>
+                                </div>
                             </div>
                         </a>
                     </article>
-                    <article class="design-story-card" data-reveal>
-                        <a class="design-story-link" href="/blog/sampleblog02/">
+                    <article class="design-story-card" data-reveal data-blog-card data-blog-categories="AI Tools">
+                        <a class="design-story-link" href="/blog/sampleblog01-2/">
                             <div class="design-story-media">
-                                <img src="https://ik.imagekit.io/saasflix/design-wallet-thumbnails/Creative%20Pep%20Talk.png?updatedAt=1773569895578" alt="">
+                                <img src="/public/images/Star - Background iamge.png" alt="">
                             </div>
                             <div class="design-story-copy">
-                                <span class="design-story-label">Habits / April 15, 2026</span>
-                                <h2>This is second blog 02</h2>
+                                <span class="design-story-label">AI Tools</span>
+                                <h2>The Quiet Power of Small Habits (1)</h2>
                                 <p>We often imagine change as something dramatic — a sudden burst of motivation, a bold decision, or a life-altering moment. But in reality, the most...</p>
+                                <div class="design-story-meta">
+                                    <span class="design-author"><img class="design-author-avatar" src="/public/images/authors/karthik-s-krishnan.jpeg" alt="" loading="lazy" aria-hidden="true"><span>Karthik S Krishnan</span></span>
+                                    <span>2 min</span>
+                                </div>
                             </div>
                         </a>
                     </article>
@@ -75,8 +83,8 @@
         <footer class="site-footer"></footer>
     </div>
 
-    <script src="/header.js?v=20260419-1"></script>
+    <script src="/header.js?v=20260426-2"></script>
     <script src="/footer.js"></script>
-    <script src="/script.js?v=20260419-4"></script>
+    <script src="/script.js"></script>
 </body>
 </html>

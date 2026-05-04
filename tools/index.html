@@ -20,7 +20,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/style.css?v=20260418-2">
+    <link rel="stylesheet" href="/style.css?v=20260427-1">
 </head>
 <body>
     <div class="page-shell">
@@ -28,14 +28,49 @@
 
         <main class="tool-page">
             <div class="tool-container">
-                <div class="tool-loading" id="tool-loading">Loading tool details...</div>
+                <div class="tool-loading" id="tool-loading">Loading tools...</div>
+
+                <div class="category-index-content" id="category-index-content" hidden>
+                    <div class="category-page-head">
+                        <a href="/" class="tool-back-link">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M5 12L12 19M5 12L12 5"/></svg>
+                            Back to home
+                        </a>
+                        <div class="category-index-head-row">
+                            <div>
+                                <p class="section-kicker">TOOLS INDEX</p>
+                                <h1>Browse by category.</h1>
+                                <p>Choose a category to see the relevant tools in that collection.</p>
+                            </div>
+                            <button class="category-search-trigger" type="button" data-category-search-open>
+                                Search categories
+                                <kbd>⌘K</kbd>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="category-grid" id="category-grid" aria-live="polite"></div>
+                </div>
+
+                <div class="category-list-content" id="category-list-content" hidden>
+                    <div class="category-page-head">
+                        <a href="/tools/" class="tool-back-link">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M5 12L12 19M5 12L12 5"/></svg>
+                            All categories
+                        </a>
+                        <p class="section-kicker">CATEGORY</p>
+                        <h1 id="category-title"></h1>
+                    </div>
+
+                    <div class="resource-grid category-tool-grid" id="category-tool-grid" aria-live="polite"></div>
+                </div>
 
                 <div class="tool-content" id="tool-content" hidden>
                     <div class="tool-layout">
                         <div class="tool-info-panel">
-                            <a href="/" class="tool-back-link">
+                            <a href="/tools/" class="tool-back-link" id="tool-back-link">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M5 12L12 19M5 12L12 5"/></svg>
-                                Back to all tools
+                                Back to categories
                             </a>
 
                             <div class="tool-header">
@@ -82,7 +117,7 @@
                 <div class="tool-not-found" id="tool-not-found" hidden>
                     <h2>Tool not found</h2>
                     <p>The tool you're looking for doesn't exist or has been removed.</p>
-                    <a href="/" class="tool-visit-btn">Browse all tools</a>
+                    <a href="/tools/" class="tool-visit-btn">Browse categories</a>
                 </div>
             </div>
         </main>
@@ -90,8 +125,21 @@
         <footer class="site-footer"></footer>
     </div>
 
-    <script src="/header.js?v=20260419-1"></script>
+    <div class="category-search-modal" id="category-search-modal" role="dialog" aria-modal="true" aria-labelledby="category-search-title" hidden>
+        <div class="category-search-backdrop" data-category-search-close></div>
+        <div class="category-search-panel">
+            <div class="category-search-input-row">
+                <label class="category-search-label" for="category-search-input" id="category-search-title">Search categories</label>
+                <input id="category-search-input" type="search" autocomplete="off" placeholder="Search Design Inspirations, AI Tools, UX Tools...">
+                <button type="button" class="category-search-close" data-category-search-close aria-label="Close search">x</button>
+            </div>
+            <div class="category-search-results" id="category-search-results" aria-live="polite"></div>
+        </div>
+    </div>
+
+    <script src="/content.js"></script>
+    <script src="/header.js?v=20260426-2"></script>
     <script src="/footer.js"></script>
-    <script src="/tools/tools.js?v=20260419-4"></script>
+    <script src="/tools/tools.js?v=20260427-1"></script>
 </body>
 </html>
