@@ -1,14 +1,14 @@
 function loadHeader() {
     var collectionItems = [
-        ["AI TOOLS", "sparkles", "/tools/category/ai-tools/"],
-        ["LEARNING", "learning", "/tools/category/learn-design/"],
-        ["INSPIRATION", "bolt", "/tools/category/design-inspirations/"],
-        ["COMMUNITY", "community", "/tools/category/design-communities/"],
-        ["UX TOOLS", "monitor", "/tools/category/ux-tools/"],
-        ["ICONS", "star", "/tools/category/icons/"],
-        ["COLOR TOOLS", "palette", "/tools/category/color-palatte/"],
-        ["MOCKUPS + KITS", "briefcase", "/tools/category/ui-kits/"],
-        ["WEB BUILDERS", "web", "/tools/category/website-builder-tools/"]
+        ["AI TOOLS", "sparkles", "/tools/?category=ai-tools"],
+        ["LEARNING", "learning", "/tools/?category=learn-design"],
+        ["INSPIRATION", "bolt", "/tools/?category=design-inspirations"],
+        ["COMMUNITY", "community", "/tools/?category=design-communities"],
+        ["UX TOOLS", "monitor", "/tools/?category=ux-tools"],
+        ["ICONS", "star", "/tools/?category=icons"],
+        ["COLOR TOOLS", "palette", "/tools/?category=color-palatte"],
+        ["MOCKUPS + KITS", "briefcase", "/tools/?category=ui-kits"],
+        ["WEB BUILDERS", "web", "/tools/?category=website-builder-tools"]
     ];
 
     function collectionLink(item) {

@@ -34,9 +34,6 @@ document.addEventListener("DOMContentLoaded", function () {
         var querySlug = slugify(params.get("t") || "");
 
         if (querySlug) {
-            if (window.history && window.history.replaceState) {
-                window.history.replaceState(null, "", "/tools/" + encodeURIComponent(querySlug));
-            }
             return querySlug;
         }
 
@@ -250,9 +247,9 @@ document.addEventListener("DOMContentLoaded", function () {
             }).join(", ");
 
             return [
-                '<a class="category-search-result" href="/tools/category/',
+                '<a class="category-search-result" href="/tools/?category=',
                 encodeURIComponent(group.slug),
-                '/">',
+                '">',
                 '<span>',
                 '<strong>',
                 escapeHtml(group.title),
@@ -345,9 +342,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (tool.price === "freemium") priceBadgeClass += " price-freemium";
 
         return [
-            '<a class="resource-card" href="/tools/',
+            '<a class="resource-card" href="/tools/?t=',
             encodeURIComponent(tool.slug),
-            '/" aria-label="Open ',
+            '" aria-label="Open ',
             escapeHtml(tool.title),
             '">',
             '<div class="card-shell">',
@@ -397,9 +394,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 }).join("");
 
                 return [
-                    '<a class="category-card" href="/tools/category/',
+                    '<a class="category-card" href="/tools/?category=',
                     encodeURIComponent(group.slug),
-                    '/" aria-label="Browse ',
+                    '" aria-label="Browse ',
                     escapeHtml(group.title),
                     ' tools">',
                     '<div class="category-card-image">',
@@ -513,7 +510,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var nextName = document.getElementById("tool-next-name");
 
         if (prevLink && prevName && prevTool) {
-            prevLink.href = "/tools/" + encodeURIComponent(prevTool.slug);
+            prevLink.href = "/tools/?t=" + encodeURIComponent(prevTool.slug);
             prevName.textContent = prevTool.title;
             prevLink.style.visibility = "";
         } else if (prevLink) {
@@ -521,7 +518,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (nextLink && nextName && nextTool) {
-            nextLink.href = "/tools/" + encodeURIComponent(nextTool.slug);
+            nextLink.href = "/tools/?t=" + encodeURIComponent(nextTool.slug);
             nextName.textContent = nextTool.title;
             nextLink.style.visibility = "";
         } else if (nextLink) {

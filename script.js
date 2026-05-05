@@ -582,7 +582,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         var cardHref = item.slug
-            ? "/tools/" + encodeURIComponent(slugify(item.slug))
+            ? "/tools/?t=" + encodeURIComponent(slugify(item.slug))
             : item.link;
         var cardTarget = item.slug ? '' : ' target="_blank" rel="noreferrer"';
 
@@ -1037,7 +1037,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 var logo = item.image || item.logo || "";
                 var category = escapeHtml(item.categories || item.category || item.subtitle || "");
                 var slug = slugify(item.slug || rawTitle);
-                var link = slug ? "/tools/" + encodeURIComponent(slug) : "#";
+                var link = slug ? "/tools/?t=" + encodeURIComponent(slug) : "#";
                 var thumbnailStr = item.thumbnails || item.thumbnail || item.banner_image || item.bannerimage || "";
 
                 /* Parse multiple thumbnails separated by comma or newline */
