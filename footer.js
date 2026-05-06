@@ -8,7 +8,6 @@ function loadFooter() {
         ["Community", "/tools/?category=design-communities", "M8 12a4 4 0 118 0 4 4 0 01-8 0zM3 21a7 7 0 0114 0M17 13a4 4 0 014 4v4"],
         ["UX Tools", "/tools/?category=ux-tools", "M4 6h16v10H4V6zm4 14h8M9 16l-1 4M15 16l1 4"],
         ["Icons", "/tools/?category=icons", "M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 15.6 7.1 18.2l.9-5.5-4-3.9 5.5-.8L12 3z"],
-        ["Blogs & Mags", "/blog/", "M5 4h14v16H5V4zm3 4h8M8 12h8M8 16h5"],
         ["Color Tools", "/tools/?category=color-palatte", "M12 3a9 9 0 100 18h1.5a2 2 0 001.8-2.9 1.6 1.6 0 011.4-2.4H18a6 6 0 00-6-12.7zM7 11h.1M9 7h.1M14 7h.1"],
         ["Mockups + Kits", "/tools/?category=ui-kits", "M4 8h16v10H4V8zm3-4h10v4H7V4z"],
         ["Books", "/books/", "M5 4h10a4 4 0 014 4v12H9a4 4 0 00-4-4V4z"],
