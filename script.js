@@ -54,6 +54,87 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     })();
 
+    /* ── Blog share button ── */
+    (function () {
+        var shareButtons = document.querySelectorAll("[data-blog-share]");
+        if (!shareButtons.length) return;
+
+        function closeShareMenu(control) {
+            var button = control.querySelector("[data-blog-share]");
+            var menu = control.querySelector(".blog-share-menu");
+            if (!button || !menu) return;
+
+            control.classList.remove("is-open");
+            button.setAttribute("aria-expanded", "false");
+            menu.hidden = true;
+        }
+
+        function closeAllShareMenus(exceptControl) {
+            document.querySelectorAll(".blog-share-control.is-open").forEach(function (control) {
+                if (control !== exceptControl) closeShareMenu(control);
+            });
+        }
+
+        function openShareMenu(control) {
+            var button = control.querySelector("[data-blog-share]");
+            var menu = control.querySelector(".blog-share-menu");
+            if (!button || !menu) return;
+
+            closeAllShareMenus(control);
+            control.classList.add("is-open");
+            button.setAttribute("aria-expanded", "true");
+            menu.hidden = false;
+        }
+
+        function buildShareUrl(network, title, url) {
+            var encodedUrl = encodeURIComponent(url);
+            var encodedTitle = encodeURIComponent(title);
+
+            if (network === "linkedin") {
+                return "https://www.linkedin.com/sharing/share-offsite/?url=" + encodedUrl;
+            }
+
+            return "https://twitter.com/intent/tweet?url=" + encodedUrl + "&text=" + encodedTitle;
+        }
+
+        shareButtons.forEach(function (button) {
+            var control = button.closest(".blog-share-control");
+            if (!control) return;
+
+            button.addEventListener("click", function (event) {
+                event.stopPropagation();
+                if (control.classList.contains("is-open")) {
+                    closeShareMenu(control);
+                    return;
+                }
+
+                openShareMenu(control);
+            });
+
+            control.querySelectorAll("[data-share-network]").forEach(function (link) {
+                link.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    var network = link.getAttribute("data-share-network");
+                    var shareUrl = buildShareUrl(network, button.getAttribute("data-share-title") || document.title, window.location.href);
+                    window.open(shareUrl, "_blank", "noopener,noreferrer,width=720,height=560");
+                    closeShareMenu(control);
+                });
+            });
+        });
+
+        document.addEventListener("click", function () {
+            closeAllShareMenus();
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                closeAllShareMenus();
+            }
+        });
+    })();
+
     /* ── Attribute-controlled shimmer timing ── */
     (function () {
         var shimmerItems = document.querySelectorAll("[data-shimmer-speed]");
@@ -95,7 +176,7 @@ document.addEventListener("DOMContentLoaded", function () {
     /* ── Waitlist modal and submission to Google Sheets ── */
     var SHEET_URL = "https://script.google.com/macros/s/AKfycbyyFhF70bpxR6nJbjULkETuxYNjAfEFfoshx_ven2Z3JrwC3Zjp61eJIBjx2SCouHYVig/exec";
     var waitlistModal = document.getElementById("waitlist-modal");
-    var waitlistForm = waitlistModal ? waitlistModal.querySelector(".waitlist-form") : null;
+    var waitlistForms = document.querySelectorAll(".waitlist-form");
     var waitlistOpeners = document.querySelectorAll("[data-waitlist-open]");
     var waitlistClosers = document.querySelectorAll("[data-waitlist-close]");
     var waitlistPath = "/join-waitlist";
@@ -135,7 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.classList.remove("waitlist-modal-open");
 
         if (shouldUpdatePath && isWaitlistPath() && window.history && window.history.replaceState) {
-            window.history.replaceState({ waitlistModal: false }, "", "/");
+            window.history.replaceState({}, "", "/");
         }
 
         if (previousFocus && typeof previousFocus.focus === "function") {
@@ -144,8 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     waitlistOpeners.forEach(function (opener) {
-        opener.addEventListener("click", function (event) {
-            event.preventDefault();
+        opener.addEventListener("click", function () {
             openWaitlistModal(true);
         });
     });
@@ -156,65 +236,454 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    document.addEventListener("keydown", function (event) {
-        if (event.key === "Escape" && waitlistModal && !waitlistModal.hidden) {
-            closeWaitlistModal(true);
-        }
+    if (waitlistModal) {
+        waitlistModal.addEventListener("click", function (event) {
+            if (event.target === waitlistModal) {
+                closeWaitlistModal(true);
+            }
+        });
+    }
+
+    waitlistForms.forEach(function (waitlistForm) {
+        waitlistForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            var formData = new FormData(waitlistForm);
+            var email = formData.get("email");
+            var submitButton = waitlistForm.querySelector("button[type='submit']");
+            var originalText = submitButton ? submitButton.textContent : "";
+            var isModalForm = waitlistModal && waitlistModal.contains(waitlistForm);
+
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.textContent = "Submitting...";
+            }
+
+            fetch(SHEET_URL, {
+                method: "POST",
+                body: new URLSearchParams({ email: email })
+            }).then(function () {
+                waitlistForm.reset();
+                if (submitButton) submitButton.textContent = "You're in";
+                window.setTimeout(function () {
+                    if (isModalForm) closeWaitlistModal(true);
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalText;
+                    }
+                }, 900);
+            }).catch(function () {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = "Try again";
+                }
+            });
+        });
     });
 
+    if (isWaitlistPath() && !isStandaloneWaitlistPage) {
+        openWaitlistModal(false);
+    }
+
     window.addEventListener("popstate", function () {
-        if (isWaitlistPath()) {
-            openWaitlistModal(false);
-        } else {
+        if (!isWaitlistPath()) {
             closeWaitlistModal(false);
         }
     });
 
-    if (isWaitlistPath()) {
-        openWaitlistModal(false);
+    /* ── Category search modal ── */
+    var categorySearchModal = document.getElementById("category-search-modal");
+    var categorySearchInput = document.getElementById("category-search-input");
+    var categorySearchResults = document.getElementById("category-search-results");
+    var categorySearchOpeners = document.querySelectorAll("[data-category-search-open]");
+    var categorySearchClosers = document.querySelectorAll("[data-category-search-close]");
+    var categorySearchGroups = [];
+    var categorySearchPreviousFocus = null;
+
+    function normalizeText(value) {
+        return String(value || "").toLowerCase().trim();
     }
 
-    if (waitlistForm) {
-        /* Create hidden iframe for form submission */
-        var iframe = document.createElement("iframe");
-        iframe.name = "hidden-sheet-frame";
-        iframe.style.display = "none";
-        document.body.appendChild(iframe);
+    function escapeAttribute(value) {
+        return String(value || "")
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+    }
 
-        /* Create hidden form that posts to the iframe */
-        var hiddenForm = document.createElement("form");
-        hiddenForm.method = "POST";
-        hiddenForm.action = SHEET_URL;
-        hiddenForm.target = "hidden-sheet-frame";
-        hiddenForm.style.display = "none";
-        var hiddenEmail = document.createElement("input");
-        hiddenEmail.name = "email";
-        hiddenForm.appendChild(hiddenEmail);
-        document.body.appendChild(hiddenForm);
+    function setLoadingState(message) {
+        if (!grid) return;
+        grid.innerHTML = '<p class="resource-state">' + message + '</p>';
+    }
 
-        waitlistForm.addEventListener("submit", function (e) {
-            e.preventDefault();
-            var input = waitlistForm.querySelector(".waitlist-email-input");
-            var btn = waitlistForm.querySelector(".waitlist-submit-button");
-            var email = input.value.trim();
-            if (!email) return;
+    function setErrorState(message) {
+        if (!grid) return;
+        grid.innerHTML = '<p class="resource-state resource-state-error">' + message + '</p>';
+    }
 
-            var defaultButtonText = btn.textContent;
-            btn.textContent = "Submitting...";
-            btn.disabled = true;
+    function sanitize(value) {
+        return String(value || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
 
-            hiddenEmail.value = email;
-            hiddenForm.submit();
+    function cellValue(cells, index) {
+        if (!cells[index]) return "";
+        return cells[index].f || cells[index].v || "";
+    }
 
-            setTimeout(function () {
-                input.value = "";
-                btn.textContent = "Subscribed!";
-                setTimeout(function () {
-                    btn.textContent = defaultButtonText;
-                    btn.disabled = false;
-                }, 3000);
-            }, 1500);
+    function slugify(value) {
+        return normalizeText(value)
+            .replace(/&/g, "and")
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+    }
+
+    function getCategoryGroups(items) {
+        var map = {};
+
+        items.forEach(function (item) {
+            if (!item.category) return;
+            var key = slugify(item.category);
+            if (!key) return;
+
+            if (!map[key]) {
+                map[key] = {
+                    title: item.category,
+                    slug: key,
+                    count: 0
+                };
+            }
+
+            map[key].count += 1;
         });
+
+        return Object.keys(map).map(function (key) {
+            return map[key];
+        }).sort(function (a, b) {
+            return a.title.localeCompare(b.title);
+        });
+    }
+
+    function resourceCard(item) {
+        var href = item.url || "#";
+        var paidClass = item.pricing === "Free" ? "is-free" : "is-paid";
+        return '' +
+            '<article class="resource-card" data-category="' + sanitize(item.category) + '" data-price="' + sanitize(item.pricing) + '">' +
+                '<a href="' + sanitize(href) + '" target="_blank" rel="noopener">' +
+                    '<div class="resource-card-media">' +
+                        (item.image ? '<img src="' + sanitize(item.image) + '" alt="" loading="lazy">' : '<span>' + sanitize(item.name.charAt(0)) + '</span>') +
+                    '</div>' +
+                    '<div class="resource-card-body">' +
+                        '<span class="resource-category">' + sanitize(item.category) + '</span>' +
+                        '<h3>' + sanitize(item.name) + '</h3>' +
+                        '<p>' + sanitize(item.description) + '</p>' +
+                    '</div>' +
+                    '<div class="resource-card-footer">' +
+                        '<span class="resource-price ' + paidClass + '">' + sanitize(item.pricing) + '</span>' +
+                        '<span class="resource-arrow">↗</span>' +
+                    '</div>' +
+                '</a>' +
+            '</article>';
+    }
+
+    function uniqueValues(items, key) {
+        var values = [];
+        items.forEach(function (item) {
+            var value = item[key];
+            if (value && values.indexOf(value) === -1) values.push(value);
+        });
+        return values.sort();
+    }
+
+    function createFilterButtons(values, container, type) {
+        if (!container) return;
+        container.innerHTML = "";
+        values.forEach(function (value) {
+            var button = document.createElement("button");
+            button.type = "button";
+            button.className = "filter-chip";
+            button.textContent = value;
+            button.setAttribute("data-filter-type", type);
+            button.setAttribute("data-filter-value", value);
+            container.appendChild(button);
+        });
+    }
+
+    function createCategoryFilters(items) {
+        var categories = uniqueValues(items, "category");
+        createFilterButtons(categories, categoryFilterList, "category");
+    }
+
+    function createPriceFilters(items) {
+        var prices = uniqueValues(items, "pricing");
+        createFilterButtons(prices, priceFilterList, "price");
+    }
+
+    function updateFilterButtonStates() {
+        document.querySelectorAll(".filter-chip").forEach(function (button) {
+            var type = button.getAttribute("data-filter-type");
+            var value = button.getAttribute("data-filter-value");
+            button.classList.toggle("is-active", activeFilters[type].indexOf(value) !== -1);
+        });
+    }
+
+    function updatePriceFilterStates() {
+        document.querySelectorAll("[data-price-filter]").forEach(function (button) {
+            var value = button.getAttribute("data-price-filter");
+            button.classList.toggle("is-active", activeFilters.price.indexOf(value) !== -1);
+        });
+    }
+
+    function matchesFilters(item) {
+        var search = normalizeText(searchInput ? searchInput.value : "");
+        var matchesSearch = !search || [item.name, item.description, item.category, item.pricing].some(function (value) {
+            return normalizeText(value).indexOf(search) !== -1;
+        });
+
+        var matchesCategory = !activeFilters.category.length || activeFilters.category.indexOf(item.category) !== -1;
+        var matchesPrice = !activeFilters.price.length || activeFilters.price.indexOf(item.pricing) !== -1;
+
+        return matchesSearch && matchesCategory && matchesPrice;
+    }
+
+    function updateResultsCount(count) {
+        if (!resultsCount) return;
+        resultsCount.textContent = count + " resource" + (count === 1 ? "" : "s");
+    }
+
+    function updateHighlights(items) {
+        var cards = document.querySelectorAll("[data-highlight-slot]");
+        if (!cards.length) return;
+
+        var highlighted = items.slice(0, cards.length);
+        cards.forEach(function (card, index) {
+            var item = highlighted[index];
+            if (!item) {
+                card.hidden = true;
+                return;
+            }
+
+            card.hidden = false;
+            var link = card.querySelector("a");
+            var image = card.querySelector("img");
+            var category = card.querySelector("[data-highlight-category]");
+            var title = card.querySelector("[data-highlight-title]");
+            var description = card.querySelector("[data-highlight-description]");
+            var price = card.querySelector("[data-highlight-price]");
+
+            if (link) link.href = item.url || "#";
+            if (image && item.image) image.src = item.image;
+            if (category) category.textContent = item.category;
+            if (title) title.textContent = item.name;
+            if (description) description.textContent = item.description;
+            if (price) {
+                price.textContent = item.pricing;
+                price.classList.toggle("is-free", item.pricing === "Free");
+                price.classList.toggle("is-paid", item.pricing !== "Free");
+            }
+        });
+    }
+
+    function applyFilters() {
+        var filtered = listings.filter(matchesFilters);
+
+        if (!grid) return;
+
+        grid.innerHTML = filtered.length
+            ? filtered.map(resourceCard).join("")
+            : '<p class="resource-state">No resources match your filters yet.</p>';
+
+        updateResultsCount(filtered.length);
+        updateFilterButtonStates();
+        updatePriceFilterStates();
+    }
+
+    function toggleFilter(type, value) {
+        var list = activeFilters[type];
+        var index = list.indexOf(value);
+
+        if (index === -1) {
+            list.push(value);
+        } else {
+            list.splice(index, 1);
+        }
+
+        applyFilters();
+    }
+
+    function clearFilters() {
+        activeFilters.category = [];
+        activeFilters.price = [];
+        if (searchInput) searchInput.value = "";
+        applyFilters();
+    }
+
+    function buildListings(rows) {
+        return rows.slice(1).map(function (row) {
+            var c = row.c || [];
+            return {
+                name: cellValue(c, 0),
+                category: cellValue(c, 1),
+                pricing: cellValue(c, 2),
+                description: cellValue(c, 3),
+                url: cellValue(c, 4),
+                image: cellValue(c, 5)
+            };
+        }).filter(function (item) {
+            return item.name && item.category;
+        });
+    }
+
+    function buildSheetUrl() {
+        var config = window.DESIGN_WALLET_CONFIG || {};
+        var sheetId = config.sheetId;
+        var sheetGid = config.sheetGid || "0";
+
+        if (!sheetId) return "";
+
+        return "https://docs.google.com/spreadsheets/d/" + sheetId + "/gviz/tq?tqx=out:json&gid=" + encodeURIComponent(sheetGid) + "&cachebust=" + Date.now();
+    }
+
+    function requestSheetData(url, onSuccess, onError) {
+        var script = document.createElement("script");
+        var timeoutId = 0;
+        var googleRoot = window.google || {};
+        var visualizationRoot = googleRoot.visualization || {};
+        var queryRoot = visualizationRoot.Query || {};
+        var previousSetResponse = queryRoot.setResponse;
+
+        function cleanup() {
+            clearTimeout(timeoutId);
+            script.remove();
+
+            if (previousSetResponse) {
+                window.google.visualization.Query.setResponse = previousSetResponse;
+            } else if (window.google && window.google.visualization && window.google.visualization.Query) {
+                delete window.google.visualization.Query.setResponse;
+            }
+        }
+
+        window.google = window.google || {};
+        window.google.visualization = window.google.visualization || {};
+        window.google.visualization.Query = window.google.visualization.Query || {};
+        window.google.visualization.Query.setResponse = function (payload) {
+            cleanup();
+            onSuccess(payload);
+        };
+
+        script.async = true;
+        script.src = url;
+        script.onerror = function () {
+            cleanup();
+            onError(new Error("Failed to load the Google Sheets feed."));
+        };
+
+        timeoutId = window.setTimeout(function () {
+            cleanup();
+            onError(new Error("Google Sheets feed timed out."));
+        }, 12000);
+
+        document.body.appendChild(script);
+    }
+
+    var CACHE_KEY = "dw_listings_cache";
+    var CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
+    function getCachedListings() {
+        try {
+            var raw = localStorage.getItem(CACHE_KEY);
+            if (!raw) return null;
+            var cached = JSON.parse(raw);
+            if (Date.now() - cached.timestamp > CACHE_TTL) {
+                localStorage.removeItem(CACHE_KEY);
+                return null;
+            }
+            return cached.rows;
+        } catch (e) { return null; }
+    }
+
+    function setCachedListings(rows) {
+        try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), rows: rows }));
+        } catch (e) { /* quota exceeded — ignore */ }
+    }
+
+    function applyListingsData(rows) {
+        listings = buildListings(rows);
+
+        if (!listings.length) {
+            throw new Error("No listings found in the sheet.");
+        }
+
+        createCategoryFilters(listings);
+        createPriceFilters(listings);
+        updateHighlights(listings);
+        applyFilters();
+
+        var searchInput = document.getElementById("resource-search");
+        if (searchInput) {
+            searchInput.placeholder = "What are you looking for today?";
+        }
+
+        if (typeof renderFavPage === "function") renderFavPage();
+    }
+
+    function loadListings() {
+        var sheetUrl = buildSheetUrl();
+
+        if (!sheetUrl) {
+            setErrorState("This browser could not initialize the Google Sheets feed.");
+            return;
+        }
+
+        // Try cache first for instant load
+        var cachedRows = getCachedListings();
+        if (cachedRows) {
+            try {
+                applyListingsData(cachedRows);
+            } catch (e) {
+                // Cache was bad, fall through to network
+                cachedRows = null;
+            }
+        }
+
+        if (!cachedRows) {
+            setLoadingState("Loading listings from Google Sheets...");
+        }
+
+        // Always fetch fresh data in the background
+        requestSheetData(
+            sheetUrl,
+            function (payload) {
+                var rows = payload && payload.table && payload.table.rows ? payload.table.rows : [];
+                setCachedListings(rows);
+                applyListingsData(rows);
+            },
+            function (error) {
+                if (!cachedRows) setErrorState(error.message);
+            }
+        );
+    }
+
+    var grid = document.getElementById("resources-grid");
+    var searchInput = document.getElementById("resource-search");
+    var categoryFilterList = document.getElementById("category-filter-list");
+    var priceFilterList = document.getElementById("price-filter-list");
+    var resultsCount = document.getElementById("results-count");
+    var clearButton = document.getElementById("clear-filters");
+    var listings = [];
+    var activeFilters = {
+        category: [],
+        price: []
+    };
+
+    if (searchInput) {
+        searchInput.addEventListener("input", applyFilters);
     }
 
     var siteHeader = document.querySelector(".site-header");
@@ -232,8 +701,16 @@ document.addEventListener("DOMContentLoaded", function () {
     var catalogNote = document.getElementById("catalog-note");
     var catalogHighlights = document.getElementById("catalog-highlights");
     var homeCategoryCloud = document.getElementById("home-category-cloud");
+    var categorySearchModal = document.getElementById("category-search-modal");
+    var categorySearchInput = document.getElementById("category-search-input");
+    var categorySearchResults = document.getElementById("category-search-results");
+    var categorySearchOpeners = document.querySelectorAll("[data-category-search-open]");
+    var categorySearchClosers = document.querySelectorAll("[data-category-search-close]");
+    var categorySearchGroups = [];
+    var categorySearchPreviousFocus = null;
     var activeCategory = "all";
     var listings = [];
+    var SHEET_REFRESH_INTERVAL = 5000;
 
     if (currentYear) {
         currentYear.textContent = String(new Date().getFullYear());
@@ -400,6 +877,21 @@ document.addEventListener("DOMContentLoaded", function () {
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/^-+|-+$/g, "");
+    }
+
+    function getPrimaryCategorySlug(item) {
+        var categories = item && Array.isArray(item.categories) ? item.categories : [];
+        return slugify(categories[0] || "tools");
+    }
+
+    function getToolPageHref(item) {
+        var slug = item && item.slug ? slugify(item.slug) : "";
+        if (!slug) return item && item.link ? item.link : "#";
+        return "/category/" + encodeURIComponent(getPrimaryCategorySlug(item)) + "/" + encodeURIComponent(slug) + "/";
+    }
+
+    function categoryHref(categorySlug) {
+        return "/category/" + encodeURIComponent(categorySlug || "") + "/";
     }
 
     function splitMediaLinks(value) {
@@ -581,9 +1073,7 @@ document.addEventListener("DOMContentLoaded", function () {
             priceBadgeClass += " price-freemium";
         }
 
-        var cardHref = item.slug
-            ? "/tools/?t=" + encodeURIComponent(slugify(item.slug))
-            : item.link;
+        var cardHref = getToolPageHref(item);
         var cardTarget = item.slug ? '' : ' target="_blank" rel="noreferrer"';
 
         return [
@@ -736,7 +1226,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return "";
         }
 
-        return "https://docs.google.com/spreadsheets/d/" + sheetId + "/gviz/tq?tqx=out:json&gid=" + encodeURIComponent(sheetGid);
+        return "https://docs.google.com/spreadsheets/d/" + sheetId + "/gviz/tq?tqx=out:json&gid=" + encodeURIComponent(sheetGid) + "&cachebust=" + Date.now();
     }
 
     function requestSheetData(url, onSuccess, onError) {
@@ -852,10 +1342,7 @@ document.addEventListener("DOMContentLoaded", function () {
             function (payload) {
                 var rows = payload && payload.table && payload.table.rows ? payload.table.rows : [];
                 setCachedListings(rows);
-                // Only re-render if we didn't already load from cache, or data changed
-                if (!cachedRows) {
-                    applyListingsData(rows);
-                }
+                applyListingsData(rows);
             },
             function () {
                 if (!cachedRows) {
@@ -867,16 +1354,157 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
+    function getCategoryGroups(items) {
+        var groups = {};
+
+        items.forEach(function (item) {
+            item.categories.forEach(function (category) {
+                var slug = slugify(category);
+                if (!slug) return;
+                if (!groups[slug]) {
+                    groups[slug] = { title: category, slug: slug, tools: [] };
+                }
+                groups[slug].tools.push(item);
+            });
+        });
+
+        return Object.keys(groups)
+            .map(function (key) { return groups[key]; })
+            .sort(function (left, right) { return left.title.localeCompare(right.title); });
+    }
+
+    function renderCategorySearchResults(query) {
+        if (!categorySearchResults) return;
+
+        var normalizedQuery = String(query || "").trim().toLowerCase();
+        var matches = categorySearchGroups.filter(function (group) {
+            var haystack = [
+                group.title,
+                group.slug,
+                group.tools.map(function (tool) { return tool.title; }).join(" ")
+            ].join(" ").toLowerCase();
+            return !normalizedQuery || haystack.indexOf(normalizedQuery) !== -1;
+        }).slice(0, 12);
+
+        if (!categorySearchGroups.length) {
+            categorySearchResults.innerHTML = '<p class="category-search-empty">Categories are still loading...</p>';
+            return;
+        }
+
+        if (!matches.length) {
+            categorySearchResults.innerHTML = '<p class="category-search-empty">No categories match that search.</p>';
+            return;
+        }
+
+        categorySearchResults.innerHTML = matches.map(function (group) {
+            var sampleTools = group.tools.slice(0, 3).map(function (tool) {
+                return escapeHtml(tool.title);
+            }).join(", ");
+
+            return [
+                '<a class="category-search-result" href="',
+                categoryHref(group.slug),
+                '">',
+                '<span>',
+                '<strong>',
+                escapeHtml(group.title),
+                '</strong>',
+                '<small>',
+                escapeHtml(sampleTools || "View category tools"),
+                '</small>',
+                '</span>',
+                '<em>',
+                group.tools.length,
+                ' tool',
+                group.tools.length === 1 ? '' : 's',
+                '</em>',
+                '</a>'
+            ].join("");
+        }).join("");
+    }
+
+    function openCategorySearch() {
+        if (!categorySearchModal) return;
+        categorySearchPreviousFocus = document.activeElement;
+        categorySearchModal.hidden = false;
+        document.body.classList.add("category-search-open");
+        renderCategorySearchResults(categorySearchInput ? categorySearchInput.value : "");
+
+        window.setTimeout(function () {
+            if (categorySearchInput) {
+                categorySearchInput.focus();
+                categorySearchInput.select();
+            }
+        }, 30);
+    }
+
+    function closeCategorySearch() {
+        if (!categorySearchModal) return;
+        categorySearchModal.hidden = true;
+        document.body.classList.remove("category-search-open");
+
+        if (categorySearchInput) {
+            categorySearchInput.value = "";
+        }
+
+        if (categorySearchPreviousFocus && typeof categorySearchPreviousFocus.focus === "function") {
+            categorySearchPreviousFocus.focus();
+        }
+    }
+
+    function attachCategorySearchListeners() {
+        if (!categorySearchOpeners.length && !categorySearchModal) return;
+
+        categorySearchOpeners.forEach(function (opener) {
+            opener.addEventListener("click", openCategorySearch);
+        });
+
+        categorySearchClosers.forEach(function (closer) {
+            closer.addEventListener("click", closeCategorySearch);
+        });
+
+        if (categorySearchInput) {
+            categorySearchInput.addEventListener("input", function () {
+                renderCategorySearchResults(categorySearchInput.value);
+            });
+        }
+
+        if (categorySearchResults) {
+            categorySearchResults.addEventListener("click", function (event) {
+                var link = event.target.closest ? event.target.closest("a") : null;
+                if (link) closeCategorySearch();
+            });
+        }
+
+        document.addEventListener("keydown", function (event) {
+            var isSearchShortcut = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
+            if (isSearchShortcut) {
+                event.preventDefault();
+                openCategorySearch();
+                return;
+            }
+
+            if (event.key === "Escape" && categorySearchModal && !categorySearchModal.hidden) {
+                closeCategorySearch();
+            }
+        });
+    }
+
     if (catalogSection) {
         attachFilterListeners();
         loadListings();
+        window.setInterval(loadListings, SHEET_REFRESH_INTERVAL);
     }
 
     function renderHomeCategoryCloud(rows) {
+        var homeListings = buildListings(rows);
+        categorySearchGroups = getCategoryGroups(homeListings);
+        renderCategorySearchResults(categorySearchInput ? categorySearchInput.value : "");
+
         if (!homeCategoryCloud) return;
 
         var categoryMap = {};
-        buildListings(rows).forEach(function (item) {
+        homeListings.forEach(function (item) {
             item.categories.forEach(function (category) {
                 if (!category) return;
                 var key = slugify(category);
@@ -926,7 +1554,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (cachedRows) {
             try {
                 renderHomeCategoryCloud(cachedRows);
-                return;
             } catch (e) {}
         }
 
@@ -943,7 +1570,11 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
+    attachCategorySearchListeners();
     loadHomeCategoryCloud();
+    if (homeCategoryCloud) {
+        window.setInterval(loadHomeCategoryCloud, SHEET_REFRESH_INTERVAL);
+    }
 
     /* ── Featured section from Google Sheets (separate JSONP to avoid conflict) ── */
     var FEATURED_CACHE_KEY = "dw_featured_cache_v2";
@@ -1035,9 +1666,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 var title = escapeHtml(rawTitle);
                 var desc = escapeHtml(item.description || "");
                 var logo = item.image || item.logo || "";
-                var category = escapeHtml(item.categories || item.category || item.subtitle || "");
+                var rawCategory = item.categories || item.category || item.subtitle || "";
+                var category = escapeHtml(rawCategory);
                 var slug = slugify(item.slug || rawTitle);
-                var link = slug ? "/tools/?t=" + encodeURIComponent(slug) : "#";
+                var categorySlug = slugify(String(rawCategory).split(/[,;]/)[0] || "tools");
+                var link = slug ? "/category/" + encodeURIComponent(categorySlug) + "/" + encodeURIComponent(slug) + "/" : "#";
                 var thumbnailStr = item.thumbnails || item.thumbnail || item.banner_image || item.bannerimage || "";
 
                 /* Parse multiple thumbnails separated by comma or newline */

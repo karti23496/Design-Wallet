@@ -150,6 +150,27 @@ function renderAuthor(author, avatar, className, avatarClassName) {
   return `<span class="${className}">${avatarHtml}<span>${escapeHtml(author)}</span></span>`;
 }
 
+function renderBlogShareButton(title) {
+  return `<div class="blog-share-control"><button class="blog-share-button" type="button" data-blog-share data-share-title="${escapeHtml(title)}" aria-haspopup="menu" aria-expanded="false" aria-label="Share this article" title="Share this article"><i class="fa-regular fa-arrow-up-right-from-square" aria-hidden="true"></i></button><div class="blog-share-menu" role="menu" hidden><a href="#" role="menuitem" data-share-network="linkedin">Share on Linkedin</a><a href="#" role="menuitem" data-share-network="x">Share on X (Twitter)</a></div></div>`;
+}
+
+function renderBlogWaitlistSidebar() {
+  return `<aside class="blog-waitlist-sidebar" aria-label="Join the waitlist">
+                    <div class="blog-waitlist-card">
+                        <img class="blog-waitlist-image" src="/public/images/9a569248-298d-4ea7-a061-15573df76ee5.png" alt="" loading="lazy" aria-hidden="true">
+                        <h2>Designer’s Weekly Drop.</h2>
+                        <p>Get handpicked design resources, tools, and inspiration delivered to your inbox.</p>
+                        <form class="waitlist-form blog-waitlist-form">
+                            <label class="waitlist-field">
+                                <span>Email ID</span>
+                                <input type="email" class="waitlist-email-input" name="email" placeholder="you@example.com" required>
+                            </label>
+                            <button type="submit" class="primary-button waitlist-submit-button">Submit</button>
+                        </form>
+                    </div>
+                </aside>`;
+}
+
 function escapeHtml(value) {
   return String(value || "")
     .replace(/&/g, "&amp;")
@@ -411,17 +432,25 @@ ${siteHead(`${title} - Design Wallet`, `Read ${title} on the Design Wallet blog.
             <article class="blog-article" data-reveal>
                 <a class="blog-back-link" href="/blog/"><span aria-hidden="true">&larr;</span> Blog</a>
 
-                <header class="blog-article-header">
-                    <p class="blog-kicker">${escapeHtml(category)}</p>
-                    <h1>${escapeHtml(title)}</h1>
-                    <div class="blog-article-meta">
-                        ${renderTime(date, displayDate)}
-                        ${renderAuthor(author, authorAvatar, "blog-author", "blog-author-avatar")}
-                    </div>
-                </header>
+                <div class="blog-article-layout">
+                    <div class="blog-article-main">
+                        <header class="blog-article-header">
+                            <p class="blog-kicker">${escapeHtml(category)}</p>
+                            <h1>${escapeHtml(title)}</h1>
+                            <div class="blog-article-meta">
+                                ${renderTime(date, displayDate)}
+                                ${renderAuthor(author, authorAvatar, "blog-author", "blog-author-avatar")}
+                                ${renderBlogShareButton(title)}
+                            </div>
+                        </header>
 
-                <div class="blog-content">
-                    ${content}
+                        <div class="blog-content">
+                            ${content}
+                        </div>
+
+                    </div>
+
+                    ${renderBlogWaitlistSidebar()}
                 </div>
             </article>
         </main>

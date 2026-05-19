@@ -68,7 +68,10 @@
                     </p>
 
                     <div class="hero-actions" data-reveal>
-                        <a href="/tools/" class="primary-button hero-waitlist-button">Explore collections</a>
+                        <button class="hero-category-search-trigger" type="button" data-category-search-open>
+                            <span>Search design inspirations, icons library, fonts, and more...</span>
+                            <kbd>⌘K</kbd>
+                        </button>
                     </div>
                 </div>
             </section>
@@ -230,7 +233,7 @@
                     <p class="home-category-cloud-loading">Loading categories...</p>
                 </div>
 
-                <a class="primary-button hero-waitlist-button home-category-cloud-link" href="/tools/">Explore collections</a>
+                <a class="primary-button hero-waitlist-button home-category-cloud-link" href="/category/">Explore collections</a>
             </section>
 
             <section class="home-testimonials-section" aria-label="Designer testimonials" data-reveal>
@@ -354,9 +357,21 @@
         </div>
     </div>
 
-    <script src="/content.js"></script>
-    <script src="/header.js?v=20260505-1"></script>
-    <script src="/footer.js"></script>
-    <script src="/script.js?v=20260505-1"></script>
+    <div class="category-search-modal" id="category-search-modal" role="dialog" aria-modal="true" aria-labelledby="category-search-title" hidden>
+        <div class="category-search-backdrop" data-category-search-close></div>
+        <div class="category-search-panel">
+            <div class="category-search-input-row">
+                <label class="category-search-label" for="category-search-input" id="category-search-title">Search categories</label>
+                <input id="category-search-input" type="search" autocomplete="off" placeholder="Search Design Inspirations, AI Tools, UX Tools...">
+                <button type="button" class="category-search-close" data-category-search-close aria-label="Close search">x</button>
+            </div>
+            <div class="category-search-results" id="category-search-results" aria-live="polite"></div>
+        </div>
+    </div>
+
+    <script src="/content.js?v=20260508-6"></script>
+    <script src="/header.js?v=20260508-6"></script>
+    <script src="/footer.js?v=20260508-6"></script>
+    <script src="/script.js?v=20260508-6"></script>
 </body>
 </html>
