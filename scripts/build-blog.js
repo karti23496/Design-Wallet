@@ -10,6 +10,7 @@ const notion = new Client({
 });
 
 const databaseId = process.env.NOTION_DATABASE_ID;
+const assetVersion = "20260519-1";
 const fallbackAuthor = "Karthik S Krishnan";
 const fallbackCoverImages = [
   "/public/images/star-bg.jpg",
@@ -220,7 +221,7 @@ function siteHead(title, description) {
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/style.css">`;
+    <link rel="stylesheet" href="/style.css?v=${assetVersion}">`;
 }
 
 async function getBlocks(blockId) {
@@ -458,9 +459,9 @@ ${siteHead(`${title} - Design Wallet`, `Read ${title} on the Design Wallet blog.
         <footer class="site-footer"></footer>
     </div>
 
-    <script src="/header.js?v=20260426-2"></script>
-    <script src="/footer.js"></script>
-    <script src="/script.js"></script>
+    <script src="/header.js?v=${assetVersion}"></script>
+    <script src="/footer.js?v=${assetVersion}"></script>
+    <script src="/script.js?v=${assetVersion}"></script>
 </body>
 </html>
 `;
@@ -551,9 +552,9 @@ ${siteHead("Blog - Design Wallet", "Field notes, ideas, and essays for curious d
         <footer class="site-footer"></footer>
     </div>
 
-    <script src="/header.js?v=20260426-2"></script>
-    <script src="/footer.js"></script>
-    <script src="/script.js"></script>
+    <script src="/header.js?v=${assetVersion}"></script>
+    <script src="/footer.js?v=${assetVersion}"></script>
+    <script src="/script.js?v=${assetVersion}"></script>
 </body>
 </html>
 `;
