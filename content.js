@@ -3,5 +3,5 @@ window.updateNotificationContent = {
     body: '28+ Design Communities are added in the repository.🤩',
     badge: '1',
     actionText: 'Learn more',
-    actionUrl: '/tools/?category=design-communities'
+    actionUrl: '/category/design-communities/'
 };

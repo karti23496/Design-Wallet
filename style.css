@@ -5279,7 +5279,7 @@ body.blog-index-page::before {
     font-family: "Geist", sans-serif;
     font-size: 4rem;
     font-weight: 600;
-    letter-spacing: -0.2rem;
+    letter-spacing: -0.15rem;
 }
 
 .blog-article-meta {
@@ -5432,9 +5432,9 @@ body.blog-index-page::before {
 
 .blog-content h2 {
     margin: 48px 0 18px;
-    font-size: 3rem;
-    font-weight: 400;
-    letter-spacing: -0.1rem;
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: -0.05rem;
 }
 
 .blog-content h3 {
@@ -5444,10 +5444,6 @@ body.blog-index-page::before {
 
 .blog-content p {
     margin: 0;
-}
-
-.blog-content p:first-child {
-    color: rgba(255, 255, 255, 0.78);
 }
 
 .blog-content p + p,
@@ -5707,12 +5703,12 @@ body.blog-index-page::before {
 
     .blog-content p,
     .blog-content li {
-        font-size: 0.94rem;
+        font-size: 1.3rem;
         line-height: 1.8;
     }
 
     .blog-content p:first-child {
-        font-size: 1rem;
+        font-size: 1.3rem;
     }
 
 }
@@ -5745,7 +5741,7 @@ body.blog-index-page::before {
 
     .blog-hero h1,
     .blog-article-header h1 {
-        font-size: 2rem;
+        font-size: 3rem;
     }
 
     .blog-article {

@@ -1,14 +1,14 @@
 function loadHeader() {
     var collectionItems = [
-        ["AI TOOLS", "sparkles", "/tools/?category=ai-tools"],
-        ["LEARNING", "learning", "/tools/?category=learn-design"],
-        ["INSPIRATION", "bolt", "/tools/?category=design-inspirations"],
-        ["COMMUNITY", "community", "/tools/?category=design-communities"],
-        ["UX TOOLS", "monitor", "/tools/?category=ux-tools"],
-        ["ICONS", "star", "/tools/?category=icons"],
-        ["COLOR TOOLS", "palette", "/tools/?category=color-palatte"],
-        ["MOCKUPS + KITS", "briefcase", "/tools/?category=ui-kits"],
-        ["WEB BUILDERS", "web", "/tools/?category=website-builder-tools"]
+        ["AI TOOLS", "sparkles", "/category/ai-tools/"],
+        ["LEARNING", "learning", "/category/learn-design/"],
+        ["INSPIRATION", "bolt", "/category/design-inspirations/"],
+        ["COMMUNITY", "community", "/category/design-communities/"],
+        ["UX TOOLS", "monitor", "/category/ux-tools/"],
+        ["ICONS", "star", "/category/icons/"],
+        ["COLOR TOOLS", "palette", "/category/color-palatte/"],
+        ["MOCKUPS + KITS", "briefcase", "/category/ui-kits/"],
+        ["WEB BUILDERS", "web", "/category/website-builder-tools/"]
     ];
 
     function collectionLink(item) {
@@ -26,7 +26,7 @@ function loadHeader() {
         '</button>' +
         '<nav class="site-nav" id="primary-nav">' +
             '<div class="nav-dropdown nav-collections-dropdown">' +
-                '<a class="nav-dropdown-trigger" href="/tools/" aria-haspopup="true">COLLECTIONS</a>' +
+                '<a class="nav-dropdown-trigger" href="/category/" aria-haspopup="true">COLLECTIONS</a>' +
                 '<div class="nav-dropdown-menu nav-collections-menu" aria-label="Collections">' +
                     collectionItems.map(collectionLink).join('') +
                 '</div>' +

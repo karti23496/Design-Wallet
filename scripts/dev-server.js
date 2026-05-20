@@ -332,7 +332,7 @@ function handleRequest(request, response) {
 
   if (!fs.existsSync(filePath)) {
     const pathname = new URL(request.url, "http://localhost").pathname;
-    if (/^\/tools(?:\/.*)?\/?$/.test(pathname)) {
+    if (/^\/(?:tools|category)(?:\/.*)?\/?$/.test(pathname)) {
       filePath = path.join(rootDir, "tools", "index.html");
     }
   }

@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var SHEET_GIDS = ["0", "1218813985"];
     var CACHE_KEY = "dw_tool_detail_cache_v4";
     var CACHE_TTL = 10 * 60 * 1000;
+    var SHEET_REFRESH_INTERVAL = 5000;
 
     var loadingEl = document.getElementById("tool-loading");
     var contentEl = document.getElementById("tool-content");
@@ -29,6 +30,12 @@ document.addEventListener("DOMContentLoaded", function () {
         "web-builders": "website-builder-tools"
     };
 
+    function getPathParts() {
+        return window.location.pathname.split("/").filter(Boolean).map(function (part) {
+            return slugify(decodeURIComponent(part));
+        });
+    }
+
     function getRouteSlugFromUrl() {
         var params = new URLSearchParams(window.location.search);
         var querySlug = slugify(params.get("t") || "");
@@ -37,18 +44,26 @@ document.addEventListener("DOMContentLoaded", function () {
             return querySlug;
         }
 
-        var pathParts = window.location.pathname.split("/").filter(Boolean);
+        var pathParts = getPathParts();
+        var categoryIndex = pathParts.indexOf("category");
+        if (categoryIndex !== -1 && pathParts[categoryIndex + 2]) {
+            return pathParts[categoryIndex + 2];
+        }
+
         var toolsIndex = pathParts.indexOf("tools");
-        if (toolsIndex !== -1 && pathParts[toolsIndex + 1]) {
-            return slugify(decodeURIComponent(pathParts[toolsIndex + 1]));
+        if (toolsIndex !== -1 && pathParts[toolsIndex + 1] && pathParts[toolsIndex + 1] !== "category") {
+            return pathParts[toolsIndex + 1];
         }
 
         return "";
     }
 
     function isToolsRoute() {
-        var pathParts = window.location.pathname.split("/").filter(Boolean);
-        return pathParts.indexOf("tools") !== -1 || Boolean(new URLSearchParams(window.location.search).get("t"));
+        var pathParts = getPathParts();
+        var params = new URLSearchParams(window.location.search);
+        return pathParts.indexOf("tools") !== -1 ||
+            pathParts.indexOf("category") !== -1 ||
+            Boolean(params.get("t") || params.get("category"));
     }
 
     function getCategorySlugFromUrl() {
@@ -56,10 +71,15 @@ document.addEventListener("DOMContentLoaded", function () {
         var queryCategory = slugify(params.get("category") || "");
         if (queryCategory) return normalizeCategorySlug(queryCategory);
 
-        var pathParts = window.location.pathname.split("/").filter(Boolean);
+        var pathParts = getPathParts();
+        var categoryIndex = pathParts.indexOf("category");
+        if (categoryIndex !== -1 && pathParts[categoryIndex + 1]) {
+            return normalizeCategorySlug(pathParts[categoryIndex + 1]);
+        }
+
         var toolsIndex = pathParts.indexOf("tools");
         if (toolsIndex !== -1 && pathParts[toolsIndex + 1] === "category" && pathParts[toolsIndex + 2]) {
-            return normalizeCategorySlug(slugify(decodeURIComponent(pathParts[toolsIndex + 2])));
+            return normalizeCategorySlug(pathParts[toolsIndex + 2]);
         }
 
         return "";
@@ -97,6 +117,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function normalizeCategorySlug(slug) {
         return CATEGORY_SLUG_ALIASES[slug] || slug;
+    }
+
+    function categoryHref(categorySlug) {
+        return "/category/" + encodeURIComponent(normalizeCategorySlug(slugify(categorySlug))) + "/";
+    }
+
+    function getToolCategorySlug(tool, fallbackSlug) {
+        if (fallbackSlug) return normalizeCategorySlug(slugify(fallbackSlug));
+        if (tool && tool.categories && tool.categories.length) {
+            return normalizeCategorySlug(slugify(tool.categories[0]));
+        }
+        return "tools";
+    }
+
+    function toolHref(tool, categorySlug) {
+        return categoryHref(getToolCategorySlug(tool, categorySlug)) + encodeURIComponent(tool.slug) + "/";
     }
 
     function splitThumbnailLinks(value) {
@@ -181,12 +217,31 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function dedupeTools(tools) {
-        var seen = {};
-        return tools.filter(function (tool) {
-            if (seen[tool.slug]) return false;
-            seen[tool.slug] = true;
-            return true;
+        var bySlug = {};
+        var merged = [];
+
+        tools.forEach(function (tool) {
+            if (!bySlug[tool.slug]) {
+                bySlug[tool.slug] = tool;
+                merged.push(tool);
+                return;
+            }
+
+            var existing = bySlug[tool.slug];
+            existing.categories = Array.from(new Set(
+                existing.categories.concat(tool.categories || []).filter(Boolean)
+            ));
+
+            if (!existing.thumbnail && tool.thumbnail) existing.thumbnail = tool.thumbnail;
+            if (!existing.icon && tool.icon) existing.icon = tool.icon;
+            if (!existing.link && tool.link) existing.link = tool.link;
+            if (!existing.subtitle && tool.subtitle) existing.subtitle = tool.subtitle;
+
+            var thumbnails = (existing.thumbnails || []).concat(tool.thumbnails || []).filter(Boolean);
+            existing.thumbnails = Array.from(new Set(thumbnails));
         });
+
+        return merged;
     }
 
     function getCategoryGroups(tools) {
@@ -247,8 +302,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }).join(", ");
 
             return [
-                '<a class="category-search-result" href="/tools/?category=',
-                encodeURIComponent(group.slug),
+                '<a class="category-search-result" href="',
+                categoryHref(group.slug),
                 '">',
                 '<span>',
                 '<strong>',
@@ -333,7 +388,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function createToolCardMarkup(tool) {
+    function createToolCardMarkup(tool, categorySlug) {
         var logo = tool.icon
             ? '<span class="logo-badge has-image"><img src="' + escapeHtml(tool.icon) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>'
             : '<span class="logo-badge">' + escapeHtml(tool.initials || getInitials(tool.title)) + '</span>';
@@ -342,8 +397,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (tool.price === "freemium") priceBadgeClass += " price-freemium";
 
         return [
-            '<a class="resource-card" href="/tools/?t=',
-            encodeURIComponent(tool.slug),
+            '<a class="resource-card" href="',
+            toolHref(tool, categorySlug),
             '" aria-label="Open ',
             escapeHtml(tool.title),
             '">',
@@ -394,8 +449,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 }).join("");
 
                 return [
-                    '<a class="category-card" href="/tools/?category=',
-                    encodeURIComponent(group.slug),
+                    '<a class="category-card" href="',
+                    categoryHref(group.slug),
                     '" aria-label="Browse ',
                     escapeHtml(group.title),
                     ' tools">',
@@ -434,13 +489,19 @@ document.addEventListener("DOMContentLoaded", function () {
         if (categoryCountEl) {
             categoryCountEl.textContent = group.tools.length + " tool" + (group.tools.length === 1 ? "" : "s") + " mapped to this category.";
         }
-        if (categoryToolGridEl) categoryToolGridEl.innerHTML = group.tools.map(createToolCardMarkup).join("");
+        if (categoryToolGridEl) {
+            categoryToolGridEl.innerHTML = group.tools.map(function (tool) {
+                return createToolCardMarkup(tool, group.slug);
+            }).join("");
+        }
 
         hideAllViews();
         if (categoryListEl) categoryListEl.hidden = false;
     }
 
     function renderTool(tool, allTools) {
+        var currentCategorySlug = getCategorySlugFromUrl();
+        var routeCategorySlug = getToolCategorySlug(tool, currentCategorySlug);
         document.title = tool.title + " — Design Wallet™";
         var metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) metaDesc.setAttribute("content", tool.subtitle || "Discover " + tool.title + " on Design Wallet.");
@@ -466,6 +527,11 @@ document.addEventListener("DOMContentLoaded", function () {
         // Visit button
         var visitBtn = document.getElementById("tool-visit-btn");
         if (visitBtn) visitBtn.href = addReferralParam(tool.link);
+
+        var backLink = document.getElementById("tool-back-link");
+        if (backLink) {
+            backLink.href = currentCategorySlug ? categoryHref(routeCategorySlug) : "/category/";
+        }
 
         // Categories
         var categoriesEl = document.getElementById("tool-categories");
@@ -510,7 +576,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var nextName = document.getElementById("tool-next-name");
 
         if (prevLink && prevName && prevTool) {
-            prevLink.href = "/tools/?t=" + encodeURIComponent(prevTool.slug);
+            prevLink.href = toolHref(prevTool, routeCategorySlug);
             prevName.textContent = prevTool.title;
             prevLink.style.visibility = "";
         } else if (prevLink) {
@@ -518,7 +584,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (nextLink && nextName && nextTool) {
-            nextLink.href = "/tools/?t=" + encodeURIComponent(nextTool.slug);
+            nextLink.href = toolHref(nextTool, routeCategorySlug);
             nextName.textContent = nextTool.title;
             nextLink.style.visibility = "";
         } else if (nextLink) {
@@ -597,7 +663,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function buildSheetUrl(gid) {
-        return "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&gid=" + encodeURIComponent(gid);
+        return "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&gid=" + encodeURIComponent(gid) + "&cachebust=" + Date.now();
     }
 
     function loadAllTools(onSuccess, onError) {
@@ -650,24 +716,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 categorySearchGroups = getCategoryGroups(tools);
                 renderCategorySearchResults("");
 
-                if (categorySlug) {
-                    var categoryGroup = findCategoryGroup(tools, categorySlug);
-                    if (categoryGroup) {
-                        renderCategoryList(categoryGroup);
-                    } else {
-                        showNotFound("Category not found", "This category does not exist yet.");
-                    }
-                    return;
-                }
-
                 if (!slug) {
-                    renderCategoryIndex(tools);
-                    return;
-                }
-
-                var implicitCategoryGroup = findCategoryGroup(tools, slug);
-                if (implicitCategoryGroup) {
-                    renderCategoryList(implicitCategoryGroup);
+                    if (categorySlug) {
+                        var categoryGroup = findCategoryGroup(tools, categorySlug);
+                        if (categoryGroup) {
+                            renderCategoryList(categoryGroup);
+                        } else {
+                            showNotFound("Category not found", "This category does not exist yet.");
+                        }
+                    } else {
+                        renderCategoryIndex(tools);
+                    }
                     return;
                 }
 
@@ -677,6 +736,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 if (tool) {
                     renderTool(tool, tools);
+                    return;
+                }
+
+                var implicitCategoryGroup = findCategoryGroup(tools, slug);
+                if (implicitCategoryGroup) {
+                    renderCategoryList(implicitCategoryGroup);
                 } else {
                     showNotFound();
                 }
@@ -689,12 +754,16 @@ document.addEventListener("DOMContentLoaded", function () {
         var cachedTools = getCachedTools();
         if (cachedTools) {
             processTools(cachedTools);
-            return;
         }
 
         loadAllTools(processTools, function () {
-            showNotFound("Could not load this tool", "Please refresh the page or try another listing.");
+            if (!cachedTools) {
+                showNotFound("Could not load this tool", "Please refresh the page or try another listing.");
+            }
         });
+        window.setInterval(function () {
+            loadAllTools(processTools, function () {});
+        }, SHEET_REFRESH_INTERVAL);
     }
 
     init();
