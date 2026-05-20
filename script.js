@@ -887,11 +887,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function getToolPageHref(item) {
         var slug = item && item.slug ? slugify(item.slug) : "";
         if (!slug) return item && item.link ? item.link : "#";
-        return "/category/" + encodeURIComponent(getPrimaryCategorySlug(item)) + "/" + encodeURIComponent(slug) + "/";
+        return "/tools/" + encodeURIComponent(slug) + "/?category=" + encodeURIComponent(getPrimaryCategorySlug(item));
     }
 
     function categoryHref(categorySlug) {
-        return "/category/" + encodeURIComponent(categorySlug || "") + "/";
+        return "/tools/?category=" + encodeURIComponent(categorySlug || "");
     }
 
     function splitMediaLinks(value) {
