@@ -36,6 +36,7 @@ function loadHeader() {
                 '<div class="nav-dropdown-menu" aria-label="Resources">' +
                     '<a href="/#submit">GOOD DEALS \uD83D\uDD25</a>' +
                     '<a href="/books/">BOOKS</a>' +
+                    '<a href="/blog/">BLOG</a>' +
                 '</div>' +
             '</div>' +
             '<a class="nav-waitlist-button" href="/join-waitlist" data-waitlist-open>JOIN WAITLIST</a>' +
