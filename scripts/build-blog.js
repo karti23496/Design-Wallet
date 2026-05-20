@@ -11,6 +11,7 @@ const notion = new Client({
 
 const databaseId = process.env.NOTION_DATABASE_ID;
 const assetVersion = "20260519-1";
+const siteUrl = "https://designwallet.in";
 const fallbackAuthor = "Karthik S Krishnan";
 const fallbackCoverImages = [
   "/public/images/star-bg.jpg",
@@ -201,7 +202,17 @@ function renderTime(date, displayDate, className = "") {
   return `<time${classAttr} datetime="${escapeHtml(date)}">${escapeHtml(displayDate)}</time>`;
 }
 
-function siteHead(title, description) {
+function absoluteUrl(value) {
+  if (!value) return "";
+  if (/^https?:\/\//i.test(value)) return value;
+  return `${siteUrl}${String(value).startsWith("/") ? "" : "/"}${value}`;
+}
+
+function siteHead(title, description, meta = {}) {
+  const pageUrl = absoluteUrl(meta.url || "");
+  const imageUrl = absoluteUrl(meta.image || "/public/illustrations/Meta Image.jpg");
+  const metaTitle = meta.title || title;
+
   return `    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
     <script>
@@ -214,6 +225,17 @@ function siteHead(title, description) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}">
+    <meta property="og:type" content="${escapeHtml(meta.type || "website")}">
+    <meta property="og:title" content="${escapeHtml(metaTitle)}">
+    <meta property="og:description" content="${escapeHtml(description)}">
+    ${pageUrl ? `<meta property="og:url" content="${escapeHtml(pageUrl)}">` : ""}
+    <meta property="og:image" content="${escapeHtml(imageUrl)}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${escapeHtml(metaTitle)}">
+    <meta name="twitter:description" content="${escapeHtml(description)}">
+    <meta name="twitter:image" content="${escapeHtml(imageUrl)}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -414,6 +436,8 @@ async function main() {
     const excerpt = getExcerpt(blocks);
     const wordCount = content.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
     const readTime = `${Math.max(1, Math.ceil(wordCount / 220))} min`;
+    const metaDescription = excerpt || `Read ${title} on the Design Wallet blog.`;
+    const metaImage = coverUrl || fallbackCoverImages[generatedPosts.length % fallbackCoverImages.length];
 
     generatedPosts.push({ title, slug, date, displayDate, excerpt, coverUrl, category, author, authorAvatar, readTime });
 
@@ -423,7 +447,12 @@ async function main() {
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
-${siteHead(`${title} - Design Wallet`, `Read ${title} on the Design Wallet blog.`)}
+${siteHead(`${title} - Design Wallet`, metaDescription, {
+  title,
+  type: "article",
+  url: `/blog/${slug}/`,
+  image: metaImage,
+})}
 </head>
 <body>
     <div class="page-shell">
@@ -520,10 +549,15 @@ ${siteHead(`${title} - Design Wallet`, `Read ${title} on the Design Wallet blog.
                         <span>Posts marked Draft in Notion stay hidden from the website.</span>
                     </div>`;
 
-  const blogIndexHtml = `<!DOCTYPE html>
+    const blogIndexImage = stories[0]?.image || "/public/illustrations/Meta Image.jpg";
+    const blogIndexHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
-${siteHead("Blog - Design Wallet", "Field notes, ideas, and essays for curious designers from Design Wallet.")}
+${siteHead("Blog - Design Wallet", "Field notes, ideas, and essays for curious designers from Design Wallet.", {
+  title: "Blog - Design Wallet",
+  url: "/blog/",
+  image: blogIndexImage,
+})}
 </head>
 <body class="blog-index-page">
     <div class="page-shell">
