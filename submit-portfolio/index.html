@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HLX9Y7DQV7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Your Portfolio | Design Wallet</title>
+    <meta
+        name="description"
+        content="Submit your personal portfolio website to be reviewed and considered for the curated Design Wallet portfolio library."
+    >
+    <meta property="og:image" content="https://designwallet.in/public/illustrations/Meta%20Image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://designwallet.in/public/illustrations/Meta%20Image.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
+    <link rel="canonical" href="https://www.designwallet.in/submit-portfolio">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body class="portfolio-submit-page">
+    <div class="page-shell">
+        <header class="site-header"></header>
+
+        <main class="portfolio-submit-main">
+            <section class="portfolio-submit-hero" aria-labelledby="portfolio-submit-title">
+                <div class="portfolio-submit-hero-glow" aria-hidden="true"></div>
+                <h1 id="portfolio-submit-title">Submit Your Portfolio to Design Wallet.</h1>
+                <p>
+                    Get your personal portfolio website featured in a curated library built for designers. Discover inspiring portfolios, increase visibility, and help others explore great design work.
+                </p>
+            </section>
+
+            <section class="portfolio-form-section" aria-labelledby="portfolio-form-title">
+                <div class="portfolio-form-card">
+
+                    <form class="portfolio-submit-form" id="portfolio-submission-form" name="portfolio-submissions" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+                        <input type="hidden" name="form-name" value="portfolio-submissions">
+                        <p class="portfolio-bot-field" aria-hidden="true">
+                            <label>Leave this field empty <input name="bot-field" tabindex="-1" autocomplete="off"></label>
+                        </p>
+                        <div class="portfolio-form-grid">
+                            <label class="portfolio-field">
+                                <span>Full Name <strong>*</strong></span>
+                                <input type="text" name="fullName" autocomplete="name" required>
+                                <small class="portfolio-field-error"></small>
+                            </label>
+
+                            <label class="portfolio-field">
+                                <span>Email Address <strong>*</strong></span>
+                                <input type="email" name="email" autocomplete="email" required>
+                                <small class="portfolio-field-error"></small>
+                            </label>
+
+                            <label class="portfolio-field portfolio-field-full">
+                                <span>Portfolio Website URL <strong>*</strong></span>
+                                <input type="url" name="portfolioUrl" inputmode="url" placeholder="https://yourportfolio.com" required>
+                                <small class="portfolio-field-error"></small>
+                            </label>
+
+                            <fieldset class="portfolio-field portfolio-radio-field" data-required-radio="designerRole">
+                                <legend>Designer Role <strong>*</strong></legend>
+                                <div class="portfolio-radio-grid">
+                                    <label><input type="radio" name="designerRole" value="Product Designer" required><span>Product Designer</span></label>
+                                    <label><input type="radio" name="designerRole" value="UI Designer"><span>UI Designer</span></label>
+                                    <label><input type="radio" name="designerRole" value="UX Designer"><span>UX Designer</span></label>
+                                    <label><input type="radio" name="designerRole" value="Brand Designer"><span>Brand Designer</span></label>
+                                    <label><input type="radio" name="designerRole" value="Graphic Designer"><span>Graphic Designer</span></label>
+                                    <label><input type="radio" name="designerRole" value="Motion Designer"><span>Motion Designer</span></label>
+                                    <label><input type="radio" name="designerRole" value="Web Designer"><span>Web Designer</span></label>
+                                    <label><input type="radio" name="designerRole" value="3D Designer"><span>3D Designer</span></label>
+                                    <label><input type="radio" name="designerRole" value="Illustrator"><span>Illustrator</span></label>
+                                    <label><input type="radio" name="designerRole" value="Creative Developer"><span>Creative Developer</span></label>
+                                    <label><input type="radio" name="designerRole" value="Multi-disciplinary Designer"><span>Multi-disciplinary Designer</span></label>
+                                </div>
+                                <small class="portfolio-field-error"></small>
+                            </fieldset>
+
+                            <label class="portfolio-field">
+                                <span>Country / Location <strong>*</strong></span>
+                                <input type="text" name="location" autocomplete="country-name" required>
+                                <small class="portfolio-field-error"></small>
+                            </label>
+
+                            <fieldset class="portfolio-field portfolio-checkbox-field">
+                                <legend>Primary Tools Used</legend>
+                                <div class="portfolio-checkbox-grid">
+                                    <label><input type="checkbox" name="primaryTools" value="Figma"><span>Figma</span></label>
+                                    <label><input type="checkbox" name="primaryTools" value="Framer"><span>Framer</span></label>
+                                    <label><input type="checkbox" name="primaryTools" value="Webflow"><span>Webflow</span></label>
+                                    <label><input type="checkbox" name="primaryTools" value="Photoshop"><span>Photoshop</span></label>
+                                    <label><input type="checkbox" name="primaryTools" value="Illustrator"><span>Illustrator</span></label>
+                                    <label><input type="checkbox" name="primaryTools" value="Blender"><span>Blender</span></label>
+                                    <label><input type="checkbox" name="primaryTools" value="After Effects"><span>After Effects</span></label>
+                                    <label><input type="checkbox" name="primaryTools" value="Spline"><span>Spline</span></label>
+                                    <label><input type="checkbox" name="primaryTools" value="Cinema4D"><span>Cinema4D</span></label>
+                                    <label><input type="checkbox" name="primaryTools" value="Rive"><span>Rive</span></label>
+                                    <label><input type="checkbox" name="primaryTools" value="Other"><span>Other</span></label>
+                                </div>
+                                <small class="portfolio-field-error"></small>
+                            </fieldset>
+
+                            <label class="portfolio-field portfolio-field-full">
+                                <span>Portfolio Description <strong>*</strong></span>
+                                <textarea name="portfolioDescription" rows="5" required></textarea>
+                                <small class="portfolio-field-error"></small>
+                            </label>
+                        </div>
+
+                        <label class="portfolio-permission">
+                            <input type="checkbox" name="permission" required>
+                            <span>I confirm this is my original portfolio website and I give Design Wallet permission to feature it publicly.</span>
+                        </label>
+                        <small class="portfolio-checkbox-error" data-checkbox-error></small>
+
+                        <div class="portfolio-submit-actions">
+                            <button class="portfolio-submit-button" type="submit">Submit Portfolio</button>
+                            <p class="portfolio-success-message" role="status" aria-live="polite" hidden>
+                                Thanks for submitting your portfolio. We'll review it and get back to you if it's approved.
+                            </p>
+                            <p class="portfolio-submit-error" role="alert" hidden>
+                                Something went wrong. Please try again.
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+
+        <footer class="site-footer"></footer>
+    </div>
+
+    <script src="/header.js"></script>
+    <script src="/footer.js"></script>
+    <script src="/script.js"></script>
+    <script>
+        window.DESIGN_WALLET_PORTFOLIO_SUBMISSION_URL = "https://script.google.com/macros/s/AKfycbzMPNRG2J7SEQOKHG8rAJatbIkXK9yus_9w-tZdAkBwCkArd2S-p85KHyNxHsdRWiHzWQ/exec";
+    </script>
+    <script src="/submit-portfolio/submit-portfolio.js"></script>
+</body>
+</html>

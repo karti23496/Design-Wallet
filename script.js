@@ -1217,6 +1217,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var SHEET_ID = "1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8";
     var SHEET_GID = "0";
+    var PORTFOLIO_FEED_URL = "https://script.google.com/macros/s/AKfycbzMPNRG2J7SEQOKHG8rAJatbIkXK9yus_9w-tZdAkBwCkArd2S-p85KHyNxHsdRWiHzWQ/exec";
 
     function buildSheetUrl() {
         var sheetId = (catalogSection && catalogSection.dataset.sheetId) || SHEET_ID;
@@ -1271,6 +1272,51 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.appendChild(script);
     }
 
+    function requestPortfolioData(onSuccess, onError) {
+        if (!PORTFOLIO_FEED_URL) {
+            onSuccess([]);
+            return;
+        }
+
+        var callbackName = "dwPortfolioFeed_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+        var script = document.createElement("script");
+        var timeoutId = 0;
+        var separator = PORTFOLIO_FEED_URL.indexOf("?") === -1 ? "?" : "&";
+
+        function cleanup() {
+            clearTimeout(timeoutId);
+            script.remove();
+            try {
+                delete window[callbackName];
+            } catch (e) {
+                window[callbackName] = undefined;
+            }
+        }
+
+        window[callbackName] = function (payload) {
+            cleanup();
+            if (payload && payload.ok && Array.isArray(payload.items)) {
+                onSuccess(payload.items);
+                return;
+            }
+            onError(new Error("Portfolio feed returned an invalid response."));
+        };
+
+        script.async = true;
+        script.src = PORTFOLIO_FEED_URL + separator + "callback=" + encodeURIComponent(callbackName) + "&cachebust=" + Date.now();
+        script.onerror = function () {
+            cleanup();
+            onError(new Error("Failed to load portfolio submissions."));
+        };
+
+        timeoutId = window.setTimeout(function () {
+            cleanup();
+            onError(new Error("Portfolio feed timed out."));
+        }, 12000);
+
+        document.body.appendChild(script);
+    }
+
     var CACHE_KEY = "dw_listings_cache";
     var CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
@@ -1293,8 +1339,45 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (e) { /* quota exceeded — ignore */ }
     }
 
-    function applyListingsData(rows) {
-        listings = buildListings(rows);
+    function buildPortfolioListings(items) {
+        return (items || []).map(function (item) {
+            var title = item.fullName || "Designer Portfolio";
+            var description = item.description || [
+                item.designerRole,
+                item.location
+            ].filter(Boolean).join(" · ") || "Personal portfolio website submitted to Design Wallet.";
+            var slug = slugify("portfolio-" + title + "-" + (item.portfolioUrl || ""));
+
+            return {
+                title: title,
+                subtitle: item.designerRole || "Designer Portfolio",
+                description: description,
+                categories: ["Design Portfolio"],
+                price: "free",
+                priceLabel: "PORTFOLIO",
+                link: item.portfolioUrl || "",
+                icon: "",
+                thumbnail: "",
+                slug: "",
+                initials: getInitials(title),
+                searchText: [
+                    title,
+                    item.designerRole,
+                    item.location,
+                    item.primaryTools,
+                    description,
+                    "Design Portfolio",
+                    "designer portfolio",
+                    slug
+                ].join(" ").toLowerCase()
+            };
+        }).filter(function (item) {
+            return item.title && item.link;
+        });
+    }
+
+    function applyListingsData(rows, portfolioItems) {
+        listings = buildListings(rows).concat(buildPortfolioListings(portfolioItems));
 
         if (!listings.length) {
             throw new Error("No listings found in the sheet.");
@@ -1341,8 +1424,16 @@ document.addEventListener("DOMContentLoaded", function () {
             sheetUrl,
             function (payload) {
                 var rows = payload && payload.table && payload.table.rows ? payload.table.rows : [];
-                setCachedListings(rows);
-                applyListingsData(rows);
+                requestPortfolioData(
+                    function (portfolioItems) {
+                        setCachedListings(rows);
+                        applyListingsData(rows, portfolioItems);
+                    },
+                    function () {
+                        setCachedListings(rows);
+                        applyListingsData(rows, []);
+                    }
+                );
             },
             function () {
                 if (!cachedRows) {
@@ -1496,8 +1587,8 @@ document.addEventListener("DOMContentLoaded", function () {
         window.setInterval(loadListings, SHEET_REFRESH_INTERVAL);
     }
 
-    function renderHomeCategoryCloud(rows) {
-        var homeListings = buildListings(rows);
+    function renderHomeCategoryCloud(rows, portfolioItems) {
+        var homeListings = buildListings(rows).concat(buildPortfolioListings(portfolioItems));
         categorySearchGroups = getCategoryGroups(homeListings);
         renderCategorySearchResults(categorySearchInput ? categorySearchInput.value : "");
 
@@ -1561,8 +1652,16 @@ document.addEventListener("DOMContentLoaded", function () {
             buildSheetUrl(),
             function (payload) {
                 var rows = payload && payload.table && payload.table.rows ? payload.table.rows : [];
-                setCachedListings(rows);
-                renderHomeCategoryCloud(rows);
+                requestPortfolioData(
+                    function (portfolioItems) {
+                        setCachedListings(rows);
+                        renderHomeCategoryCloud(rows, portfolioItems);
+                    },
+                    function () {
+                        setCachedListings(rows);
+                        renderHomeCategoryCloud(rows, []);
+                    }
+                );
             },
             function () {
                 homeCategoryCloud.innerHTML = '<p class="home-category-cloud-loading">Could not load categories right now.</p>';
