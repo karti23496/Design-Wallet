@@ -31,14 +31,15 @@
 
 ## 2. Site Structure
 
-- **`DECIDED` The catalogue becomes the front door.** `/` *is* the catalogue. **Deferred to §5 step 4** — it lands with the Astro migration, not the paywall removal.
-- **`DECIDED` The marketing homepage is removed** — hero, designer-roles strip, bento cards, testimonials all go. **Partially done:** the waitlist modal is gone and both CTAs now point at `/category/`. The hero, bento and testimonial sections are still live, and come out in §5 step 4.
+- **`✅ DONE`** ~~The catalogue becomes the front door.~~ `/` now renders the catalogue dashboard. *Brought forward from §5 step 4 at Karthik's request — done on the current stack rather than waiting for Astro.*
+- **`✅ DONE`** ~~The marketing homepage is removed~~ — hero, designer-roles strip, bento cards, testimonials and the category-cloud teaser are all gone. `index.html` was rebuilt from the catalogue shell.
 - **Important correction:** the homepage never contained the catalogue. It has a category *name cloud* teaser linking to the old pricing page. **The real catalogue lives inside `404.html`** (GitHub Pages serves it for unmatched routes), which hand-rolls three views — category index, category list, tool detail — via `hidden` toggles.
-- **`DECIDED` Moving the catalogue out of `404.html` and onto `/` is the actual task.** It is not a deletion job.
+- **`✅ DONE`** ~~Moving the catalogue out of `404.html` and onto `/` is the actual task.~~ `index.html`, `404.html` and `tools/index.html` now share one dashboard shell. **This also fixed a live bug** — see the implementation log.
 - **`DECIDED` Layout reference is `curations.supply`** — title, one line of context, then straight into the links. No marketing preamble.
 - **`DECIDED` Keep a short About surface** (a page, or a line in the header) so first-time visitors know what this is.
 - **`DECIDED` Once open source, the GitHub link and licence go in the header**, visible upfront.
-- **`✅ DONE`** ~~Blog goes in the primary nav.~~ Nav is now `BROWSE → /category/` + `BLOG → /blog/`, identical on every page.
+- **`✅ DONE`** ~~Blog goes in the primary nav.~~ Nav is `BROWSE → /category/` · `TOOLS ▾` · `BLOG → /blog/`, identical on every page.
+- **`✅ DONE`** ~~A TOOLS dropdown lists Design Wallet's own tools.~~ Driven by the `DW_TOOLS` array at the top of `header.js` — adding a tool is one line. **Currently only one tool exists** (Color Code Converter).
 - **Note:** `tools/category/*` are eleven 6-line redirect stubs pointing at `/category/*`. They disappear with file-based routing.
 
 ## 3. Data & Backend
@@ -103,7 +104,7 @@ Established while fixing a real incident — the homepage was shipping **127 MB*
 
 ### Known issues, not yet fixed
 
-- **`PENDING` Five hero avatars load from `i.pravatar.cc`** — a third-party demo service, **above the fold**, gating hero paint. Biggest remaining perf win. Replacing them changes who appears in the hero, so it's a content decision. *(Moot if §2 removes the hero.)*
+- **`✅ DONE`** ~~Five hero avatars load from `i.pravatar.cc`.~~ Resolved by deletion — the hero is gone, so the five third-party requests went with it.
 - **`PENDING` 124 MB of original JPEGs remain in `public/testimonial images/`**, unreferenced. Now committed to git history as of the preservation commit. Deleting them going forward won't shrink history.
 - **`PENDING` Font typo:** `style.css` reads `font-family: 'giest'` — should be `'Geist'`. Silently falling back to sans-serif today. *Deliberately not fixed during the paywall removal — it changes rendering, and shouldn't be buried in a large deletion diff.*
 - **`PENDING` Two separate Google Fonts stylesheet requests** could be merged into one round trip.
@@ -131,6 +132,16 @@ Established while fixing a real incident — the homepage was shipping **127 MB*
 **Verified after the change:** all 12 surviving routes return 200 · all 4 deleted routes return 404 · every asset reference across every HTML file resolves · all 6 JS files pass `node --check` · zero surviving references to `/pricing/`, `/account/`, `/auth/`, `/join-waitlist`, `dw-gate-pending`, `DWAuth`, or `supabase`.
 
 **Not merged.** Review the diff with `git diff main` before merging.
+
+**2026-08-24 — Catalogue becomes the homepage + TOOLS dropdown** · commit `eddc84b`
+
+- `/` now renders the catalogue dashboard; the marketing homepage is gone.
+- `tools.js` gained `isRootRoute()`; `/` and `/index.html` are catalogue routes. Verified against 9 route cases — real 404s still show "Page not found".
+- Nav gained a `TOOLS` dropdown backed by `DW_TOOLS` in `header.js`.
+
+**Bug found and fixed in passing:** `404.html` still carried the *old* `category-index-content` markup, but `tools.js` only ever calls `renderDashboard()`, which needs `#dashboard-view`. GitHub Pages serves `404.html` for every `/category/*` deep link — so **the main browsing path was rendering a blank page in production**. All three shells now share the same markup.
+
+**Newly dead as a result:** `renderCategoryIndex()` and `renderCategoryList()` in `tools.js` (defined, never called, and their markup no longer exists anywhere); the optimised testimonial avatars in `public/avatars/` and the two illustration WebPs are now unreferenced (~175 KB, harmless); the homepage-only sections of `script.js` (hero shine, category cloud, featured section) no longer run anywhere, though `script.js` is still used by 7 other pages.
 
 ---
 
