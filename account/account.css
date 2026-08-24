@@ -1,0 +1,266 @@
+/* ============================================================================
+   Shared styles for the auth screens (login/setup) and the account-status page.
+   Uses the global dark theme tokens from /style.css.
+   ============================================================================ */
+
+/* ── Centered shell (login / setup) ──────────────────────────────────────── */
+.auth-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 48px 20px;
+}
+
+.auth-shell--dashboard {
+    justify-content: flex-start;
+    padding-top: 80px;
+}
+
+.auth-brand img { height: 28px; width: auto; }
+
+.auth-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+    box-shadow: var(--shadow);
+}
+
+.auth-card--loading { text-align: center; }
+
+.auth-title {
+    font-family: "Geist", sans-serif;
+    font-weight: 500;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin: 0 0 8px;
+}
+
+.auth-intro {
+    color: var(--muted-strong);
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin: 0 0 22px;
+}
+
+/* ── Banner (info / smart-recognition) ───────────────────────────────────── */
+.auth-banner {
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border);
+    color: var(--muted-strong);
+}
+
+/* ── Form ────────────────────────────────────────────────────────────────── */
+.auth-form { display: flex; flex-direction: column; gap: 16px; }
+
+.auth-field { display: flex; flex-direction: column; gap: 7px; }
+
+.auth-field > span {
+    font-family: "Geist Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.auth-field input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.95rem;
+    font-family: "Inter", sans-serif;
+}
+
+.auth-field input:focus {
+    outline: none;
+    border-color: var(--border-strong);
+}
+
+.auth-field input.is-locked {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.auth-error {
+    margin: 0;
+    color: #ff6b6b;
+    font-size: 0.84rem;
+    line-height: 1.4;
+}
+
+.auth-submit {
+    background: #ffffff;
+    color: #070707;
+    border: none;
+    cursor: pointer;
+    padding: 14px 24px;
+    width: 100%;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.auth-submit:hover:not([disabled]) {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.auth-submit[disabled] { opacity: 0.6; cursor: progress; }
+
+/* ── "or" divider + Google sign-in ───────────────────────────────────────── */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0;
+    color: var(--muted);
+    font-size: 0.78rem;
+}
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.auth-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: #ffffff;
+    color: #1f1f1f;
+    font-family: "Inter", sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.auth-google:hover,
+.auth-google:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Secondary links ─────────────────────────────────────────────────────── */
+.auth-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: space-between;
+    margin-top: 18px;
+}
+
+.auth-link {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 0.82rem;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    transition: color 0.18s ease;
+}
+
+.auth-link:hover { color: var(--muted-strong); }
+.auth-link.is-emphasis { color: #ffffff; font-weight: 500; }
+
+.auth-foot {
+    margin: 22px 0 0;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.auth-foot a { color: var(--muted-strong); text-decoration: underline; }
+
+/* ── Dashboard ───────────────────────────────────────────────────────────── */
+.dash-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.dash-label {
+    font-family: "Geist Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.dash-value { color: var(--text); font-size: 0.92rem; }
+
+.dash-status {
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+}
+
+.dash-status[data-state="active"] { color: #7bd88f; border-color: rgba(123, 216, 143, 0.4); }
+.dash-status[data-state="suspended"] { color: #ffb454; border-color: rgba(255, 180, 84, 0.4); }
+
+.dash-active, .dash-suspended { margin-top: 22px; }
+
+.dash-suspended-copy {
+    color: var(--muted-strong);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin: 0 0 16px;
+}
+
+.dash-manage {
+    margin: 14px 0 0;
+    text-align: center;
+    font-size: 0.85rem;
+}
+.dash-manage a { color: var(--muted); text-decoration: underline; }
+.dash-manage a:hover { color: var(--muted-strong); }
+
+.dash-cta {
+    background: #ffffff;
+    color: #070707;
+    border: none;
+    width: 100%;
+    padding: 14px 24px;
+}
+
+.dash-pw { margin-top: 24px; }
+
+.dash-pw summary {
+    cursor: pointer;
+    list-style: none;
+    color: var(--muted);
+    font-size: 0.85rem;
+    text-decoration: underline;
+    margin-bottom: 14px;
+}
+.dash-pw summary::-webkit-details-marker { display: none; }
+
+.dash-loading { color: var(--muted); text-align: center; margin: 0; }
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+    .auth-card { padding: 26px 20px; }
+    .auth-links { gap: 10px; }
+}

@@ -1,5 +1,9 @@
 # Design Wallet Website
 
+> **📌 [DECISIONS.md](DECISIONS.md) is the source of truth for this project.**
+> Every agreed product and technical decision lives there. Read it before making changes —
+> especially the direction changes in progress (going free + open source, migrating to Astro).
+
 Design Wallet is a static landing page that now pulls its catalog listings directly from Google Sheets.
 
 ## Project Files

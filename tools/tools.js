@@ -19,6 +19,15 @@ document.addEventListener("DOMContentLoaded", function () {
     var categorySearchResults = document.getElementById("category-search-results");
     var categorySearchOpeners = document.querySelectorAll("[data-category-search-open]");
     var categorySearchClosers = document.querySelectorAll("[data-category-search-close]");
+    var dashboardViewEl = document.getElementById("dashboard-view");
+    var dashNavEl = document.getElementById("dash-nav");
+    var dashGridEl = document.getElementById("dash-grid");
+    var dashTitleEl = document.getElementById("dash-title");
+    var dashCountEl = document.getElementById("dash-count");
+    var dashSearchEl = document.getElementById("dash-search");
+    var dashSearchInputEl = document.getElementById("dash-search-input");
+    var dashMainEl = document.getElementById("dash-main");
+    var dashState = { selected: "", base: [] };
     var categorySearchGroups = [];
     var categorySearchPreviousFocus = null;
     var CATEGORY_SLUG_ALIASES = {
@@ -426,12 +435,164 @@ document.addEventListener("DOMContentLoaded", function () {
         ].join("");
     }
 
+    function priceClassName(price) {
+        if (price === "free") return "price-free";
+        if (price === "freemium") return "price-freemium";
+        return "price-paid";
+    }
+
+    function createDashCardMarkup(tool, categorySlug) {
+        var detailUrl = toolHref(tool, categorySlug);
+        var logo = tool.icon
+            ? '<span class="dash-card-logo"><img src="' + escapeHtml(tool.icon) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>'
+            : '<span class="dash-card-logo">' + escapeHtml(tool.initials || getInitials(tool.title)) + '</span>';
+        var dollar = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>';
+        var primaryCat = (tool.categories && tool.categories[0]) || "";
+        var catHref = primaryCat
+            ? "/category/?category=" + encodeURIComponent(normalizeCategorySlug(slugify(primaryCat)))
+            : "/category/";
+        var arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>';
+        var tagIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>';
+
+        return [
+            '<div class="dash-card">',
+            '<a class="dash-card-hit" href="', detailUrl, '" aria-label="Open ', escapeHtml(tool.title), '"></a>',
+            '<div class="dash-card-top">',
+            logo,
+            '<div class="dash-card-badges"><span class="dash-badge ', priceClassName(tool.price), '">', dollar, escapeHtml(tool.priceLabel || formatPrice(tool.price)), '</span></div>',
+            '</div>',
+            '<h3 class="dash-card-title">', escapeHtml(tool.title), '</h3>',
+            '<p class="dash-card-desc">', escapeHtml(tool.description), '</p>',
+            '<div class="dash-card-footer">',
+            primaryCat
+                ? '<a class="dash-card-tag" href="' + catHref + '">' + tagIcon + '<span>' + escapeHtml(primaryCat) + '</span></a>'
+                : '<span></span>',
+            '<a class="dash-card-visit" href="', escapeHtml(addReferralParam(tool.link)), '" target="_blank" rel="noopener noreferrer" aria-label="Visit ', escapeHtml(tool.title), '">', arrow, '</a>',
+            '</div>',
+            '</div>'
+        ].join("");
+    }
+
+    function dashNavRowMarkup(label, href, count, isActive, isAll) {
+        var icon = isAll
+            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>'
+            : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>';
+        return [
+            '<a class="dash-nav-row"', (isActive ? ' aria-current="true"' : ''), ' href="', href, '">',
+            '<span class="dash-nav-icon">', icon, '</span>',
+            '<span class="dash-nav-label">', escapeHtml(label), '</span>',
+            '<span class="dash-nav-count">', count, '</span>',
+            '</a>'
+        ].join("");
+    }
+
+    function renderDashboard(tools, categorySlug) {
+        var groups = getCategoryGroups(tools);
+        categorySearchGroups = groups;
+
+        var selected = categorySlug || "";
+        var group = selected ? findCategoryGroup(tools, selected) : null;
+        if (selected && !group) {
+            showNotFound("Category not found", "This category does not exist yet.");
+            return;
+        }
+
+        var gridTools = group
+            ? group.tools.slice()
+            : tools.slice().sort(function (a, b) { return a.title.localeCompare(b.title); });
+        var title = group ? group.title : "All Tools";
+
+        document.title = (group ? group.title + " Tools" : "Tool Categories") + " — Design Wallet™";
+        var metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+            metaDesc.setAttribute("content", group
+                ? "Browse " + group.title + " tools on Design Wallet."
+                : "Browse Design Wallet tools by category.");
+        }
+
+        if (dashNavEl) {
+            var rows = [dashNavRowMarkup("All", "/category/", tools.length, !selected, true)];
+            groups.forEach(function (g) {
+                rows.push(dashNavRowMarkup(g.title, "/category/?category=" + encodeURIComponent(g.slug), g.tools.length, g.slug === selected, false));
+            });
+            dashNavEl.innerHTML = rows.join("");
+        }
+
+        if (dashTitleEl) dashTitleEl.textContent = title;
+
+        dashState.selected = selected;
+        dashState.base = gridTools;
+
+        hideAllViews();
+        if (dashboardViewEl) dashboardViewEl.hidden = false;
+        document.body.classList.add("is-dashboard");
+
+        // Apply any query already in the URL / search box (keeps the query across
+        // the silent 5s data refresh too).
+        var params = new URLSearchParams(window.location.search);
+        var initialQ = (dashSearchInputEl && dashSearchInputEl.value) || params.get("q") || "";
+        if (dashSearchInputEl && dashSearchInputEl.value !== initialQ) dashSearchInputEl.value = initialQ;
+        applyDashSearch(initialQ);
+    }
+
+    // Live search: matches the query words against title, subtitle, description,
+    // category names, and price ("free" / "paid" / "freemium"). Combined AND with
+    // the selected category (dashState.base is already the category's tool set).
+    function toolMatchesQuery(tool, words) {
+        if (!words.length) return true;
+        var haystack = [
+            tool.title,
+            tool.subtitle,
+            tool.description,
+            (tool.categories || []).join(" "),
+            tool.priceLabel,
+            tool.price
+        ].join(" ").toLowerCase();
+        for (var i = 0; i < words.length; i++) {
+            if (haystack.indexOf(words[i]) === -1) return false;
+        }
+        return true;
+    }
+
+    function renderDashGrid(list) {
+        if (!dashGridEl) return;
+        if (!list.length) {
+            dashGridEl.innerHTML =
+                '<div class="dash-empty"><p>No tools match your search.</p>' +
+                '<button type="button" class="dash-empty-clear" data-dash-clear>Clear search</button></div>';
+            return;
+        }
+        dashGridEl.innerHTML = list.map(function (tool) {
+            return createDashCardMarkup(tool, dashState.selected);
+        }).join("");
+    }
+
+    function applyDashSearch(query) {
+        var q = String(query || "").trim();
+        var words = q.toLowerCase().split(/\s+/).filter(Boolean);
+        var filtered = dashState.base.filter(function (tool) { return toolMatchesQuery(tool, words); });
+
+        renderDashGrid(filtered);
+
+        if (dashCountEl) {
+            dashCountEl.textContent = words.length
+                ? "Showing " + filtered.length + " result" + (filtered.length === 1 ? "" : "s") + " for “" + q + "”"
+                : dashState.base.length + " tool" + (dashState.base.length === 1 ? "" : "s");
+        }
+
+        try {
+            var url = new URL(window.location.href);
+            if (words.length) url.searchParams.set("q", q); else url.searchParams.delete("q");
+            window.history.replaceState(null, "", url.toString());
+        } catch (e) {}
+    }
+
     function hideAllViews() {
         if (loadingEl) loadingEl.hidden = true;
-        if (categoryIndexEl) categoryIndexEl.hidden = true;
-        if (categoryListEl) categoryListEl.hidden = true;
+        if (dashboardViewEl) dashboardViewEl.hidden = true;
         if (contentEl) contentEl.hidden = true;
         if (notFoundEl) notFoundEl.hidden = true;
+        document.body.classList.remove("is-dashboard");
     }
 
     function renderCategoryIndex(tools) {
@@ -705,6 +866,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
         attachCategorySearchListeners();
 
+        if (dashMainEl && dashSearchEl) {
+            dashMainEl.addEventListener("scroll", function () {
+                dashSearchEl.classList.toggle("is-stuck", dashMainEl.scrollTop > 4);
+            });
+        }
+
+        if (dashSearchInputEl) {
+            var searchDebounce;
+            dashSearchInputEl.addEventListener("input", function () {
+                clearTimeout(searchDebounce);
+                searchDebounce = window.setTimeout(function () {
+                    applyDashSearch(dashSearchInputEl.value);
+                }, 150);
+            });
+        }
+
+        if (dashGridEl) {
+            dashGridEl.addEventListener("click", function (event) {
+                var clear = event.target.closest ? event.target.closest("[data-dash-clear]") : null;
+                if (clear && dashSearchInputEl) {
+                    dashSearchInputEl.value = "";
+                    applyDashSearch("");
+                    dashSearchInputEl.focus();
+                }
+            });
+        }
+
         if (!isToolsRoute()) {
             showNotFound("Page not found", "The page you're looking for doesn't exist or has been moved.");
             return;
@@ -717,16 +905,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 renderCategorySearchResults("");
 
                 if (!slug) {
-                    if (categorySlug) {
-                        var categoryGroup = findCategoryGroup(tools, categorySlug);
-                        if (categoryGroup) {
-                            renderCategoryList(categoryGroup);
-                        } else {
-                            showNotFound("Category not found", "This category does not exist yet.");
-                        }
-                    } else {
-                        renderCategoryIndex(tools);
-                    }
+                    renderDashboard(tools, categorySlug);
                     return;
                 }
 
@@ -739,9 +918,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                var implicitCategoryGroup = findCategoryGroup(tools, slug);
-                if (implicitCategoryGroup) {
-                    renderCategoryList(implicitCategoryGroup);
+                if (findCategoryGroup(tools, slug)) {
+                    renderDashboard(tools, slug);
                 } else {
                     showNotFound();
                 }
