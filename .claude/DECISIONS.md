@@ -35,8 +35,8 @@
 - **`✅ DONE`** ~~The marketing homepage is removed~~ — hero, designer-roles strip, bento cards, testimonials and the category-cloud teaser are all gone. `index.html` was rebuilt from the catalogue shell.
 - **Important correction:** the homepage never contained the catalogue. It has a category *name cloud* teaser linking to the old pricing page. **The real catalogue lives inside `404.html`** (GitHub Pages serves it for unmatched routes), which hand-rolls three views — category index, category list, tool detail — via `hidden` toggles.
 - **`✅ DONE`** ~~Moving the catalogue out of `404.html` and onto `/` is the actual task.~~ `index.html`, `404.html` and `tools/index.html` now share one dashboard shell. **This also fixed a live bug** — see the implementation log.
-- **`DECIDED` Layout reference is `curations.supply`** — title, one line of context, then straight into the links. No marketing preamble.
-- **`DECIDED` Keep a short About surface** (a page, or a line in the header) so first-time visitors know what this is.
+- **`✅ DONE`** ~~Layout reference is Good Design Tools~~ (`gooddesigntools.com`) — persistent category sidebar, a compact first fold (badge → headline → sub-copy → email capture), then straight into the card grid. **Supersedes the earlier `curations.supply` "no marketing preamble" call** — a short hero is back, deliberately, because it carries the newsletter signup.
+- **`✅ DONE`** ~~Keep a short About surface~~ — the first-fold headline and sub-copy on `/` now explain what the site is.
 - **`DECIDED` Once open source, the GitHub link and licence go in the header**, visible upfront.
 - **`✅ DONE`** ~~Blog goes in the primary nav.~~ Nav is `BROWSE → /category/` · `TOOLS ▾` · `BLOG → /blog/`, identical on every page.
 - **`✅ DONE`** ~~A TOOLS dropdown lists Design Wallet's own tools.~~ Driven by the `DW_TOOLS` array at the top of `header.js` — adding a tool is one line. **Currently only one tool exists** (Color Code Converter).
@@ -117,6 +117,30 @@ Established while fixing a real incident — the homepage was shipping **127 MB*
 - **`PENDING` A real `README.md`** — current one is minimal, though it now links to this file.
 - **Verified clean:** `.env` is gitignored, was **never committed**, and holds only Notion keys. A history scan found no service-role keys, Lemon Squeezy secrets, or webhook secrets. **Do not break this.**
 - **`✅ DONE`** ~~The Supabase anon key dies with the paywall.~~ `auth/config.js` deleted; no keys remain in the working tree.
+
+## 9. Newsletter & Theme
+
+- **`✅ DONE`** ~~Newsletter signup lives in the nav.~~ `SUBSCRIBE` opens a modal that `newsletter.js` injects on every page, so no per-page markup is needed.
+- **`✅ DONE`** ~~The homepage first fold carries an inline signup~~ — same handler as the modal.
+- **`DECIDED` Newsletter posts to the original Google Apps Script endpoint** recovered from the deleted waitlist code, so existing subscribers keep landing in the same sheet. *(That endpoint is now only recorded in `newsletter.js` and commit `ba59688`.)*
+- **`✅ DONE`** ~~Dark/light mode toggle, top-right of the nav.~~ Respects `prefers-color-scheme`, remembers an explicit choice in `localStorage`, and follows the OS only until the visitor chooses.
+- **`DECIDED` Theming is token-only.** ~480 hardcoded colours were replaced with tokens whose **dark value is the original literal**, so dark mode is provably unchanged and light mode is purely a re-definition. Never reintroduce a raw hex or `rgba(255,255,255,…)` — use `var(--fg-rgb)`, `var(--pure)` or a `--surface-*` token.
+- **Gotcha on record:** custom properties do **not** resolve inside `url("data:image/svg+xml,…")`. Colours inside SVG data-URIs must stay literal; one was caught doing exactly this.
+- **`DECIDED` `theme.js` loads synchronously before every `<link>`.** A sync script placed *after* a stylesheet is blocked until that CSS downloads, which would reintroduce the flash of wrong theme.
+- **`PENDING` Light-mode visual polish.** The token layer is complete (zero un-tokenised whites remain), but ~100 hex literals survive — brand accents, gradients, and 29 black shadows that correctly stay black. Light mode needs a real visual pass in a browser; contrast on the core palette checks out (body 19:1 AAA, muted 5.3:1 AA).
+- **Note:** `muted` text in **dark** mode is 3.55:1 — below WCAG AA for body copy. Pre-existing, not introduced here, but worth fixing.
+
+---
+
+**2026-08-24 — Newsletter, first fold, dark/light theme** · commit `37221b6`
+
+New files: `theme.js`, `newsletter.js`. Reference: Good Design Tools.
+
+**Theme conversion was done so it could not break dark mode:** each of ~480 substitutions used the original literal as the token's dark value, then a script re-resolved every token and diffed the result against a backup — confirming byte-identical output. That diff is what caught an `rgba()` trapped inside an SVG data-URI, where variables never resolve.
+
+**Verified:** 11 routes 200 · every asset resolves · 6 JS files pass `node --check` · both stylesheets brace-balanced · `theme.js` precedes every `<link>` on all 12 pages · contrast measured in both themes.
+
+**Not verified:** no browser was available in this environment, so **light mode has not been seen rendered**. The token architecture and contrast are sound, but expect visual snags where the ~100 remaining hex literals live.
 
 ---
 
