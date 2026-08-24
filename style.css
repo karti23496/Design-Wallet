@@ -51,23 +51,38 @@
    ─────────────────────────────────────────────────────────────────────── */
 :root[data-theme="light"] {
     color-scheme: light;
-    --fg-rgb: 0, 0, 0;
-    --pure: #0f0f0f;
-    --surface-0: #ffffff;
-    --surface-1: #ffffff;
-    --surface-2: #fbfbfb;
-    --surface-3: #f7f7f7;
-    --surface-4: #efefef;
 
-    --bg: #ffffff;
-    --panel: #f7f7f7;
-    --panel-strong: #f1f1f1;
-    --text: #0f0f0f;
-    --muted: #6b6b6b;
-    --muted-strong: #2f2f2f;
-    --accent: #0f0f0f;
-    --accent-deep: #0f0f0f;
-    --shadow: 0 24px 80px rgba(0, 0, 0, 0.10);
+    /* Cool, not warm. Every surface carries a slight blue lean (blue channel
+       above red) rather than sitting at pure #ffffff, which reads clinical.
+       --fg-rgb is a cool near-black, so all the translucent borders and
+       overlays inherit the same temperature instead of going neutral grey. */
+    --fg-rgb: 13, 20, 34;
+    --pure: #0d1422;
+
+    --surface-0: #fbfdff;
+    --surface-1: #f7fafe;
+    --surface-2: #f1f5fc;
+    --surface-3: #ecf1fa;
+    --surface-4: #e1e9f5;
+
+    --bg: #f1f5fc;
+    --panel: #ecf1fa;
+    --panel-strong: #e1e9f5;
+    --text: #0d1422;
+    --muted: #586374;
+    --muted-strong: #262f3e;
+    --accent: #0d1422;
+    --accent-deep: #0d1422;
+    --shadow: 0 24px 80px rgba(14, 20, 32, 0.10);
+}
+
+/* The brand mark is a white-filled SVG loaded via <img>, so CSS can't recolour
+   its paths. It's monochrome, so inverting turns it black for light mode.
+   The footer mark has no .brand-logo class — it must be listed separately or
+   it stays white and disappears against a light background. */
+:root[data-theme="light"] .brand-logo,
+:root[data-theme="light"] .footer-brand img {
+    filter: invert(1);
 }
 
 * {
