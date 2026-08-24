@@ -26,6 +26,7 @@ body.is-dashboard .site-header,
 body.is-dashboard .site-header.site-header--collection {
     position: static;
     width: 100%;
+    max-width: none;        /* clears the centred cap from .site-header */
     flex: 0 0 auto;
     margin: 0;
     border-radius: 0;
@@ -71,7 +72,7 @@ body.is-dashboard main {
 }
 
 .dash-sidebar-label {
-    font-family: "Geist Mono", monospace;
+    font-family: "Geist", sans-serif;
     font-size: 0.68rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -131,7 +132,7 @@ body.is-dashboard main {
     flex: 0 0 auto;
     font-size: 0.72rem;
     color: var(--muted);
-    font-family: "Geist Mono", monospace;
+    font-family: "Geist", sans-serif;
 }
 
 .dash-nav-row[aria-current="true"] .dash-nav-count { color: var(--muted-strong); }
@@ -507,4 +508,22 @@ body.is-dashboard main {
     .dash-hero-form { flex-wrap: wrap; border-radius: 20px; }
     .dash-hero-form input { width: 100%; }
     .dash-hero-form button { width: 100%; }
+}
+
+
+/* ══ Hide the scrollbars, keep the scrolling ══════════════════════════════
+   Both panels still scroll; the chrome is just not painted. Firefox and old
+   Edge need their own properties — the ::-webkit rule alone is not enough.
+   ═══════════════════════════════════════════════════════════════════════ */
+.dash-sidebar,
+.dash-main {
+    scrollbar-width: none;        /* Firefox */
+    -ms-overflow-style: none;     /* legacy Edge / IE */
+}
+
+.dash-sidebar::-webkit-scrollbar,
+.dash-main::-webkit-scrollbar {   /* Chrome, Safari, modern Edge */
+    width: 0;
+    height: 0;
+    display: none;
 }
