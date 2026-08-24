@@ -714,15 +714,6 @@ color: rgba(255, 255, 255, 0.7);
     color: #ffffff;
 }
 
-/* UI access gate: hide gated pages until access is confirmed (see auth/gate.js).
-   Failsafe: auto-reveal after 2s so a page can never stay hidden if the gate
-   script (or its CDN import) fails to load. */
-html.dw-gate-pending body {
-    visibility: hidden;
-    animation: dw-gate-failsafe 0s linear 2s forwards;
-}
-@keyframes dw-gate-failsafe { to { visibility: visible; } }
-
 .site-nav a.nav-pricing-link {
     display: inline-flex;
     align-items: center;
