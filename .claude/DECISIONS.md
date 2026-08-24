@@ -107,7 +107,7 @@ Established while fixing a real incident — the homepage was shipping **127 MB*
 - **`✅ DONE`** ~~Five hero avatars load from `i.pravatar.cc`.~~ Resolved by deletion — the hero is gone, so the five third-party requests went with it.
 - **`PENDING` 124 MB of original JPEGs remain in `public/testimonial images/`**, unreferenced. Now committed to git history as of the preservation commit. Deleting them going forward won't shrink history.
 - **`PENDING` Font typo:** `style.css` reads `font-family: 'giest'` — should be `'Geist'`. Silently falling back to sans-serif today. *Deliberately not fixed during the paywall removal — it changes rendering, and shouldn't be buried in a large deletion diff.*
-- **`PENDING` Two separate Google Fonts stylesheet requests** could be merged into one round trip.
+- **`PENDING` Two separate Google Fonts stylesheet requests** could be merged into one round trip. *(Partly improved: the Geist Mono family is no longer requested on 12 of 13 pages.)*
 - **`PENDING` Dead code:** the billing-toggle script in `list-your-tool/index.html` references `.pr-billing-toggle`, which doesn't exist in the markup. It early-returns and does nothing.
 - **`PENDING` Dead CSS:** `.nav-profile*`, `.nav-pricing-link`, `.nav-waitlist-button` rules survive in `style.css` with no consumers. Harmless; left alone because `style.css` is carried over wholesale in §4.
 
@@ -141,6 +141,21 @@ New files: `theme.js`, `newsletter.js`. Reference: Good Design Tools.
 **Verified:** 11 routes 200 · every asset resolves · 6 JS files pass `node --check` · both stylesheets brace-balanced · `theme.js` precedes every `<link>` on all 12 pages · contrast measured in both themes.
 
 **Not verified:** no browser was available in this environment, so **light mode has not been seen rendered**. The token architecture and contrast are sound, but expect visual snags where the ~100 remaining hex literals live.
+
+## 10. Typography & Layout
+
+- **`✅ DONE`** ~~Geist Mono is replaced by Geist across the site.~~ 34 declarations changed. **One deliberate exception:** the colour converter's code output (`.converter-output-row code`, `.converter-css-panel pre`) keeps a real monospace face, because hex values need aligned character widths. Geist Mono is therefore still requested on that page only.
+- **`✅ DONE`** ~~The nav is full width on every screen.~~ `.site-header` is `width: 100%` with `max-width: var(--content-width)`, centred; the dashboard override clears the cap so it stays edge-to-edge.
+- **Root cause on record:** the nav was stuck at half width because `.site-header` carried a hardcoded `width:50%`, which had **replaced** `max-width: var(--content-width)` in the never-committed work. It only looked correct on the dashboard, where an override forced `width:100%`.
+- **`✅ DONE`** ~~Panel scrollbars are hidden but still scroll.~~ `.dash-sidebar` and `.dash-main` set `scrollbar-width` (Firefox), `-ms-overflow-style` (legacy Edge) and `::-webkit-scrollbar` (Chrome/Safari) — all three are needed; the webkit rule alone is not enough.
+
+---
+
+**2026-08-24 — Nav width, hidden scrollbars, Geist Mono removal** · commit `0198017`
+
+Three fixes from a screenshot review. The nav-width bug was a regression, not a design choice — `width:50%` had replaced `max-width: var(--content-width)` in the uncommitted work, so every non-dashboard page (blog, privacy, terms, list-your-tool, books, converter) had a half-width nav.
+
+**Verified:** both stylesheets brace-balanced · 7 routes 200 · font URLs still valid after stripping the Geist Mono family · no stray `width:50%` left on the header.
 
 ---
 
