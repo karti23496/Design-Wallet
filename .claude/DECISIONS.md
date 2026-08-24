@@ -11,115 +11,131 @@
    re-requested each time. Discussion that ends without agreement is not recorded.
 3. **Supersede, don't delete.** When a decision is reversed, move it to the *Superseded* section with
    a note on what replaced it, so the reasoning stays traceable.
+4. **Strike off what ships.** When a decision is implemented, change its tag to `✅ DONE` and strike
+   the headline, so done and not-done stay visible at a glance.
 
-- **Status key:** `DECIDED` = agreed, act on it · `PENDING` = needs Karthik's call · `SUPERSEDED` = no longer true, kept for history
+- **Status key:** `✅ DONE` = shipped · `DECIDED` = agreed, not built yet · `PENDING` = needs Karthik's call · `SUPERSEDED` = no longer true, kept for history
 - Last updated: **2026-08-24**
 
 ---
 
 ## 1. Direction & Business Model
 
-- **`DECIDED` The website becomes free for everyone.** No subscriber paywall, no user accounts required to browse.
-- **`DECIDED` Revenue comes from paid tool listings, not user subscriptions.** `list-your-tool/` is the business model: free for designers, paid for tools that want placement.
-- **`DECIDED` The repository will be open sourced.** "Free" and "open source" are two separate decisions and we're doing both.
-- **`DECIDED` `list-your-tool/` stays.** It has no payment integration (a `mailto:` only) and no dependency on the paywall, so it survives untouched.
-- **`PENDING` Listing prices are on hold.** The ₹2,999 Spotlight figure is removed for now; ₹1,499 stays visible. Karthik will revisit and give the call. Do not change listing prices without being asked.
+- **`✅ DONE`** ~~The website becomes free for everyone.~~ No subscriber paywall, no user accounts required to browse. *Shipped on branch `remove-paywall`.*
+- **`DECIDED` Revenue comes from paid tool listings, not user subscriptions.** `list-your-tool/` is the business model: free for designers, paid for tools that want placement. *(Standing direction, not a build task.)*
+- **`DECIDED` The repository will be open sourced.** "Free" and "open source" are two separate decisions and we're doing both. **Not yet done — blocked on a `LICENSE` file, see §8.**
+- **`✅ DONE`** ~~`list-your-tool/` stays.~~ Verified untouched by the paywall removal and still serving.
+- **`PENDING` Listing prices are on hold.** The ₹2,999 Spotlight figure **has been removed** (card now reads "Pricing on request"); ₹1,499 stays visible. Karthik will revisit and give the call. Do not change listing prices without being asked.
 - **Noted:** `curated.design` — cited as a layout reference — is *not* free. It runs a $9/month freemium paywall ("16 free of 2,229 sections"). It's a reference for **layout only**, not for the business model.
 - **Open question:** the value of a curation site is the curated data, not the code. The catalog lives in a public Google Sheet, so open-sourcing means anyone can clone site + data. Accepted as a deliberate trade-off.
 
 ## 2. Site Structure
 
-- **`DECIDED` The catalogue becomes the front door.** `/` *is* the catalogue.
-- **`DECIDED` The marketing homepage is removed** — hero, designer-roles strip, bento cards, testimonials, and the waitlist modal all go.
-- **Important correction:** the homepage never contained the catalogue. It has a category *name cloud* teaser ([index.html:229](index.html#L229)) linking to `/pricing/`. **The real catalogue lives inside `404.html`** (GitHub Pages serves it for unmatched routes), which hand-rolls three views — category index, category list, tool detail — via `hidden` toggles.
+- **`DECIDED` The catalogue becomes the front door.** `/` *is* the catalogue. **Deferred to §5 step 4** — it lands with the Astro migration, not the paywall removal.
+- **`DECIDED` The marketing homepage is removed** — hero, designer-roles strip, bento cards, testimonials all go. **Partially done:** the waitlist modal is gone and both CTAs now point at `/category/`. The hero, bento and testimonial sections are still live, and come out in §5 step 4.
+- **Important correction:** the homepage never contained the catalogue. It has a category *name cloud* teaser linking to the old pricing page. **The real catalogue lives inside `404.html`** (GitHub Pages serves it for unmatched routes), which hand-rolls three views — category index, category list, tool detail — via `hidden` toggles.
 - **`DECIDED` Moving the catalogue out of `404.html` and onto `/` is the actual task.** It is not a deletion job.
 - **`DECIDED` Layout reference is `curations.supply`** — title, one line of context, then straight into the links. No marketing preamble.
 - **`DECIDED` Keep a short About surface** (a page, or a line in the header) so first-time visitors know what this is.
 - **`DECIDED` Once open source, the GitHub link and licence go in the header**, visible upfront.
-- **`DECIDED` Blog goes in the primary nav.** Added as `BLOG → /blog/` in `header.js`.
+- **`✅ DONE`** ~~Blog goes in the primary nav.~~ Nav is now `BROWSE → /category/` + `BLOG → /blog/`, identical on every page.
 - **Note:** `tools/category/*` are eleven 6-line redirect stubs pointing at `/category/*`. They disappear with file-based routing.
 
 ## 3. Data & Backend
 
 - **`DECIDED` Google Sheets stays as the database.** The Sheet remains the editing surface.
-- **`DECIDED` Supabase is dropped entirely.** It only ever existed for the paywall (auth + subscription state), not for the catalog.
-- **`DECIDED` `scripts/sync-catalog.js` (Sheet → Supabase) is deleted.** It solves a problem we're no longer having.
-- **`DECIDED` The Sheet is read at build time, not in the browser.** This removes the per-visitor round trip, makes rate limits irrelevant, and means a Google outage can't break the live site.
-- **`DECIDED` The build validates catalog rows and fails loudly on bad data** — this buys back the schema validation we give up by not using a real database.
-- **Catalog schema** (from [sync-catalog.js:71-82](scripts/sync-catalog.js#L71-L82)): `slug, title, subtitle, description, categories[], pricing, link, image, thumbnails[]`.
+- **`✅ DONE`** ~~Supabase is dropped entirely.~~ All Supabase code deleted (schema + 7 edge functions + client). **The hosted Supabase project itself still exists** — see the `PENDING` item in §6.
+- **`✅ DONE`** ~~`scripts/sync-catalog.js` (Sheet → Supabase) is deleted.~~
+- **`DECIDED` The Sheet is read at build time, not in the browser.** Removes the per-visitor round trip, makes rate limits irrelevant, and means a Google outage can't break the live site. **Lands in §5 step 4.**
+- **`DECIDED` The build validates catalog rows and fails loudly on bad data** — buys back the schema validation we give up by not using a real database.
+- **Catalog schema:** `slug, title, subtitle, description, categories[], pricing, link, image, thumbnails[]`. *(Recorded from `sync-catalog.js` before deletion — this is now the only surviving record of it.)*
 - **Accepted trade-off:** Sheet edits won't be live instantly — up to an hour on a schedule, ~2 minutes via a manual "Publish now" trigger.
 
 ## 4. Tech Stack
 
-- **`DECIDED` Migrate to Astro, with React only for interactive islands.** Not a bare React SPA.
+- **`DECIDED` Migrate to Astro, with React only for interactive islands.** Not a bare React SPA. **Not started.**
 - **Reasoning on record:** React was originally proposed to make the site "smooth." That was the wrong diagnosis — the slowness was a 124 MB image payload, and React would have shipped the same images plus ~45 KB of runtime. The real justifications are: a hand-rolled router living in `404.html`, JSONP fetch logic duplicated in 4+ places, and 2,070 lines of imperative DOM code in one file.
 - **`DECIDED` The real win is build-time static generation, not the framework.** Today the catalogue is client-rendered inside a 404 page and indexes badly. For a directory that lives on search traffic, that is the problem worth solving.
-- **`DECIDED` Carry `style.css` (9,363 lines) over wholesale, unchanged.** Do **not** migrate to Tailwind or CSS modules at the same time — two simultaneous migrations is how rewrites fail.
+- **`DECIDED` Carry `style.css` over wholesale, unchanged.** Do **not** migrate to Tailwind or CSS modules at the same time — two simultaneous migrations is how rewrites fail.
 - **`DECIDED` Keep the old site live until the new one is finished.** Build on a branch, deploy to a preview URL, compare, then switch.
 - **Note:** JSONP is only used to dodge browser CORS. At build time in Node, a plain `fetch()` works — all four copies collapse into one module.
 
 ## 5. Sequencing
 
-Agreed order. Do not jump ahead — step 1 removes ~40% of the code before Astro starts.
-
-1. **Rip out the paywall** on the current HTML/CSS/JS stack (see §6)
+1. **`✅ DONE`** ~~Rip out the paywall on the current HTML/CSS/JS stack~~ (see §6)
 2. **Astro scaffold** — empty shell that deploys, `style.css` copied in untouched
 3. **Static pages** — privacy, terms, books, list-your-tool, submit-portfolio, colour converter
-4. **Catalogue → build-time static generation** (the SEO and speed win)
+4. **Catalogue → build-time static generation** (the SEO and speed win) — also delivers §2's "`/` is the catalogue"
 5. **Blog** — the Notion pipeline last
 
-- **`DECIDED` Paywall removal happens on a branch, not `main`**, so the full diff can be reviewed before going live.
+- **`✅ DONE`** ~~Paywall removal happens on a branch, not `main`.~~ Branch `remove-paywall`, two commits, not merged.
 
 ## 6. Paywall Removal — Manifest
 
-**Delete outright:** `pricing/` · `get-access/` · `account/` · `auth/` · `supabase/` (schema + all 7 edge functions) · `join-waitlist/` · `scripts/seed-user.js` · `scripts/sync-catalog.js`
+**`✅ DONE` Deleted:** `pricing/` · `get-access/` · `account/` · `auth/` · `supabase/` · `join-waitlist/` · `scripts/seed-user.js` · `scripts/sync-catalog.js`
 
-**Edit, don't delete:**
+**`✅ DONE` Edited:**
 
 | File | Change |
 |---|---|
-| `404.html` | remove `gate.js` + `dw-gate-pending` — **this is the catalogue, handle with care** |
-| `tools/index.html` | same |
-| `index.html` | strip waitlist modal; repoint "Explore collections" off `/pricing/` |
-| `script.js` | delete waitlist logic ([176-294](script.js#L176-L294)) |
-| `header.js` | remove `JOIN WAITLIST` + `GET ACCESS`; remove `updateAccessLink()` and the subscriber profile menu |
-| `style.css` | drop `.dw-gate-pending` |
-| `privacy/`, `terms/` | **rewrite** — subscription/refund clauses become false |
+| `404.html` | ✅ un-gated — `dw-gate-pending` + 3 auth scripts removed |
+| `tools/index.html` | ✅ same |
+| `index.html` | ✅ waitlist modal removed; both CTAs repointed at `/category/`; auth scripts dropped |
+| `script.js` | ✅ 117 lines of waitlist logic removed |
+| `header.js` | ✅ rewritten — nav unified across all pages; profile menu + `updateAccessLink()` gone |
+| `style.css` | ✅ `dw-gate-pending` rule removed |
+| `privacy/`, `terms/` | ✅ audited — **no payment clauses existed to remove**; one line fixed in `terms` |
 
-- **`DECIDED` `privacy/` and `terms/` are rewritten, never deleted.** Analytics still runs, so a privacy policy is still required.
-- **`PENDING` Favourites.** Recommendation on record: move to `localStorage` and delete the Google login. `favourites.html` has a *second, separate* auth system ([favourites.html:60-65](favourites.html#L60-L65)) unrelated to the Supabase paywall. Trade-off: bookmarks won't sync across devices. Awaiting Karthik's call.
-- **`PENDING` Cancel the Lemon Squeezy product and delete the Supabase project** — only *after* the site is confirmed working without them.
-- **`DECIDED` `admin/index.html` survives.** Resolved from `README.md`: it's a lightweight helper page that links out to the Google Sheet for managing listings. It's catalog tooling, unrelated to subscribers, so the paywall removal doesn't touch it.
+- **`✅ DONE`** ~~`privacy/` and `terms/` are rewritten, never deleted.~~ **Finding: the rewrite was almost unnecessary.** Both pages predate the paywall and contain zero subscription, refund, or billing language. Only "visitors, users, and subscribers" in `terms` §1 needed fixing. **`terms` §3 "User Accounts" is still accurate** because it describes the *favourites* Google Sign-In, which is untouched — it will need updating if favourites moves to `localStorage`.
+- **`PENDING` Favourites.** Untouched by the paywall removal — `favourites.html` still uses its own Google Sign-In, separate from the deleted Supabase auth. Recommendation on record: move to `localStorage`, delete the login. Trade-off: bookmarks won't sync across devices. **Awaiting Karthik's call.** Coupled to `terms` §3 above.
+- **`PENDING` Cancel the Lemon Squeezy product and delete the Supabase project.** Both still exist and still cost/bill. The code is gone, so nothing references them — safe to cancel whenever.
+- **`✅ DONE`** ~~`admin/index.html` survives.~~ Verified untouched and serving.
 
 ## 7. Performance Standards
 
 Established while fixing a real incident — the homepage was shipping **127 MB** of images. Now **296 KB** (~440× smaller).
 
-- **`DECIDED` No raw source images in the served path.** Ten testimonial avatars were full-resolution DSLR photos (up to 20.1 MB each) rendered as 42×42 circles — 124 MB to draw ten thumbnails.
-- **`DECIDED` Avatars are 128×128 WebP** (3× for retina), square-cropped, in `public/avatars/`. Total: 23.4 KB for all ten.
-- **`DECIDED` Photos are never PNG.** The waitlist modal image was a 2.57 MB PNG holding a 515k-colour photo → 125 KB WebP.
-- **`DECIDED` Below-the-fold images get `loading="lazy"` + `decoding="async"`; every image gets explicit `width`/`height`** to prevent layout shift.
-- **`DECIDED` Framework choice is not a performance strategy.** Measure the payload first.
+- **`✅ DONE`** ~~No raw source images in the served path.~~
+- **`✅ DONE`** ~~Avatars are 128×128 WebP~~ (3× for retina), square-cropped, in `public/avatars/`. 23.4 KB for all ten.
+- **`✅ DONE`** ~~Photos are never PNG.~~ Waitlist modal image: 2.57 MB PNG → 125 KB WebP.
+- **`✅ DONE`** ~~Below-the-fold images get `loading="lazy"` + `decoding="async"`; every image gets explicit `width`/`height`.~~
+- **`DECIDED` Framework choice is not a performance strategy.** Measure the payload first. *(Standing rule.)*
 
 ### Known issues, not yet fixed
 
-- **`PENDING` Five hero avatars load from `i.pravatar.cc`** ([index.html:55-59](index.html#L55-L59)) — a third-party demo service, **above the fold**, gating hero paint. Biggest remaining perf win. Replacing them changes who appears in the hero, so it's a content decision.
-- **`PENDING` 124 MB of original JPEGs remain in `public/testimonial images/`**, unreferenced. Doesn't affect visitors; bloats every clone and deploy. Deleting won't shrink git history (already ~150 MB).
-- **`PENDING` Font typo:** [style.css:170](style.css#L170) reads `font-family: 'giest'` — should be `'Geist'`. Silently falling back to sans-serif today.
+- **`PENDING` Five hero avatars load from `i.pravatar.cc`** — a third-party demo service, **above the fold**, gating hero paint. Biggest remaining perf win. Replacing them changes who appears in the hero, so it's a content decision. *(Moot if §2 removes the hero.)*
+- **`PENDING` 124 MB of original JPEGs remain in `public/testimonial images/`**, unreferenced. Now committed to git history as of the preservation commit. Deleting them going forward won't shrink history.
+- **`PENDING` Font typo:** `style.css` reads `font-family: 'giest'` — should be `'Geist'`. Silently falling back to sans-serif today. *Deliberately not fixed during the paywall removal — it changes rendering, and shouldn't be buried in a large deletion diff.*
 - **`PENDING` Two separate Google Fonts stylesheet requests** could be merged into one round trip.
-- **`PENDING` Dead code:** the billing-toggle script in `list-your-tool/index.html` (~line 300) references `.pr-billing-toggle`, which doesn't exist in the markup. It early-returns and does nothing.
+- **`PENDING` Dead code:** the billing-toggle script in `list-your-tool/index.html` references `.pr-billing-toggle`, which doesn't exist in the markup. It early-returns and does nothing.
+- **`PENDING` Dead CSS:** `.nav-profile*`, `.nav-pricing-link`, `.nav-waitlist-button` rules survive in `style.css` with no consumers. Harmless; left alone because `style.css` is carried over wholesale in §4.
 
 ## 8. Open Source Readiness
 
-- **`PENDING` No `LICENSE` file exists.** Without one, "open source" isn't legally true — default copyright applies and nobody may fork it. Required before publishing.
-- **`PENDING` A real `README.md`** — current one is minimal.
+- **`PENDING` No `LICENSE` file exists.** Without one, "open source" isn't legally true — default copyright applies and nobody may fork it. **This blocks §1's open-source decision.** Needs Karthik to pick a licence (MIT is the usual default for this kind of project).
+- **`PENDING` A real `README.md`** — current one is minimal, though it now links to this file.
 - **Verified clean:** `.env` is gitignored, was **never committed**, and holds only Notion keys. A history scan found no service-role keys, Lemon Squeezy secrets, or webhook secrets. **Do not break this.**
-- **Note:** the Supabase anon key in `auth/config.js` is safe to expose by design, and dies with the paywall anyway.
+- **`✅ DONE`** ~~The Supabase anon key dies with the paywall.~~ `auth/config.js` deleted; no keys remain in the working tree.
+
+---
+
+## Implementation Log
+
+**2026-08-24 — Paywall removal** · branch `remove-paywall`, not merged to `main`
+
+| | |
+|---|---|
+| `ba59688` | **Preservation commit.** 26 paywall files (`auth/`, `account/`, `supabase/`, `pricing/`, `get-access/`) had **never been committed**. Deleting them would have destroyed them permanently and left no diff to review, so the working tree was snapshotted first. |
+| `9e92d07` | **The removal.** 29 files deleted, 7 edited. |
+
+**Verified after the change:** all 12 surviving routes return 200 · all 4 deleted routes return 404 · every asset reference across every HTML file resolves · all 6 JS files pass `node --check` · zero surviving references to `/pricing/`, `/account/`, `/auth/`, `/join-waitlist`, `dw-gate-pending`, `DWAuth`, or `supabase`.
+
+**Not merged.** Review the diff with `git diff main` before merging.
 
 ---
 
 ## Superseded
 
 - **`SUPERSEDED` Annual ₹2,999/year subscription** (Supabase + Lemon Squeezy, UI-only gate, `/pricing/` takeover). Replaced by the go-free decision in §1.
-- **`SUPERSEDED` Monthly ₹1,499/month subscription.** Implemented 2026-08-24 across `auth/config.js`, `pricing/index.html`, and `account/account.js`, then superseded within the same session by the go-free decision. **The code still carries this change** — it gets deleted wholesale in §6, so it was not reverted.
-- **Note for whoever removes it:** [auth/config.js](auth/config.js) was the single source of truth for the displayed price — `pricing.js` overwrote the HTML at runtime, so editing the HTML alone did nothing. Worth remembering if any other value turns out to be JS-injected.
+- **`SUPERSEDED` Monthly ₹1,499/month subscription.** Implemented 2026-08-24 across `auth/config.js`, `pricing/index.html`, and `account/account.js`, then superseded within the same session by the go-free decision. **The code carrying it was deleted wholesale in the paywall removal** — it lives on only in commit `ba59688`.
+- **Lesson worth keeping:** `auth/config.js` was the single source of truth for the displayed price — `pricing.js` overwrote the HTML at runtime, so editing the HTML alone did nothing. Worth remembering if any other value turns out to be JS-injected.
