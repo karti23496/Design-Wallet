@@ -67,10 +67,18 @@ document.addEventListener("DOMContentLoaded", function () {
         return "";
     }
 
+    // The site root is the catalogue: "/" renders the same dashboard as
+    // /category/. Checked before slugify so "/index.html" matches too.
+    function isRootRoute() {
+        var path = window.location.pathname.replace(/\/index\.html?$/i, "/");
+        return path === "/" || path === "";
+    }
+
     function isToolsRoute() {
         var pathParts = getPathParts();
         var params = new URLSearchParams(window.location.search);
-        return pathParts.indexOf("tools") !== -1 ||
+        return isRootRoute() ||
+            pathParts.indexOf("tools") !== -1 ||
             pathParts.indexOf("category") !== -1 ||
             Boolean(params.get("t") || params.get("category"));
     }
@@ -502,12 +510,16 @@ document.addEventListener("DOMContentLoaded", function () {
             : tools.slice().sort(function (a, b) { return a.title.localeCompare(b.title); });
         var title = group ? group.title : "All Tools";
 
-        document.title = (group ? group.title + " Tools" : "Tool Categories") + " — Design Wallet™";
-        var metaDesc = document.querySelector('meta[name="description"]');
-        if (metaDesc) {
-            metaDesc.setAttribute("content", group
-                ? "Browse " + group.title + " tools on Design Wallet."
-                : "Browse Design Wallet tools by category.");
+        // At the root the authored homepage title/description are the better
+        // SEO surface, so leave them alone; only route-specific views override.
+        if (!isRootRoute() || group) {
+            document.title = (group ? group.title + " Tools" : "Tool Categories") + " — Design Wallet™";
+            var metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) {
+                metaDesc.setAttribute("content", group
+                    ? "Browse " + group.title + " tools on Design Wallet."
+                    : "Browse Design Wallet tools by category.");
+            }
         }
 
         if (dashNavEl) {

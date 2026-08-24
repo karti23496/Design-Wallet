@@ -467,6 +467,8 @@ color: rgba(255, 255, 255, 0.7);
 .nav-dropdown-trigger {
     display: inline-flex;
     align-items: center;
+    /* The trigger has no href (it opens the menu), so restore the pointer. */
+    cursor: pointer;
 }
 
 .nav-dropdown-menu {

@@ -1,10 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HLX9Y7DQV7');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tool — Design Wallet™</title>
-    <meta name="description" content="Discover this curated design tool on Design Wallet.">
+    <title>Design Wallet™ — Curated design tools & resources</title>
+    <meta name="description" content="A free, curated library of design tools, assets, icons, UI kits and inspiration. Browse by category — no account needed.">
+    <meta property="og:title" content="Design Wallet™ — A curated library of design tools & resources">
+    <meta property="og:description" content="A free, curated library of design tools, assets, icons, UI kits and inspiration. Browse by category — no account needed.">
     <meta property="og:image" content="https://designwallet.in/public/illustrations/Meta%20Image.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -18,51 +28,41 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
     <link rel="stylesheet" href="/style.css?v=20260427-1">
+    <link rel="stylesheet" href="/tools/dashboard.css?v=20260712-1">
 </head>
 <body>
     <div class="page-shell">
         <header class="site-header"></header>
 
         <main class="tool-page">
-            <div class="tool-container">
-                <div class="tool-loading" id="tool-loading">Loading tools...</div>
+            <div class="tool-loading" id="tool-loading">Loading tools...</div>
 
-                <div class="category-index-content" id="category-index-content" hidden>
-                    <div class="category-page-head">
-                        <a href="/" class="tool-back-link">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M5 12L12 19M5 12L12 5"/></svg>
-                            Back to home
-                        </a>
-                        <div class="category-index-head-row">
-                            <div>
-                                <p class="section-kicker">TOOLS INDEX</p>
-                                <h1>Browse by category.</h1>
-                                <p>Choose a category to see the relevant tools in that collection.</p>
-                            </div>
-                            <button class="category-search-trigger" type="button" data-category-search-open>
-                                Search categories
-                                <kbd>⌘K</kbd>
-                            </button>
+            <!-- ══ DASHBOARD: category browsing (two-panel) ══ -->
+            <div class="dashboard" id="dashboard-view" hidden>
+                <aside class="dash-sidebar">
+                    <p class="dash-sidebar-label">Categories</p>
+                    <nav class="dash-nav" id="dash-nav" aria-label="Tool categories"></nav>
+                </aside>
+
+                <section class="dash-main" id="dash-main">
+                    <div class="dash-search" id="dash-search">
+                        <div class="dash-search-field">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                            <input id="dash-search-input" class="dash-search-input" type="search" placeholder="Search tools..." autocomplete="off" aria-label="Search tools">
                         </div>
                     </div>
 
-                    <div class="category-grid" id="category-grid" aria-live="polite"></div>
-                </div>
-
-                <div class="category-list-content" id="category-list-content" hidden>
-                    <div class="category-page-head">
-                        <a href="/category/" class="tool-back-link">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M5 12L12 19M5 12L12 5"/></svg>
-                            All categories
-                        </a>
-                        <p class="section-kicker">CATEGORY</p>
-                        <h1 id="category-title"></h1>
-                        <p id="category-count"></p>
+                    <div class="dash-context">
+                        <h1 id="dash-title">All Tools</h1>
+                        <p id="dash-count" aria-live="polite"></p>
                     </div>
 
-                    <div class="resource-grid category-tool-grid" id="category-tool-grid" aria-live="polite"></div>
-                </div>
+                    <div class="dash-grid" id="dash-grid" aria-live="polite"></div>
+                </section>
+            </div>
 
+            <div class="tool-container">
+                <!-- ══ TOOL DETAIL ══ -->
                 <div class="tool-content" id="tool-content" hidden>
                     <div class="tool-layout">
                         <div class="tool-info-panel">
@@ -123,21 +123,9 @@
         <footer class="site-footer"></footer>
     </div>
 
-    <div class="category-search-modal" id="category-search-modal" role="dialog" aria-modal="true" aria-labelledby="category-search-title" hidden>
-        <div class="category-search-backdrop" data-category-search-close></div>
-        <div class="category-search-panel">
-            <div class="category-search-input-row">
-                <label class="category-search-label" for="category-search-input" id="category-search-title">Search categories</label>
-                <input id="category-search-input" type="search" autocomplete="off" placeholder="Search Design Inspirations, AI Tools, UX Tools...">
-                <button type="button" class="category-search-close" data-category-search-close aria-label="Close search">x</button>
-            </div>
-            <div class="category-search-results" id="category-search-results" aria-live="polite"></div>
-        </div>
-    </div>
-
     <script src="/content.js?v=20260508-6"></script>
     <script src="/header.js?v=20260508-6"></script>
     <script src="/footer.js?v=20260508-6"></script>
-    <script src="/tools/tools.js?v=20260508-6"></script>
+    <script src="/tools/tools.js?v=20260712-1"></script>
 </body>
 </html>

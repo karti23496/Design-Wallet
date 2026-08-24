@@ -1,8 +1,18 @@
+// Design Wallet's own free tools, listed in the nav "TOOLS" dropdown.
+// Add a new one here and it appears in the nav on every page.
+var DW_TOOLS = [
+    { name: "Color Code Converter", href: "/dw-tools/color-code-converter/" }
+];
+
 function loadHeader() {
     // Collection views (/category/*, /tools/*) render a full-width flat header;
     // everywhere else uses the floating pill. That is purely a layout variant —
-    // the nav itself is now identical on every page.
+    // the nav itself is identical on every page.
     var isCollection = /^\/(category|tools)(\/|$)/.test(location.pathname);
+
+    var toolsMenu = DW_TOOLS.map(function (tool) {
+        return '<a href="' + tool.href + '">' + tool.name + '</a>';
+    }).join("");
 
     var html =
         '<a class="brand" href="/" aria-label="Design Wallet home">' +
@@ -13,6 +23,14 @@ function loadHeader() {
         '</button>' +
         '<nav class="site-nav" id="primary-nav">' +
             '<a class="nav-browse-link" href="/category/">BROWSE</a>' +
+            '<div class="nav-dropdown">' +
+                // No href: the trigger opens the menu rather than navigating.
+                // tabindex keeps it keyboard-reachable for :focus-within.
+                '<a class="nav-dropdown-trigger" tabindex="0" role="button" aria-haspopup="true">TOOLS</a>' +
+                '<div class="nav-dropdown-menu" aria-label="Design Wallet tools">' +
+                    toolsMenu +
+                '</div>' +
+            '</div>' +
             '<a class="nav-blog-link" href="/blog/">BLOG</a>' +
         '</nav>';
 
