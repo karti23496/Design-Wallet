@@ -35,6 +35,20 @@ const SHEET_ID = "1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8";
 const SHEET_GIDS = ["0", "1218813985"];
 const KEEP_AS_SOURCE = ["3d Software.png"];
 
+/**
+ * Filenames that can't be matched to a category automatically — abbreviations
+ * the sheet uses ("img-gen"), a differently-worded category ("mockup-websites"
+ * vs "mockup inspirations"), or a typo in the export. Keyed by the slugified
+ * filename so re-running stays idempotent.
+ */
+const ALIASES = {
+    "image-generation":    "img-gen",
+    "video-genration":     "vid-gen",              // typo in export
+    "mockup-inspitations": "mockup-websites",      // typo in export
+    "prototype":           "prototyping-tools",
+    "uiux":                "ui-ux-inspirations"
+};
+
 const WRITE = process.argv.includes("--write");
 
 const slugify = (v) =>
@@ -65,6 +79,7 @@ async function liveCategorySlugs() {
 
 /** Exact match, else singular/plural, else unique prefix. Never guesses twice. */
 function matchSlug(candidate, slugs) {
+    if (ALIASES[candidate] && slugs.has(ALIASES[candidate])) return ALIASES[candidate];
     if (slugs.has(candidate)) return candidate;
     for (const variant of [candidate + "s", candidate + "es", candidate.replace(/s$/, "")]) {
         if (slugs.has(variant)) return variant;
