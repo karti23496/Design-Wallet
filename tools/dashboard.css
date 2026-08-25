@@ -99,7 +99,7 @@ body.is-dashboard main {
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--muted);
-    padding: 8px 12px 6px;
+    padding: 8px 12px 12px;
 }
 
 /* The category list is the only scrolling part of the sidebar, so the
@@ -114,7 +114,7 @@ body.is-dashboard main {
     -ms-overflow-style: none;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 8px;                    /* was 2px — the list read as one dense block */
     list-style: none;
     margin: 0;
     padding: 0;
@@ -128,7 +128,7 @@ body.is-dashboard main {
     gap: 10px;
     width: 100%;
     padding: 0 12px;
-    height: 42px;
+    height: 46px;
     border-radius: 10px;
     color: var(--muted-strong);
     text-decoration: none;
