@@ -169,6 +169,14 @@ New files: `theme.js`, `newsletter.js`. Reference: Good Design Tools.
 - **`✅ DONE`** ~~The orbiting starfield is back, behind the hero title.~~ Lost when the marketing homepage was replaced; restored inside `.dash-hero`. 100 orbits, 133–1020px, 20–90s, both directions.
 - **`DECIDED` `stars.js` is shared with `/list-your-tool/`** — both pages carry a `#stars-field`. Do not tune its constants for one page; add a per-element option instead.
 - **Note:** the original hero was full-viewport; the new one is ~400px tall with `overflow: hidden`, so the larger orbits are clipped and the field reads sparser than before. Tunable if it looks wrong in a browser.
+- **`✅ DONE`** ~~The first fold persists on every catalogue view.~~ Same h1, subline and email signup on `/`, `/category/*` and `/tools/*`; only the grid below changes with the category. It is static markup inside `#dashboard-view` — no JS toggling — so it also survives search.
+- **Root cause on record:** the fold lived only in `index.html`, but category URLs are served by `404.html`. Anything that must appear on a category page has to be in **all three** catalogue shells, or it silently vanishes on navigation.
+- **`✅ DONE`** ~~The "+N tools for digital designers / Add yours" capsule is removed.~~
+- **`✅ DONE`** ~~Nav uses the category sidebar's type~~ — 0.9rem / weight 400 / `--muted-strong`, sentence case, replacing 12px / weight 200 / uppercase. Every `.site-nav` child is an inline-flex row so the dropdown `<div>` aligns with its `<a>` siblings; the hover `translateY` that made the row look uneven is gone.
+- **`✅ DONE`** ~~Nav is Books · Good deals · Tools ▾ · Blog · Subscribe~~ (BROWSE removed).
+- **`✅ DONE`** ~~The sidebar has a pinned "List your tool" CTA; only the category list scrolls.~~
+- **`PENDING` `/good-deals/` is a placeholder.** Created because the new nav item needed a destination — it has the right chrome and an email capture, but **no real deals**. Content still needed.
+- **Gotcha on record:** `.ga-*` classes came from `pricing/pricing.css`, deleted with the paywall. Any page reusing that old markup must bring its own stylesheet.
 - **`✅ DONE`** ~~Panel scrollbars are hidden but still scroll.~~ `.dash-sidebar` and `.dash-main` set `scrollbar-width` (Firefox), `-ms-overflow-style` (legacy Edge) and `::-webkit-scrollbar` (Chrome/Safari) — all three are needed; the webkit rule alone is not enough.
 
 ---
@@ -224,6 +232,14 @@ Starfield restored behind the hero `h1`. Its glow was hardcoded white and would 
 Seventeen more icons. The script auto-matched twelve (including `ux toolsd` and `framer component`) and correctly **refused** five whose filenames map to nothing — those became explicit aliases.
 
 **Verified:** all 34 registry entries resolve, rasterise to a non-empty alpha mask, and serve 200 · coverage diffed against the live sheet (37 categories, 34 covered, 0 registered that aren't real) · re-running the script reports 0 pending changes, so it is idempotent.
+
+---
+
+**2026-08-26 — First fold persistence, nav rework, sidebar CTA** · commit `c4ebe86`
+
+Six changes. The reported "missing h1 / missing signup" was not a regression in `index.html` — the markup was intact there. Category pages are served by `404.html`, which never had the fold. Fixed by making all three shells carry it and deleting the toggling logic entirely.
+
+**Verified:** all 5 JS files pass `node --check` · 3 stylesheets brace-balanced · every asset reference across every page resolves · 8 routes serve 200 including the new `/good-deals/` · h1 + form + sidebar CTA confirmed present on all three catalogue shells · hero confirmed nested inside `#dashboard-view` so it still hides on tool-detail · every `.ga-*` class used by the new page is defined.
 
 ---
 
