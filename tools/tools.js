@@ -483,20 +483,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Categories that ship their own icon (sidebar rows AND card footer tags).
     //
-    // To add one: drop a TRANSPARENT monochrome PNG at
-    // /public/icons/<slug>.png and add the slug to this list. Nothing else.
-    // Slugs not listed fall back to the generic hash glyph below.
+    // To add one: drop the file in /public/icons/ named after the category
+    // slug, then add a "slug": "filename" entry here. Slugs not listed fall
+    // back to the generic hash glyph.
     //
     // The file is painted as a CSS mask filled with currentColor (see
-    // .dash-icon-mask), so one asset covers both themes. Two things matter
-    // in the export: the ground must be genuinely transparent, and the artwork
-    // should reach full opacity — a half-opaque export renders washed out.
-    var CATEGORY_ICON_SLUGS = ["3d-tools", "accessibility"];
+    // .dash-icon-mask), so one asset covers both themes and only its ALPHA
+    // matters — the artwork's own colours are discarded.
+    //   - SVG (preferred): stroke/fill artwork on a transparent canvas. Scales
+    //     cleanly and needs no preprocessing.
+    //   - PNG: must be genuinely transparent AND reach full opacity. A baked-in
+    //     background masks as a solid block; a half-opaque export renders faint.
+    //
+    // Filenames are listed in full because the set mixes .svg and .png. Once
+    // everything is SVG this can collapse back to a bare list of slugs.
+    var CATEGORY_ICONS = {
+        "3d-tools":            "3d-tools.png",
+        "accessibility":       "accessibility.png",
+        "ad-design":           "ad-design.svg",
+        "ai-tools":            "ai-tools.svg",
+        "ai-voiceover":        "ai-voiceover.svg",
+        "branding":            "branding.svg",
+        "color-palatte":       "color-palatte.svg",
+        "design-communities":  "design-communities.svg",
+        "design-courses":      "design-courses.svg",
+        "design-inspirations": "design-inspirations.svg"
+    };
 
     function categoryIconUrl(slug) {
-        return CATEGORY_ICON_SLUGS.indexOf(slug) === -1
-            ? ""
-            : "/public/icons/" + encodeURIComponent(slug) + ".png";
+        var file = CATEGORY_ICONS[slug];
+        return file ? "/public/icons/" + file : "";
     }
 
     // Returns the category's own icon as a currentColor mask, or `fallback`
