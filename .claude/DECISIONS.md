@@ -150,16 +150,21 @@ New files: `theme.js`, `newsletter.js`. Reference: Good Design Tools.
 - **`✅ DONE`** ~~Geist Mono is replaced by Geist across the site.~~ 34 declarations changed. **One deliberate exception:** the colour converter's code output (`.converter-output-row code`, `.converter-css-panel pre`) keeps a real monospace face, because hex values need aligned character widths. Geist Mono is therefore still requested on that page only.
 - **`✅ DONE`** ~~The nav is full width on every screen.~~ `.site-header` is `width: 100%` with `max-width: var(--content-width)`, centred; the dashboard override clears the cap so it stays edge-to-edge.
 - **Root cause on record:** the nav was stuck at half width because `.site-header` carried a hardcoded `width:50%`, which had **replaced** `max-width: var(--content-width)` in the never-committed work. It only looked correct on the dashboard, where an override forced `width:100%`.
-- **`✅ DONE`** ~~Category icons show in the sidebar **and** on the card footer tags.~~ Live for **`3d-tools`** and **`accessibility`**; the other 35 categories keep the hash fallback.
+- **`✅ DONE`** ~~Category icons show in the sidebar **and** on the card footer tags.~~ **10 of 37 categories** have icons; the rest keep the hash fallback.
+- **`✅ DONE`** ~~`scripts/build-icons.js` automates adding icons.~~ Drop files in `public/icons/`, run `node scripts/build-icons.js` (dry run) then `--write`. It kebab-cases filenames, matches each to a **real slug from the live sheet**, pins `currentColor`, and rewrites the `CATEGORY_ICONS` block.
+- **`DECIDED` Never derive a category slug from a filename.** Exports are routinely singular where the category is plural — `design course` → `design-courses`, `design community` → `design-communities`, `design inspiration` → `design-inspirations`. The script fuzzy-matches against the sheet and refuses to guess when ambiguous.
+- **`DECIDED` SVG is the preferred icon format** — scales cleanly and needs no alpha preprocessing, unlike PNG.
 - **`DECIDED` One helper renders both:** `categoryIconMarkup(slug, size, fallback)` — sidebar at 16px, card tag at 13px. Add an icon once and it appears in both places.
 - **`DECIDED` Adding a category icon is two steps:** drop a transparent monochrome PNG at `/public/icons/<slug>.png`, then add the slug to `CATEGORY_ICON_SLUGS` in `tools.js`. The path is derived from the slug — there is no separate path map to keep in sync.
 - **`DECIDED` Category icons are painted as CSS masks filled with `currentColor`**, not as `<img>`. One monochrome asset then works in both themes automatically, matching the inline SVGs which use `stroke="currentColor"`.
-- **`DECIDED` Icon exports must be checked before use — two failure modes seen so far, both silent:**
+- **`DECIDED` Icon exports must be checked before use — three failure modes seen so far, all silent:**
   1. **Opaque ground** (`3d Software.png`): alpha 100% everywhere with `#0D0D0D` baked in. Blends into dark mode, shows as a black tile in light mode.
   2. **Half-opaque artwork** (`accessibility.png` as supplied): genuinely transparent, but peaked at 50% alpha, so the mask rendered washed out against the nav text.
-  Fix for both is the same: normalise alpha to the full range (stripping an opaque ground first if present). **Originals are committed before processing** so the raw export stays recoverable.
+  3. **`stroke="currentColor"`** (the SVG batch): through a CSS mask only alpha is read, and `currentColor` in an isolated SVG-as-image context is unreliable — ImageMagick renders these as a **completely empty mask**. Pinned to `#000000` by the build script; visually identical, since CSS fills the mask with `currentColor` anyway.
+
+  Fixes: normalise alpha for PNGs (stripping an opaque ground first), pin `currentColor` for SVGs. **Originals are committed before processing** so the raw export stays recoverable.
 - **Gotcha on record:** the supplied `3d Software.png` was **fully opaque with a `#0D0D0D` background baked in** — no real transparency. Dropped in as-is it blends into dark mode but shows as a black tile in light mode. `public/icons/3d-tools.png` is derived from it by taking alpha from normalised luminance. **Any future category icon needs the same treatment** unless it is exported with a genuine alpha channel.
-- **Note:** there are **37 categories** in the sheet; **2 have icons**. Full coverage is 35 more assets, each needing a transparent, full-opacity monochrome export.
+- **Note:** there are **37 categories** in the sheet; **10 have icons**. 27 to go.
 - **`✅ DONE`** ~~Panel scrollbars are hidden but still scroll.~~ `.dash-sidebar` and `.dash-main` set `scrollbar-width` (Firefox), `-ms-overflow-style` (legacy Edge) and `::-webkit-scrollbar` (Chrome/Safari) — all three are needed; the webkit rule alone is not enough.
 
 ---
@@ -187,6 +192,16 @@ Second icon wired. `CATEGORY_ICONS` (slug → path map) became `CATEGORY_ICON_SL
 This export had the opposite problem to the first: real transparency, but only 50% peak alpha, which renders faint as a `currentColor` mask. Normalised in place, original preserved in `efc98e6`.
 
 **Verified:** both masks have healthy alpha range · both serve 200 · listed slugs all have files · unlisted slugs fall back to the hash glyph · rendered in both themes.
+
+---
+
+**2026-08-25 — Icon batch + build script** · commits `15a1411`, `1092610`
+
+Eight more icons wired (10 of 37). Icons arrived in batches during the session, so the manual loop was replaced with `scripts/build-icons.js`.
+
+Three things worth remembering: filenames do **not** reliably give slugs (three exports were singular where the category is plural); the supplied SVGs' `stroke="currentColor"` renders as an empty mask in an isolated context; and a partial `.crdownload` download got swept into a commit — now gitignored.
+
+**Verified:** all 10 registry entries have files · all 10 rasterise to a non-empty alpha mask · all serve 200 · rendered in both themes · `tools.js` passes `node --check`.
 
 ---
 
