@@ -150,10 +150,15 @@ New files: `theme.js`, `newsletter.js`. Reference: Good Design Tools.
 - **`✅ DONE`** ~~Geist Mono is replaced by Geist across the site.~~ 34 declarations changed. **One deliberate exception:** the colour converter's code output (`.converter-output-row code`, `.converter-css-panel pre`) keeps a real monospace face, because hex values need aligned character widths. Geist Mono is therefore still requested on that page only.
 - **`✅ DONE`** ~~The nav is full width on every screen.~~ `.site-header` is `width: 100%` with `max-width: var(--content-width)`, centred; the dashboard override clears the cap so it stays edge-to-edge.
 - **Root cause on record:** the nav was stuck at half width because `.site-header` carried a hardcoded `width:50%`, which had **replaced** `max-width: var(--content-width)` in the never-committed work. It only looked correct on the dashboard, where an override forced `width:100%`.
-- **`✅ DONE`** ~~The sidebar shows a real 3D icon instead of the generic hash glyph for "3D Tools".~~ Driven by `CATEGORY_ICONS` in `tools.js`, keyed by category slug — add a slug and a path to give any category its own icon. The other 36 categories keep the hash fallback.
+- **`✅ DONE`** ~~The sidebar shows real icons instead of the generic hash glyph.~~ Live for **`3d-tools`** and **`accessibility`**; the other 35 categories keep the hash fallback.
+- **`DECIDED` Adding a category icon is two steps:** drop a transparent monochrome PNG at `/public/icons/<slug>.png`, then add the slug to `CATEGORY_ICON_SLUGS` in `tools.js`. The path is derived from the slug — there is no separate path map to keep in sync.
 - **`DECIDED` Category icons are painted as CSS masks filled with `currentColor`**, not as `<img>`. One monochrome asset then works in both themes automatically, matching the inline SVGs which use `stroke="currentColor"`.
+- **`DECIDED` Icon exports must be checked before use — two failure modes seen so far, both silent:**
+  1. **Opaque ground** (`3d Software.png`): alpha 100% everywhere with `#0D0D0D` baked in. Blends into dark mode, shows as a black tile in light mode.
+  2. **Half-opaque artwork** (`accessibility.png` as supplied): genuinely transparent, but peaked at 50% alpha, so the mask rendered washed out against the nav text.
+  Fix for both is the same: normalise alpha to the full range (stripping an opaque ground first if present). **Originals are committed before processing** so the raw export stays recoverable.
 - **Gotcha on record:** the supplied `3d Software.png` was **fully opaque with a `#0D0D0D` background baked in** — no real transparency. Dropped in as-is it blends into dark mode but shows as a black tile in light mode. `public/icons/3d-tools.png` is derived from it by taking alpha from normalised luminance. **Any future category icon needs the same treatment** unless it is exported with a genuine alpha channel.
-- **Note:** there are **37 categories** in the sheet. Icons for all of them is 37 assets, each needing a transparent monochrome export.
+- **Note:** there are **37 categories** in the sheet; **2 have icons**. Full coverage is 35 more assets, each needing a transparent, full-opacity monochrome export.
 - **`✅ DONE`** ~~Panel scrollbars are hidden but still scroll.~~ `.dash-sidebar` and `.dash-main` set `scrollbar-width` (Firefox), `-ms-overflow-style` (legacy Edge) and `::-webkit-scrollbar` (Chrome/Safari) — all three are needed; the webkit rule alone is not enough.
 
 ---
@@ -171,6 +176,16 @@ Three fixes from a screenshot review. The nav-width bug was a regression, not a 
 `3d-tools` (slug verified against the live sheet, not assumed) renders the supplied 3D icon in the sidebar. Mechanism is a slug-keyed map plus a `currentColor` CSS mask, so it extends to any category.
 
 The supplied PNG had an opaque dark background baked in, so a transparent mask was derived from it; the original is kept untouched as the source asset. **The derived file is required — deleting `public/icons/3d-tools.png` removes the icon.**
+
+---
+
+**2026-08-25 — Accessibility icon + icon list refactor** · commits `efc98e6`, `f74ba92`
+
+Second icon wired. `CATEGORY_ICONS` (slug → path map) became `CATEGORY_ICON_SLUGS` (plain list) with the path derived from the slug, so there is no longer a map to keep in sync with the filenames.
+
+This export had the opposite problem to the first: real transparency, but only 50% peak alpha, which renders faint as a `currentColor` mask. Normalised in place, original preserved in `efc98e6`.
+
+**Verified:** both masks have healthy alpha range · both serve 200 · listed slugs all have files · unlisted slugs fall back to the hash glyph · rendered in both themes.
 
 ---
 
