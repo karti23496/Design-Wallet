@@ -432,9 +432,17 @@ body.is-dashboard main {
    the site root with no category selected.
    ═══════════════════════════════════════════════════════════════════════ */
 .dash-hero {
+    position: relative;          /* anchors the absolutely-positioned starfield */
+    overflow: hidden;            /* orbits run up to ~1000px wide — clip them */
     padding: 56px 24px 40px;
     text-align: center;
     border-bottom: 1px solid var(--border);
+}
+
+/* Everything except the starfield sits above it. */
+.dash-hero-content {
+    position: relative;
+    z-index: 1;
 }
 
 .dash-hero-badge {
