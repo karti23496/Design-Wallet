@@ -481,10 +481,25 @@ document.addEventListener("DOMContentLoaded", function () {
         ].join("");
     }
 
-    function dashNavRowMarkup(label, href, count, isActive, isAll) {
-        var icon = isAll
-            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>'
-            : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>';
+    // Per-category sidebar icons, keyed by category slug. These are rendered as
+    // CSS masks tinted with currentColor (see .dash-nav-icon--img), so a single
+    // monochrome PNG works in both themes. Any slug not listed here falls back
+    // to the generic hash glyph below.
+    var CATEGORY_ICONS = {
+        "3d-tools": "/public/icons/3d-tools.png"
+    };
+
+    function dashNavRowMarkup(label, href, count, isActive, isAll, slug) {
+        var custom = !isAll && slug && CATEGORY_ICONS[slug];
+        var icon;
+        if (custom) {
+            icon = '<span class="dash-nav-icon-mask" style="-webkit-mask-image:url(\'' +
+                custom + '\');mask-image:url(\'' + custom + '\')"></span>';
+        } else {
+            icon = isAll
+                ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>'
+                : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>';
+        }
         return [
             '<a class="dash-nav-row"', (isActive ? ' aria-current="true"' : ''), ' href="', href, '">',
             '<span class="dash-nav-icon">', icon, '</span>',
@@ -539,7 +554,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (dashNavEl) {
             var rows = [dashNavRowMarkup("All", "/category/", tools.length, !selected, true)];
             groups.forEach(function (g) {
-                rows.push(dashNavRowMarkup(g.title, "/category/?category=" + encodeURIComponent(g.slug), g.tools.length, g.slug === selected, false));
+                rows.push(dashNavRowMarkup(g.title, "/category/?category=" + encodeURIComponent(g.slug), g.tools.length, g.slug === selected, false, g.slug));
             });
             dashNavEl.innerHTML = rows.join("");
         }

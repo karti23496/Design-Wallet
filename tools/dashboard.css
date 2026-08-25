@@ -121,6 +121,23 @@ body.is-dashboard main {
     opacity: 0.75;
 }
 
+/* Category icons supplied as monochrome PNGs are painted as a CSS mask filled
+   with currentColor, so one asset works in both themes — same behaviour as the
+   inline SVGs, which use stroke="currentColor". The mask-image url is set
+   per-row by tools.js. */
+.dash-nav-icon-mask {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+    -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+            mask-position: center;
+    -webkit-mask-size: contain;
+            mask-size: contain;
+}
+
 .dash-nav-label {
     flex: 1 1 auto;
     white-space: nowrap;
