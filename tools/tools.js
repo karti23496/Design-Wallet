@@ -507,7 +507,14 @@ document.addEventListener("DOMContentLoaded", function () {
         "color-palatte":       "color-palatte.svg",
         "design-communities":  "design-communities.svg",
         "design-courses":      "design-courses.svg",
-        "design-inspirations": "design-inspirations.svg"
+        "design-inspirations": "design-inspirations.svg",
+        "design-jobs":         "design-jobs.svg",
+        "design-podcasts":     "design-podcasts.svg",
+        "design-portfolios":   "design-portfolios.svg",
+        "design-softwares":    "design-softwares.svg",
+        "design-systems":      "design-systems.svg",
+        "email-builder":       "email-builder.svg",
+        "figma-kit":           "figma-kit.svg"
     };
 
     function categoryIconUrl(slug) {
