@@ -150,7 +150,7 @@ New files: `theme.js`, `newsletter.js`. Reference: Good Design Tools.
 - **`✅ DONE`** ~~Geist Mono is replaced by Geist across the site.~~ 34 declarations changed. **One deliberate exception:** the colour converter's code output (`.converter-output-row code`, `.converter-css-panel pre`) keeps a real monospace face, because hex values need aligned character widths. Geist Mono is therefore still requested on that page only.
 - **`✅ DONE`** ~~The nav is full width on every screen.~~ `.site-header` is `width: 100%` with `max-width: var(--content-width)`, centred; the dashboard override clears the cap so it stays edge-to-edge.
 - **Root cause on record:** the nav was stuck at half width because `.site-header` carried a hardcoded `width:50%`, which had **replaced** `max-width: var(--content-width)` in the never-committed work. It only looked correct on the dashboard, where an override forced `width:100%`.
-- **`✅ DONE`** ~~Category icons show in the sidebar **and** on the card footer tags.~~ **10 of 37 categories** have icons; the rest keep the hash fallback.
+- **`✅ DONE`** ~~Category icons show in the sidebar **and** on the card footer tags.~~ **17 of 37 categories** have icons; the rest keep the hash fallback.
 - **`✅ DONE`** ~~`scripts/build-icons.js` automates adding icons.~~ Drop files in `public/icons/`, run `node scripts/build-icons.js` (dry run) then `--write`. It kebab-cases filenames, matches each to a **real slug from the live sheet**, pins `currentColor`, and rewrites the `CATEGORY_ICONS` block.
 - **`DECIDED` Never derive a category slug from a filename.** Exports are routinely singular where the category is plural — `design course` → `design-courses`, `design community` → `design-communities`, `design inspiration` → `design-inspirations`. The script fuzzy-matches against the sheet and refuses to guess when ambiguous.
 - **`DECIDED` SVG is the preferred icon format** — scales cleanly and needs no alpha preprocessing, unlike PNG.
@@ -164,7 +164,10 @@ New files: `theme.js`, `newsletter.js`. Reference: Good Design Tools.
 
   Fixes: normalise alpha for PNGs (stripping an opaque ground first), pin `currentColor` for SVGs. **Originals are committed before processing** so the raw export stays recoverable.
 - **Gotcha on record:** the supplied `3d Software.png` was **fully opaque with a `#0D0D0D` background baked in** — no real transparency. Dropped in as-is it blends into dark mode but shows as a black tile in light mode. `public/icons/3d-tools.png` is derived from it by taking alpha from normalised luminance. **Any future category icon needs the same treatment** unless it is exported with a genuine alpha channel.
-- **Note:** there are **37 categories** in the sheet; **10 have icons**. 27 to go.
+- **Note:** there are **37 categories** in the sheet; **17 have icons**. 20 to go.
+- **`✅ DONE`** ~~The orbiting starfield is back, behind the hero title.~~ Lost when the marketing homepage was replaced; restored inside `.dash-hero`. 100 orbits, 133–1020px, 20–90s, both directions.
+- **`DECIDED` `stars.js` is shared with `/list-your-tool/`** — both pages carry a `#stars-field`. Do not tune its constants for one page; add a per-element option instead.
+- **Note:** the original hero was full-viewport; the new one is ~400px tall with `overflow: hidden`, so the larger orbits are clipped and the field reads sparser than before. Tunable if it looks wrong in a browser.
 - **`✅ DONE`** ~~Panel scrollbars are hidden but still scroll.~~ `.dash-sidebar` and `.dash-main` set `scrollbar-width` (Firefox), `-ms-overflow-style` (legacy Edge) and `::-webkit-scrollbar` (Chrome/Safari) — all three are needed; the webkit rule alone is not enough.
 
 ---
@@ -202,6 +205,16 @@ Eight more icons wired (10 of 37). Icons arrived in batches during the session, 
 Three things worth remembering: filenames do **not** reliably give slugs (three exports were singular where the category is plural); the supplied SVGs' `stroke="currentColor"` renders as an empty mask in an isolated context; and a partial `.crdownload` download got swept into a commit — now gitignored.
 
 **Verified:** all 10 registry entries have files · all 10 rasterise to a non-empty alpha mask · all serve 200 · rendered in both themes · `tools.js` passes `node --check`.
+
+---
+
+**2026-08-26 — 7 more icons + starfield restored** · commits `002d44c`, `7aaa7a3`
+
+Icons now 17 of 37, all processed by `scripts/build-icons.js`; it fuzzy-matched four more singular exports to plural slugs without intervention.
+
+Starfield restored behind the hero `h1`. Its glow was hardcoded white and would have been invisible in light mode — now `rgba(var(--fg-rgb), …)`.
+
+**Verified:** all 17 registry entries resolve and rasterise to a non-empty mask · `stars.js` simulated against a DOM stub (100 orbits / 100 stars, both directions, theme-aware glow) · script ordering confirmed after the markup · pages serve 200.
 
 ---
 
