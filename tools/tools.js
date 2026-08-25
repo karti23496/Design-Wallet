@@ -481,16 +481,26 @@ document.addEventListener("DOMContentLoaded", function () {
         ].join("");
     }
 
-    // Per-category sidebar icons, keyed by category slug. These are rendered as
-    // CSS masks tinted with currentColor (see .dash-nav-icon--img), so a single
-    // monochrome PNG works in both themes. Any slug not listed here falls back
-    // to the generic hash glyph below.
-    var CATEGORY_ICONS = {
-        "3d-tools": "/public/icons/3d-tools.png"
-    };
+    // Categories that ship their own sidebar icon.
+    //
+    // To add one: drop a TRANSPARENT monochrome PNG at
+    // /public/icons/<slug>.png and add the slug to this list. Nothing else.
+    // Slugs not listed fall back to the generic hash glyph below.
+    //
+    // The file is painted as a CSS mask filled with currentColor (see
+    // .dash-nav-icon-mask), so one asset covers both themes. Two things matter
+    // in the export: the ground must be genuinely transparent, and the artwork
+    // should reach full opacity — a half-opaque export renders washed out.
+    var CATEGORY_ICON_SLUGS = ["3d-tools", "accessibility"];
+
+    function categoryIconUrl(slug) {
+        return CATEGORY_ICON_SLUGS.indexOf(slug) === -1
+            ? ""
+            : "/public/icons/" + encodeURIComponent(slug) + ".png";
+    }
 
     function dashNavRowMarkup(label, href, count, isActive, isAll, slug) {
-        var custom = !isAll && slug && CATEGORY_ICONS[slug];
+        var custom = !isAll && slug ? categoryIconUrl(slug) : "";
         var icon;
         if (custom) {
             icon = '<span class="dash-nav-icon-mask" style="-webkit-mask-image:url(\'' +
