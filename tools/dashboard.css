@@ -588,9 +588,6 @@ body.is-dashboard main {
    Both panels still scroll; the chrome is just not painted. Firefox and old
    Edge need their own properties — the ::-webkit rule alone is not enough.
    ═══════════════════════════════════════════════════════════════════════ */
-.dash-sidebar,
-
-
 .dash-sidebar::-webkit-scrollbar,
 .dash-main::-webkit-scrollbar {   /* Chrome, Safari, modern Edge */
     width: 0;
