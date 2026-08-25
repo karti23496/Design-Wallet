@@ -456,11 +456,11 @@ document.addEventListener("DOMContentLoaded", function () {
             : '<span class="dash-card-logo">' + escapeHtml(tool.initials || getInitials(tool.title)) + '</span>';
         var dollar = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>';
         var primaryCat = (tool.categories && tool.categories[0]) || "";
-        var catHref = primaryCat
-            ? "/category/?category=" + encodeURIComponent(normalizeCategorySlug(slugify(primaryCat)))
-            : "/category/";
+        var catSlug = primaryCat ? normalizeCategorySlug(slugify(primaryCat)) : "";
+        var catHref = primaryCat ? "/category/?category=" + encodeURIComponent(catSlug) : "/category/";
         var arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>';
-        var tagIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>';
+        var tagIcon = categoryIconMarkup(catSlug, 13,
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>');
 
         return [
             '<div class="dash-card">',
@@ -481,14 +481,14 @@ document.addEventListener("DOMContentLoaded", function () {
         ].join("");
     }
 
-    // Categories that ship their own sidebar icon.
+    // Categories that ship their own icon (sidebar rows AND card footer tags).
     //
     // To add one: drop a TRANSPARENT monochrome PNG at
     // /public/icons/<slug>.png and add the slug to this list. Nothing else.
     // Slugs not listed fall back to the generic hash glyph below.
     //
     // The file is painted as a CSS mask filled with currentColor (see
-    // .dash-nav-icon-mask), so one asset covers both themes. Two things matter
+    // .dash-icon-mask), so one asset covers both themes. Two things matter
     // in the export: the ground must be genuinely transparent, and the artwork
     // should reach full opacity — a half-opaque export renders washed out.
     var CATEGORY_ICON_SLUGS = ["3d-tools", "accessibility"];
@@ -499,16 +499,22 @@ document.addEventListener("DOMContentLoaded", function () {
             : "/public/icons/" + encodeURIComponent(slug) + ".png";
     }
 
+    // Returns the category's own icon as a currentColor mask, or `fallback`
+    // when that category has no icon. Used by both the sidebar rows and the
+    // card footer tags, which differ only in size.
+    function categoryIconMarkup(slug, size, fallback) {
+        var url = slug ? categoryIconUrl(slug) : "";
+        if (!url) return fallback;
+        return '<span class="dash-icon-mask" style="width:' + size + 'px;height:' + size +
+            'px;-webkit-mask-image:url(\'' + url + '\');mask-image:url(\'' + url + '\')"></span>';
+    }
+
     function dashNavRowMarkup(label, href, count, isActive, isAll, slug) {
-        var custom = !isAll && slug ? categoryIconUrl(slug) : "";
         var icon;
-        if (custom) {
-            icon = '<span class="dash-nav-icon-mask" style="-webkit-mask-image:url(\'' +
-                custom + '\');mask-image:url(\'' + custom + '\')"></span>';
+        if (isAll) {
+            icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>';
         } else {
-            icon = isAll
-                ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>'
-                : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>';
+            icon = categoryIconMarkup(slug, 16, '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>');
         }
         return [
             '<a class="dash-nav-row"', (isActive ? ' aria-current="true"' : ''), ' href="', href, '">',

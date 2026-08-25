@@ -123,10 +123,11 @@ body.is-dashboard main {
 
 /* Category icons supplied as monochrome PNGs are painted as a CSS mask filled
    with currentColor, so one asset works in both themes — same behaviour as the
-   inline SVGs, which use stroke="currentColor". The mask-image url is set
-   per-row by tools.js. */
-.dash-nav-icon-mask {
+   inline SVGs, which use stroke="currentColor". Used by the sidebar rows (16px)
+   and the card footer tags (13px); tools.js sets the url and size inline. */
+.dash-icon-mask {
     display: block;
+    flex: 0 0 auto;
     width: 16px;
     height: 16px;
     background-color: currentColor;
@@ -383,7 +384,9 @@ body.is-dashboard main {
     max-width: 70%;
 }
 
-.dash-card-tag span {
+/* Label only — the icon may itself be a <span> (.dash-icon-mask), which must
+   not inherit the ellipsis/overflow treatment. */
+.dash-card-tag span:not(.dash-icon-mask) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
