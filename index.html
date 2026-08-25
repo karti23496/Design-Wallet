@@ -44,20 +44,21 @@
             <div class="dashboard" id="dashboard-view" hidden>
                 <aside class="dash-sidebar">
                     <p class="dash-sidebar-label">Categories</p>
+                    <!-- Only this list scrolls; the CTA below is pinned. -->
                     <nav class="dash-nav" id="dash-nav" aria-label="Tool categories"></nav>
+                    <a class="dash-sidebar-cta" href="/list-your-tool/">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                        List your tool
+                    </a>
                 </aside>
 
                 <section class="dash-main" id="dash-main">
-                    <!-- ══ FIRST FOLD (homepage only) ══ -->
-                    <div class="dash-hero" id="dash-hero" hidden>
+                    <!-- ══ FIRST FOLD — identical on every catalogue view ══ -->
+                    <div class="dash-hero" id="dash-hero">
                         <!-- Orbiting starfield, populated by stars.js -->
                         <div class="stars-field" id="stars-field" aria-hidden="true"></div>
 
                         <div class="dash-hero-content">
-                            <div class="dash-hero-badge">
-                                <span id="dash-hero-count">A curated library for digital designers</span>
-                                <a href="/list-your-tool/">Add yours <span aria-hidden="true">&rarr;</span></a>
-                            </div>
                             <h1>All-in-one design library for curious designers.</h1>
                             <p class="dash-hero-copy">Built to help designers discover better tools, workflows, and inspirations faster.</p>
                             <form class="newsletter-form dash-hero-form">

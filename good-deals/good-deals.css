@@ -1,0 +1,137 @@
+/* ============================================================================
+   Good Deals page.
+   Adapted from the layout the old pricing page used (which was deleted with
+   the paywall), trimmed to what this page actually needs. Uses the global
+   theme tokens from /style.css, so it follows dark/light automatically.
+   ============================================================================ */
+
+.ga-main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 24px 96px;
+}
+
+/* ── Hero ─────────────────────────────────────────────────────────────── */
+.ga-hero {
+    text-align: center;
+}
+
+.ga-eyebrow {
+    font-family: "Geist", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin: 0 0 18px;
+}
+
+.ga-title {
+    font-family: "Geist", sans-serif;
+    font-weight: 200;
+    font-size: clamp(2rem, 5vw, 3.6rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin: 0 auto 20px;
+}
+
+.ga-subtitle {
+    max-width: 52ch;
+    color: var(--muted);
+    font-size: 1.02rem;
+    line-height: 1.6;
+    margin: 0 auto 32px;
+}
+
+/* Email capture — mirrors the homepage hero form. */
+.ga-deals-form {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: min(100%, 420px);
+    margin: 0 auto;
+    padding: 6px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--panel);
+}
+
+.ga-deals-form:focus-within { border-color: var(--border-strong); }
+
+.ga-deals-form input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 10px 16px;
+    border: none;
+    background: none;
+    color: var(--text);
+    font-family: "Inter", sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.ga-deals-form input::placeholder { color: var(--muted); }
+
+.ga-deals-form button {
+    flex: 0 0 auto;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.ga-reassure {
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 0.82rem;
+}
+
+/* ── Value grid ───────────────────────────────────────────────────────── */
+.ga-value {
+    margin-top: 72px;
+}
+
+.ga-value-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.ga-value-item {
+    padding: 22px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--panel-soft);
+}
+
+.ga-value-item h3 {
+    margin: 0 0 8px;
+    font-family: "Geist", sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--text);
+}
+
+.ga-value-item p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+.ga-value-item a {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+    .ga-main { padding: 40px 18px 64px; }
+    .ga-value { margin-top: 48px; }
+    .ga-deals-form { flex-wrap: wrap; border-radius: 20px; }
+    .ga-deals-form input,
+    .ga-deals-form button { width: 100%; }
+}

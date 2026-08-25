@@ -499,20 +499,31 @@ input {
 .site-nav {
     display: flex;
     align-items: center;
-    gap: 48px;
+    gap: 26px;
+}
+
+/* Every direct child is a flex row of its own so text, the dropdown wrapper,
+   the pill and the round toggle all sit on one optical baseline. The dropdown
+   is a <div>, which previously sat lower than the plain <a> siblings. */
+.site-nav > * {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
 }
 
 .site-nav a {
-color: rgba(var(--fg-rgb), 0.7);
-    font-weight: 200;
-    font-size: 12px;
-    transition: color 0.2s ease, transform 0.2s ease;
+    /* Same treatment as .dash-nav-row in the category sidebar. */
+    font-family: "Geist", sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--muted-strong);
+    transition: color 0.2s ease;
 }
 
 .site-nav a:hover,
 .site-nav a:focus-visible {
     color: var(--text);
-    transform: translateY(-1px);
 }
 
 .nav-dropdown {
@@ -9423,7 +9434,8 @@ body.converter-export-open {
 .site-nav a.nav-subscribe-link {
     display: inline-flex;
     align-items: center;
-    padding: 9px 16px;
+    font-size: 0.9rem;
+    padding: 8px 16px;
     border: 1px solid var(--border);
     border-radius: 999px;
     background: var(--panel-soft);

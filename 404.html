@@ -42,10 +42,31 @@
             <div class="dashboard" id="dashboard-view" hidden>
                 <aside class="dash-sidebar">
                     <p class="dash-sidebar-label">Categories</p>
+                    <!-- Only this list scrolls; the CTA below is pinned. -->
                     <nav class="dash-nav" id="dash-nav" aria-label="Tool categories"></nav>
+                    <a class="dash-sidebar-cta" href="/list-your-tool/">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                        List your tool
+                    </a>
                 </aside>
 
                 <section class="dash-main" id="dash-main">
+                    <!-- ══ FIRST FOLD — identical on every catalogue view ══ -->
+                    <div class="dash-hero" id="dash-hero">
+                        <!-- Orbiting starfield, populated by stars.js -->
+                        <div class="stars-field" id="stars-field" aria-hidden="true"></div>
+
+                        <div class="dash-hero-content">
+                            <h1>All-in-one design library for curious designers.</h1>
+                            <p class="dash-hero-copy">Built to help designers discover better tools, workflows, and inspirations faster.</p>
+                            <form class="newsletter-form dash-hero-form">
+                                <input type="email" name="email" placeholder="Email address" aria-label="Email address" required>
+                                <button type="submit" class="primary-button">Sign up</button>
+                            </form>
+                            <p class="dash-hero-note">A weekly round-up of the best tools and inspiration.</p>
+                        </div>
+                    </div>
+
                     <div class="dash-search" id="dash-search">
                         <div class="dash-search-field">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -127,6 +148,7 @@
     <script src="/content.js?v=20260508-6"></script>
     <script src="/header.js?v=20260508-6"></script>
     <script src="/newsletter.js?v=20260824-1"></script>
+    <script src="/stars.js?v=20260826-1"></script>
     <script src="/footer.js?v=20260508-6"></script>
     <script src="/tools/tools.js?v=20260712-1"></script>
 </body>

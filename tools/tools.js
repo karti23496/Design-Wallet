@@ -565,25 +565,11 @@ document.addEventListener("DOMContentLoaded", function () {
         ].join("");
     }
 
-    // The homepage first fold. Present only in index.html, so every other
-    // shell (404.html, tools/index.html) simply finds nothing here.
-    function setHeroVisible(visible, toolCount) {
-        var hero = document.getElementById("dash-hero");
-        if (!hero) return;
-        hero.hidden = !visible;
-        if (!visible) return;
-        var countEl = document.getElementById("dash-hero-count");
-        if (countEl && toolCount) {
-            countEl.textContent = "+" + toolCount + " tools for digital designers";
-        }
-    }
-
     function renderDashboard(tools, categorySlug) {
         var groups = getCategoryGroups(tools);
         categorySearchGroups = groups;
 
         var selected = categorySlug || "";
-        setHeroVisible(isRootRoute() && !selected, tools.length);
         var group = selected ? findCategoryGroup(tools, selected) : null;
         if (selected && !group) {
             showNotFound("Category not found", "This category does not exist yet.");
@@ -667,7 +653,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function applyDashSearch(query) {
         var q = String(query || "").trim();
         var words = q.toLowerCase().split(/\s+/).filter(Boolean);
-        setHeroVisible(isRootRoute() && !words.length, dashState.base.length);
         var filtered = dashState.base.filter(function (tool) { return toolMatchesQuery(tool, words); });
 
         renderDashGrid(filtered);

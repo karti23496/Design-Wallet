@@ -62,13 +62,35 @@ body.is-dashboard main {
 /* ── Left panel: category navigation ──────────────────────────────────────── */
 .dash-sidebar {
     min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;            /* the panel itself no longer scrolls */
     border-right: 1px solid var(--border);
-    padding: 20px 12px 24px;
+    padding: 20px 12px 16px;
     display: flex;
     flex-direction: column;
     gap: 6px;
+}
+
+.dash-sidebar-cta {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 11px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--panel-soft);
+    color: var(--text);
+    font-size: 0.86rem;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.dash-sidebar-cta:hover,
+.dash-sidebar-cta:focus-visible {
+    background: var(--panel-strong);
+    border-color: var(--border-strong);
 }
 
 .dash-sidebar-label {
@@ -80,7 +102,16 @@ body.is-dashboard main {
     padding: 8px 12px 6px;
 }
 
+/* The category list is the only scrolling part of the sidebar, so the
+   "List your tool" CTA below it stays pinned. Scrollbar hidden to match the
+   rest of the dashboard. */
 .dash-nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -88,6 +119,8 @@ body.is-dashboard main {
     margin: 0;
     padding: 0;
 }
+
+.dash-nav::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 .dash-nav-row {
     display: flex;

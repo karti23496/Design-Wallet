@@ -38,17 +38,18 @@ function loadHeader() {
             '<span></span><span></span><span></span>' +
         '</button>' +
         '<nav class="site-nav" id="primary-nav">' +
-            '<a class="nav-browse-link" href="/category/">BROWSE</a>' +
+            '<a href="/books/">Books</a>' +
+            '<a href="/good-deals/">Good deals</a>' +
             '<div class="nav-dropdown">' +
                 // No href: the trigger opens the menu rather than navigating.
                 // tabindex keeps it keyboard-reachable for :focus-within.
-                '<a class="nav-dropdown-trigger" tabindex="0" role="button" aria-haspopup="true">TOOLS</a>' +
+                '<a class="nav-dropdown-trigger" tabindex="0" role="button" aria-haspopup="true">Tools</a>' +
                 '<div class="nav-dropdown-menu" aria-label="Design Wallet tools">' +
                     toolsMenu +
                 '</div>' +
             '</div>' +
-            '<a class="nav-blog-link" href="/blog/">BLOG</a>' +
-            '<a class="nav-subscribe-link" href="#" data-newsletter-open>SUBSCRIBE</a>' +
+            '<a href="/blog/">Blog</a>' +
+            '<a class="nav-subscribe-link" href="#" data-newsletter-open>Subscribe</a>' +
             themeToggleMarkup() +
         '</nav>';
 
