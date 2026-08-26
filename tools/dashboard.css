@@ -571,6 +571,56 @@ body.is-dashboard main {
     cursor: pointer;
 }
 
+/* ── "Loved by" social proof row ──────────────────────────────────────────
+   Reuses the optimised 128px avatars in /public/avatars/ (23 KB for all ten),
+   which were left unreferenced when the old marketing hero was removed.
+   The ring uses --pure so it reads as a light cut-out in dark mode and a dark
+   outline in light mode — matching the page rather than a fixed white.
+   ─────────────────────────────────────────────────────────────────────── */
+.dash-hero-loved {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 30px;
+}
+
+.dash-hero-loved-label {
+    font-family: "Geist", sans-serif;
+    font-size: 1.02rem;
+    font-weight: 400;
+    color: var(--text);
+}
+
+.dash-hero-avatars {
+    display: flex;
+    align-items: center;
+}
+
+.dash-hero-avatars img {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--pure);
+    background: var(--panel-strong);
+    margin-left: -10px;            /* overlap */
+}
+
+.dash-hero-avatars img:first-child {
+    margin-left: 0;
+}
+
+@media (max-width: 700px) {
+    .dash-hero-loved { gap: 10px; margin-top: 22px; }
+    .dash-hero-loved-label { font-size: 0.92rem; }
+    .dash-hero-avatars img { width: 30px; height: 30px; margin-left: -9px; }
+    /* Ten avatars overflow a narrow screen — show the first six. */
+    .dash-hero-avatars img:nth-child(n+7) { display: none; }
+}
+
 .dash-hero-note {
     margin: 14px 0 0;
     color: var(--muted);
