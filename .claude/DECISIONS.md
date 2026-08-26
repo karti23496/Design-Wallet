@@ -47,6 +47,9 @@
 - **`DECIDED` Google Sheets stays as the database.** The Sheet remains the editing surface.
 - **`✅ DONE`** ~~Supabase is dropped entirely.~~ All Supabase code deleted (schema + 7 edge functions + client). **The hosted Supabase project itself still exists** — see the `PENDING` item in §6.
 - **`✅ DONE`** ~~`scripts/sync-catalog.js` (Sheet → Supabase) is deleted.~~
+- **`PENDING` ⚠️ Conflict: Karthik requires listings to appear at runtime.** Stated 2026-08-26: *"I want the website to be updated with runtime when I add list on it."* **That is how it works today** — the browser polls the Sheet every 5s, so a new row shows within seconds. But it directly contradicts the build-time decision below, which would delay new listings by up to an hour.
+  **Proposed resolution (needs Karthik's call): do both.** Generate static pages at build time for SEO and instant first paint, then have the page re-fetch the Sheet on load and patch in anything newer. Crawlers get real HTML; editors still see changes immediately. Until this is settled, **do not remove the client-side fetch.**
+- **`PENDING` The 5s poll is aggressive.** Every open tab makes 2 requests (one per tab of the Sheet) every 5 seconds — ~1,440/hour per visitor. Google's gviz endpoint is unmetered but not unlimited; being throttled would empty the catalogue for everyone. 30–60s would still satisfy the runtime requirement.
 - **`DECIDED` The Sheet is read at build time, not in the browser.** Removes the per-visitor round trip, makes rate limits irrelevant, and means a Google outage can't break the live site. **Lands in §5 step 4.**
 - **`DECIDED` The build validates catalog rows and fails loudly on bad data** — buys back the schema validation we give up by not using a real database.
 - **Catalog schema:** `slug, title, subtitle, description, categories[], pricing, link, image, thumbnails[]`. *(Recorded from `sync-catalog.js` before deletion — this is now the only surviving record of it.)*

@@ -215,11 +215,6 @@ body.is-dashboard main {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.dash-search.is-stuck {
-    border-bottom-color: var(--border);
-
-}
-
 .dash-search-field {
     display: flex;
     align-items: center;
@@ -227,7 +222,7 @@ body.is-dashboard main {
     padding: 11px 16px;
     border-radius: 12px;
     border: 1px solid var(--border);
-    background: var(--panel);
+    background: #1c1c1c;
 }
 
 .dash-search-field:focus-within { border-color: var(--border-strong); }
@@ -335,7 +330,7 @@ body.is-dashboard main {
     width: 52px;
     height: 52px;
     flex: 0 0 auto;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 12px;
@@ -482,7 +477,6 @@ body.is-dashboard main {
     flex: 0 0 auto;              /* never compress: overflow:hidden would clip the copy */
     padding: 56px 24px 40px;
     text-align: center;
-    border-bottom: 1px solid var(--border);
 }
 
 /* Everything except the starfield sits above it. */
