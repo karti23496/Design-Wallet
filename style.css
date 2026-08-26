@@ -3441,7 +3441,7 @@ body.waitlist-modal-open {
 .logo-badge.has-image img {
     width: 100%;
     height: 100%;
-    object-fit: contain;   /* URLs are trimmed server-side; see iconUrl() */
+    object-fit: cover;     /* fill the holder; URLs are trimmed, see iconUrl() */
 }
 
 .price-badge {
@@ -7410,7 +7410,7 @@ body.category-search-open {
 .tool-icon img {
     width: 100%;
     height: 100%;
-    object-fit: contain;   /* URLs are trimmed server-side; see iconUrl() */
+    object-fit: cover;     /* fill the holder; URLs are trimmed, see iconUrl() */
 }
 
 .tool-icon-fallback {

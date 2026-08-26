@@ -78,9 +78,6 @@ body.is-dashboard main {
     gap: 8px;
     margin-top: 10px;
     padding: 11px 14px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--panel-soft);
     color: var(--text);
     font-size: 0.86rem;
     text-decoration: none;
@@ -350,10 +347,11 @@ body.is-dashboard main {
     color: var(--muted-strong);
 }
 
-/* contain, not cover: the URLs are trimmed server-side (see iconUrl in
-   tools.js), so square logos already fill the box — and contain keeps
-   wordmark-shaped logos whole instead of cropping them. */
-.dash-card-logo img { width: 100%; height: 100%; object-fit: contain; }
+/* cover: fill the holder edge to edge. The URLs are trimmed server-side (see
+   iconUrl in tools.js), so this crops actual artwork, not padding — square
+   logos (the large majority) fill exactly, wordmark-shaped ones get cropped
+   to a square. Switch back to `contain` if that crop becomes a problem. */
+.dash-card-logo img { width: 100%; height: 100%; object-fit: cover; }
 
 .dash-card-badges {
     display: flex;
@@ -522,9 +520,9 @@ body.is-dashboard main {
     margin: 0 auto 14px;
     font-family: "Geist", sans-serif;
     font-weight: 100;
-    font-size: clamp(2rem, 5vw, 4rem);
+    font-size: clamp(2rem, 6vw, 14rem);
     line-height: 1.08;
-    letter-spacing: -0.02em;
+    letter-spacing: -5px;
     color: var(--text);
 }
 
@@ -582,13 +580,13 @@ body.is-dashboard main {
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 14px;
+    gap: 8px;
     margin-top: 30px;
 }
 
 .dash-hero-loved-label {
     font-family: "Geist", sans-serif;
-    font-size: 1.02rem;
+    font-size: 0.8rem;
     font-weight: 400;
     color: var(--text);
 }
@@ -599,14 +597,14 @@ body.is-dashboard main {
 }
 
 .dash-hero-avatars img {
-    width: 36px;
-    height: 36px;
+    width: 24px;
+    height: 24px;
     flex: 0 0 auto;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--pure);
     background: var(--panel-strong);
-    margin-left: -10px;            /* overlap */
+    margin-left: -7px;            /* overlap */
 }
 
 .dash-hero-avatars img:first-child {
