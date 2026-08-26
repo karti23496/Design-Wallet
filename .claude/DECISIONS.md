@@ -170,6 +170,8 @@ New files: `theme.js`, `newsletter.js`. Reference: Good Design Tools.
 - **`DECIDED` `stars.js` is shared with `/list-your-tool/`** — both pages carry a `#stars-field`. Do not tune its constants for one page; add a per-element option instead.
 - **Note:** the original hero was full-viewport; the new one is ~400px tall with `overflow: hidden`, so the larger orbits are clipped and the field reads sparser than before. Tunable if it looks wrong in a browser.
 - **`✅ DONE`** ~~The email signup is removed from the first fold on every catalogue view.~~ The newsletter is reached through `SUBSCRIBE` in the nav, which opens the injected modal. Supersedes the earlier "first fold carries an inline signup" decision — the fold is now just headline + sub-copy.
+- **`✅ DONE`** ~~A "Loved by" avatar row sits in the first fold.~~ Ten overlapping 36px avatars under the sub-copy, identical on all three shells. Reuses the optimised `/public/avatars/` set (23 KB total) that had been orphaned since the marketing hero was removed — no new image weight. Ring uses `var(--pure)` so it reads in both themes; caps at six avatars below 700px.
+- **Note:** those avatars are the **stock portraits from the old testimonials section**, not real users. Fine as placeholder social proof, but worth swapping for real faces (or real logos) before making a stronger claim than "Loved by".
 - **`PENDING` Dead CSS:** `.dash-hero-form` / `.dash-hero-note` rules survive in `dashboard.css` with no markup using them. Harmless; left for the Astro pass.
 - **`✅ DONE`** ~~The first fold persists on every catalogue view.~~ Same h1, subline and email signup on `/`, `/category/*` and `/tools/*`; only the grid below changes with the category. It is static markup inside `#dashboard-view` — no JS toggling — so it also survives search.
 - **`✅ DONE`** ~~Tool logos fill their holder.~~ The gaps were **in the source images**, not the CSS — 16 of a 30-icon sample filled under 90% of their own canvas (worst: 22%). `iconUrl()` in `tools.js` appends ImageKit's `tr=t-true:w-128,h-128,c-at_max` to trim the padding server-side, and `object-fit` moved from `cover` to `contain`.
@@ -272,7 +274,7 @@ Six changes. The reported "missing h1 / missing signup" was not a regression in 
 
 **Bug found and fixed in passing:** `404.html` still carried the *old* `category-index-content` markup, but `tools.js` only ever calls `renderDashboard()`, which needs `#dashboard-view`. GitHub Pages serves `404.html` for every `/category/*` deep link — so **the main browsing path was rendering a blank page in production**. All three shells now share the same markup.
 
-**Newly dead as a result:** `renderCategoryIndex()` and `renderCategoryList()` in `tools.js` (defined, never called, and their markup no longer exists anywhere); the optimised testimonial avatars in `public/avatars/` and the two illustration WebPs are now unreferenced (~175 KB, harmless); the homepage-only sections of `script.js` (hero shine, category cloud, featured section) no longer run anywhere, though `script.js` is still used by 7 other pages.
+**Newly dead as a result:** `renderCategoryIndex()` and `renderCategoryList()` in `tools.js` (defined, never called, and their markup no longer exists anywhere); the two illustration WebPs are now unreferenced (~150 KB, harmless); the `public/avatars/` set is back in use by the "Loved by" row; the homepage-only sections of `script.js` (hero shine, category cloud, featured section) no longer run anywhere, though `script.js` is still used by 7 other pages.
 
 ---
 
