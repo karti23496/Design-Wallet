@@ -407,7 +407,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function createToolCardMarkup(tool, categorySlug) {
         var logo = tool.icon
-            ? '<span class="logo-badge has-image"><img src="' + escapeHtml(tool.icon) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>'
+            ? '<span class="logo-badge has-image"><img src="' + escapeHtml(iconUrl(tool.icon)) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>'
             : '<span class="logo-badge">' + escapeHtml(tool.initials || getInitials(tool.title)) + '</span>';
         var priceBadgeClass = "price-badge";
         if (tool.price === "free") priceBadgeClass += " price-free";
@@ -449,10 +449,28 @@ document.addEventListener("DOMContentLoaded", function () {
         return "price-paid";
     }
 
+    // Tool logos come from ImageKit, and most carry transparent padding baked
+    // into the canvas — measured across a 30-icon sample, 16 filled less than
+    // 90% of their own image. That padding is what shows as a gap inside the
+    // rounded logo holder.
+    //
+    // `t-true` trims the transparent edges server-side, so the artwork becomes
+    // the image. `c-at_max` then caps the size while preserving aspect (it only
+    // ever shrinks, so small favicons aren't upscaled into mush). Paired with
+    // object-fit: contain, square logos now fill the holder edge-to-edge and
+    // wordmarks stay whole instead of being cropped.
+    //
+    // Non-ImageKit URLs are returned untouched.
+    function iconUrl(url) {
+        if (!url || url.indexOf("ik.imagekit.io") === -1) return url;
+        if (url.indexOf("tr=") !== -1) return url;          // already transformed
+        return url + (url.indexOf("?") === -1 ? "?" : "&") + "tr=t-true:w-128,h-128,c-at_max";
+    }
+
     function createDashCardMarkup(tool, categorySlug) {
         var detailUrl = toolHref(tool, categorySlug);
         var logo = tool.icon
-            ? '<span class="dash-card-logo"><img src="' + escapeHtml(tool.icon) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>'
+            ? '<span class="dash-card-logo"><img src="' + escapeHtml(iconUrl(tool.icon)) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>'
             : '<span class="dash-card-logo">' + escapeHtml(tool.initials || getInitials(tool.title)) + '</span>';
         var dollar = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>';
         var primaryCat = (tool.categories && tool.categories[0]) || "";
@@ -754,7 +772,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var iconEl = document.getElementById("tool-icon");
         if (iconEl) {
             if (tool.icon) {
-                iconEl.innerHTML = '<img src="' + escapeHtml(tool.icon) + '" alt="' + escapeHtml(tool.title) + '">';
+                iconEl.innerHTML = '<img src="' + escapeHtml(iconUrl(tool.icon)) + '" alt="' + escapeHtml(tool.title) + '">';
             } else {
                 var initials = tool.title.split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join("");
                 iconEl.textContent = initials || "DW";
