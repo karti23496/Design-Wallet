@@ -549,7 +549,10 @@ document.addEventListener("DOMContentLoaded", function () {
         "ugc-ads":                    "ugc-ads.svg",
         "ui-ux-inspirations":         "ui-ux-inspirations.svg",
         "ux-tools":                   "ux-tools.svg",
-        "vid-gen":                    "vid-gen.svg"
+        "vibe-coding":                "vibe-coding.svg",
+        "vid-gen":                    "vid-gen.svg",
+        "website-builder-tools":      "website-builder-tools.svg",
+        "youtube-channels":           "youtube-channels.svg"
     };
 
     function categoryIconUrl(slug) {

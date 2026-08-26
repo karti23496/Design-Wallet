@@ -9437,7 +9437,7 @@ body.converter-export-open {
     display: inline-flex;
     align-items: center;
     font-size: 0.9rem;
-    padding: 8px 16px;
+    padding: 12px 16px;
     border: 1px solid var(--border);
     border-radius: 999px;
     background: var(--panel-soft);
