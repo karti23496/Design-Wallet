@@ -455,16 +455,20 @@ document.addEventListener("DOMContentLoaded", function () {
     // rounded logo holder.
     //
     // `t-true` trims the transparent edges server-side, so the artwork becomes
-    // the image. `c-at_max` then caps the size while preserving aspect (it only
-    // ever shrinks, so small favicons aren't upscaled into mush). Paired with
-    // object-fit: contain, square logos now fill the holder edge-to-edge and
-    // wordmarks stay whole instead of being cropped.
+    // the image. `w-128,h-128` then crops to an exact square at full source
+    // resolution — the tile is 52px, so 128 covers a 2x display with headroom.
+    //
+    // Deliberately NOT c-at_max: that only ever shrinks, so a wordmark trimmed
+    // to 128x59 kept a 59px short side and the browser upscaled it 1.8x to fill
+    // the tile. Cropping server-side from the full-size original is sharp.
+    // Icons whose SOURCE is smaller than 128 are still upscaled — that is a
+    // source-image limit, not something the transform can fix.
     //
     // Non-ImageKit URLs are returned untouched.
     function iconUrl(url) {
         if (!url || url.indexOf("ik.imagekit.io") === -1) return url;
         if (url.indexOf("tr=") !== -1) return url;          // already transformed
-        return url + (url.indexOf("?") === -1 ? "?" : "&") + "tr=t-true:w-128,h-128,c-at_max";
+        return url + (url.indexOf("?") === -1 ? "?" : "&") + "tr=t-true:w-128,h-128";
     }
 
     function createDashCardMarkup(tool, categorySlug) {
