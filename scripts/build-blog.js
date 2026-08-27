@@ -418,7 +418,11 @@ async function main() {
 
     const date = props.Date?.date?.start || "";
     const displayDate = formatDate(date);
-    const coverUrl = getPropertyUrl(props["Cover URL"]).trim();
+    // Notion serves file URLs as pre-signed S3 links that expire after ONE HOUR
+    // (X-Amz-Expires=3600). Author photos and inline images are already pulled
+    // local via syncImageAsset; the cover was not, so every cover silently 404'd
+    // an hour after each build. Download it too.
+    const remoteCoverUrl = getPropertyUrl(props["Cover URL"]).trim();
     const category = getPropertyText(props.Categories).trim() || getPropertyText(props.Category).trim() || "Essay";
     const author = getPropertyText(props.Author).trim() || fallbackAuthor;
     const authorPhotoUrl = getPropertyUrl(props["Author Profile Photo"]).trim();
@@ -426,6 +430,8 @@ async function main() {
 
     const postImageDir = path.join("public", "images", "blog", slug);
     fs.mkdirSync(postImageDir, { recursive: true });
+
+    const coverUrl = await syncImageAsset(remoteCoverUrl, `${slug}-cover`, postImageDir);
 
     const blocks = await getBlocks(page.id);
     const content = await blocksToHtml(blocks, {
