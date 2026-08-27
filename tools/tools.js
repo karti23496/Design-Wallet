@@ -454,21 +454,28 @@ document.addEventListener("DOMContentLoaded", function () {
     // 90% of their own image. That padding is what shows as a gap inside the
     // rounded logo holder.
     //
-    // `t-true` trims the transparent edges server-side, so the artwork becomes
-    // the image. `w-128,h-128` then crops to an exact square at full source
-    // resolution — the tile is 52px, so 128 covers a 2x display with headroom.
+    // Two problems, one chain:
     //
-    // Deliberately NOT c-at_max: that only ever shrinks, so a wordmark trimmed
-    // to 128x59 kept a 59px short side and the browser upscaled it 1.8x to fill
-    // the tile. Cropping server-side from the full-size original is sharp.
-    // Icons whose SOURCE is smaller than 128 are still upscaled — that is a
-    // source-image limit, not something the transform can fix.
+    //  1. Logos carry wildly different amounts of built-in padding, so at a
+    //     fixed size some read as "zoomed in" and others as "zoomed out".
+    //     `t-true` trims each one down to its actual artwork, removing that
+    //     variance.
+    //  2. Sources range from 25px favicons to 256px app icons. `cm-pad_resize`
+    //     scales the trimmed artwork to fit a 128 box — UPSCALING when needed,
+    //     unlike c-at_max — then pads back to a square. Every logo therefore
+    //     arrives with its long side at 128px and nothing cropped.
+    //
+    // The CSS then draws it with object-fit: contain plus a uniform padding, so
+    // every tile shows the same optical size with the same breathing room.
+    //
+    // Sources below 128px are upscaled here and will look soft — that is a
+    // source-image limit no transform can fix.
     //
     // Non-ImageKit URLs are returned untouched.
     function iconUrl(url) {
         if (!url || url.indexOf("ik.imagekit.io") === -1) return url;
         if (url.indexOf("tr=") !== -1) return url;          // already transformed
-        return url + (url.indexOf("?") === -1 ? "?" : "&") + "tr=t-true:w-128,h-128";
+        return url + (url.indexOf("?") === -1 ? "?" : "&") + "tr=t-true:w-128,h-128,cm-pad_resize";
     }
 
     function createDashCardMarkup(tool, categorySlug) {
