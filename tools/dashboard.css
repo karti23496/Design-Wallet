@@ -213,7 +213,6 @@ body.is-dashboard main {
     gap: 10px;
     width: 100%;
     padding: 8px 12px;
-    height: 46px;
     border-radius: 10px;
     color: var(--muted-strong);
     text-decoration: none;
