@@ -1,7 +1,8 @@
 // Design Wallet's own free tools, listed in the nav "TOOLS" dropdown.
 // Add a new one here and it appears in the nav on every page.
 var DW_TOOLS = [
-    { name: "Color Code Converter", href: "/dw-tools/color-code-converter/" }
+    { name: "Color Code Converter", href: "/dw-tools/color-code-converter/" },
+    { name: "Glassmorphism CSS Generator", href: "/dw-tools/glassmorphism-css-generator/" }
 ];
 
 function loadHeader() {
