@@ -108,7 +108,7 @@ Established while fixing a real incident — the homepage was shipping **127 MB*
 ### Known issues, not yet fixed
 
 - **`✅ DONE`** ~~Five hero avatars load from `i.pravatar.cc`.~~ Resolved by deletion — the hero is gone, so the five third-party requests went with it.
-- **`PENDING` 124 MB of original JPEGs remain in `public/testimonial images/`**, unreferenced. Now committed to git history as of the preservation commit. Deleting them going forward won't shrink history.
+- **`✅ DONE`** ~~124 MB of original JPEGs in `public/testimonial images/`.~~ Deleted 2026-09-01 on Karthik's call, in commit `ce6573d`. Verified unreferenced first — nothing outside this file mentioned them, and the ten faces actually in use are the optimised WebPs in `public/avatars/` (23 KB for the set). **The deployed site is 124 MB lighter; the repo is not** — they stay in history and remain recoverable, exactly as noted when they were preserved.
 - **`PENDING` Font typo:** `style.css` reads `font-family: 'giest'` — should be `'Geist'`. Silently falling back to sans-serif today. *Deliberately not fixed during the paywall removal — it changes rendering, and shouldn't be buried in a large deletion diff.*
 - **`PENDING` Two separate Google Fonts stylesheet requests** could be merged into one round trip. *(Partly improved: the Geist Mono family is no longer requested on 12 of 13 pages.)*
 - **`PENDING` Dead code:** the billing-toggle script in `list-your-tool/index.html` references `.pr-billing-toggle`, which doesn't exist in the markup. It early-returns and does nothing.
@@ -697,6 +697,23 @@ Three changes requested after the first build.
 **The smoke test is now 47 assertions.** The lock block proves the three things that actually matter: a locked control survives **120 consecutive randomizes**, an *unlocked* one still moves (a lock that silently froze everything would otherwise pass), and a locked slider is still draggable by hand. Locks on tint and glow are checked separately, since those are not sliders and take a different code path.
 
 **The DOM stub grew a real parent chain** to support `Element.closest()`. It had been a flat list of tags; it now tracks open/close with a stack, which is what let the `is-locked` class assertion test the real code path rather than a stub of it.
+
+---
+
+**2026-09-01 — Branch pushed; `main` deliberately not merged** · `origin/remove-paywall`
+
+Karthik asked to take the site live. **Going live turned out to mean far more than shipping the tool**, so it was split into two deliberate steps rather than one.
+
+- **`DECIDED` Backup first, merge second.** `remove-paywall` was **54 commits ahead of `main` and had never left this laptop** — `git branch -r --contains` returned nothing. Pushing the branch costs nothing, backs up months of work, and gives a reviewable diff; **`designwallet.in` is untouched**, still served from `main` at `a7780c8`.
+- **The merge is a clean fast-forward** (`git merge-base --is-ancestor main remove-paywall` passes), so no conflicts are possible and the go-live is one command whenever Karthik says so.
+- **`DECIDED` GitHub Pages serves `main`, so a merge *is* the deploy.** There is no Pages workflow and no preview environment — `.github/workflows/` holds only the Notion blog build. **Merging to `main` publishes immediately, with no staging step to catch anything.** Worth knowing before the button is pressed.
+- **Scope on record:** merging ships the entire go-free relaunch in one shot — paywall removal, catalogue-as-homepage, footer and theme-toggle removal, the icon set, the starfield, the newsletter — and the glass generator is a small slice of it. §5's "keep the old site live until the new one is finished" still applies to that call.
+
+Three commits: `ce6573d` (delete the testimonial sources), `fdc39dd` (the tool), `ad9688f` (nav registration + the accumulated relaunch work).
+
+**Gotcha on record — `git commit` after `git rm` sweeps up whatever was already staged.** `footer.js` and `theme.js` had been sitting **pre-staged** in the index before this session began, so the testimonial-deletion commit silently swallowed them and its message became a lie. Caught by diffing the commit against its own stated scope; unwound with `reset --soft` and re-made. **Check `git diff --cached --name-only` before committing, not after** — a scoped `git rm` does not imply a scoped commit.
+
+**Still not verified: the tool has never been seen in a browser.** No headless browser is available here. It is now committed and pushed, but **not published** — nothing reaches `designwallet.in` until `main` moves.
 
 ---
 
