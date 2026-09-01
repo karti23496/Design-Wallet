@@ -24,7 +24,7 @@
 - **`✅ DONE`** ~~The website becomes free for everyone.~~ No subscriber paywall, no user accounts required to browse. **LIVE on `designwallet.in` since 2026-09-01** (`main` at `b3a466b`). Verified in production: `/pricing/` and `/account/` return 404, and the homepage carries zero `dw-gate-pending` / `DWAuth` / `supabase` / `join-waitlist` references.
 - **`DECIDED` Revenue comes from paid tool listings, not user subscriptions.** `list-your-tool/` is the business model: free for designers, paid for tools that want placement. *(Standing direction, not a build task.)*
 - **`DECIDED` The repository will be open sourced.** "Free" and "open source" are two separate decisions and we're doing both. **Not yet done — blocked on a `LICENSE` file, see §8.**
-- **`✅ DONE`** ~~`list-your-tool/` stays.~~ Verified untouched by the paywall removal and still serving.
+- **`⚠️ HELD` `list-your-tool/` is temporarily off the live site.** Karthik's call on 2026-09-01 — *"we have to work on the list your tool page"*. **This is a hold while it is reworked, not a reversal of the business-model decision above**, which still stands. The page is intact on `remove-paywall`; only `main` is missing it. Restore by reverting the hold-back commit (see the implementation log).
 - **`PENDING` Listing prices are on hold.** The ₹2,999 Spotlight figure **has been removed** (card now reads "Pricing on request"); ₹1,499 stays visible. Karthik will revisit and give the call. Do not change listing prices without being asked.
 - **Noted:** `curated.design` — cited as a layout reference — is *not* free. It runs a $9/month freemium paywall ("16 free of 2,229 sections"). It's a reference for **layout only**, not for the business model.
 - **Open question:** the value of a curation site is the curated data, not the code. The catalog lives in a public Google Sheet, so open-sourcing means anyone can clone site + data. Accepted as a deliberate trade-off.
@@ -190,7 +190,7 @@ New files: `theme.js`, `newsletter.js`. Reference: Good Design Tools.
 - **Gotcha on record:** the supplied `3d Software.png` was **fully opaque with a `#0D0D0D` background baked in** — no real transparency. Dropped in as-is it blends into dark mode but shows as a black tile in light mode. `public/icons/3d-tools.png` is derived from it by taking alpha from normalised luminance. **Any future category icon needs the same treatment** unless it is exported with a genuine alpha channel.
 - **Gotcha on record:** icons dropped into `public/icons/` get swept into commits by `git add -A` **without being processed** — spaced filenames sit there unregistered and coverage silently under-reports. Always run `node scripts/build-icons.js` after any icon lands, not just when asked.
 - **`✅ DONE`** ~~The orbiting starfield is back, behind the hero title.~~ Lost when the marketing homepage was replaced; restored inside `.dash-hero`. 100 orbits, 133–1020px, 20–90s, both directions.
-- **`DECIDED` `stars.js` is shared with `/list-your-tool/`** — both pages carry a `#stars-field`. Do not tune its constants for one page; add a per-element option instead.
+- **`DECIDED` `stars.js` is shared by every hero that carries a `#stars-field`** — the three catalogue shells, `/list-your-tool/` and, since 2026-09-01, `/good-deals/`. **Do not tune its constants for one page; add a per-element option instead.** The pressure to do so grows with each page that adopts it.
 - **Note:** the original hero was full-viewport; the new one is ~400px tall with `overflow: hidden`, so the larger orbits are clipped and the field reads sparser than before. Tunable if it looks wrong in a browser.
 - **`✅ DONE`** ~~The email signup is removed from the first fold on every catalogue view.~~ The newsletter is reached through `SUBSCRIBE` in the nav, which opens the injected modal. Supersedes the earlier "first fold carries an inline signup" decision — the fold is now just headline + sub-copy.
 - **`✅ DONE`** ~~A "Loved by" avatar row sits in the first fold.~~ Ten overlapping 36px avatars under the sub-copy, identical on all three shells. Reuses the optimised `/public/avatars/` set (23 KB total) that had been orphaned since the marketing hero was removed — no new image weight. Ring uses `var(--pure)` so it reads in both themes; caps at six avatars below 700px.
@@ -238,6 +238,8 @@ New files: `theme.js`, `newsletter.js`. Reference: Good Design Tools.
 - **`✅ DONE`** ~~Nav is Books · Good deals · Tools ▾ · Blog · Subscribe~~ (BROWSE removed).
 - **`✅ DONE`** ~~The sidebar has a pinned "List your tool" CTA; only the category list scrolls.~~
 - **`PENDING` `/good-deals/` is a placeholder.** Created because the new nav item needed a destination — it has the right chrome and an email capture, but **no real deals**. Content still needed.
+- **`✅ DONE`** ~~The starfield sits behind the Good deals hero.~~ Same treatment as the dashboard and list-your-tool heroes: a `#stars-field` div, `.ga-hero` given `position: relative` to anchor it and `overflow: hidden` to clip the wider orbits. `stars.js` untouched.
+- **Gotcha on record — `.stars-field` paints *over* hero copy unless the copy is lifted.** It is `position: absolute` with `z-index: 0`, and a positioned element at z-index 0 paints above non-positioned in-flow siblings. The dashboard solves this with a `.dash-hero-content` wrapper; Good deals had no wrapper, so `.ga-hero > :not(.stars-field) { position: relative; z-index: 1 }` does it without restructuring the markup. **Any new page adopting the field needs one or the other, or the text sits behind the stars.**
 - **Gotcha on record:** `.ga-*` classes came from `pricing/pricing.css`, deleted with the paywall. Any page reusing that old markup must bring its own stylesheet.
 - **`✅ DONE`** ~~Panel scrollbars are hidden but still scroll.~~ `.dash-sidebar` and `.dash-main` set `scrollbar-width` (Firefox), `-ms-overflow-style` (legacy Edge) and `::-webkit-scrollbar` (Chrome/Safari) — all three are needed; the webkit rule alone is not enough.
 
@@ -729,6 +731,20 @@ The relaunch is published. 57 commits, from `a7780c8` to `b3a466b`, in one push.
 - **Note:** `main` is now the deploy ref *and* one commit behind the working branch by design. Do not "tidy" that gap — it is the glass tool waiting to ship.
 
 **Still true and still the blocker for that page:** nobody has looked at the glass generator in a browser. Everything about it is verified by parser, route check and a 47-assertion DOM harness; none of that is a pair of eyes.
+
+---
+
+**2026-09-01 — Good deals starfield; list-your-tool held back** · `main` at `685d7c3`
+
+**Shipped:** the orbiting starfield behind the Good deals hero, and Karthik's two tweaks — the Subscribe nav pill widened to `12px 32px`, and the Good deals email form to 700px.
+
+**Held back from live:** `list-your-tool/` joins the glass generator. Both are intact on `remove-paywall`; neither is on `main`.
+
+- **`DECIDED` Holding a page back means removing its inbound links too, not just the page.** `list-your-tool/` was linked from four places — the pinned sidebar CTA on **all three** catalogue shells, and the "Run a design tool?" card on Good deals, which existed solely to point at it. Deleting only the page would have left four live links to a 404. Verified after deploy: **zero references to either held page across `/`, `/404.html`, `/tools/` and `/good-deals/`.**
+- **The hold-back stays one revert-shaped commit** (`685d7c3`, reverted on the branch by `24d3b0a`), now covering both pages. `remove-paywall` remains exactly one commit ahead of `main`, so restoring either is still `git push origin remove-paywall:main` — but note that ships **both**, since they share the commit. Splitting them means reverting selectively first.
+- **Note:** removing the Good deals value card leaves two cards in an `auto-fit` grid, so they simply widen. No layout fix was needed, and the revert restores the third exactly.
+
+**Verified in production:** 10 routes 200 · `/list-your-tool/` and `/dw-tools/glassmorphism-css-generator/` both 404 · the starfield markup, script tag and `.ga-hero` rule all serve · no dead links anywhere. Pages took ~60 s.
 
 ---
 
