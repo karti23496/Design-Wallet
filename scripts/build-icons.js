@@ -32,8 +32,25 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ICON_DIR = path.join(__dirname, "..", "public", "icons");
 const TOOLS_JS = path.join(__dirname, "..", "tools", "tools.js");
 const SHEET_ID = "1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8";
-const SHEET_GIDS = ["0", "1218813985"];
-const KEEP_AS_SOURCE = ["3d Software.png"];
+
+/**
+ * The tab list lives in tools.js and is read from there, never duplicated.
+ * It used to be a second hardcoded copy, which silently went stale the moment
+ * categories moved into their own tabs: the script then could not see
+ * `mcp-connectors` or `ai-creative-suites` as live categories and would have
+ * DELETED both from CATEGORY_ICONS on the next --write.
+ */
+function sheetTabs() {
+    const js = fs.readFileSync(TOOLS_JS, "utf8");
+    const block = js.match(/var SHEET_TABS = \[([\s\S]*?)\];/);
+    if (!block) throw new Error("SHEET_TABS not found in tools.js");
+    const tabs = [...block[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+    if (!tabs.length) throw new Error("SHEET_TABS in tools.js is empty");
+    return tabs;
+}
+// Not category icons — UI marks referenced straight from CSS. Without this
+// the script reports them as unmatched on every run.
+const KEEP_AS_SOURCE = ["3d Software.png", "all-categories.svg"];
 
 /**
  * Filenames that can't be matched to a category automatically — abbreviations
@@ -56,9 +73,14 @@ const slugify = (v) =>
 
 async function liveCategorySlugs() {
     const slugs = new Set();
-    for (const gid of SHEET_GIDS) {
+    for (const tab of sheetTabs()) {
+        // Numeric entries are gids, anything else is a tab name — same rule as
+        // buildSheetUrl() in tools.js.
+        const selector = /^\d+$/.test(tab)
+            ? `gid=${encodeURIComponent(tab)}`
+            : `sheet=${encodeURIComponent(tab)}`;
         const res = await fetch(
-            `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${gid}`
+            `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&${selector}`
         );
         const text = await res.text();
         const json = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
@@ -143,11 +165,23 @@ function main(slugs) {
     const block = `    var CATEGORY_ICONS = {\n${body}\n    };`;
 
     const js = fs.readFileSync(TOOLS_JS, "utf8");
-    const updated = js.replace(/ {4}var CATEGORY_ICONS = \{[\s\S]*?\n {4}\};/, block);
-    if (updated === js) {
+    const pattern = / {4}var CATEGORY_ICONS = \{[\s\S]*?\n {4}\};/;
+
+    // "no match" and "matched but identical" are very different outcomes — the
+    // first is a broken script, the second is the healthy steady state. They
+    // used to share one alarming message, which cried wolf on every clean run.
+    if (!pattern.test(js)) {
         console.log("\n  ! CATEGORY_ICONS block not found in tools.js — registry NOT updated");
-    } else if (WRITE) {
-        fs.writeFileSync(TOOLS_JS, updated);
+    } else {
+        const updated = js.replace(pattern, block);
+        if (updated === js) {
+            console.log("\n  registry already in sync — nothing to write");
+        } else if (WRITE) {
+            fs.writeFileSync(TOOLS_JS, updated);
+            console.log("\n  registry updated");
+        } else {
+            console.log("\n  registry is OUT OF DATE — pass --write to sync");
+        }
     }
 
     console.log(`\n  ${registry.length} icons registered:`);

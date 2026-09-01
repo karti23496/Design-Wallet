@@ -10,7 +10,7 @@ const notion = new Client({
 });
 
 const databaseId = process.env.NOTION_DATABASE_ID;
-const assetVersion = "20260519-1";
+const assetVersion = "20260901-2";
 const siteUrl = "https://designwallet.in";
 const fallbackAuthor = "Karthik S Krishnan";
 const fallbackCoverImages = [
@@ -491,11 +491,9 @@ ${siteHead(`${title} - Design Wallet`, metaDescription, {
             </article>
         </main>
 
-        <footer class="site-footer"></footer>
     </div>
 
     <script src="/header.js?v=${assetVersion}"></script>
-    <script src="/footer.js?v=${assetVersion}"></script>
     <script src="/script.js?v=${assetVersion}"></script>
 </body>
 </html>
@@ -589,11 +587,9 @@ ${siteHead("Blog - Design Wallet", "Field notes, ideas, and essays for curious d
             </section>
         </main>
 
-        <footer class="site-footer"></footer>
     </div>
 
     <script src="/header.js?v=${assetVersion}"></script>
-    <script src="/footer.js?v=${assetVersion}"></script>
     <script src="/script.js?v=${assetVersion}"></script>
 </body>
 </html>

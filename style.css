@@ -1,11 +1,14 @@
 :root {
     /* ── Theme tokens ────────────────────────────────────────────────────
-       Dark is the default. Every hardcoded white and dark-surface colour in
-       this file was replaced by one of these tokens, using the ORIGINAL value
-       as the dark value — so dark mode renders exactly as it did before.
-       Light mode is purely a re-definition of these same tokens below.
-       --fg-rgb is the foreground used by all translucent overlays, so a single
-       flip inverts ~450 rgba() values at once.
+       The site is dark-only. Every hardcoded white and dark-surface colour in
+       this file was replaced by one of these tokens, so the whole palette is
+       re-definable from this one block.
+       Light mode was built on top of this and has since been removed — the
+       token layer is deliberately kept, because it is the entire cost of
+       bringing a second theme back. Keep using tokens: never reintroduce a raw
+       hex or rgba(255,255,255,…), use var(--fg-rgb) / var(--pure) / --surface-*.
+       --fg-rgb is the foreground behind all translucent overlays, so one flip
+       moves ~450 rgba() values at once.
        ──────────────────────────────────────────────────────────────────── */
     color-scheme: dark;
     --fg-rgb: 255, 255, 255;
@@ -44,47 +47,6 @@
     --price-filter-state-transition: opacity 0.18s ease;
 }
 
-/* ── Light theme ──────────────────────────────────────────────────────────
-   Only token re-definitions. --panel-soft / --border / --border-strong /
-   --accent-soft are declared with rgba(var(--fg-rgb), …) above and resolve
-   lazily, so they invert automatically here.
-   ─────────────────────────────────────────────────────────────────────── */
-:root[data-theme="light"] {
-    color-scheme: light;
-
-    /* Cool, not warm. Every surface carries a slight blue lean (blue channel
-       above red) rather than sitting at pure #ffffff, which reads clinical.
-       --fg-rgb is a cool near-black, so all the translucent borders and
-       overlays inherit the same temperature instead of going neutral grey. */
-    --fg-rgb: 13, 20, 34;
-    --pure: #0d1422;
-
-    --surface-0: #fbfdff;
-    --surface-1: #f7fafe;
-    --surface-2: #f1f5fc;
-    --surface-3: #ecf1fa;
-    --surface-4: #e1e9f5;
-
-    --bg: #f1f5fc;
-    --panel: #ecf1fa;
-    --panel-strong: #e1e9f5;
-    --text: #0d1422;
-    --muted: #586374;
-    --muted-strong: #262f3e;
-    --accent: #0d1422;
-    --accent-deep: #0d1422;
-    --shadow: 0 24px 80px rgba(14, 20, 32, 0.10);
-}
-
-/* The brand mark is a white-filled SVG loaded via <img>, so CSS can't recolour
-   its paths. It's monochrome, so inverting turns it black for light mode.
-   The footer mark has no .brand-logo class — it must be listed separately or
-   it stays white and disappears against a light background. */
-:root[data-theme="light"] .brand-logo,
-:root[data-theme="light"] .footer-brand img {
-    filter: invert(1);
-}
-
 * {
     box-sizing: border-box;
 }
@@ -103,7 +65,12 @@ body {
     line-height: 1.6;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: "Geist", sans-serif;
 }
 
@@ -301,8 +268,7 @@ input {
 .hero,
 .divider-strip,
 .catalog-section,
-.submit-strip,
-.site-footer {
+.submit-strip {
     max-width: var(--content-width);
     margin-left: auto;
     margin-right: auto;
@@ -339,8 +305,10 @@ input {
     pointer-events: none;
 }
 
-/* Minimal header for the gated collection views: full-width bar, logo flush
-   left, Log out on the right — no marketing nav (see header.js). */
+/* Minimal header for the gated collection views: full-width bar,
+logo flush
+   left,
+Log out on the right — no marketing nav (see header.js). */
 .site-header.site-header--collection {
     width: 100%;
     top: 0;
@@ -502,9 +470,11 @@ input {
     gap: 26px;
 }
 
-/* Every direct child is a flex row of its own so text, the dropdown wrapper,
-   the pill and the round toggle all sit on one optical baseline. The dropdown
-   is a <div>, which previously sat lower than the plain <a> siblings. */
+/* Every direct child is a flex row of its own so text,
+the dropdown wrapper,
+the pill and the round toggle all sit on one optical baseline. The dropdown
+   is a <div>,
+which previously sat lower than the plain <a> siblings. */
 .site-nav > * {
     display: inline-flex;
     align-items: center;
@@ -515,7 +485,7 @@ input {
     /* Same treatment as .dash-nav-row in the category sidebar. */
     font-family: "Geist", sans-serif;
     font-size: 0.9rem;
-    font-weight: 400;
+    font-weight: 200;
     letter-spacing: 0;
     color: var(--muted-strong);
     transition: color 0.2s ease;
@@ -1071,8 +1041,7 @@ input {
 .section-copy p,
 .submit-copy p,
 .resource-card p,
-.divider-strip p,
-.site-footer p {
+.divider-strip p {
     color: rgb(255, 255, 255, 50%);
 }
 
@@ -3441,8 +3410,7 @@ body.waitlist-modal-open {
 .logo-badge.has-image img {
     width: 100%;
     height: 100%;
-    object-fit: contain;   /* artwork normalised by iconUrl(); see tools.js */
-    padding: 6px;
+    object-fit: cover;   /* fills the badge; artwork normalised by iconUrl(), see tools.js */
 }
 
 .price-badge {
@@ -3560,164 +3528,6 @@ body.waitlist-modal-open {
 
 .submit-copy p {
     margin-left: 0;
-}
-
-.site-footer {
-    max-width: none;
-    margin: 64px -24px -24px;
-    padding: clamp(42px, 6vw, 76px) 24px 26px;
-    border-top: 1px solid rgba(var(--fg-rgb), 0.08);
-    background:
-        radial-gradient(circle at 8% 12%, rgba(var(--fg-rgb), 0.08), transparent 18%),
-        linear-gradient(180deg, var(--surface-3), #080808);
-}
-
-.footer-inner {
-    max-width: var(--content-width);
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: minmax(280px, 0.38fr) minmax(0, 0.62fr);
-    gap: clamp(42px, 7vw, 110px);
-    color: var(--muted);
-}
-
-.footer-brand {
-    display: inline-flex;
-    align-items: center;
-    width: fit-content;
-}
-
-.footer-brand img {
-    height: 34px;
-    width: auto;
-    opacity: 0.84;
-    transition: opacity 0.2s ease;
-}
-
-.footer-brand:hover img {
-    opacity: 1;
-}
-
-.footer-about {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-}
-
-.footer-large-copy {
-    max-width: 560px;
-    margin: 34px 0 0;
-    color: rgba(var(--fg-rgb), 0.72);
-    font-family: "Geist", sans-serif;
-    font-weight: 200;
-    line-height: 1.18;
-    letter-spacing: 0;
-}
-
-.footer-note {
-    max-width: 620px;
-    opacity: 50%;
-    color: rgba(var(--fg-rgb), 0.36);
-    font-size: 0.7rem;
-    line-height: 1.6;
-}
-
-.footer-built {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px 28px;
-    margin-top: auto;
-    padding-top: 72px;
-    color: rgba(var(--fg-rgb), 0.54);
-    font-size: 0.88rem;
-}
-
-.footer-directory {
-    display: grid;
-    gap: 84px;
-    min-width: 0;
-}
-
-.footer-group h2 {
-    margin: 0 0 34px;
-    color: rgba(var(--fg-rgb), 0.36);
-    font-family: "Geist", sans-serif;
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.footer-category-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-}
-
-.footer-category-grid a {
-    display: inline-flex;
-    align-items: center;
-    text-transform: uppercase;
-    gap: 12px;
-    min-width: 0;
-    color: rgba(var(--fg-rgb), 0.62);
-    font-size: 0.7rem;
-    font-weight: 200;
-    line-height: 1.2;
-    transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.footer-category-grid a:hover,
-.footer-category-grid a:focus-visible {
-    color: var(--text);
-    transform: translateX(2px);
-    outline: none;
-}
-
-.footer-category-grid svg {
-    flex: 0 0 auto;
-    color: rgba(var(--fg-rgb), 0.42);
-}
-
-.footer-category-grid span {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.footer-bottom {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    padding-top: 42px;
-    border-top: 1px solid rgba(var(--fg-rgb), 0.08);
-    color: rgba(var(--fg-rgb), 0.4);
-    font-size: 0.82rem;
-}
-
-.footer-bottom p {
-    margin: 0;
-}
-
-.footer-nav {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    flex-wrap: wrap;
-}
-
-.footer-nav a {
-    color: rgba(var(--fg-rgb), 0.48);
-    text-decoration: none;
-    white-space: nowrap;
-    transition: color 0.2s ease;
-}
-
-.footer-nav a:hover {
-    color: var(--text);
 }
 
 [data-reveal] {
@@ -4061,19 +3871,6 @@ input:focus-visible {
         max-height: 200px;
         overflow: hidden;
         width: auto;
-    }
-
-    .footer-inner {
-        grid-template-columns: 1fr;
-        gap: 44px;
-    }
-
-    .footer-built {
-        padding-top: 36px;
-    }
-
-    .footer-category-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
@@ -4513,37 +4310,6 @@ input:focus-visible {
         border-radius: 18px;
     }
 
-    .site-footer {
-        margin: 44px -10px -10px;
-        padding: 34px 18px 22px;
-    }
-
-    .footer-large-copy {
-        margin-top: 26px;
-    }
-
-    .footer-note {
-        margin-top: 32px;
-    }
-
-    .footer-directory {
-        gap: 48px;
-    }
-
-    .footer-group h2 {
-        margin-bottom: 22px;
-    }
-
-    .footer-category-grid {
-        grid-template-columns: 1fr;
-        gap: 18px;
-    }
-
-    .footer-bottom {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
     .brand-logo {
         height: 26px;
     }
@@ -4587,7 +4353,11 @@ input:focus-visible {
     }
 
     *,
+
+
     *::before,
+
+
     *::after {
         animation: none !important;
         transition: none !important;
@@ -4618,8 +4388,7 @@ body.blog-index-page::before {
     background: rgba(13, 13, 13, 0.84);
 }
 
-.blog-index-page .brand-logo,
-.blog-index-page .footer-brand img {
+.blog-index-page .brand-logo {
     filter: none;
 }
 
@@ -4639,10 +4408,6 @@ body.blog-index-page::before {
 
 .blog-index-page .nav-toggle span {
     background: var(--text);
-}
-
-.blog-index-page .site-footer {
-    border-color: rgba(var(--fg-rgb), 0.08);
 }
 
 .design-index {
@@ -6634,7 +6399,7 @@ body.blog-index-page::before {
     margin: 0 0 28px;
     flex: 1;
 }
-.pr-card-head .pr-card-badge{
+.pr-card-head .pr-card-badge {
     background-color: #000000;
     color: var(--pure);
 }
@@ -9452,28 +9217,6 @@ body.converter-export-open {
     border-color: var(--border-strong);
     background: var(--panel-strong);
     transform: none;
-}
-
-.nav-theme-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    padding: 0;
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    background: none;
-    color: var(--muted-strong);
-    cursor: pointer;
-    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-}
-
-.nav-theme-toggle:hover,
-.nav-theme-toggle:focus-visible {
-    color: var(--text);
-    border-color: var(--border-strong);
-    background: var(--panel-soft);
 }
 
 /* ══ Newsletter modal (injected by newsletter.js on every page) ═══════════ */

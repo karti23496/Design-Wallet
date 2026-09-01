@@ -1,9 +1,50 @@
 document.addEventListener("DOMContentLoaded", function () {
     var SHEET_ID = "1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8";
-    var SHEET_GIDS = ["0", "1218813985"];
+    // ── Sheet tabs the catalogue reads ──────────────────────────────────────
+    // Every tab is fetched, parsed with the same 8-column schema, and merged
+    // into one tool list (duplicates are collapsed by slug), so a tool's
+    // category still comes from its `categories` COLUMN, not from which tab it
+    // sits in. Tabs are just how the data is organised for editing.
+    //
+    // An entry is either a TAB NAME — exactly as it reads in the Sheet's tab
+    // bar, matched case-insensitively — or a numeric gid. Prefer the name: it
+    // is readable, and it survives a tab being deleted and recreated, which
+    // changes the gid.
+    //
+    // Adding a category tab is one line here. See the note on request cost in
+    // DECISIONS.md before adding many: every tab is one JSONP request, on load
+    // and on every refresh tick.
+    // WARNING: a wrong entry here does NOT fail loudly. gviz answers an unknown
+    // tab name or a dead gid with `status: ok` and ANOTHER tab's rows. The
+    // signature check in loadAllTools() catches that, but keep this list
+    // accurate — delete an entry when its tab goes.
+    var SHEET_TABS = [
+        "0",                 // main tab (legacy gid; being emptied during the 2026-09 cleanup)
+        "1218813985",        // secondary legacy tab
+        "MCP Connectors",
+        "AI creative suites",
+        "AI voiceover"
+    ];
     var CACHE_KEY = "dw_tool_detail_cache_v4";
     var CACHE_TTL = 10 * 60 * 1000;
     var SHEET_REFRESH_INTERVAL = 5000;
+
+    // ── "Hot trends": a promoted shortcut list above the category nav ───────
+    // Edit this array to change what appears there; nothing else needs touching.
+    //
+    // Each entry resolves against the LIVE sheet data, in this order:
+    //   1. a category whose slug matches `slug`  -> links to that category
+    //   2. otherwise `query`                     -> links to that search
+    // and a trend that matches no tools at all is not rendered, so this list
+    // can name a trend before the catalogue has anything to put under it —
+    // the row appears on its own once tools are tagged for it.
+    var DW_TRENDS = [
+        { label: "MCP Connectors",    slug: "mcp-connectors",    query: "mcp" },
+        // Slug is the sheet's own category ("Vibe Coding"), not a slug of the
+        // label — this resolves to the real category view, icon and count.
+        { label: "Vibe Coding Tools", slug: "vibe-coding",      query: "vibe coding" },
+        { label: "AI Creative Suites", slug: "ai-creative-suites", query: "creative suite" }
+    ];
 
     var loadingEl = document.getElementById("tool-loading");
     var contentEl = document.getElementById("tool-content");
@@ -21,6 +62,8 @@ document.addEventListener("DOMContentLoaded", function () {
     var categorySearchClosers = document.querySelectorAll("[data-category-search-close]");
     var dashboardViewEl = document.getElementById("dashboard-view");
     var dashNavEl = document.getElementById("dash-nav");
+    var dashTrendsEl = document.getElementById("dash-trends");
+    var dashTrendsSectionEl = document.getElementById("dash-trends-section");
     var dashGridEl = document.getElementById("dash-grid");
     var dashTitleEl = document.getElementById("dash-title");
     var dashCountEl = document.getElementById("dash-count");
@@ -205,6 +248,13 @@ document.addEventListener("DOMContentLoaded", function () {
     function buildTools(rows) {
         if (!Array.isArray(rows) || !rows.length) return [];
         var headers = (rows[0].c || []).map(function (cell) { return normalizeHeader(getCellValue(cell)); });
+
+        // A tab mid-edit can lose its header row, in which case row 0 is a data
+        // row and every key built from it is nonsense — the tab then yields
+        // titleless junk that gets merged into the catalogue. Require a
+        // recognisable header before trusting the tab; skipping it entirely
+        // means one broken tab cannot poison the others.
+        if (headers.indexOf("title") === -1 && headers.indexOf("name") === -1) return [];
 
         return rows.slice(1).map(function (row) {
             var cells = row.c || [];
@@ -449,33 +499,37 @@ document.addEventListener("DOMContentLoaded", function () {
         return "price-paid";
     }
 
-    // Tool logos come from ImageKit, and most carry transparent padding baked
-    // into the canvas — measured across a 30-icon sample, 16 filled less than
-    // 90% of their own image. That padding is what shows as a gap inside the
-    // rounded logo holder.
+    // Tool logos are favicons, and they are ALREADY 1:1 — measured across a
+    // 24-icon sample, 23 are exact squares (the one exception is a .jpg, not a
+    // favicon). So the job here is simply "deliver that square at a usable
+    // size", nothing more.
     //
-    // Two problems, one chain:
+    // DO NOT REINTRODUCE `t-true`. Trimming looks like the right idea — strip
+    // each logo's padding so they all read at one scale — but it strips a
+    // uniform border of ANY colour, which on a favicon is usually the brand
+    // plate itself. 10kdesigners is the worked example: a 64x64 purple tile
+    // with "10k" on it, trimmed down to the 41x14 bounding box of the white
+    // text, then upscaled 3x to fill 128 — arriving as a giant blurry wordmark
+    // on a white band, which reads as a badly cropped image. It destroyed the
+    // logo it was meant to normalise.
     //
-    //  1. Logos carry wildly different amounts of built-in padding, so at a
-    //     fixed size some read as "zoomed in" and others as "zoomed out".
-    //     `t-true` trims each one down to its actual artwork, removing that
-    //     variance.
-    //  2. Sources range from 25px favicons to 256px app icons. `cm-pad_resize`
-    //     scales the trimmed artwork to fit a 128 box — UPSCALING when needed,
-    //     unlike c-at_max — then pads back to a square. Every logo therefore
-    //     arrives with its long side at 128px and nothing cropped.
+    //   w-128,h-128     a square source stays square and is untouched but for
+    //                   scaling. 128 is 2x the 52px holder, so it stays crisp.
+    //   cm-pad_resize   the rare non-square source is letterboxed, never
+    //                   cropped, and pad_resize UPSCALES (c-at_max does not).
+    //   bg-00000000     pad with TRANSPARENT, not ImageKit's default white —
+    //                   a white band inside a dark tile is exactly the "white
+    //                   space" this is meant to avoid.
     //
-    // The CSS then draws it with object-fit: contain plus a uniform padding, so
-    // every tile shows the same optical size with the same breathing room.
-    //
-    // Sources below 128px are upscaled here and will look soft — that is a
-    // source-image limit no transform can fix.
+    // Sources below 128px are upscaled and will look soft — that is a
+    // source-image limit no transform can fix; those need better favicons in
+    // the Sheet.
     //
     // Non-ImageKit URLs are returned untouched.
     function iconUrl(url) {
         if (!url || url.indexOf("ik.imagekit.io") === -1) return url;
         if (url.indexOf("tr=") !== -1) return url;          // already transformed
-        return url + (url.indexOf("?") === -1 ? "?" : "&") + "tr=t-true:w-128,h-128,cm-pad_resize";
+        return url + (url.indexOf("?") === -1 ? "?" : "&") + "tr=w-128,h-128,cm-pad_resize,bg-00000000";
     }
 
     function createDashCardMarkup(tool, categorySlug) {
@@ -530,6 +584,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "3d-tools":                   "3d-tools.png",
         "accessibility":              "accessibility.png",
         "ad-design":                  "ad-design.svg",
+        "ai-creative-suites":         "ai-creative-suites.svg",
         "ai-tools":                   "ai-tools.svg",
         "ai-voiceover":               "ai-voiceover.svg",
         "branding":                   "branding.svg",
@@ -552,6 +607,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "landing-pages-inspirations": "landing-pages-inspirations.svg",
         "learn-design":               "learn-design.svg",
         "logo-inspirations":          "logo-inspirations.svg",
+        "mcp-connectors":             "mcp-connectors.svg",
         "mockup-websites":            "mockup-websites.svg",
         "presentation-design":        "presentation-design.svg",
         "prototyping-tools":          "prototyping-tools.svg",
@@ -597,6 +653,55 @@ document.addEventListener("DOMContentLoaded", function () {
         ].join("");
     }
 
+    // Builds the "Hot trends" rows from DW_TRENDS against the live tool set.
+    // Rows are visually identical to the category rows — same icon, label and
+    // count — because a trend IS a category shortcut; giving it its own visual
+    // language would just make the sidebar noisier.
+    function renderTrendsNav(tools, selectedSlug, activeQuery) {
+        if (!dashTrendsEl) return;
+
+        var groups = getCategoryGroups(tools);
+        var bySlug = {};
+        groups.forEach(function (g) { bySlug[g.slug] = g; });
+
+        var rows = [];
+        DW_TRENDS.forEach(function (trend) {
+            var group = bySlug[trend.slug];
+            if (group) {
+                rows.push(dashNavRowMarkup(
+                    trend.label,
+                    "/category/?category=" + encodeURIComponent(group.slug),
+                    group.tools.length,
+                    group.slug === selectedSlug,
+                    false,
+                    group.slug
+                ));
+                return;
+            }
+
+            // No such category yet — fall back to the search that best stands
+            // in for it, and skip the row entirely when that finds nothing.
+            var words = String(trend.query || "").toLowerCase().split(/\s+/).filter(Boolean);
+            if (!words.length) return;
+            var count = tools.filter(function (tool) { return toolMatchesQuery(tool, words); }).length;
+            if (!count) return;
+
+            rows.push(dashNavRowMarkup(
+                trend.label,
+                "/category/?q=" + encodeURIComponent(trend.query),
+                count,
+                !selectedSlug && activeQuery === trend.query,
+                false,
+                trend.slug
+            ));
+        });
+
+        dashTrendsEl.innerHTML = rows.join("");
+        // Hide the whole block, heading included, rather than leaving an
+        // orphan "Hot trends" label above nothing.
+        if (dashTrendsSectionEl) dashTrendsSectionEl.hidden = rows.length === 0;
+    }
+
     function renderDashboard(tools, categorySlug) {
         var groups = getCategoryGroups(tools);
         categorySearchGroups = groups;
@@ -632,6 +737,8 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             dashNavEl.innerHTML = rows.join("");
         }
+
+        renderTrendsNav(tools, selected, new URLSearchParams(window.location.search).get("q") || "");
 
         if (dashTitleEl) dashTitleEl.textContent = title;
 
@@ -938,17 +1045,35 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.appendChild(script);
     }
 
-    function buildSheetUrl(gid) {
-        return "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&gid=" + encodeURIComponent(gid) + "&cachebust=" + Date.now();
+    // A numeric entry is a gid; anything else is a tab name. gviz accepts
+    // either, and matches the name case-insensitively.
+    function buildSheetUrl(tab) {
+        var selector = /^\d+$/.test(String(tab))
+            ? "gid=" + encodeURIComponent(tab)
+            : "sheet=" + encodeURIComponent(tab);
+        return "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&" + selector + "&cachebust=" + Date.now();
     }
 
     function loadAllTools(onSuccess, onError) {
-        var remaining = SHEET_GIDS.length;
+        var remaining = SHEET_TABS.length;
         var allTools = [];
+        var seenSignatures = {};
 
-        SHEET_GIDS.forEach(function (gid) {
-            requestSheetData(buildSheetUrl(gid), function (payload) {
+        SHEET_TABS.forEach(function (tab) {
+            requestSheetData(buildSheetUrl(tab), function (payload) {
                 var rows = payload && payload.table && payload.table.rows ? payload.table.rows : [];
+
+                // gviz NEVER errors on a tab that isn't there — a renamed tab,
+                // a typo, or a deleted gid all come back `status: ok` carrying
+                // some other tab's rows. `sig` is a per-tab content signature,
+                // so a repeat means this entry resolved to a tab already loaded
+                // and merging it would quietly import the wrong data. Drop it.
+                var signature = payload && payload.sig;
+                if (signature) {
+                    if (seenSignatures[signature]) rows = [];
+                    else seenSignatures[signature] = true;
+                }
+
                 allTools = allTools.concat(buildTools(rows));
                 remaining -= 1;
                 if (remaining === 0) {

@@ -25,7 +25,8 @@
         star.style.marginTop = -(starSize / 2) + "px";
         star.style.opacity = opacity;
         if (Math.random() > 0.7) {
-            // Theme-aware: --fg-rgb flips to a cool near-black in light mode.
+            // Painted from --fg-rgb rather than a literal white, like the rest
+            // of the palette.
             star.style.boxShadow = "0 0 " + (4 + Math.random() * 4) + "px rgba(var(--fg-rgb)," + (0.4 + Math.random() * 0.4) + ")";
         }
 
