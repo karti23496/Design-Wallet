@@ -13,7 +13,18 @@
 
 /* ── Hero ─────────────────────────────────────────────────────────────── */
 .ga-hero {
+    position: relative;          /* anchors the absolutely-positioned starfield */
+    overflow: hidden;            /* orbits run up to ~1000px wide — clip them */
     text-align: center;
+}
+
+/* The field is positioned with z-index 0, so it would paint over the in-flow
+   copy. Lifting every sibling above it keeps the stars behind the text without
+   restructuring the markup. .stars-field itself is already hidden below 760px
+   by the global rule in style.css. */
+.ga-hero > :not(.stars-field) {
+    position: relative;
+    z-index: 1;
 }
 
 .ga-eyebrow {
@@ -48,7 +59,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    width: min(100%, 420px);
+    width: min(100%, 700px);
     margin: 0 auto;
     padding: 6px;
     border: 1px solid var(--border);
