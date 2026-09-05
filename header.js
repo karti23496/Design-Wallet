@@ -24,6 +24,7 @@ function loadHeader() {
         '</button>' +
         '<nav class="site-nav" id="primary-nav">' +
             '<a href="/books/">Books</a>' +
+            '<a href="/salary/">Salary</a>' +
             '<a href="/good-deals/">Good deals</a>' +
             '<div class="nav-dropdown">' +
                 // No href: the trigger opens the menu rather than navigating.

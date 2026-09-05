@@ -15,7 +15,7 @@
    the headline, so done and not-done stay visible at a glance.
 
 - **Status key:** `✅ DONE` = shipped · `DECIDED` = agreed, not built yet · `PENDING` = needs Karthik's call · `SUPERSEDED` = no longer true, kept for history
-- Last updated: **2026-09-01**
+- Last updated: **2026-09-05**
 
 ---
 
@@ -631,6 +631,37 @@ Built 2026-09-01 from Karthik's PRD (v1, "ready to build"). Second tool in `DW_T
 - **Gotcha on record — a `requestAnimationFrame` guard must latch before it schedules.** The coalescing flag was written as `frameRequest = rAF(cb)` with `cb` clearing it. Under async rAF that is fine; the moment a frame runs synchronously the callback clears the flag *first* and the handle is assigned *after*, so `frameRequest` stays truthy and **every subsequent render returns early — the tool freezes silently, with no error.** Caught by the DOM smoke test, not by reading it. Set the flag, then schedule.
 - **Note:** `-webkit-mask-composite: xor` / `mask-composite: exclude` are both required for the edge highlight — the standard property alone does not cover Safari, and the prefixed one uses a different keyword for the same operation.
 
+## 12. Salary Dashboard (`/salary/`)
+
+Scoped 2026-09-05, **v1 built the same day** (see the implementation log). **Full spec lives in `.claude/SALARY-PROJECT.md`** — this section is the pointer and the decision record; the spec carries the data model, the role/level/location/work-mode taxonomy, the full chart inventory and the build order.
+
+- **`DECIDED` A designer salary dashboard is the site's second content pillar.** Free, no sign-up, at `/salary/`. The intent is different from the tool catalogue's ("what does my role pay?" vs "find me a tool") and it is the only surface on the site that earns recurring search traffic on its own.
+- **`DECIDED` It launches seeded with researched benchmark figures**, progressively replaced by real community submissions.
+- **`DECIDED` No per-cell provenance labels.** Karthik's call, 2026-09-05: no "benchmark estimate" badges, no muted styling for seeded cells, no caveat under each figure. Every number renders identically and confidently — a dashboard hedging on every tile is unusable. The seed is researched market data, not invented, so presenting it plainly is normal practice. Cells still carry `source` in the JSON for debugging; it is simply never surfaced.
+- **`DECIDED` One methodology sentence stays, in the collapsed `<details>` at the bottom.** Not a per-cell label — one line saying figures combine market research with community submissions. Every credible comparison site publishes methodology and reads as *more* rigorous for it; the downside case is a "Design Wallet made up salary data" thread landing on Karthik personally, since the site carries his name. Cheap insurance, invisible to anyone just checking their salary.
+- **`DECIDED` No fabricated submission counts.** The page never prints "based on N designer reports" where N is zero. A specific invented statistic is trivially disprovable in a way a published median is not. Counts appear once real submissions exist; until then no count is shown — which costs nothing visually, since there is no caveat or empty state either.
+- **`DECIDED` No "Download the data" link, now or later.** Karthik's call, 2026-09-05 — supersedes the earlier `PENDING` on whether to embrace a public dataset if the repo is open sourced. The answer is no. *(If §1's open-sourcing happens, `salaries.json` is still committed and therefore technically readable; this decision means the site never promotes a download, not that the file is secret.)*
+- **`DECIDED` India only in v1.** 13 cities grouped Tier 1 / Tier 2.
+- **`DECIDED` The metric is annual fixed CTC in ₹ LPA.** Variable pay and ESOPs are collected but reported separately, never blended into the headline.
+- **`DECIDED` Build-time data, not runtime.** Google Sheet → `scripts/build-salary.js` → committed `salary/data/salaries.json`. The page never calls Sheets. This does **not** contradict §3's runtime-listings requirement, which is about the tool catalogue: salary rows are moderated, so a runtime fetch would expose unapproved submissions.
+- **`DECIDED` The build asserts the Sheet header row and aborts if it doesn't match.** Direct defence against the §8c gviz gotcha — never write a `salaries.json` from an unverified response.
+- **`DECIDED` Submissions are moderated.** Honeypot + client validation; rows land as `Pending` and only rows marked `Approved` enter the build. Needs its **own spreadsheet and its own Apps Script deployment** — do not append to the portfolio sheet.
+- **`DECIDED` Nothing identifying is collected.** No name, email, phone, company name, **and no free-text field of any kind** — every input is a `<select>` or a bounded number. Free text is the one thing that would let someone deanonymise themselves.
+- **`DECIDED` Cells with fewer than 5 reports are suppressed** and roll up to Tier, then national, then benchmark. Protects both anonymity and credibility.
+- **`DECIDED` Creative Director and Design Director are levels, not roles.** Treating them as roles creates cells like "Junior Creative Director" and roughly doubles the matrix.
+- **`DECIDED` Work mode is a first-class axis, separate from location.** Karthik's call, 2026-09-05. **This fixed a double-count in the first draft**, where "Remote" was one of the *cities* — so a designer living in Jaipur working remotely for a Bangalore company landed in two buckets and inflated both. Three independent axes now: **location** (where they live), **work mode** (onsite / hybrid / remote), **employer** (India / foreign, only meaningful when remote). Filters for all three.
+- **`DECIDED` Remote-for-a-foreign-employer never merges into a city or national average.** That cohort is on a ~2.2× curve; blending it in would silently inflate every figure on the page. Always its own comparison.
+- **`DECIDED` Filters compose, but charts aggregate at deliberately different grains.** Role × level × city × work mode × company type is 3,432+ combinations and would put nearly every cell under the suppression threshold. So work mode and company type are shown as **national breakdowns for the selected role × level**, never sliced by city as well. Six grains, precomputed in the build. **Do not "improve" this by crossing all axes — the page would show almost nothing.**
+- **`DECIDED` The dashboard is chart-dense.** Karthik's call, 2026-09-05 — a full analytical surface, not one filter and one number. Eighteen sections: KPI row, hero figure, distribution histogram, city comparison, experience ladder, role comparison, role × level heatmap, work-mode and company-type breakdowns, variable/ESOP tiles, a top-10 leaderboard, and a table view.
+- **`DECIDED` Charts are monochrome — sequential white-opacity ramp plus emphasis, no categorical hue palette.** Every chart here does the same job (compare magnitude, low→high), which takes a sequential encoding, not identity colours. Keeps the site's black-and-white identity intact; a rainbow salary dashboard would look like a different product. Selection is shown by **emphasis** — the selected bar at full white, the rest receding to `--sal-ramp-2`. Multi-series cases use **small multiples**, never generated hues.
+- **`DECIDED` The ramp is validated, not eyeballed.** Five `--sal-ramp-*` tokens (alpha 0.25→1.00 over `--panel`, resolving `#4d4d4d` → `#ffffff`). `node scripts/validate_palette.js` in dark ordinal mode against surface `#121212` returns ALL PASS — monotone lightness, adjacent ΔL ≥ 0.06, light-end contrast 2.22:1 against the 2:1 ordinal floor. **Re-run it if the ramp is ever retuned.**
+- **`DECIDED` No charting library.** Bars, a step line, a histogram and a grid, hand-built in CSS and inline SVG. Chart primitives live in `salary/charts.js`, split from `salary.js` — eight chart forms plus a filter state machine in one file is how `script.js` got to 70 KB.
+- **`DECIDED` Hover tooltips on every mark.** Per-mark on bars, dots and heatmap cells; crosshair on the ladder. Plus a table view toggle carrying every figure on the page — accessibility requirement, not optional.
+- **`DECIDED` Geist Mono is justified on this page** for tabular figures in the heatmap, leaderboard and table view, where digits must align. Same reasoning that earned the colour converter its §10 exception.
+- **`DECIDED` "Open source" is not the framing for this page.** Karthik's call is free-to-view with no bulk download, so neither the code nor the data is open. Public copy says **"Free. Community-powered. No sign-up."** — *not* "open source", which is a claim people check.
+- **`DECIDED` `sitemap.xml` and `robots.txt` get built as part of this, site-wide.** Neither exists today. §8b already flags `/terms/` and `/privacy/` as unlinked and unindexed with no sitemap to catch them; a page that lives on search traffic makes it worth fixing for the whole site, not just `/salary/`.
+- **Out of scope for v1:** international salaries · freelance day rates · the pay-gap view (needs volume; `Gender` is collected as optional and never shown below n ≥ 50) · per-role SEO landing pages like `/salary/motion-designer/` — a v2 once the data is real, since 11 pages of benchmark estimates would be thin content today.
+
 ---
 
 ## Implementation Log
@@ -745,6 +776,33 @@ The relaunch is published. 57 commits, from `a7780c8` to `b3a466b`, in one push.
 - **Note:** removing the Good deals value card leaves two cards in an `auto-fit` grid, so they simply widen. No layout fix was needed, and the revert restores the third exactly.
 
 **Verified in production:** 10 routes 200 · `/list-your-tool/` and `/dw-tools/glassmorphism-css-generator/` both 404 · the starfield markup, script tag and `.ga-hero` rule all serve · no dead links anywhere. Pages took ~60 s.
+
+---
+
+**2026-09-05 — Salary dashboard v1 built** · branch `remove-paywall`, **not deployed**
+
+`/salary/` and `/salary/submit/` built end to end. `main` is untouched — nothing is live.
+
+| | |
+|---|---|
+| New | `salary/index.html`, `salary/salary.css`, `salary/salary.js`, `salary/charts.js`, `salary/data/benchmarks.json`, `salary/data/salaries.json`, `salary/submit/{index.html,submit-salary.js,google-apps-script.js}`, `scripts/build-salary.js`, `sitemap.xml`, `robots.txt` |
+| Changed | `header.js` (Salary nav item), `package.json` (`build-salary`), `scripts/build-blog.js` + 13 pages (cache-buster `20260901-2` → `20260905-1`) |
+
+- **`✅ DONE`** ~~The salary dashboard ships as a chart-dense, monochrome, build-time-data page.~~ Eighteen sections, eight chart forms, six filters, 1,053 city cells from an 88-cell seed.
+- **`⚠️ GOTCHA — worth remembering` `form.<name>` is no longer safe for form fields.** `form.role` returns **null**, not the `<select name="role">`, because ARIA reflection added a `role` IDL attribute to `Element` and IDL properties beat the form's named-element getter. The form had no `role` attribute, so it answered null and the whole option-population step died in a `catch`. Same trap waits on `title`, `id`, `style`, `lang`, `dir`, `slot`. **Use `form.elements[name]`.** Caught by a DOM smoke test, not by reading it — and it would have shipped a permanently broken form.
+- **`⚠️ GOTCHA` `Math.round` on a salary prints ₹0.** The heatmap rounded to whole lakhs, so intern illustrators/animators/video editors at 0.45 L rendered as **"0"**. Anything under 10 L keeps a decimal. Caught by looking at a screenshot, not by any test.
+- **Also caught by rendering:** `history.replaceState` throws on opaque origins, and it was being called from inside `render()` — so one throw blanked the entire dashboard. Now wrapped. And the step chart clipped its first and last markers in half at the container edge; it now insets by 4% and positions axis ticks on the same x rather than spreading them with flex.
+- **`DECIDED` The seed is 88 role×level baselines plus per-city / work-mode / employer / company indices, not 3,432 hand-written cells.** A derived figure is `baseline × city × mode × employer`. The dashboard's filter maths applies the same chain as ratios against national, so a filtered figure stays consistent with the comparison charts beside it instead of drifting.
+- **The gviz guard was tested live and works.** Pointing `SALARY_SHEET_ID` at the tool-catalogue sheet with tab `"Salary submissions"` returned **the catalogue's rows with `status: ok`** — exactly the §8c gotcha. The header assertion caught it, exited 1, and left `salaries.json` untouched. This is the first place on the site where that gotcha is actively defended rather than just documented.
+- **`DECIDED` JSON-LD is the one addition to the "no inline script" rule**, alongside the GA4 block. `<script type="application/ld+json">` is data, not executable script, and structured data cannot be externalised.
+- **`DECIDED` `sitemap.xml` deliberately omits `/list-your-tool/` and the glass generator.** Both are held back from `main`, and "holding a page back means removing its inbound links too" applies to a sitemap entry as much as a nav link. A note in the file says to add them back in the same commit that restores them.
+- **`PENDING` Submissions are not switched on.** `SUBMISSION_URL` in `salary/submit/submit-salary.js` is empty until a salary spreadsheet exists and `google-apps-script.js` is deployed as a web app. The form validates fully and tells the visitor submissions aren't open yet. **`SPREADSHEET_ID` in the Apps Script is also a placeholder.**
+- **`PENDING` The seed figures have not been reviewed by Karthik.** They are researched estimates for the Indian market as of 2026, and they are what every visitor will read as fact. Worth an eyes-on pass before this goes live.
+
+**Verified:** 6 JS files pass `node --check` · `salary.css` brace-balanced (149/149) · `check-layout.js` passes · `sitemap.xml` well-formed · 14 routes 200 on the dev server · build produces 1,053 cells, 20.7 KB gzipped · the chart ramp passes the data-viz validator (`ALL PASS`, ordinal, dark, 2.22:1 light-end) · **37-assertion DOM harness on the dashboard and 14 on the form, both ALL PASS** · rendered in headless Chrome at 1440px and 390px with **no horizontal overflow and no JS errors**.
+
+**Seen in a browser this time** — headless Chrome screenshots at both widths, which is what caught the heatmap "₹0" and the clipped ladder markers. That is a change from the glass generator, which is still held back precisely because nobody has looked at it.
+
 
 ---
 

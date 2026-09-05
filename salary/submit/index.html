@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HLX9Y7DQV7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Your Salary Anonymously — Design Wallet™</title>
+    <meta name="description" content="Add your design salary anonymously to help other designers in India know what their role is worth. No name, no email, no company.">
+    <link rel="canonical" href="https://designwallet.in/salary/submit/">
+    <meta property="og:title" content="Submit Your Salary Anonymously — Design Wallet™">
+    <meta property="og:description" content="Help other designers in India know what their role is worth. No name, no email, no company.">
+    <meta property="og:url" content="https://designwallet.in/salary/submit/">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://designwallet.in/public/illustrations/Meta%20Image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://designwallet.in/public/illustrations/Meta%20Image.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
+    <link rel="stylesheet" href="/style.css?v=20260905-1">
+    <link rel="stylesheet" href="/salary/salary.css?v=20260905-1">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header"></header>
+
+        <main class="sal-main sal-main--narrow">
+            <section class="sal-hero">
+                <p class="sal-eyebrow">Anonymous submission</p>
+                <h1 class="sal-title">Add your salary</h1>
+                <p class="sal-subtitle">
+                    Every figure on the salary dashboard gets better the more designers
+                    contribute. Takes about a minute.
+                </p>
+            </section>
+
+            <div class="sal-privacy-note">
+                <h2>What we ask for, and what we don't</h2>
+                <p>
+                    <strong>We don't collect your name, email, phone number, or the name of
+                    your company.</strong> There is no free-text box on this form — every
+                    field is a dropdown or a number, so there is nothing you could type that
+                    would identify you. Submissions are reviewed before they appear, and a
+                    figure is only ever published once at least five people have reported the
+                    same role, level and city.
+                </p>
+            </div>
+
+            <form id="sal-form" class="sal-form" novalidate>
+                <!-- Honeypot. Real people never see it; bots fill everything. -->
+                <div class="sal-honeypot" aria-hidden="true">
+                    <label for="sal-website">Website</label>
+                    <input type="text" id="sal-website" name="website" tabindex="-1" autocomplete="off">
+                </div>
+
+                <fieldset class="sal-fieldset">
+                    <legend>Your role</legend>
+                    <div class="sal-form-grid">
+                        <div class="sal-field">
+                            <label for="f-role">Role <span aria-hidden="true">*</span></label>
+                            <select id="f-role" name="role" required></select>
+                            <p class="sal-field-error" role="alert"></p>
+                        </div>
+                        <div class="sal-field">
+                            <label for="f-level">Level <span aria-hidden="true">*</span></label>
+                            <select id="f-level" name="level" required></select>
+                            <p class="sal-field-error" role="alert"></p>
+                        </div>
+                        <div class="sal-field">
+                            <label for="f-years">Years of experience <span aria-hidden="true">*</span></label>
+                            <input type="number" id="f-years" name="yearsOfExperience" min="0" max="45" step="1" inputmode="numeric" required>
+                            <p class="sal-field-error" role="alert"></p>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="sal-fieldset">
+                    <legend>Where you work</legend>
+                    <div class="sal-form-grid">
+                        <div class="sal-field">
+                            <label for="f-city">City <span aria-hidden="true">*</span></label>
+                            <select id="f-city" name="city" required></select>
+                            <p class="sal-field-error" role="alert"></p>
+                        </div>
+                        <div class="sal-field">
+                            <label for="f-mode">Work mode <span aria-hidden="true">*</span></label>
+                            <select id="f-mode" name="workMode" required></select>
+                            <p class="sal-field-error" role="alert"></p>
+                        </div>
+                        <div class="sal-field" id="f-employer-field" hidden>
+                            <label for="f-employer">Employer is based <span aria-hidden="true">*</span></label>
+                            <select id="f-employer" name="employerLocation"></select>
+                            <p class="sal-field-error" role="alert"></p>
+                        </div>
+                        <div class="sal-field">
+                            <label for="f-company">Company type <span aria-hidden="true">*</span></label>
+                            <select id="f-company" name="companyType" required></select>
+                            <p class="sal-field-error" role="alert"></p>
+                        </div>
+                        <div class="sal-field">
+                            <label for="f-size">Company size</label>
+                            <select id="f-size" name="companySize">
+                                <option value="">Prefer not to say</option>
+                                <option value="1-10">1–10 people</option>
+                                <option value="11-50">11–50</option>
+                                <option value="51-200">51–200</option>
+                                <option value="201-1000">201–1,000</option>
+                                <option value="1000+">1,000+</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="sal-fieldset">
+                    <legend>Your pay</legend>
+                    <div class="sal-form-grid">
+                        <div class="sal-field">
+                            <label for="f-ctc">Annual fixed CTC, in ₹ lakh <span aria-hidden="true">*</span></label>
+                            <input type="number" id="f-ctc" name="annualFixedCtcLpa" min="0.5" max="200" step="0.1" inputmode="decimal" placeholder="e.g. 18.5" required>
+                            <p class="sal-field-hint">Fixed only — leave out bonus and equity.</p>
+                            <p class="sal-field-error" role="alert"></p>
+                        </div>
+                        <div class="sal-field">
+                            <label for="f-variable">Variable or bonus, in ₹ lakh</label>
+                            <input type="number" id="f-variable" name="variableOrBonusLpa" min="0" max="200" step="0.1" inputmode="decimal" placeholder="Optional">
+                            <p class="sal-field-error" role="alert"></p>
+                        </div>
+                        <div class="sal-field">
+                            <label for="f-esops">Do you have ESOPs or equity?</label>
+                            <select id="f-esops" name="hasEsops">
+                                <option value="">Prefer not to say</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="sal-field">
+                            <label for="f-year">This salary is from <span aria-hidden="true">*</span></label>
+                            <select id="f-year" name="salaryEffectiveFrom" required></select>
+                            <p class="sal-field-error" role="alert"></p>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="sal-fieldset">
+                    <legend>Optional</legend>
+                    <div class="sal-form-grid">
+                        <div class="sal-field">
+                            <label for="f-gender">Gender</label>
+                            <select id="f-gender" name="gender">
+                                <option value="">Prefer not to say</option>
+                                <option value="Woman">Woman</option>
+                                <option value="Man">Man</option>
+                                <option value="Non-binary">Non-binary</option>
+                            </select>
+                            <p class="sal-field-hint">
+                                Only ever used in aggregate, and only once there are enough
+                                responses for it to mean anything.
+                            </p>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="sal-form-actions">
+                    <button type="submit" class="primary-button" id="sal-submit-btn">Submit anonymously</button>
+                    <p class="sal-form-status" id="sal-form-status" role="status"></p>
+                </div>
+            </form>
+
+            <div class="sal-form-done" id="sal-form-done" hidden>
+                <h2>Thank you — that's in.</h2>
+                <p>
+                    Your submission is queued for review. Once enough designers have reported
+                    the same role, level and city, it will start shaping the figures on the
+                    dashboard.
+                </p>
+                <a class="primary-button" href="/salary/">Back to the dashboard</a>
+            </div>
+        </main>
+    </div>
+
+    <script src="/content.js?v=20260508-6"></script>
+    <script src="/header.js?v=20260905-1"></script>
+    <script src="/newsletter.js?v=20260824-1"></script>
+    <script src="/salary/submit/submit-salary.js?v=20260905-1"></script>
+</body>
+</html>

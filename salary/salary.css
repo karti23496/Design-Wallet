@@ -1,0 +1,1037 @@
+/* ============================================================================
+   Salary dashboard — /salary/
+
+   Scoped .sal-* styles. Nothing here is bolted onto the global style.css, per
+   DECISIONS §11; this page loads a lot of chart CSS that no other page needs.
+
+   Colour is monochrome and sequential. Every chart here compares magnitude
+   low→high, which takes ONE hue at rising lightness rather than identity
+   colours — which is also how the page stays black-and-white like the rest of
+   the site. The ramp is validated, not eyeballed: resolved against #121212 in
+   dark ordinal mode it passes monotone lightness, adjacent ΔL ≥ 0.06 and a
+   2.22:1 light-end contrast against the 2:1 floor. Re-run the validator if
+   these are ever retuned.
+   ============================================================================ */
+
+:root {
+    /* Sequential ramp — white at rising opacity over --panel.
+       Resolves #4d4d4d → #717171 → #949494 → #c4c4c4 → #ffffff. */
+    --sal-ramp-1: rgba(var(--fg-rgb), 0.25);
+    --sal-ramp-2: rgba(var(--fg-rgb), 0.40);
+    --sal-ramp-3: rgba(var(--fg-rgb), 0.55);
+    --sal-ramp-4: rgba(var(--fg-rgb), 0.75);
+    --sal-ramp-5: rgba(var(--fg-rgb), 1);
+
+    /* Recessive furniture — grid lines, tracks, empty cells. */
+    --sal-track: rgba(var(--fg-rgb), 0.07);
+    --sal-grid: rgba(var(--fg-rgb), 0.12);
+
+    --sal-heat-label: 118px;
+}
+
+/* ── shell ───────────────────────────────────────────────────────────────── */
+
+.sal-main {
+    /* The global width cap in style.css is an explicit selector list this page
+       does not match, so it sets its own. Wider than /good-deals/ — the heatmap
+       and the leaderboard need the room. */
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+}
+
+.sal-section {
+    margin-top: 64px;
+}
+
+.sal-section-head {
+    margin-bottom: 20px;
+}
+
+.sal-section-head h2 {
+    font-weight: 300;
+    font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+    letter-spacing: -0.015em;
+    color: var(--text);
+    margin: 0 0 6px;
+}
+
+.sal-section-head p {
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin: 0;
+    max-width: 62ch;
+}
+
+.sal-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+}
+
+/* ── hero ────────────────────────────────────────────────────────────────── */
+
+.sal-hero {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    padding-bottom: 8px;
+}
+
+/* .stars-field is z-index 0 and would paint over the copy. Lifting every
+   sibling keeps the stars behind the text without restructuring the markup —
+   the same fix /good-deals/ uses. */
+.sal-hero > :not(.stars-field) {
+    position: relative;
+    z-index: 1;
+}
+
+.sal-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin: 0 0 18px;
+}
+
+.sal-title {
+    font-weight: 200;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin: 0 auto 20px;
+}
+
+.sal-subtitle {
+    max-width: 56ch;
+    color: var(--muted);
+    font-size: 1.02rem;
+    margin: 0 auto 28px;
+}
+
+/* ── filters ─────────────────────────────────────────────────────────────── */
+
+.sal-filters {
+    position: sticky;
+    top: 12px;
+    z-index: 20;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-top: 40px;
+    box-shadow: var(--shadow);
+}
+
+.sal-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.sal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.sal-field label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+}
+
+.sal-field select {
+    width: 100%;
+    appearance: none;
+    background: var(--surface-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: "Geist", sans-serif;
+    font-size: 0.9rem;
+    padding: 10px 32px 10px 12px;
+    cursor: pointer;
+    background-image: linear-gradient(45deg, transparent 50%, var(--muted-strong) 50%),
+                      linear-gradient(135deg, var(--muted-strong) 50%, transparent 50%);
+    background-position: calc(100% - 17px) 50%, calc(100% - 12px) 50%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+}
+
+.sal-field.is-disabled {
+    opacity: 0.45;
+}
+
+.sal-field select:disabled {
+    cursor: not-allowed;
+}
+
+/* The global focus ring is on a bare element selector, so suppressing it needs
+   its own :focus-visible rule — a plain class with outline:none does nothing. */
+.sal-field select:focus-visible,
+.sal-level-btn:focus-visible,
+.sal-view-btn:focus-visible,
+.sal-bar-row:focus-visible,
+.sal-step-node:focus-visible,
+.sal-heat-cell:focus-visible {
+    outline: 2px solid var(--pure);
+    outline-offset: 2px;
+}
+
+/* ── level ladder ────────────────────────────────────────────────────────── */
+
+.sal-level-ladder {
+    display: flex;
+    gap: 6px;
+    margin-top: 14px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+}
+
+.sal-level-btn {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    background: var(--surface-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--muted-strong);
+    font-family: "Geist", sans-serif;
+    font-size: 0.84rem;
+    padding: 9px 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+}
+
+.sal-level-btn small {
+    font-size: 0.68rem;
+    color: var(--muted);
+}
+
+.sal-level-btn:hover:not(:disabled) {
+    border-color: var(--border-strong);
+    color: var(--text);
+}
+
+.sal-level-btn.is-active {
+    background: var(--pure);
+    border-color: var(--pure);
+    color: var(--bg);
+}
+
+.sal-level-btn.is-active small {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.sal-level-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* ── view toggle ─────────────────────────────────────────────────────────── */
+
+.sal-view-toggle {
+    display: inline-flex;
+    gap: 4px;
+    background: var(--surface-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 3px;
+}
+
+.sal-view-btn {
+    background: none;
+    border: 0;
+    border-radius: 11px;
+    color: var(--muted);
+    font-family: "Geist", sans-serif;
+    font-size: 0.8rem;
+    padding: 6px 14px;
+    cursor: pointer;
+}
+
+.sal-view-btn.is-active {
+    background: var(--pure);
+    color: var(--bg);
+}
+
+/* ── summary + KPIs ──────────────────────────────────────────────────────── */
+
+.sal-summary {
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin: 28px 0 16px;
+}
+
+.sal-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 12px;
+}
+
+.sal-kpi {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+}
+
+.sal-kpi-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin: 0 0 10px;
+}
+
+.sal-kpi-value {
+    font-size: 1.55rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.sal-kpi-note {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 4px 0 0;
+}
+
+/* ── hero figure + range bar ─────────────────────────────────────────────── */
+
+.sal-headline {
+    display: grid;
+    grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+    gap: 32px;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.sal-hero-figure {
+    font-size: clamp(2.6rem, 6vw, 4rem);
+    font-weight: 200;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    color: var(--text);
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.sal-hero-caption {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin: 8px 0 0;
+}
+
+.sal-range-track {
+    position: relative;
+    height: 14px;
+    background: var(--sal-track);
+    border-radius: 7px;
+    cursor: default;
+}
+
+.sal-range-fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: var(--sal-ramp-3);
+    border-radius: 7px;
+}
+
+.sal-range-median {
+    position: absolute;
+    top: -5px;
+    bottom: -5px;
+    width: 3px;
+    margin-left: -1.5px;
+    background: var(--sal-ramp-5);
+    border-radius: 2px;
+}
+
+.sal-range-scale {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.sal-range-scale-mid {
+    color: var(--text);
+}
+
+/* ── histogram ───────────────────────────────────────────────────────────── */
+
+.sal-hist {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;                 /* the 2px surface gap between adjacent fills */
+    height: 120px;
+}
+
+.sal-hist-bin {
+    flex: 1;
+    min-width: 0;
+    background: var(--sal-ramp-1);
+    border-radius: 3px 3px 0 0;
+    transition: background 0.14s ease;
+}
+
+.sal-hist-bin.is-mid {
+    background: var(--sal-ramp-3);
+}
+
+.sal-hist-bin:hover {
+    background: var(--sal-ramp-5);
+}
+
+.sal-hist-scale {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 0.76rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── horizontal bars ─────────────────────────────────────────────────────── */
+
+.sal-bars {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.sal-bar-row {
+    display: grid;
+    grid-template-columns: 108px minmax(0, 1fr) 74px;
+    align-items: center;
+    gap: 12px;
+    border-radius: var(--radius-sm);
+    cursor: default;
+}
+
+.sal-bar-label {
+    font-size: 0.85rem;
+    color: var(--muted-strong);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sal-bar-track {
+    height: 18px;
+    background: var(--sal-track);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.sal-bar-fill {
+    display: block;
+    height: 100%;
+    /* Emphasis: everything recedes to ramp-2 until it is the selection. */
+    background: var(--sal-ramp-2);
+    border-radius: 0 4px 4px 0;
+    transition: background 0.16s ease, width 0.24s ease;
+}
+
+.sal-bar-value {
+    font-size: 0.84rem;
+    color: var(--muted);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.sal-bar-row:hover .sal-bar-fill {
+    background: var(--sal-ramp-4);
+}
+
+.sal-bar-row.is-selected .sal-bar-fill {
+    background: var(--sal-ramp-5);
+}
+
+.sal-bar-row.is-selected .sal-bar-label,
+.sal-bar-row.is-selected .sal-bar-value {
+    color: var(--text);
+}
+
+/* ── step chart (experience ladder) ──────────────────────────────────────── */
+
+.sal-step {
+    position: relative;
+    height: 190px;
+    margin-top: 8px;
+}
+
+.sal-step-svg {
+    position: absolute;
+    inset: 0 0 34px;
+    width: 100%;
+    height: calc(100% - 34px);
+}
+
+.sal-step-line {
+    fill: none;
+    stroke: var(--sal-ramp-3);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+.sal-step-overlay {
+    position: absolute;
+    inset: 0 0 34px;
+}
+
+.sal-step-node {
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    margin: -5.5px 0 0 -5.5px;
+    padding: 0;
+    border-radius: 50%;
+    border: 2px solid var(--panel);
+    background: var(--sal-ramp-3);
+    cursor: pointer;
+    transition: background 0.16s ease, transform 0.16s ease;
+}
+
+.sal-step-node:hover {
+    background: var(--sal-ramp-5);
+    transform: scale(1.35);
+}
+
+.sal-step-node.is-selected {
+    background: var(--sal-ramp-5);
+    transform: scale(1.45);
+}
+
+.sal-step-axis {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 22px;
+}
+
+/* Each tick is centred on its marker's x, set inline by charts.js. */
+.sal-step-tick {
+    position: absolute;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.sal-step-tick.is-selected {
+    color: var(--text);
+}
+
+/* ── heatmap ─────────────────────────────────────────────────────────────── */
+
+.sal-heat-wrap {
+    overflow-x: auto;
+}
+
+.sal-heat {
+    display: grid;
+    gap: 2px;                 /* surface gap between adjacent fills */
+    min-width: 620px;
+}
+
+.sal-heat-corner {
+    display: block;
+}
+
+.sal-heat-colhead,
+.sal-heat-rowhead {
+    font-size: 0.7rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sal-heat-colhead {
+    justify-content: center;
+    padding-bottom: 4px;
+}
+
+.sal-heat-rowhead {
+    padding-right: 10px;
+}
+
+.sal-heat-rowhead.is-selected {
+    color: var(--text);
+}
+
+.sal-heat-cell {
+    aspect-ratio: 1 / 1;
+    min-height: 34px;
+    border: 0;
+    border-radius: 4px;
+    /* Figures must align down the column, which is the same reasoning that
+       earned the colour converter its Geist Mono exception in DECISIONS §10. */
+    font-family: "Geist Mono", "Geist", monospace;
+    font-size: 0.72rem;
+    color: var(--bg);
+    cursor: pointer;
+    transition: transform 0.12s ease;
+}
+
+.sal-heat-cell:hover {
+    transform: scale(1.08);
+}
+
+.sal-heat-s1 { background: var(--sal-ramp-1); color: var(--text); }
+.sal-heat-s2 { background: var(--sal-ramp-2); color: var(--text); }
+.sal-heat-s3 { background: var(--sal-ramp-3); color: var(--bg); }
+.sal-heat-s4 { background: var(--sal-ramp-4); color: var(--bg); }
+.sal-heat-s5 { background: var(--sal-ramp-5); color: var(--bg); }
+
+.sal-heat-cell.is-empty {
+    background: var(--sal-track);
+    cursor: default;
+}
+
+.sal-heat-cell.is-selected {
+    box-shadow: 0 0 0 2px var(--pure), 0 0 0 4px var(--panel);
+}
+
+/* ── callouts ────────────────────────────────────────────────────────────── */
+
+.sal-callout {
+    background: var(--panel-strong);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 22px 24px;
+    margin-top: 20px;
+}
+
+.sal-callout h3 {
+    font-weight: 300;
+    font-size: 1.3rem;
+    letter-spacing: -0.015em;
+    color: var(--text);
+    margin: 0 0 6px;
+}
+
+.sal-callout p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin: 0;
+    max-width: 68ch;
+}
+
+/* ── meters ──────────────────────────────────────────────────────────────── */
+
+.sal-extras {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.sal-meter {
+    height: 8px;
+    background: var(--sal-track);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 12px;
+}
+
+.sal-meter-fill {
+    height: 100%;
+    background: var(--sal-ramp-4);
+    border-radius: 4px;
+    transition: width 0.24s ease;
+}
+
+/* ── tables ──────────────────────────────────────────────────────────────── */
+
+.sal-table-wrap {
+    overflow-x: auto;
+}
+
+.sal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+    min-width: 560px;
+}
+
+.sal-table caption {
+    text-align: left;
+    color: var(--muted);
+    font-size: 0.85rem;
+    padding-bottom: 12px;
+}
+
+.sal-table th,
+.sal-table td {
+    padding: 9px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--sal-grid);
+    white-space: nowrap;
+}
+
+.sal-table thead th {
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.sal-table tbody th {
+    color: var(--muted-strong);
+    font-weight: 400;
+}
+
+.sal-table td {
+    color: var(--text);
+}
+
+.sal-num {
+    text-align: right;
+    font-family: "Geist Mono", "Geist", monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+.sal-table-national th,
+.sal-table-national td {
+    color: var(--text);
+    border-bottom: 1px solid var(--border-strong);
+}
+
+/* ── methodology ─────────────────────────────────────────────────────────── */
+
+.sal-method {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 18px 22px;
+    background: var(--panel);
+}
+
+.sal-method summary {
+    cursor: pointer;
+    color: var(--muted-strong);
+    font-size: 0.92rem;
+    list-style: none;
+}
+
+.sal-method summary::-webkit-details-marker {
+    display: none;
+}
+
+.sal-method summary::before {
+    content: "＋ ";
+    color: var(--muted);
+}
+
+.sal-method[open] summary::before {
+    content: "－ ";
+}
+
+.sal-method-body {
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.7;
+}
+
+.sal-method-body p {
+    margin: 0 0 12px;
+    max-width: 74ch;
+}
+
+.sal-method-body strong {
+    color: var(--muted-strong);
+    font-weight: 500;
+}
+
+/* ── submit strip ────────────────────────────────────────────────────────── */
+
+.sal-submit-strip {
+    margin-top: 72px;
+    text-align: center;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 44px 28px;
+}
+
+.sal-submit-strip h2 {
+    font-weight: 200;
+    font-size: clamp(1.5rem, 3.4vw, 2.2rem);
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin: 0 0 12px;
+}
+
+.sal-submit-strip p {
+    color: var(--muted);
+    max-width: 52ch;
+    margin: 0 auto 24px;
+    font-size: 0.96rem;
+}
+
+/* ── tooltip ─────────────────────────────────────────────────────────────── */
+
+.sal-tooltip {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    pointer-events: none;
+    background: var(--surface-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--muted-strong);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    max-width: 260px;
+}
+
+.sal-tooltip strong {
+    color: var(--text);
+    font-weight: 500;
+}
+
+/* ── loading ─────────────────────────────────────────────────────────────── */
+
+.sal-loading {
+    text-align: center;
+    color: var(--muted);
+    padding: 72px 0;
+    font-size: 0.92rem;
+}
+
+.sal-updated-line {
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-align: center;
+    margin-top: 56px;
+}
+
+/* ── submission form ─────────────────────────────────────────────────────── */
+
+.sal-main--narrow {
+    max-width: 780px;
+}
+
+.sal-privacy-note {
+    background: var(--panel-strong);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 22px 24px;
+    margin-top: 8px;
+}
+
+.sal-privacy-note h2 {
+    font-weight: 300;
+    font-size: 1.1rem;
+    color: var(--text);
+    margin: 0 0 8px;
+}
+
+.sal-privacy-note p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.sal-privacy-note strong {
+    color: var(--muted-strong);
+    font-weight: 500;
+}
+
+.sal-form {
+    margin-top: 32px;
+}
+
+.sal-fieldset {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--panel);
+    padding: 22px 24px 24px;
+    margin: 0 0 16px;
+}
+
+.sal-fieldset legend {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    padding: 0 8px;
+}
+
+.sal-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+}
+
+.sal-form .sal-field input {
+    width: 100%;
+    background: var(--surface-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: "Geist", sans-serif;
+    font-size: 0.92rem;
+    padding: 10px 12px;
+}
+
+.sal-form .sal-field input:focus-visible {
+    outline: 2px solid var(--pure);
+    outline-offset: 2px;
+}
+
+.sal-form .sal-field input.has-error,
+.sal-form .sal-field select.has-error {
+    border-color: var(--muted-strong);
+}
+
+.sal-field-hint,
+.sal-field-error {
+    font-size: 0.76rem;
+    margin: 0;
+    line-height: 1.45;
+}
+
+.sal-field-hint {
+    color: var(--muted);
+}
+
+.sal-field-error {
+    color: var(--muted-strong);
+}
+
+.sal-field-error:empty {
+    display: none;
+}
+
+/* Off-screen rather than display:none — a bot reading the DOM should still find
+   something worth filling in. */
+.sal-honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.sal-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+}
+
+.sal-form-status {
+    color: var(--muted);
+    font-size: 0.86rem;
+    margin: 0;
+}
+
+.sal-form-done {
+    text-align: center;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 48px 28px;
+    margin-top: 32px;
+}
+
+.sal-form-done h2 {
+    font-weight: 200;
+    font-size: clamp(1.5rem, 3.4vw, 2rem);
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin: 0 0 12px;
+}
+
+.sal-form-done p {
+    color: var(--muted);
+    max-width: 48ch;
+    margin: 0 auto 24px;
+    font-size: 0.94rem;
+}
+
+/* ── responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+    .sal-headline {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 760px) {
+    .sal-main {
+        padding: 40px 16px 72px;
+    }
+
+    .sal-section {
+        margin-top: 48px;
+    }
+
+    .sal-filters {
+        position: static;
+    }
+
+    .sal-bar-row {
+        grid-template-columns: 84px minmax(0, 1fr) 62px;
+        gap: 8px;
+    }
+
+    .sal-bar-label,
+    .sal-bar-value {
+        font-size: 0.78rem;
+    }
+
+    .sal-step {
+        height: 165px;
+    }
+
+    /* Eight ticks will not fit; the tooltip and the ladder buttons above still
+       name every level, so dropping the axis labels loses nothing. */
+    .sal-step-axis {
+        display: none;
+    }
+
+    .sal-step-svg,
+    .sal-step-overlay {
+        inset: 0;
+        height: 100%;
+    }
+
+    .sal-panel {
+        padding: 18px 16px;
+    }
+
+    .sal-submit-strip {
+        padding: 34px 20px;
+    }
+}

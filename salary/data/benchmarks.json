@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "researched_on": "2026-09-05",
+  "currency": "INR",
+  "unit": "LPA_fixed",
+  "_readme": [
+    "Seed figures for the Design Wallet salary dashboard.",
+    "",
+    "baselines are NATIONAL medians for annual FIXED CTC in lakhs per annum.",
+    "A city figure is baseline * city.index * mode.index * employer.index.",
+    "The national median sits between Tier 1 and Tier 2, so Tier 1 cities index",
+    "ABOVE 1.0 and Tier 2 cities below it. Bangalore is the top of the range.",
+    "",
+    "Each baseline is [p25, p50, p75]. A null baseline means the role/level pair",
+    "does not meaningfully exist in the Indian market (there is no VP of Video",
+    "Editing) and it is not offered in the UI.",
+    "",
+    "Real community submissions override these once a cell reaches 5 reports.",
+    "See .claude/SALARY-PROJECT.md for the methodology and .claude/DECISIONS.md 12."
+  ],
+  "sources": [
+    "Public job listings on LinkedIn, Instahyre, Cutshort and Wellfound, India, 2025-2026",
+    "AmbitionBox and Glassdoor India role pages, read as ranges rather than point estimates",
+    "Published Indian design-industry and startup compensation reports, 2024-2026",
+    "Agency and studio rate cards where published"
+  ],
+
+  "roles": [
+    { "id": "product-designer", "label": "Product Designer (UI/UX)", "short": "Product" },
+    { "id": "ux-researcher", "label": "UX Researcher", "short": "Research" },
+    { "id": "design-systems-designer", "label": "Design Systems Designer", "short": "Design systems" },
+    { "id": "visual-designer", "label": "Visual Designer", "short": "Visual" },
+    { "id": "brand-designer", "label": "Brand / Identity Designer", "short": "Brand" },
+    { "id": "3d-designer", "label": "3D Designer", "short": "3D" },
+    { "id": "motion-designer", "label": "Motion Designer", "short": "Motion" },
+    { "id": "graphic-designer", "label": "Graphic Designer", "short": "Graphic" },
+    { "id": "illustrator", "label": "Illustrator", "short": "Illustration" },
+    { "id": "animator", "label": "Animator", "short": "Animation" },
+    { "id": "video-editor", "label": "Video Editor", "short": "Video" }
+  ],
+
+  "levels": [
+    { "id": "intern", "label": "Intern / Trainee", "years": "0–1 yr", "short": "Intern" },
+    { "id": "junior", "label": "Junior", "years": "0–2 yrs", "short": "Junior" },
+    { "id": "mid", "label": "Mid-level", "years": "2–5 yrs", "short": "Mid" },
+    { "id": "senior", "label": "Senior", "years": "5–8 yrs", "short": "Senior" },
+    { "id": "lead", "label": "Lead", "years": "8–12 yrs", "short": "Lead" },
+    { "id": "manager", "label": "Design Manager", "years": "8–14 yrs", "short": "Manager" },
+    { "id": "director", "label": "Director / Head of Design", "years": "12–18 yrs", "short": "Director" },
+    { "id": "vp", "label": "VP of Design", "years": "15+ yrs", "short": "VP" }
+  ],
+
+  "cities": [
+    { "id": "bangalore", "label": "Bangalore", "tier": "tier-1", "index": 1.18 },
+    { "id": "mumbai", "label": "Mumbai", "tier": "tier-1", "index": 1.14 },
+    { "id": "delhi-ncr", "label": "Delhi NCR", "tier": "tier-1", "index": 1.10 },
+    { "id": "hyderabad", "label": "Hyderabad", "tier": "tier-1", "index": 1.06 },
+    { "id": "pune", "label": "Pune", "tier": "tier-1", "index": 1.01 },
+    { "id": "chennai", "label": "Chennai", "tier": "tier-1", "index": 0.97 },
+    { "id": "ahmedabad", "label": "Ahmedabad", "tier": "tier-2", "index": 0.78 },
+    { "id": "kolkata", "label": "Kolkata", "tier": "tier-2", "index": 0.76 },
+    { "id": "chandigarh", "label": "Chandigarh", "tier": "tier-2", "index": 0.75 },
+    { "id": "kochi", "label": "Kochi", "tier": "tier-2", "index": 0.73 },
+    { "id": "jaipur", "label": "Jaipur", "tier": "tier-2", "index": 0.72 },
+    { "id": "coimbatore", "label": "Coimbatore", "tier": "tier-2", "index": 0.71 },
+    { "id": "indore", "label": "Indore", "tier": "tier-2", "index": 0.70 }
+  ],
+
+  "tiers": [
+    { "id": "tier-1", "label": "Tier 1 cities" },
+    { "id": "tier-2", "label": "Tier 2 cities" }
+  ],
+
+  "work_modes": [
+    { "id": "onsite", "label": "On-site", "index": 1.00 },
+    { "id": "hybrid", "label": "Hybrid", "index": 1.03 },
+    { "id": "remote", "label": "Remote", "index": 0.96 }
+  ],
+
+  "employers": [
+    { "id": "india", "label": "Indian employer", "index": 1.00 },
+    { "id": "foreign", "label": "Foreign employer", "index": 2.20 }
+  ],
+
+  "company_types": [
+    { "id": "product", "label": "Product / startup", "index": 1.15 },
+    { "id": "enterprise", "label": "Enterprise", "index": 1.05 },
+    { "id": "it-services", "label": "IT services", "index": 0.90 },
+    { "id": "freelance", "label": "Freelance / contract", "index": 0.85 },
+    { "id": "agency", "label": "Agency / studio", "index": 0.82 }
+  ],
+
+  "baselines": {
+    "product-designer|intern":  [0.40, 0.60, 1.00],
+    "product-designer|junior":  [4.50, 6.00, 8.00],
+    "product-designer|mid":     [10.00, 13.00, 17.00],
+    "product-designer|senior":  [19.00, 24.00, 30.00],
+    "product-designer|lead":    [30.00, 38.00, 45.00],
+    "product-designer|manager": [35.00, 42.00, 52.00],
+    "product-designer|director":[55.00, 68.00, 85.00],
+    "product-designer|vp":      [90.00, 115.00, 145.00],
+
+    "ux-researcher|intern":     [0.40, 0.60, 1.00],
+    "ux-researcher|junior":     [5.00, 7.00, 9.00],
+    "ux-researcher|mid":        [10.00, 14.00, 18.00],
+    "ux-researcher|senior":     [18.00, 24.00, 31.00],
+    "ux-researcher|lead":       [28.00, 36.00, 45.00],
+    "ux-researcher|manager":    [32.00, 40.00, 50.00],
+    "ux-researcher|director":   [48.00, 62.00, 78.00],
+    "ux-researcher|vp":         [75.00, 95.00, 125.00],
+
+    "design-systems-designer|intern":  null,
+    "design-systems-designer|junior":  null,
+    "design-systems-designer|mid":     [12.00, 16.00, 21.00],
+    "design-systems-designer|senior":  [20.00, 27.00, 34.00],
+    "design-systems-designer|lead":    [30.00, 40.00, 50.00],
+    "design-systems-designer|manager": [34.00, 44.00, 55.00],
+    "design-systems-designer|director":[52.00, 68.00, 85.00],
+    "design-systems-designer|vp":      [80.00, 105.00, 135.00],
+
+    "visual-designer|intern":   [0.30, 0.50, 0.90],
+    "visual-designer|junior":   [3.50, 4.50, 6.00],
+    "visual-designer|mid":      [6.50, 9.00, 12.00],
+    "visual-designer|senior":   [12.00, 16.00, 21.00],
+    "visual-designer|lead":     [18.00, 24.00, 30.00],
+    "visual-designer|manager":  [22.00, 28.00, 35.00],
+    "visual-designer|director": [32.00, 42.00, 55.00],
+    "visual-designer|vp":       [50.00, 65.00, 85.00],
+
+    "brand-designer|intern":    [0.30, 0.50, 0.90],
+    "brand-designer|junior":    [3.50, 4.50, 6.00],
+    "brand-designer|mid":       [6.50, 9.00, 12.00],
+    "brand-designer|senior":    [12.00, 16.00, 21.00],
+    "brand-designer|lead":      [18.00, 23.00, 30.00],
+    "brand-designer|manager":   [21.00, 27.00, 34.00],
+    "brand-designer|director":  [32.00, 42.00, 55.00],
+    "brand-designer|vp":        [48.00, 62.00, 80.00],
+
+    "3d-designer|intern":       [0.30, 0.55, 1.00],
+    "3d-designer|junior":       [4.00, 5.50, 7.50],
+    "3d-designer|mid":          [7.50, 10.50, 14.00],
+    "3d-designer|senior":       [14.00, 19.00, 25.00],
+    "3d-designer|lead":         [20.00, 27.00, 35.00],
+    "3d-designer|manager":      [24.00, 31.00, 40.00],
+    "3d-designer|director":     [34.00, 45.00, 58.00],
+    "3d-designer|vp":           null,
+
+    "motion-designer|intern":   [0.30, 0.50, 0.90],
+    "motion-designer|junior":   [3.50, 4.50, 6.00],
+    "motion-designer|mid":      [6.50, 9.00, 12.00],
+    "motion-designer|senior":   [12.00, 16.00, 21.00],
+    "motion-designer|lead":     [18.00, 23.00, 29.00],
+    "motion-designer|manager":  [20.00, 26.00, 33.00],
+    "motion-designer|director": [30.00, 38.00, 50.00],
+    "motion-designer|vp":       null,
+
+    "graphic-designer|intern":  [0.30, 0.50, 0.80],
+    "graphic-designer|junior":  [2.50, 3.50, 4.50],
+    "graphic-designer|mid":     [4.50, 6.00, 8.00],
+    "graphic-designer|senior":  [8.00, 10.50, 14.00],
+    "graphic-designer|lead":    [12.00, 15.00, 19.00],
+    "graphic-designer|manager": [14.00, 18.00, 23.00],
+    "graphic-designer|director":[20.00, 26.00, 34.00],
+    "graphic-designer|vp":      [30.00, 40.00, 55.00],
+
+    "illustrator|intern":       [0.25, 0.45, 0.80],
+    "illustrator|junior":       [3.00, 4.00, 5.50],
+    "illustrator|mid":          [5.50, 7.50, 10.00],
+    "illustrator|senior":       [10.00, 13.00, 17.00],
+    "illustrator|lead":         [14.00, 19.00, 25.00],
+    "illustrator|manager":      [16.00, 21.00, 27.00],
+    "illustrator|director":     [24.00, 32.00, 42.00],
+    "illustrator|vp":           null,
+
+    "animator|intern":          [0.25, 0.45, 0.80],
+    "animator|junior":          [3.00, 4.00, 5.50],
+    "animator|mid":             [5.50, 7.50, 10.00],
+    "animator|senior":          [10.00, 13.50, 18.00],
+    "animator|lead":            [15.00, 20.00, 26.00],
+    "animator|manager":         [18.00, 23.00, 30.00],
+    "animator|director":        [26.00, 34.00, 44.00],
+    "animator|vp":              null,
+
+    "video-editor|intern":      [0.25, 0.45, 0.80],
+    "video-editor|junior":      [3.00, 4.00, 5.50],
+    "video-editor|mid":         [5.50, 7.50, 10.00],
+    "video-editor|senior":      [9.00, 12.50, 16.00],
+    "video-editor|lead":        [14.00, 18.00, 23.00],
+    "video-editor|manager":     [16.00, 21.00, 27.00],
+    "video-editor|director":    [24.00, 31.00, 40.00],
+    "video-editor|vp":          null
+  },
+
+  "extras": {
+    "_readme": "Share of people at each level who report variable pay / ESOPs, and typical variable as a share of fixed. Modelled from the same sources; replaced by real data as submissions arrive.",
+    "intern":   { "variable_share": 0.02, "variable_pct": 0.00, "esop_share": 0.00 },
+    "junior":   { "variable_share": 0.25, "variable_pct": 0.05, "esop_share": 0.08 },
+    "mid":      { "variable_share": 0.35, "variable_pct": 0.08, "esop_share": 0.15 },
+    "senior":   { "variable_share": 0.50, "variable_pct": 0.10, "esop_share": 0.28 },
+    "lead":     { "variable_share": 0.60, "variable_pct": 0.12, "esop_share": 0.40 },
+    "manager":  { "variable_share": 0.65, "variable_pct": 0.15, "esop_share": 0.45 },
+    "director": { "variable_share": 0.75, "variable_pct": 0.20, "esop_share": 0.60 },
+    "vp":       { "variable_share": 0.85, "variable_pct": 0.25, "esop_share": 0.75 }
+  }
+}
