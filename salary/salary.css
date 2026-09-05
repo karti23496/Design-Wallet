@@ -28,9 +28,9 @@
 
     --sal-heat-label: 118px;
     /* Measured, not guessed: the longest role label ("Design Systems Designer")
-       needs 165px of text, plus the abbr chip, gaps and three levels of padding
-       = 257px. 264 leaves headroom for a fallback font if Geist is slow. */
-    --sal-sidebar-w: 264px;
+       needs 165px of text, plus the button, nav and sidebar padding. 240 leaves
+       headroom for a fallback font if Geist is slow. */
+    --sal-sidebar-w: 240px;
 }
 
 /* ── app shell ───────────────────────────────────────────────────────────────
@@ -115,6 +115,7 @@
     align-items: center;
     gap: 10px;
     width: 100%;
+    padding-left: 14px;
     background: none;
     border: 0;
     border-radius: var(--radius-sm);
@@ -159,10 +160,12 @@
     position: relative;
 }
 
-/* Collapsed, this is the only thing identifying a role, so it carries an
-   abbreviation rather than a decorative dot — a rail of identical dots is not
-   navigable. Expanded, it reads as a quiet marker beside the full label. */
+/* Hidden in the expanded panel — the full role name is enough there, and a
+   column of chips beside it is noise. It reappears only in the collapsed rail,
+   where it is the ONLY thing identifying a role: eleven identical dots would
+   not be navigable, and there are no per-role icons to fall back on. */
 .sal-role-abbr {
+    display: none;
     flex: 0 0 auto;
     min-width: 22px;
     text-align: center;
@@ -192,6 +195,7 @@
 }
 
 .is-collapsed .sal-role-abbr {
+    display: inline-flex;
     font-size: 0.7rem;
     padding: 5px 6px;
 }
