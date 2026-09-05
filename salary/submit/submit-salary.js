@@ -18,7 +18,7 @@
 (function () {
     "use strict";
 
-    var DATA_URL = "/salary/data/salaries.json?v=20260905-1";
+    var DATA_URL = "/salary/data/salaries.json?v=20260905-3";
     var SUBMISSION_URL = "";
     var STORAGE_KEY = "dw_salary_submitted_at";
     var REPEAT_WINDOW_MS = 24 * 60 * 60 * 1000;

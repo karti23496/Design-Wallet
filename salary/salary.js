@@ -12,7 +12,7 @@
 (function () {
     "use strict";
 
-    var DATA_URL = "/salary/data/salaries.json?v=20260905-2";
+    var DATA_URL = "/salary/data/salaries.json?v=20260905-3";
     var COLLAPSE_KEY = "dw_salary_sidebar_collapsed";
 
     var data = null;
@@ -497,6 +497,14 @@
         });
     }
 
+    /** Any element carrying data-info gets the shared tooltip. Keeps explanatory
+        copy in the markup next to what it explains, rather than in a string here. */
+    function bindInfoIcons() {
+        Array.prototype.forEach.call(document.querySelectorAll("[data-info]"), function (node) {
+            DWCharts.attachTip(node, node.getAttribute("data-info"));
+        });
+    }
+
     function bindControls() {
         dom.citySelect.addEventListener("change", function () {
             setState({ city: this.value });
@@ -584,6 +592,7 @@
                 fillSelect(dom.companySelect, data.company_types, "Any company");
                 buildLevelLadder();
                 bindControls();
+                bindInfoIcons();
 
                 readUrl();
                 syncControls();

@@ -27,7 +27,10 @@
     --sal-grid: rgba(var(--fg-rgb), 0.12);
 
     --sal-heat-label: 118px;
-    --sal-sidebar-w: 232px;
+    /* Measured, not guessed: the longest role label ("Design Systems Designer")
+       needs 165px of text, plus the abbr chip, gaps and three levels of padding
+       = 257px. 264 leaves headroom for a fallback font if Geist is slow. */
+    --sal-sidebar-w: 264px;
 }
 
 /* ── app shell ───────────────────────────────────────────────────────────────
@@ -123,6 +126,12 @@
     cursor: pointer;
     transition: background 0.14s ease, color 0.14s ease;
     white-space: nowrap;
+}
+
+.sal-role-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .sal-role-btn:hover {
@@ -286,10 +295,51 @@
     margin: 0;
 }
 
+.sal-h1-sub {
+    color: var(--muted-strong);
+    font-size: 0.9rem;
+    margin: 3px 0 0;
+}
+
 .sal-summary {
     color: var(--muted);
     font-size: 0.86rem;
-    margin: 4px 0 0;
+    margin: 6px 0 0;
+}
+
+/* ── info icon ───────────────────────────────────────────────────────────── */
+
+.sal-info {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    margin-left: 5px;
+    vertical-align: -2px;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: 50%;
+    background: none;
+    color: var(--muted);
+    font-family: "Geist", sans-serif;
+    font-size: 0.6rem;
+    line-height: 1;
+    cursor: help;
+    text-transform: none;
+    letter-spacing: 0;
+    transition: color 0.14s ease, border-color 0.14s ease;
+}
+
+.sal-info:hover,
+.sal-info:focus-visible {
+    color: var(--text);
+    border-color: var(--pure);
+}
+
+.sal-info:focus-visible {
+    outline: 2px solid var(--pure);
+    outline-offset: 2px;
 }
 
 .sal-topbar-actions {

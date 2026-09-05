@@ -409,6 +409,7 @@ var DWCharts = (function () {
 
     return {
         lpa: lpa,
+        attachTip: bindTip,
         rangeBar: rangeBar,
         barChart: barChart,
         stepChart: stepChart,
