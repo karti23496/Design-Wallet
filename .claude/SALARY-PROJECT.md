@@ -6,8 +6,8 @@ This document is the spec for the sub-project. `.claude/DECISIONS.md` remains th
 source of truth — where the two overlap, DECISIONS wins, and anything agreed here is
 mirrored into its `§ 12. Salary Dashboard` section.
 
-- **Status:** `DECIDED` — scoped and agreed, not built
-- **Created:** 2026-09-05 · **Revised:** 2026-09-05 (chart-dense dashboard; work-mode axis; presentation)
+- **Status:** `✅ BUILT` — v1 on `remove-paywall`, not deployed
+- **Created:** 2026-09-05 · **Revised:** 2026-09-05 (chart-dense dashboard; work-mode axis; presentation; app-shell layout)
 - **Status key:** matches DECISIONS.md — `✅ DONE` = shipped · `DECIDED` = agreed, not built · `PENDING` = needs Karthik's call · `SUPERSEDED`
 
 ---
@@ -45,11 +45,13 @@ Agreed with Karthik, 2026-09-05.
 | S5 | **The metric is annual fixed CTC in ₹ LPA.** Variable pay and ESOPs are collected but reported separately | `DECIDED` |
 | S6 | **Moderated.** Client-side validation + honeypot; every row lands as `Pending` and only rows Karthik marks `Approved` enter the build | `DECIDED` |
 | S7 | **Cells with fewer than 5 reports are suppressed** and roll up to Tier, then national | `DECIDED` |
-| S8 | **The dashboard is chart-dense** — a full analytical surface, not one filter and one number | `DECIDED` |
+| S8 | **The dashboard is chart-dense** — a full analytical surface, not one filter and one number | `✅ DONE` |
 | S9 | **No per-cell provenance labels.** No "benchmark estimate" badges, no muted styling for seeded cells, no caveat under each figure. Every number renders identically and confidently | `DECIDED` |
 | S10 | **Creative Director and Design Director are levels, not roles** | `DECIDED` |
 | S11 | **Work mode is a first-class filter** — onsite / hybrid / remote — as is employer location for remote roles | `DECIDED` |
-| S12 | **Monochrome charts.** Sequential white-opacity ramp + emphasis, no categorical hue palette | `DECIDED` |
+| S12 | **Monochrome charts.** Sequential white-opacity ramp + emphasis, no categorical hue palette | `✅ DONE` |
+| S13 | **The dashboard is an app shell** — fixed sidebar, sticky top bar, 12-column card grid | `✅ DONE` |
+| S14 | **`/salary/` carries the logo only, no site nav.** The sidebar role list replaces it | `✅ DONE` |
 
 ### On presentation (S9) — what is and isn't being done
 
@@ -269,7 +271,15 @@ Per S8 this is a dense analytical surface. Fourteen sections, chart-led througho
 
 ### 5.1 Layout
 
-| # | Section | Form | Notes |
+Composition is an app shell, adopted from a reference dashboard: **sidebar** (logo, role
+list, submit CTA, collapse control) · **sticky top bar** (title, view toggle, level ladder,
+four filters) · **12-column card grid**. The reference's light-and-green palette was *not*
+adopted — §9 is dark-only and token-only, so only the composition carried over.
+
+The page does not render `<header class="site-header">`, so `header.js` injects nothing.
+It is the only page on the site without the shared nav.
+
+| # | Card | Span | Notes |
 |---|---|---|---|
 | A | **Hero** | — | Eyebrow / `<h1>` / subtitle, reusing the `.ga-hero` shape |
 | B | **Filter bar** | 6 controls, one row | Role · Level · City · Work mode · Employer · Company type. Sticky on scroll |

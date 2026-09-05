@@ -12,7 +12,8 @@
 (function () {
     "use strict";
 
-    var DATA_URL = "/salary/data/salaries.json?v=20260905-1";
+    var DATA_URL = "/salary/data/salaries.json?v=20260905-2";
+    var COLLAPSE_KEY = "dw_salary_sidebar_collapsed";
 
     var data = null;
 
@@ -179,7 +180,6 @@
 
         var highest = data.highest_city[state.role + "|" + state.level];
         if (highest) {
-            dom.topCityName.textContent = labelFor(data.cities, highest[0]);
             dom.topCityBody.textContent =
                 labelFor(data.cities, highest[0]) + " pays the most for " +
                 labelFor(data.levels, state.level).toLowerCase() + " " +
@@ -377,7 +377,12 @@
     }
 
     function syncControls() {
-        dom.roleSelect.value = state.role;
+        Array.prototype.forEach.call(dom.roleNav.querySelectorAll("[data-role]"), function (button) {
+            var active = button.getAttribute("data-role") === state.role;
+            button.classList.toggle("is-active", active);
+            button.setAttribute("aria-current", active ? "true" : "false");
+        });
+
         dom.citySelect.value = state.city;
         dom.modeSelect.value = state.workMode;
         dom.employerSelect.value = state.employer;
@@ -459,6 +464,23 @@
         select.innerHTML = html;
     }
 
+    function buildRoleNav() {
+        dom.roleNav.innerHTML = data.roles.map(function (role) {
+            return (
+                '<button type="button" class="sal-role-btn" data-role="' + role.id + '" ' +
+                'aria-current="false" title="' + role.label + '">' +
+                '<span class="sal-role-abbr" aria-hidden="true">' + (role.abbr || "•") + "</span>" +
+                '<span class="sal-role-label">' + role.label + "</span></button>"
+            );
+        }).join("");
+
+        dom.roleNav.addEventListener("click", function (event) {
+            var button = event.target.closest("[data-role]");
+            if (!button) return;
+            setState({ role: button.getAttribute("data-role") });
+        });
+    }
+
     function buildLevelLadder() {
         dom.levelLadder.innerHTML = data.levels.map(function (level) {
             return (
@@ -476,9 +498,6 @@
     }
 
     function bindControls() {
-        dom.roleSelect.addEventListener("change", function () {
-            setState({ role: this.value });
-        });
         dom.citySelect.addEventListener("change", function () {
             setState({ city: this.value });
         });
@@ -505,6 +524,17 @@
             });
         });
 
+        dom.collapseBtn.addEventListener("click", function () {
+            var app = document.getElementById("sal-dashboard");
+            var collapsed = app.classList.toggle("is-collapsed");
+            this.setAttribute("aria-expanded", collapsed ? "false" : "true");
+            try {
+                window.localStorage.setItem(COLLAPSE_KEY, collapsed ? "1" : "0");
+            } catch (error) {
+                /* Private mode. The rail just won't be remembered. */
+            }
+        });
+
         // A scrolling page under a fixed tooltip looks broken.
         window.addEventListener("scroll", DWCharts.hideTooltip, { passive: true });
     }
@@ -512,12 +542,13 @@
     function cacheDom() {
         [
             "summary", "kpiMedian", "kpiRange", "kpiTopCity", "kpiTopCityNote", "kpiGrowth",
-            "heroFigure", "rangeBar", "distribution", "histogram", "cityChart", "topCityName",
+            "heroFigure", "rangeBar", "distribution", "histogram", "cityChart",
             "topCityBody", "ladder", "roleChart", "heatmap", "modeChart", "remoteNote",
             "companyChart", "variableMeter", "esopMeter", "variableValue", "esopValue",
             "variableNote", "leaderboard", "tableHead", "tableBody", "tableCaption",
-            "roleSelect", "citySelect", "modeSelect", "employerSelect", "employerField",
-            "companySelect", "levelLadder", "viewToggle", "chartsView", "tableView"
+            "roleNav", "citySelect", "modeSelect", "employerSelect", "employerField",
+            "companySelect", "levelLadder", "viewToggle", "chartsView", "tableView",
+            "sidebar", "collapseBtn"
         ].forEach(function (key) {
             dom[key] = document.getElementById("sal-" + key.replace(/[A-Z]/g, function (match) {
                 return "-" + match.toLowerCase();
@@ -527,7 +558,16 @@
 
     function start() {
         cacheDom();
-        if (!dom.roleSelect) return;
+        if (!dom.roleNav) return;
+
+        try {
+            if (window.localStorage.getItem(COLLAPSE_KEY) === "1") {
+                document.getElementById("sal-dashboard").classList.add("is-collapsed");
+                dom.collapseBtn.setAttribute("aria-expanded", "false");
+            }
+        } catch (error) {
+            /* Private mode. Start expanded. */
+        }
 
         fetch(DATA_URL)
             .then(function (response) {
@@ -537,7 +577,7 @@
             .then(function (payload) {
                 data = payload;
 
-                fillSelect(dom.roleSelect, data.roles, null);
+                buildRoleNav();
                 fillSelect(dom.citySelect, data.cities, "All India");
                 fillSelect(dom.modeSelect, data.work_modes, "Any arrangement");
                 fillSelect(dom.employerSelect, data.employers, "Any employer");

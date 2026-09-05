@@ -34,7 +34,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
     <link rel="stylesheet" href="/style.css?v=20260905-1">
-    <link rel="stylesheet" href="/salary/salary.css?v=20260905-1">
+    <link rel="stylesheet" href="/salary/salary.css?v=20260905-2">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -49,321 +49,321 @@
     }
     </script>
 </head>
-<body>
-    <div class="page-shell">
-        <header class="site-header"></header>
+<body class="sal-body">
 
-        <main class="sal-main">
-            <section class="sal-hero">
-                <div class="stars-field" id="stars-field" aria-hidden="true"></div>
-                <p class="sal-eyebrow">Designer salaries</p>
-                <h1 class="sal-title">What designers<br> actually earn in India</h1>
-                <p class="sal-subtitle">
-                    Salary ranges by role, level, city and work arrangement — from junior
-                    graphic designers to VPs of Design. Free to read, no sign-up, nothing
-                    to submit first.
-                </p>
-            </section>
+<p class="sal-loading" id="sal-loading">Loading salary data…</p>
 
-            <p class="sal-loading" id="sal-loading">Loading salary data…</p>
+<!--
+  This page deliberately does NOT use <header class="site-header">, so header.js
+  injects nothing. It is an app-shaped surface: logo only, and the nav's job is
+  taken over by the role list in the sidebar.
+-->
+<div class="sal-app" id="sal-dashboard" hidden>
 
-            <div id="sal-dashboard" hidden>
+    <!-- Sidebar ─────────────────────────────────────────────────────────── -->
+    <aside class="sal-sidebar" id="sal-sidebar">
+        <a class="sal-brand" href="/" aria-label="Design Wallet home">
+            <img class="sal-brand-logo" src="/public/Logo/Website-logo.svg" alt="Design Wallet" width="132" height="24">
+        </a>
 
-                <!-- Filters ─────────────────────────────────────────────── -->
-                <section class="sal-filters" aria-label="Filter salary data">
-                    <div class="sal-filter-grid">
-                        <div class="sal-field">
-                            <label for="sal-role-select">Role</label>
-                            <select id="sal-role-select"></select>
-                        </div>
-                        <div class="sal-field">
-                            <label for="sal-city-select">City</label>
-                            <select id="sal-city-select"></select>
-                        </div>
-                        <div class="sal-field">
-                            <label for="sal-mode-select">Work mode</label>
-                            <select id="sal-mode-select"></select>
-                        </div>
-                        <div class="sal-field" id="sal-employer-field">
-                            <label for="sal-employer-select">Employer</label>
-                            <select id="sal-employer-select"></select>
-                        </div>
-                        <div class="sal-field">
-                            <label for="sal-company-select">Company type</label>
-                            <select id="sal-company-select"></select>
-                        </div>
-                    </div>
-                    <div class="sal-level-ladder" id="sal-level-ladder" role="group" aria-label="Seniority level"></div>
-                </section>
+        <nav class="sal-role-nav" id="sal-role-nav" aria-label="Design role"></nav>
 
-                <p class="sal-summary" id="sal-summary"></p>
+        <div class="sal-sidebar-foot">
+            <div class="sal-cta-card">
+                <h2>Know a number we don't?</h2>
+                <p>Add your salary anonymously. No name, no email, no company.</p>
+                <a class="sal-cta-btn" href="/salary/submit/">Add your salary</a>
+            </div>
+            <button type="button" class="sal-collapse-btn" id="sal-collapse-btn" aria-expanded="true">
+                <span aria-hidden="true">«</span> <span class="sal-collapse-label">Collapse sidebar</span>
+            </button>
+        </div>
+    </aside>
 
-                <!-- KPI row ─────────────────────────────────────────────── -->
-                <section class="sal-kpis" aria-label="Headline figures">
-                    <div class="sal-kpi">
-                        <p class="sal-kpi-label">Median fixed CTC</p>
-                        <p class="sal-kpi-value" id="sal-kpi-median">—</p>
-                    </div>
-                    <div class="sal-kpi">
-                        <p class="sal-kpi-label">Middle 50% range</p>
-                        <p class="sal-kpi-value" id="sal-kpi-range">—</p>
-                    </div>
-                    <div class="sal-kpi">
-                        <p class="sal-kpi-label">Highest-paying city</p>
-                        <p class="sal-kpi-value" id="sal-kpi-top-city">—</p>
-                        <p class="sal-kpi-note" id="sal-kpi-top-city-note"></p>
-                    </div>
-                    <div class="sal-kpi">
-                        <p class="sal-kpi-label">Junior → Senior growth</p>
-                        <p class="sal-kpi-value" id="sal-kpi-growth">—</p>
-                        <p class="sal-kpi-note">Across this role</p>
-                    </div>
-                </section>
+    <!-- Workspace ───────────────────────────────────────────────────────── -->
+    <div class="sal-workspace">
 
-                <div style="display:flex;justify-content:flex-end;margin-top:24px">
+        <!-- Top bar -->
+        <div class="sal-topbar">
+            <div class="sal-topbar-head">
+                <div>
+                    <h1 class="sal-h1">Designer salaries in India</h1>
+                    <p class="sal-summary" id="sal-summary"></p>
+                </div>
+                <div class="sal-topbar-actions">
                     <div class="sal-view-toggle" id="sal-view-toggle" role="group" aria-label="View mode">
                         <button type="button" class="sal-view-btn is-active" data-view="charts" aria-pressed="true">Charts</button>
                         <button type="button" class="sal-view-btn" data-view="table" aria-pressed="false">Table</button>
                     </div>
+                    <a class="sal-topbar-cta" href="/salary/submit/">Add your salary</a>
                 </div>
-
-                <div id="sal-charts-view">
-
-                    <!-- Headline figure ─────────────────────────────────── -->
-                    <section class="sal-section" aria-label="Salary range">
-                        <div class="sal-panel">
-                            <div class="sal-headline">
-                                <div>
-                                    <p class="sal-hero-figure" id="sal-hero-figure">—</p>
-                                    <p class="sal-hero-caption">median annual fixed CTC</p>
-                                </div>
-                                <div id="sal-range-bar"></div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Distribution ────────────────────────────────────── -->
-                    <section class="sal-section" id="sal-distribution">
-                        <div class="sal-section-head">
-                            <h2>Where people actually land</h2>
-                            <p>The median is one number; this is the spread around it. The lighter band is the middle 50%.</p>
-                        </div>
-                        <div class="sal-panel">
-                            <div id="sal-histogram"></div>
-                        </div>
-                    </section>
-
-                    <!-- Cities ──────────────────────────────────────────── -->
-                    <section class="sal-section">
-                        <div class="sal-section-head">
-                            <h2>By city</h2>
-                            <p>Median for the selected role and level, across every city we cover.</p>
-                        </div>
-                        <div class="sal-panel">
-                            <div id="sal-city-chart"></div>
-                        </div>
-                        <div class="sal-callout">
-                            <h3 id="sal-top-city-name">—</h3>
-                            <p id="sal-top-city-body"></p>
-                        </div>
-                    </section>
-
-                    <!-- Experience ladder ───────────────────────────────── -->
-                    <section class="sal-section">
-                        <div class="sal-section-head">
-                            <h2>How it grows with experience</h2>
-                            <p>The same role from intern to VP. Click any point to jump to that level.</p>
-                        </div>
-                        <div class="sal-panel">
-                            <div class="sal-step" id="sal-ladder"></div>
-                        </div>
-                    </section>
-
-                    <!-- Roles ───────────────────────────────────────────── -->
-                    <section class="sal-section">
-                        <div class="sal-section-head">
-                            <h2>By discipline</h2>
-                            <p>Every design role at the selected level, ranked.</p>
-                        </div>
-                        <div class="sal-panel">
-                            <div id="sal-role-chart"></div>
-                        </div>
-                    </section>
-
-                    <!-- Heatmap ─────────────────────────────────────────── -->
-                    <section class="sal-section">
-                        <div class="sal-section-head">
-                            <h2>Everything at once</h2>
-                            <p>Every role against every level, in ₹ lakh. Brighter is higher. Click a cell to select it.</p>
-                        </div>
-                        <div class="sal-panel">
-                            <div class="sal-heat-wrap">
-                                <div id="sal-heatmap"></div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Work mode ───────────────────────────────────────── -->
-                    <section class="sal-section">
-                        <div class="sal-section-head">
-                            <h2>On-site, hybrid or remote</h2>
-                            <p>National figures for the selected role and level.</p>
-                        </div>
-                        <div class="sal-panel">
-                            <div id="sal-mode-chart"></div>
-                        </div>
-                        <div class="sal-callout">
-                            <h3>The remote exception</h3>
-                            <p id="sal-remote-note"></p>
-                        </div>
-                    </section>
-
-                    <!-- Company type ────────────────────────────────────── -->
-                    <section class="sal-section">
-                        <div class="sal-section-head">
-                            <h2>By type of company</h2>
-                            <p>The same role pays very differently depending on who you work for.</p>
-                        </div>
-                        <div class="sal-panel">
-                            <div id="sal-company-chart"></div>
-                        </div>
-                    </section>
-
-                    <!-- Variable & ESOPs ────────────────────────────────── -->
-                    <section class="sal-section">
-                        <div class="sal-section-head">
-                            <h2>Beyond fixed pay</h2>
-                            <p>Every figure above is fixed CTC only. Variable pay and equity sit on top of it.</p>
-                        </div>
-                        <div class="sal-extras">
-                            <div class="sal-kpi">
-                                <p class="sal-kpi-label">Report variable pay</p>
-                                <p class="sal-kpi-value" id="sal-variable-value">—</p>
-                                <div id="sal-variable-meter"></div>
-                                <p class="sal-kpi-note" id="sal-variable-note"></p>
-                            </div>
-                            <div class="sal-kpi">
-                                <p class="sal-kpi-label">Report ESOPs or equity</p>
-                                <p class="sal-kpi-value" id="sal-esop-value">—</p>
-                                <div id="sal-esop-meter"></div>
-                                <p class="sal-kpi-note">More common at product companies than agencies.</p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Leaderboard ─────────────────────────────────────── -->
-                    <section class="sal-section">
-                        <div class="sal-section-head">
-                            <h2>Highest-paying design jobs in India</h2>
-                            <p>The top ten role, level and city combinations we track.</p>
-                        </div>
-                        <div class="sal-panel">
-                            <div class="sal-table-wrap">
-                                <table class="sal-table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">#</th>
-                                            <th scope="col">Role</th>
-                                            <th scope="col">Level</th>
-                                            <th scope="col">City</th>
-                                            <th scope="col" class="sal-num">Median</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="sal-leaderboard"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- Table view ──────────────────────────────────────────── -->
-                <section class="sal-section" id="sal-table-view" hidden>
-                    <div class="sal-section-head">
-                        <h2>All figures</h2>
-                        <p>Every city and level for the selected role.</p>
-                    </div>
-                    <div class="sal-panel">
-                        <div class="sal-table-wrap">
-                            <table class="sal-table">
-                                <caption id="sal-table-caption"></caption>
-                                <thead id="sal-table-head"></thead>
-                                <tbody id="sal-table-body"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Methodology ─────────────────────────────────────────── -->
-                <section class="sal-section">
-                    <details class="sal-method">
-                        <summary>How these figures are put together</summary>
-                        <div class="sal-method-body">
-                            <p>
-                                <strong>Every number on this page is annual fixed CTC, in ₹ lakh per
-                                annum.</strong> Variable pay, bonuses and equity are excluded from the
-                                headline figures and reported separately, because they vary far more
-                                between companies than fixed pay does.
-                            </p>
-                            <p>
-                                <strong>Figures combine market research with salaries submitted
-                                anonymously by designers.</strong> The research base is drawn from public
-                                job listings, salary aggregators and published Indian design and startup
-                                compensation reports; community submissions replace it for a given role,
-                                level and city once enough have come in.
-                            </p>
-                            <p>
-                                <strong>A city figure is only published once at least five people have
-                                reported it.</strong> Below that it falls back to the wider tier or the
-                                national figure — both to keep the number meaningful and so that nobody
-                                can be identified from a thinly populated cell.
-                            </p>
-                            <p>
-                                <strong>Submissions older than 24 months are dropped</strong>, and
-                                extreme outliers are trimmed before any median is calculated.
-                            </p>
-                            <p>
-                                <strong>Remote roles for employers outside India are kept separate</strong>
-                                from every city and national figure. That cohort earns on a different
-                                curve, and folding it in would inflate numbers most designers here will
-                                never be offered.
-                            </p>
-                            <p>
-                                Treat these as a reference range for a negotiation, not a guarantee.
-                                Company, funding stage, and how well you interview all move the number
-                                more than any table can capture.
-                            </p>
-                        </div>
-                    </details>
-                </section>
-
-                <p class="sal-updated-line">Last updated <span id="sal-updated"></span></p>
             </div>
 
-            <!-- Submit ──────────────────────────────────────────────────── -->
-            <section class="sal-submit-strip">
-                <h2>Submit your salary anonymously</h2>
-                <p>
-                    Help other designers know what their role is worth. No name, no email,
-                    no company — just the numbers. Takes about a minute.
-                </p>
-                <a class="primary-button" href="/salary/submit/">Add your salary</a>
+            <div class="sal-level-ladder" id="sal-level-ladder" role="group" aria-label="Seniority level"></div>
+
+            <div class="sal-filter-grid">
+                <div class="sal-field">
+                    <label for="sal-city-select">City</label>
+                    <select id="sal-city-select"></select>
+                </div>
+                <div class="sal-field">
+                    <label for="sal-mode-select">Work mode</label>
+                    <select id="sal-mode-select"></select>
+                </div>
+                <div class="sal-field" id="sal-employer-field">
+                    <label for="sal-employer-select">Employer</label>
+                    <select id="sal-employer-select"></select>
+                </div>
+                <div class="sal-field">
+                    <label for="sal-company-select">Company type</label>
+                    <select id="sal-company-select"></select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts view ─────────────────────────────────────────────────── -->
+        <div class="sal-grid" id="sal-charts-view">
+
+            <!-- Headline + distribution -->
+            <section class="sal-card sal-card--6 sal-card--hero">
+                <div class="sal-card-head">
+                    <div>
+                        <p class="sal-hero-figure" id="sal-hero-figure">—</p>
+                        <p class="sal-card-sub">Median annual fixed CTC</p>
+                    </div>
+                    <div class="sal-legend">
+                        <span><i class="sal-swatch sal-swatch--mid"></i> Middle 50%</span>
+                        <span><i class="sal-swatch sal-swatch--out"></i> Outside it</span>
+                    </div>
+                </div>
+                <div id="sal-range-bar"></div>
+                <div class="sal-hero-hist" id="sal-distribution">
+                    <div id="sal-histogram"></div>
+                </div>
             </section>
 
-            <section class="sal-section" style="text-align:center">
-                <p class="sal-subtitle">Get new salary data and design resources in your inbox.</p>
-                <form class="newsletter-form" style="justify-content:center">
+            <!-- KPI stack -->
+            <section class="sal-card sal-card--3 sal-card--stats">
+                <div class="sal-stat">
+                    <p class="sal-kpi-label">Middle 50% range</p>
+                    <p class="sal-kpi-value" id="sal-kpi-range">—</p>
+                </div>
+                <div class="sal-stat">
+                    <p class="sal-kpi-label">Median fixed CTC</p>
+                    <p class="sal-kpi-value" id="sal-kpi-median">—</p>
+                </div>
+                <div class="sal-stat">
+                    <p class="sal-kpi-label">Junior → Senior growth</p>
+                    <p class="sal-kpi-value" id="sal-kpi-growth">—</p>
+                    <p class="sal-kpi-note">Across this role</p>
+                </div>
+            </section>
+
+            <!-- Highest-paying city -->
+            <section class="sal-card sal-card--3 sal-card--top">
+                <p class="sal-kpi-label">Highest-paying city</p>
+                <p class="sal-top-city" id="sal-kpi-top-city">—</p>
+                <p class="sal-kpi-note" id="sal-kpi-top-city-note"></p>
+                <hr class="sal-rule">
+                <p class="sal-card-body" id="sal-top-city-body"></p>
+            </section>
+
+            <!-- Experience ladder -->
+            <section class="sal-card sal-card--7">
+                <div class="sal-card-head">
+                    <div>
+                        <h2 class="sal-card-title">How it grows with experience</h2>
+                        <p class="sal-card-sub">Click any point to jump to that level</p>
+                    </div>
+                </div>
+                <div class="sal-step" id="sal-ladder"></div>
+            </section>
+
+            <!-- Cities -->
+            <section class="sal-card sal-card--5">
+                <div class="sal-card-head">
+                    <div>
+                        <h2 class="sal-card-title">By city</h2>
+                        <p class="sal-card-sub">Median for this role and level</p>
+                    </div>
+                </div>
+                <div class="sal-scroll-y" id="sal-city-chart"></div>
+            </section>
+
+            <!-- Disciplines -->
+            <section class="sal-card sal-card--4">
+                <div class="sal-card-head">
+                    <div>
+                        <h2 class="sal-card-title">By discipline</h2>
+                        <p class="sal-card-sub">Every role at this level</p>
+                    </div>
+                </div>
+                <div class="sal-scroll-y" id="sal-role-chart"></div>
+            </section>
+
+            <!-- Work mode -->
+            <section class="sal-card sal-card--4">
+                <div class="sal-card-head">
+                    <div>
+                        <h2 class="sal-card-title">On-site, hybrid or remote</h2>
+                        <p class="sal-card-sub">National figures</p>
+                    </div>
+                </div>
+                <div id="sal-mode-chart"></div>
+                <p class="sal-card-body sal-card-body--tight" id="sal-remote-note"></p>
+            </section>
+
+            <!-- Company type -->
+            <section class="sal-card sal-card--4">
+                <div class="sal-card-head">
+                    <div>
+                        <h2 class="sal-card-title">By type of company</h2>
+                        <p class="sal-card-sub">Who you work for moves the number</p>
+                    </div>
+                </div>
+                <div id="sal-company-chart"></div>
+            </section>
+
+            <!-- Heatmap -->
+            <section class="sal-card sal-card--8">
+                <div class="sal-card-head">
+                    <div>
+                        <h2 class="sal-card-title">Everything at once</h2>
+                        <p class="sal-card-sub">Every role against every level, in ₹ lakh. Brighter is higher — click a cell to select it.</p>
+                    </div>
+                </div>
+                <div class="sal-heat-wrap">
+                    <div id="sal-heatmap"></div>
+                </div>
+            </section>
+
+            <!-- Beyond fixed pay -->
+            <section class="sal-card sal-card--4">
+                <div class="sal-card-head">
+                    <div>
+                        <h2 class="sal-card-title">Beyond fixed pay</h2>
+                        <p class="sal-card-sub">Variable and equity sit on top</p>
+                    </div>
+                </div>
+                <div class="sal-stat">
+                    <p class="sal-kpi-label">Report variable pay</p>
+                    <p class="sal-kpi-value" id="sal-variable-value">—</p>
+                    <div id="sal-variable-meter"></div>
+                    <p class="sal-kpi-note" id="sal-variable-note"></p>
+                </div>
+                <div class="sal-stat">
+                    <p class="sal-kpi-label">Report ESOPs or equity</p>
+                    <p class="sal-kpi-value" id="sal-esop-value">—</p>
+                    <div id="sal-esop-meter"></div>
+                    <p class="sal-kpi-note">More common at product companies than agencies.</p>
+                </div>
+            </section>
+
+            <!-- Leaderboard -->
+            <section class="sal-card sal-card--7">
+                <div class="sal-card-head">
+                    <div>
+                        <h2 class="sal-card-title">Highest-paying design jobs in India</h2>
+                        <p class="sal-card-sub">Top ten role, level and city combinations</p>
+                    </div>
+                </div>
+                <div class="sal-table-wrap">
+                    <table class="sal-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Role</th>
+                                <th scope="col">Level</th>
+                                <th scope="col">City</th>
+                                <th scope="col" class="sal-num">Median</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sal-leaderboard"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Methodology -->
+            <section class="sal-card sal-card--5">
+                <div class="sal-card-head">
+                    <div>
+                        <h2 class="sal-card-title">How these figures are put together</h2>
+                        <p class="sal-card-sub">Worth two minutes before you quote a number</p>
+                    </div>
+                </div>
+                <div class="sal-method-body">
+                    <p>
+                        <strong>Every number here is annual fixed CTC, in ₹ lakh per annum.</strong>
+                        Variable pay, bonuses and equity are excluded from the headline figures and
+                        reported separately, because they vary far more between companies than fixed
+                        pay does.
+                    </p>
+                    <p>
+                        <strong>Figures combine market research with salaries submitted anonymously
+                        by designers.</strong> The research base is drawn from public job listings,
+                        salary aggregators and published Indian design and startup compensation
+                        reports; community submissions replace it for a given role, level and city
+                        once enough have come in.
+                    </p>
+                    <p>
+                        <strong>A city figure is only published once at least five people have
+                        reported it.</strong> Below that it falls back to the wider tier or the
+                        national figure — both to keep the number meaningful and so nobody can be
+                        identified from a thinly populated cell. Submissions older than 24 months are
+                        dropped, and extreme outliers trimmed before any median is calculated.
+                    </p>
+                    <p>
+                        <strong>Remote roles for employers outside India are kept separate</strong>
+                        from every city and national figure. That cohort earns on a different curve,
+                        and folding it in would inflate numbers most designers here will never be
+                        offered.
+                    </p>
+                    <p>
+                        Treat these as a reference range for a negotiation, not a guarantee. Company,
+                        funding stage and how well you interview all move the number more than any
+                        table can capture.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Newsletter -->
+            <section class="sal-card sal-card--12 sal-card--news">
+                <div>
+                    <h2 class="sal-card-title">Get new salary data as it lands</h2>
+                    <p class="sal-card-sub">Plus design resources, occasionally. No spam.</p>
+                </div>
+                <form class="newsletter-form">
                     <input type="email" name="email" placeholder="Email address" aria-label="Email address" required>
                     <button type="submit" class="primary-button">Subscribe</button>
                 </form>
             </section>
-        </main>
-    </div>
 
-    <script src="/content.js?v=20260508-6"></script>
-    <script src="/header.js?v=20260905-1"></script>
-    <script src="/newsletter.js?v=20260824-1"></script>
-    <script src="/stars.js?v=20260901-1"></script>
-    <script src="/salary/charts.js?v=20260905-1"></script>
-    <script src="/salary/salary.js?v=20260905-1"></script>
+            <p class="sal-updated-line sal-card--12">Last updated <span id="sal-updated"></span></p>
+        </div>
+
+        <!-- Table view ──────────────────────────────────────────────────── -->
+        <div class="sal-grid" id="sal-table-view" hidden>
+            <section class="sal-card sal-card--12">
+                <div class="sal-card-head">
+                    <div>
+                        <h2 class="sal-card-title">All figures</h2>
+                        <p class="sal-card-sub">Every city and level for the selected role</p>
+                    </div>
+                </div>
+                <div class="sal-table-wrap">
+                    <table class="sal-table">
+                        <caption id="sal-table-caption"></caption>
+                        <thead id="sal-table-head"></thead>
+                        <tbody id="sal-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<script src="/newsletter.js?v=20260824-1"></script>
+<script src="/salary/charts.js?v=20260905-2"></script>
+<script src="/salary/salary.js?v=20260905-2"></script>
 </body>
 </html>

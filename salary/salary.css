@@ -27,108 +27,486 @@
     --sal-grid: rgba(var(--fg-rgb), 0.12);
 
     --sal-heat-label: 118px;
+    --sal-sidebar-w: 232px;
 }
 
-/* ── shell ───────────────────────────────────────────────────────────────── */
+/* ── app shell ───────────────────────────────────────────────────────────────
+   Dashboard composition: fixed sidebar, workspace with a sticky top bar, and a
+   12-column card grid. This page does NOT render .site-header — it carries the
+   logo in the sidebar and lets the role list do the nav's job, so header.js
+   injects nothing here.
+   ──────────────────────────────────────────────────────────────────────────── */
 
-.sal-main {
-    /* The global width cap in style.css is an explicit selector list this page
-       does not match, so it sets its own. Wider than /good-deals/ — the heatmap
-       and the leaderboard need the room. */
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 56px 24px 96px;
+.sal-body {
+    background: var(--surface-0);
+    min-height: 100vh;
 }
 
-.sal-section {
-    margin-top: 64px;
+/* style.css paints a fixed decorative layer over the whole viewport; at this
+   density it muddies every card edge. */
+.sal-body::before {
+    display: none;
 }
 
-.sal-section-head {
-    margin-bottom: 20px;
+.sal-app {
+    display: grid;
+    grid-template-columns: var(--sal-sidebar-w) minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+    min-height: 100vh;
+    align-items: start;
 }
 
-.sal-section-head h2 {
-    font-weight: 300;
-    font-size: clamp(1.25rem, 2.4vw, 1.6rem);
-    letter-spacing: -0.015em;
-    color: var(--text);
-    margin: 0 0 6px;
+.sal-app.is-collapsed {
+    --sal-sidebar-w: 74px;
 }
 
-.sal-section-head p {
-    color: var(--muted);
-    font-size: 0.92rem;
-    margin: 0;
-    max-width: 62ch;
-}
+/* ── sidebar ─────────────────────────────────────────────────────────────── */
 
-.sal-panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 24px;
-}
-
-/* ── hero ────────────────────────────────────────────────────────────────── */
-
-.sal-hero {
-    position: relative;
-    overflow: hidden;
-    text-align: center;
-    padding-bottom: 8px;
-}
-
-/* .stars-field is z-index 0 and would paint over the copy. Lifting every
-   sibling keeps the stars behind the text without restructuring the markup —
-   the same fix /good-deals/ uses. */
-.sal-hero > :not(.stars-field) {
-    position: relative;
-    z-index: 1;
-}
-
-.sal-eyebrow {
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    font-size: 0.72rem;
-    color: var(--muted);
-    margin: 0 0 18px;
-}
-
-.sal-title {
-    font-weight: 200;
-    font-size: clamp(2rem, 5vw, 3.4rem);
-    line-height: 1.08;
-    letter-spacing: -0.02em;
-    color: var(--text);
-    margin: 0 auto 20px;
-}
-
-.sal-subtitle {
-    max-width: 56ch;
-    color: var(--muted);
-    font-size: 1.02rem;
-    margin: 0 auto 28px;
-}
-
-/* ── filters ─────────────────────────────────────────────────────────────── */
-
-.sal-filters {
+.sal-sidebar {
     position: sticky;
     top: 12px;
-    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    height: calc(100vh - 24px);
+    padding: 22px 16px 16px;
     background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.sal-brand {
+    display: block;
+    padding: 0 8px;
+    flex: 0 0 auto;
+}
+
+.sal-brand-logo {
+    display: block;
+    height: 24px;
+    width: auto;
+}
+
+.is-collapsed .sal-brand-logo {
+    /* The wordmark is one SVG, so a collapsed rail crops to the glyph. */
+    width: 26px;
+    object-fit: cover;
+    object-position: left center;
+}
+
+.sal-role-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    margin: 0 -4px;
+    padding: 0 4px;
+    scrollbar-width: thin;
+}
+
+.sal-role-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    background: none;
+    border: 0;
+    border-radius: var(--radius-sm);
+    color: var(--muted);
+    font-family: "Geist", sans-serif;
+    font-size: 0.88rem;
+    text-align: left;
+    padding: 9px 10px;
+    cursor: pointer;
+    transition: background 0.14s ease, color 0.14s ease;
+    white-space: nowrap;
+}
+
+.sal-role-btn:hover {
+    background: var(--panel-soft);
+    color: var(--text);
+}
+
+.sal-role-btn.is-active {
+    background: var(--surface-4);
+    color: var(--text);
+}
+
+/* The active rail marker — the one non-recessive thing in the sidebar. */
+.sal-role-btn.is-active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 3px;
+    height: 20px;
+    border-radius: 0 2px 2px 0;
+    background: var(--pure);
+}
+
+.sal-role-btn {
+    position: relative;
+}
+
+/* Collapsed, this is the only thing identifying a role, so it carries an
+   abbreviation rather than a decorative dot — a rail of identical dots is not
+   navigable. Expanded, it reads as a quiet marker beside the full label. */
+.sal-role-abbr {
+    flex: 0 0 auto;
+    min-width: 22px;
+    text-align: center;
+    font-family: "Geist Mono", "Geist", monospace;
+    font-size: 0.64rem;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    background: var(--sal-track);
+    border-radius: 4px;
+    padding: 3px 4px;
+}
+
+.sal-role-btn.is-active .sal-role-abbr {
+    background: var(--pure);
+    color: var(--bg);
+}
+
+.is-collapsed .sal-role-label,
+.is-collapsed .sal-cta-card,
+.is-collapsed .sal-collapse-label {
+    display: none;
+}
+
+.is-collapsed .sal-role-btn {
+    justify-content: center;
+    padding: 9px 0;
+}
+
+.is-collapsed .sal-role-abbr {
+    font-size: 0.7rem;
+    padding: 5px 6px;
+}
+
+/* The rail marker would sit on top of the abbreviation at this width. */
+.is-collapsed .sal-role-btn.is-active::before {
+    display: none;
+}
+
+.sal-sidebar-foot {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sal-cta-card {
+    background: var(--surface-4);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 16px;
-    margin-top: 40px;
-    box-shadow: var(--shadow);
 }
+
+.sal-cta-card h2 {
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--text);
+    margin: 0 0 6px;
+    line-height: 1.35;
+}
+
+.sal-cta-card p {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 0 0 14px;
+    line-height: 1.5;
+}
+
+.sal-cta-btn {
+    display: block;
+    text-align: center;
+    background: var(--pure);
+    color: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    font-size: 0.84rem;
+    text-decoration: none;
+}
+
+.sal-collapse-btn {
+    background: none;
+    border: 0;
+    color: var(--muted);
+    font-family: "Geist", sans-serif;
+    font-size: 0.8rem;
+    text-align: left;
+    padding: 8px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.sal-collapse-btn:hover {
+    color: var(--text);
+}
+
+/* ── workspace ───────────────────────────────────────────────────────────── */
+
+.sal-workspace {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sal-topbar {
+    position: sticky;
+    top: 12px;
+    z-index: 30;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sal-topbar-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.sal-h1 {
+    font-size: 1.24rem;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    color: var(--text);
+    margin: 0;
+}
+
+.sal-summary {
+    color: var(--muted);
+    font-size: 0.86rem;
+    margin: 4px 0 0;
+}
+
+.sal-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sal-topbar-cta {
+    background: var(--pure);
+    color: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 9px 16px;
+    font-size: 0.84rem;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+/* ── card grid ───────────────────────────────────────────────────────────── */
+
+.sal-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 12px;
+    align-items: start;
+}
+
+.sal-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 22px;
+    min-width: 0;
+}
+
+.sal-card--3  { grid-column: span 3; }
+.sal-card--4  { grid-column: span 4; }
+.sal-card--5  { grid-column: span 5; }
+.sal-card--6  { grid-column: span 6; }
+.sal-card--7  { grid-column: span 7; }
+.sal-card--8  { grid-column: span 8; }
+.sal-card--12 { grid-column: span 12; }
+
+.sal-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.sal-card-title {
+    font-size: 0.98rem;
+    font-weight: 400;
+    color: var(--text);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.sal-card-sub {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 4px 0 0;
+    line-height: 1.5;
+}
+
+.sal-card-body {
+    font-size: 0.84rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.sal-card-body--tight {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--sal-grid);
+    font-size: 0.79rem;
+}
+
+.sal-rule {
+    border: 0;
+    border-top: 1px solid var(--sal-grid);
+    margin: 18px 0 16px;
+}
+
+/* Cards that need their own inner rhythm. */
+.sal-card--hero .sal-card-head {
+    margin-bottom: 22px;
+}
+
+.sal-hero-hist {
+    margin-top: 26px;
+}
+
+.sal-card--stats,
+.sal-card--top {
+    display: flex;
+    flex-direction: column;
+}
+
+.sal-card--stats {
+    gap: 0;
+    justify-content: space-between;
+    padding: 0;
+}
+
+.sal-card--stats .sal-stat {
+    padding: 17px 22px;
+}
+
+.sal-card--stats .sal-stat + .sal-stat {
+    border-top: 1px solid var(--sal-grid);
+    /* This card separates with a rule and its own padding — the generic
+       .sal-stat margin would stack on top of both. */
+    margin-top: 0;
+}
+
+.sal-stat + .sal-stat {
+    margin-top: 18px;
+}
+
+.sal-card--news {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.sal-card--news .newsletter-form {
+    margin: 0;
+}
+
+/* A tall list inside a fixed-height card scrolls rather than stretching the row. */
+.sal-scroll-y {
+    max-height: 330px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    margin: 0 -4px;
+    padding: 0 4px;
+}
+
+/* ── figures ─────────────────────────────────────────────────────────────── */
+
+.sal-hero-figure {
+    font-size: clamp(2.2rem, 4vw, 3rem);
+    font-weight: 200;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    color: var(--text);
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.sal-top-city {
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin: 8px 0 0;
+}
+
+.sal-kpi-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin: 0;
+}
+
+.sal-kpi-value {
+    font-size: 1.42rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin: 8px 0 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.sal-kpi-note {
+    font-size: 0.76rem;
+    color: var(--muted);
+    margin: 6px 0 0;
+    line-height: 1.5;
+}
+
+.sal-legend {
+    display: flex;
+    gap: 14px;
+    font-size: 0.74rem;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.sal-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sal-swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+.sal-swatch--mid { background: var(--sal-ramp-3); }
+.sal-swatch--out { background: var(--sal-ramp-1); }
+
+/* ── filters ─────────────────────────────────────────────────────────────── */
 
 .sal-filter-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
+    gap: 10px;
 }
 
 .sal-field {
@@ -139,7 +517,7 @@
 }
 
 .sal-field label {
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--muted);
@@ -153,12 +531,12 @@
     border-radius: var(--radius-sm);
     color: var(--text);
     font-family: "Geist", sans-serif;
-    font-size: 0.9rem;
-    padding: 10px 32px 10px 12px;
+    font-size: 0.86rem;
+    padding: 9px 30px 9px 12px;
     cursor: pointer;
     background-image: linear-gradient(45deg, transparent 50%, var(--muted-strong) 50%),
                       linear-gradient(135deg, var(--muted-strong) 50%, transparent 50%);
-    background-position: calc(100% - 17px) 50%, calc(100% - 12px) 50%;
+    background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
     background-size: 5px 5px, 5px 5px;
     background-repeat: no-repeat;
 }
@@ -176,6 +554,8 @@
 .sal-field select:focus-visible,
 .sal-level-btn:focus-visible,
 .sal-view-btn:focus-visible,
+.sal-role-btn:focus-visible,
+.sal-collapse-btn:focus-visible,
 .sal-bar-row:focus-visible,
 .sal-step-node:focus-visible,
 .sal-heat-cell:focus-visible {
@@ -188,9 +568,8 @@
 .sal-level-ladder {
     display: flex;
     gap: 6px;
-    margin-top: 14px;
     overflow-x: auto;
-    padding-bottom: 4px;
+    padding-bottom: 2px;
     scrollbar-width: thin;
 }
 
@@ -199,21 +578,21 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 2px;
+    gap: 1px;
     background: var(--surface-4);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     color: var(--muted-strong);
     font-family: "Geist", sans-serif;
-    font-size: 0.84rem;
-    padding: 9px 13px;
+    font-size: 0.82rem;
+    padding: 8px 13px;
     cursor: pointer;
     white-space: nowrap;
     transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
 }
 
 .sal-level-btn small {
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     color: var(--muted);
 }
 
@@ -264,75 +643,44 @@
     color: var(--bg);
 }
 
-/* ── summary + KPIs ──────────────────────────────────────────────────────── */
+/* ── methodology ─────────────────────────────────────────────────────────── */
 
-.sal-summary {
+.sal-method-body {
     color: var(--muted);
+    font-size: 0.82rem;
+    line-height: 1.65;
+}
+
+.sal-method-body p {
+    margin: 0 0 11px;
+}
+
+.sal-method-body p:last-child {
+    margin-bottom: 0;
+}
+
+.sal-method-body strong {
+    color: var(--muted-strong);
+    font-weight: 500;
+}
+
+/* ── loading / footer line ───────────────────────────────────────────────── */
+
+.sal-loading {
+    text-align: center;
+    color: var(--muted);
+    padding: 96px 24px;
     font-size: 0.92rem;
-    margin: 28px 0 16px;
 }
 
-.sal-kpis {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    gap: 12px;
-}
-
-.sal-kpi {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 18px 20px;
-}
-
-.sal-kpi-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
+.sal-updated-line {
     color: var(--muted);
-    margin: 0 0 10px;
+    font-size: 0.74rem;
+    text-align: center;
+    margin: 4px 0 8px;
 }
 
-.sal-kpi-value {
-    font-size: 1.55rem;
-    font-weight: 300;
-    letter-spacing: -0.02em;
-    color: var(--text);
-    margin: 0;
-    font-variant-numeric: tabular-nums;
-}
-
-.sal-kpi-note {
-    font-size: 0.78rem;
-    color: var(--muted);
-    margin: 4px 0 0;
-}
-
-/* ── hero figure + range bar ─────────────────────────────────────────────── */
-
-.sal-headline {
-    display: grid;
-    grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
-    gap: 32px;
-    align-items: center;
-    margin-top: 12px;
-}
-
-.sal-hero-figure {
-    font-size: clamp(2.6rem, 6vw, 4rem);
-    font-weight: 200;
-    letter-spacing: -0.035em;
-    line-height: 1;
-    color: var(--text);
-    margin: 0;
-    font-variant-numeric: tabular-nums;
-}
-
-.sal-hero-caption {
-    color: var(--muted);
-    font-size: 0.85rem;
-    margin: 8px 0 0;
-}
+/* ── range bar ───────────────────────────────────────────────────────────── */
 
 .sal-range-track {
     position: relative;
@@ -340,6 +688,7 @@
     background: var(--sal-track);
     border-radius: 7px;
     cursor: default;
+    margin-top: 4px;
 }
 
 .sal-range-fill {
@@ -767,32 +1116,6 @@
     font-weight: 500;
 }
 
-/* ── submit strip ────────────────────────────────────────────────────────── */
-
-.sal-submit-strip {
-    margin-top: 72px;
-    text-align: center;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 44px 28px;
-}
-
-.sal-submit-strip h2 {
-    font-weight: 200;
-    font-size: clamp(1.5rem, 3.4vw, 2.2rem);
-    letter-spacing: -0.02em;
-    color: var(--text);
-    margin: 0 0 12px;
-}
-
-.sal-submit-strip p {
-    color: var(--muted);
-    max-width: 52ch;
-    margin: 0 auto 24px;
-    font-size: 0.96rem;
-}
-
 /* ── tooltip ─────────────────────────────────────────────────────────────── */
 
 .sal-tooltip {
@@ -831,6 +1154,48 @@
     font-size: 0.78rem;
     text-align: center;
     margin-top: 56px;
+}
+
+/* ── submission page shell ───────────────────────────────────────────────── */
+
+.sal-main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+}
+
+.sal-main--narrow {
+    max-width: 780px;
+}
+
+.sal-hero {
+    position: relative;
+    text-align: center;
+    padding-bottom: 8px;
+}
+
+.sal-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin: 0 0 18px;
+}
+
+.sal-title {
+    font-weight: 200;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin: 0 auto 20px;
+}
+
+.sal-subtitle {
+    max-width: 56ch;
+    color: var(--muted);
+    font-size: 1.02rem;
+    margin: 0 auto 28px;
 }
 
 /* ── submission form ─────────────────────────────────────────────────────── */
@@ -981,24 +1346,101 @@
 
 /* ── responsive ──────────────────────────────────────────────────────────── */
 
-@media (max-width: 900px) {
-    .sal-headline {
-        grid-template-columns: 1fr;
-        gap: 20px;
+/* Below this the 12-column grid stops being readable: five-column cards get
+   ~180px each. Collapse to six columns and let cards pair up. */
+@media (max-width: 1280px) {
+    .sal-card--3,
+    .sal-card--4,
+    .sal-card--5 { grid-column: span 6; }
+    .sal-card--6,
+    .sal-card--7,
+    .sal-card--8 { grid-column: span 12; }
+}
+
+/* Sidebar becomes a horizontal rail above the workspace. */
+@media (max-width: 1000px) {
+    .sal-app {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 10px;
+    }
+
+    .sal-sidebar {
+        position: static;
+        height: auto;
+        flex-direction: row;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 14px;
+    }
+
+    .sal-role-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        flex: 1 1 auto;
+    }
+
+    .sal-role-btn {
+        padding: 8px 12px;
+    }
+
+    /* The rail marker is a left edge; horizontally it belongs underneath. */
+    .sal-role-btn.is-active::before {
+        left: 10px;
+        right: 10px;
+        bottom: 2px;
+        top: auto;
+        width: auto;
+        height: 2px;
+        border-radius: 2px;
+    }
+
+    .sal-sidebar-foot,
+    .sal-collapse-btn {
+        display: none;
+    }
+
+    .sal-topbar {
+        top: 10px;
     }
 }
 
 @media (max-width: 760px) {
-    .sal-main {
-        padding: 40px 16px 72px;
+    .sal-app {
+        padding: 8px;
+        gap: 8px;
     }
 
-    .sal-section {
-        margin-top: 48px;
+    .sal-grid {
+        gap: 8px;
     }
 
-    .sal-filters {
+    .sal-card { padding: 16px; }
+    .sal-card--3,
+    .sal-card--4,
+    .sal-card--5,
+    .sal-card--6,
+    .sal-card--7,
+    .sal-card--8 { grid-column: span 12; }
+
+    .sal-topbar {
         position: static;
+        padding: 16px;
+    }
+
+    .sal-topbar-head {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+    }
+
+    .sal-topbar-actions {
+        justify-content: space-between;
+    }
+
+    .sal-card--hero .sal-card-head {
+        flex-direction: column;
+        gap: 12px;
     }
 
     .sal-bar-row {
@@ -1015,8 +1457,8 @@
         height: 165px;
     }
 
-    /* Eight ticks will not fit; the tooltip and the ladder buttons above still
-       name every level, so dropping the axis labels loses nothing. */
+    /* Eight ticks will not fit; the ladder buttons and the tooltip still name
+       every level, so dropping the axis labels loses nothing. */
     .sal-step-axis {
         display: none;
     }
@@ -1027,11 +1469,20 @@
         height: 100%;
     }
 
-    .sal-panel {
-        padding: 18px 16px;
+    .sal-card--news {
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    .sal-submit-strip {
-        padding: 34px 20px;
+    .sal-scroll-y {
+        max-height: none;
+    }
+}
+
+/* ── submission page (/salary/submit/) ───────────────────────────────────── */
+
+@media (max-width: 760px) {
+    .sal-main {
+        padding: 40px 16px 72px;
     }
 }

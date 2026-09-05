@@ -26,17 +26,17 @@
   ],
 
   "roles": [
-    { "id": "product-designer", "label": "Product Designer (UI/UX)", "short": "Product" },
-    { "id": "ux-researcher", "label": "UX Researcher", "short": "Research" },
-    { "id": "design-systems-designer", "label": "Design Systems Designer", "short": "Design systems" },
-    { "id": "visual-designer", "label": "Visual Designer", "short": "Visual" },
-    { "id": "brand-designer", "label": "Brand / Identity Designer", "short": "Brand" },
-    { "id": "3d-designer", "label": "3D Designer", "short": "3D" },
-    { "id": "motion-designer", "label": "Motion Designer", "short": "Motion" },
-    { "id": "graphic-designer", "label": "Graphic Designer", "short": "Graphic" },
-    { "id": "illustrator", "label": "Illustrator", "short": "Illustration" },
-    { "id": "animator", "label": "Animator", "short": "Animation" },
-    { "id": "video-editor", "label": "Video Editor", "short": "Video" }
+    { "id": "product-designer", "label": "Product Designer (UI/UX)", "short": "Product", "abbr": "PD" },
+    { "id": "ux-researcher", "label": "UX Researcher", "short": "Research", "abbr": "UXR" },
+    { "id": "design-systems-designer", "label": "Design Systems Designer", "short": "Design systems", "abbr": "DS" },
+    { "id": "visual-designer", "label": "Visual Designer", "short": "Visual", "abbr": "VD" },
+    { "id": "brand-designer", "label": "Brand / Identity Designer", "short": "Brand", "abbr": "BD" },
+    { "id": "3d-designer", "label": "3D Designer", "short": "3D", "abbr": "3D" },
+    { "id": "motion-designer", "label": "Motion Designer", "short": "Motion", "abbr": "MD" },
+    { "id": "graphic-designer", "label": "Graphic Designer", "short": "Graphic", "abbr": "GD" },
+    { "id": "illustrator", "label": "Illustrator", "short": "Illustration", "abbr": "IL" },
+    { "id": "animator", "label": "Animator", "short": "Animation", "abbr": "AN" },
+    { "id": "video-editor", "label": "Video Editor", "short": "Video", "abbr": "VE" }
   ],
 
   "levels": [
