@@ -1017,7 +1017,9 @@ Karthik: *"Take everything live."* This ships the salary dashboard (**Know your 
 - **Pre-flight, all local against the dev server:** every JS file passes `node --check` · `check-layout.js` passes · `sitemap.xml` is well-formed · **19 routes load 200 with no page errors and no horizontal overflow** · **542 internal links, 0 broken** · 0 failed same-origin assets.
 - **Deliberately left out of the commit:** the sync-duplicate `* (1).*` files (`index (1).html`, `style (1).css`, `header (1).js`, `.claude/DECISIONS (1).md`, …) and `public/testimonial images/` (124 MB, deleted on 2026-09-01 and reappeared on disk untracked).
 - **`⚠️ GOTCHA` A duplicate ref, `.git/refs/heads/remove-paywall (1)`, breaks `git fetch`** ("bad object … did not send all necessary objects"). It looks like a file-sync copy, like the `(1)` files. `git ls-remote` works around it. Not deleted, since it wasn't part of the ask.
-- **Mechanism unchanged:** `git push origin remove-paywall:main`, a fast-forward from `685d7c3`.
+- **Mechanism unchanged:** `git push origin remove-paywall:main`, a fast-forward from `685d7c3` to **`90d7fbc`**, with `origin/remove-paywall` pushed first as a backup. Commits: `aaca641` (the release) and `90d7fbc` (untrack the duplicates).
+- **`⚠️ GOTCHA` 8 sync-duplicate pages were already tracked** (`blog/index (1).html`, `books/index (1).html`, …), added by an earlier branch commit and never on `main`. The push would have published them as stray URLs, so they were `git rm --cached` first; the files stay on disk. **Before every deploy, check `git diff --name-status origin/main HEAD | grep "(1)"`.**
+- **Verified in production:** 20 routes return 200, including `/salary/`, `/salary/submit/`, the glass generator, `/list-your-tool/`, `/changelog/` and its screenshots · the duplicate URLs 404 · the site ships `DW_VERSION = "v2.2"`. In headless Chrome on designwallet.in: the capsule reads v2.2, **483 tool links with 0 double-tagged**, the drop-up has its 3 links, and `/salary/` fetched the Apps Script cross-origin from the real domain (200) and applied it with no page errors. Pages took ~50s.
 
 ---
 
