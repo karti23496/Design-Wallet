@@ -5,7 +5,8 @@
   "scripts": {
     "build-blog": "node scripts/build-blog.js",
     "build-salary": "node scripts/build-salary.js",
-    "dev": "node scripts/dev-server.js"
+    "dev": "node scripts/dev-server.js",
+    "changelog-shot": "node scripts/changelog-screenshot.js"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.15",

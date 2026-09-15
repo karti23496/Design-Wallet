@@ -33,8 +33,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/style.css?v=20260905-1">
-    <link rel="stylesheet" href="/salary/salary.css?v=20260905-4">
+    <link rel="stylesheet" href="/style.css?v=20260915-1">
+    <link rel="stylesheet" href="/salary/salary.css?v=20260915-2">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -88,15 +88,23 @@
             <div class="sal-topbar-head">
                 <div>
                     <h1 class="sal-h1">Know your money</h1>
-                    <p class="sal-h1-sub">What designers actually earn in India</p>
                     <p class="sal-summary" id="sal-summary"></p>
                 </div>
+                <div class="sal-topbar-side">
                 <div class="sal-topbar-actions">
                     <div class="sal-view-toggle" id="sal-view-toggle" role="group" aria-label="View mode">
                         <button type="button" class="sal-view-btn is-active" data-view="charts" aria-pressed="true">Charts</button>
                         <button type="button" class="sal-view-btn" data-view="table" aria-pressed="false">Table</button>
                     </div>
+                    <button type="button" class="sal-export-btn" id="sal-export-btn" title="Download a five-page PDF of the current selection">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 3v12M7 11l5 5 5-5M4 20h16"/>
+                        </svg>
+                        <span class="sal-export-label">Export PDF</span>
+                    </button>
                     <a class="sal-topbar-cta" href="/salary/submit/">Add your salary</a>
+                </div>
+                <p class="sal-topbar-note">All the data are real-time. Based on community's input</p>
                 </div>
             </div>
 
@@ -104,14 +112,14 @@
 
             <div class="sal-filter-grid">
                 <div class="sal-field">
-                    <label for="sal-city-select">City</label>
+                    <label for="sal-city-select" id="sal-city-label">City</label>
                     <select id="sal-city-select"></select>
                 </div>
                 <div class="sal-field">
                     <label for="sal-mode-select">Work mode</label>
                     <select id="sal-mode-select"></select>
                 </div>
-                <div class="sal-field" id="sal-employer-field">
+                <div class="sal-field">
                     <label for="sal-employer-select">Employer</label>
                     <select id="sal-employer-select"></select>
                 </div>
@@ -129,8 +137,14 @@
             <section class="sal-card sal-card--6 sal-card--hero">
                 <div class="sal-card-head">
                     <div>
-                        <p class="sal-hero-figure" id="sal-hero-figure">—</p>
-                        <p class="sal-card-sub">Median annual fixed CTC</p>
+                        <div class="sal-hero-row">
+                            <p class="sal-hero-figure" id="sal-hero-figure">—</p>
+                            <div class="sal-currency-toggle" id="sal-currency-toggle" role="group" aria-label="Currency">
+                                <button type="button" class="sal-currency-btn is-active" data-currency="inr" aria-pressed="true">INR</button>
+                                <button type="button" class="sal-currency-btn" data-currency="usd" aria-pressed="false">USD</button>
+                            </div>
+                        </div>
+                        <p class="sal-card-sub" id="sal-hero-sub">Median annual fixed CTC</p>
                     </div>
                     <div class="sal-legend">
                         <span><i class="sal-swatch sal-swatch--mid"></i> Middle 50%</span>
@@ -148,12 +162,12 @@
                 <div class="sal-stat">
                     <p class="sal-kpi-label">Middle 50% range
                         <button type="button" class="sal-info" aria-label="What does the middle 50% mean?"
-                            data-info="<strong>Half of designers in this role earn inside this band.</strong><br>A quarter earn less than the lower figure, a quarter earn more than the higher one. It is a fairer guide than an average, which a handful of very large salaries can drag upwards.">i</button>
+                            data-info="<strong>Most of designers in this role earn inside this band. A quarter earn less than the lower figure, a quarter earn more than the higher one. It is a fairer guide than an average, which a handful of very large salaries can drag upwards.">i</button>
                     </p>
                     <p class="sal-kpi-value" id="sal-kpi-range">—</p>
                 </div>
                 <div class="sal-stat">
-                    <p class="sal-kpi-label">Median fixed CTC</p>
+                    <p class="sal-kpi-label" id="sal-kpi-median-label">Median fixed CTC</p>
                     <p class="sal-kpi-value" id="sal-kpi-median">—</p>
                 </div>
                 <div class="sal-stat">
@@ -165,7 +179,7 @@
 
             <!-- Highest-paying city -->
             <section class="sal-card sal-card--3 sal-card--top">
-                <p class="sal-kpi-label">Highest-paying city</p>
+                <p class="sal-kpi-label" id="sal-kpi-top-label">Highest-paying city</p>
                 <p class="sal-top-city" id="sal-kpi-top-city">—</p>
                 <p class="sal-kpi-note" id="sal-kpi-top-city-note"></p>
                 <hr class="sal-rule">
@@ -187,8 +201,8 @@
             <section class="sal-card sal-card--5">
                 <div class="sal-card-head">
                     <div>
-                        <h2 class="sal-card-title">By city</h2>
-                        <p class="sal-card-sub">Median for this role and level</p>
+                        <h2 class="sal-card-title" id="sal-city-title">By city</h2>
+                        <p class="sal-card-sub" id="sal-city-sub">Median for this role and level</p>
                     </div>
                 </div>
                 <div class="sal-scroll-y" id="sal-city-chart"></div>
@@ -210,7 +224,7 @@
                 <div class="sal-card-head">
                     <div>
                         <h2 class="sal-card-title">On-site, hybrid or remote</h2>
-                        <p class="sal-card-sub">National figures</p>
+                        <p class="sal-card-sub" id="sal-mode-sub">National figures</p>
                     </div>
                 </div>
                 <div id="sal-mode-chart"></div>
@@ -233,7 +247,7 @@
                 <div class="sal-card-head">
                     <div>
                         <h2 class="sal-card-title">Everything at once</h2>
-                        <p class="sal-card-sub">Every role against every level, in ₹ lakh. Brighter is higher — click a cell to select it.</p>
+                        <p class="sal-card-sub">Every role against every level, <span id="sal-heat-unit">in ₹ lakh</span>. Brighter is higher — click a cell to select it.</p>
                     </div>
                 </div>
                 <div class="sal-heat-wrap">
@@ -323,6 +337,14 @@
                         offered.
                     </p>
                     <p>
+                        <strong>Country figures appear when the employer is set to foreign.</strong>
+                        They are annual base salary in each market, from the same kinds of public
+                        sources, and are research estimates only — the submission form collects
+                        Indian cities, so no community reports feed them yet. The USD switch
+                        converts at a fixed rate of ₹<span id="sal-fx-rate"></span> to the dollar
+                        (<span id="sal-fx-date"></span>).
+                    </p>
+                    <p>
                         Treat these as a reference range for a negotiation, not a guarantee. Company,
                         funding stage and how well you interview all move the number more than any
                         table can capture.
@@ -351,7 +373,7 @@
                 <div class="sal-card-head">
                     <div>
                         <h2 class="sal-card-title">All figures</h2>
-                        <p class="sal-card-sub">Every city and level for the selected role</p>
+                        <p class="sal-card-sub" id="sal-table-sub">Every city and level for the selected role</p>
                     </div>
                 </div>
                 <div class="sal-table-wrap">
@@ -367,7 +389,11 @@
 </div>
 
 <script src="/newsletter.js?v=20260824-1"></script>
-<script src="/salary/charts.js?v=20260905-3"></script>
-<script src="/salary/salary.js?v=20260905-3"></script>
+<script src="/salary/endpoint.js?v=20260915-1"></script>
+<script src="/salary/charts.js?v=20260915-1"></script>
+<script src="/salary/fonts/inter-metrics.js?v=20260913-4"></script>
+<script src="/salary/pdf-writer.js?v=20260913-4"></script>
+<script src="/salary/report.js?v=20260915-1"></script>
+<script src="/salary/salary.js?v=20260915-2"></script>
 </body>
 </html>

@@ -1,0 +1,230 @@
+/* ============================================================================
+   Changelog page (/changelog/).
+   Layout follows pikaicons.com/changelog: a centred heading, then one row per
+   version — version and date in a sticky left column, title, screenshot and
+   notes on the right. Stacks to one column on narrow screens. Uses the global
+   tokens from /style.css.
+   ============================================================================ */
+
+.cl-main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 72px 24px 120px;
+}
+
+/* ── Heading ──────────────────────────────────────────────────────────── */
+.cl-hero {
+    position: relative;          /* anchors the absolutely-positioned starfield */
+    overflow: hidden;            /* orbits run up to ~1000px wide — clip them */
+    padding-block: 72px;         /* room for the stars around a two-line heading */
+    margin: -32px 0 64px;
+    text-align: center;
+}
+
+/* The field sits at z-index 0 and would paint over in-flow copy; lift the
+   heading and lede above it, as on Good deals and List your tool. */
+.cl-hero > :not(.stars-field) {
+    position: relative;
+    z-index: 1;
+}
+
+.cl-heading {
+    font-family: "Geist", sans-serif;
+    font-weight: 200;
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    margin: 0 0 14px;
+}
+
+.cl-lede {
+    color: var(--muted);
+    font-size: 1.02rem;
+    margin: 0;
+}
+
+/* ── Major version groups ─────────────────────────────────────────────
+   "Version 2", "Version 1": newest major first, each holding its own
+   releases. */
+.cl-major + .cl-major {
+    margin-top: 40px;
+}
+
+.cl-major-title {
+    font-family: "Geist", sans-serif;
+    font-weight: 200;
+    font-size: clamp(1.9rem, 4vw, 2.8rem);
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    margin: 0 0 56px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-strong);
+    scroll-margin-top: 120px;
+}
+
+/* ── Entries ──────────────────────────────────────────────────────────── */
+.cl-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.cl-entry {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 48px;
+    padding-bottom: 96px;
+    scroll-margin-top: 120px;
+}
+
+/* No rule between releases — the only dividers are under the "Version N"
+   headings. */
+.cl-entry + .cl-entry {
+    padding-top: 24px;
+}
+
+/* Version and date ride alongside the entry while you read it. */
+.cl-meta {
+    position: sticky;
+    top: 128px;               /* clears the sticky site header */
+    align-self: start;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding-top: 8px;
+    font-family: "Inter", sans-serif;
+    font-size: 0.95rem;
+    color: var(--muted-strong);
+    font-variant-numeric: tabular-nums;
+}
+
+.cl-sep {
+    color: var(--muted);
+}
+
+.cl-meta time {
+    color: var(--muted);
+}
+
+.cl-title {
+    font-family: "Geist", sans-serif;
+    font-weight: 200;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 28px;
+}
+
+.cl-title a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.cl-title a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+}
+
+.cl-shot {
+    margin: 0 0 32px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+}
+
+/* Each screenshot links to the page it shows. */
+.cl-shot-link {
+    display: block;
+}
+
+.cl-shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top;
+}
+
+.cl-desc {
+    color: var(--muted-strong);
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 68ch;
+}
+
+.cl-desc p {
+    margin: 0 0 18px;
+}
+
+.cl-desc ul {
+    margin: 0;
+    padding-left: 1.1em;
+}
+
+.cl-desc li {
+    margin-bottom: 10px;
+    color: var(--muted);
+}
+
+.cl-desc li::marker {
+    color: var(--muted);
+}
+
+/* A standalone update inside a release — same entry, its own heading. Spaced
+   rather than ruled: dividers belong to the "Version N" headings only. */
+.cl-subhead {
+    font-family: "Geist", sans-serif;
+    font-weight: 200;
+    font-size: 2rem;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin: 40px 0 12px;
+}
+
+.cl-desc strong {
+    font-weight: 500;
+    color: var(--text);
+}
+
+/* ── Narrow screens ───────────────────────────────────────────────────── */
+@media (max-width: 860px) {
+    .cl-main {
+        padding: 48px 18px 80px;
+    }
+
+    .cl-hero {
+        text-align: left;
+        padding-block: 24px;
+        margin: 0 0 40px;
+    }
+
+    .cl-entry {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+        padding-bottom: 56px;
+    }
+
+    .cl-entry + .cl-entry {
+        padding-top: 16px;
+    }
+
+    .cl-meta {
+        position: static;
+        padding-top: 0;
+    }
+
+    .cl-title {
+        margin-bottom: 20px;
+    }
+
+    .cl-major-title {
+        margin-bottom: 32px;
+        padding-bottom: 14px;
+    }
+}

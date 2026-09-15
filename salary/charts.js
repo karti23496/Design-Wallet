@@ -98,11 +98,192 @@ var DWCharts = (function () {
         while (container.firstChild) container.removeChild(container.firstChild);
     }
 
-    /** ₹12.5 L — the unit Indian designers actually quote. */
+    // ── motion ──────────────────────────────────────────────────────────────
+    // Every chart rebuilds its DOM on each render, which leaves CSS transitions
+    // nothing to start from. So a chart records the geometry it drew, keyed by
+    // mark; the next render places each new mark at its old geometry, flushes
+    // styles, then sets the real value — and the transition in salary.css runs
+    // from old to new. Durations match --sal-motion there.
+
+    var DURATION = 520;
+    var reducedMotion = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+
+    function motionOff() {
+        return !!(reducedMotion && reducedMotion.matches);
+    }
+
+    /** Ease-out cubic, the JS twin of --sal-ease. */
+    function ease(t) {
+        return 1 - Math.pow(1 - t, 3);
+    }
+
+    /** rAF tween owned by a node, so a newer render cancels an older one. */
+    function tween(owner, step) {
+        cancelTweens(owner);
+        var started = null;
+        var entry = { frame: 0 };
+        var run = function (now) {
+            if (started === null) started = now;
+            var t = Math.min(1, (now - started) / DURATION);
+            step(ease(t));
+            if (t < 1) entry.frame = window.requestAnimationFrame(run);
+        };
+        entry.frame = window.requestAnimationFrame(run);
+        owner.__dwTweens = [entry];
+    }
+
+    function cancelTweens(owner) {
+        (owner.__dwTweens || []).forEach(function (entry) {
+            window.cancelAnimationFrame(entry.frame);
+        });
+        owner.__dwTweens = [];
+    }
+
+    function lerp(from, to, t) {
+        return from + (to - from) * t;
+    }
+
+    /**
+     * Numbers that count from their last value to the new one. `values` is an
+     * array so a range ("₹22 – ₹34") moves both ends together. Values are INR
+     * lakh; a currency switch changes only the format, so it doesn't count.
+     */
+    function countTo(node, values, format) {
+        var from = node.__dwShown;
+        var same = from && from.length === values.length && from.every(function (value, index) {
+            return value === values[index];
+        });
+
+        if (motionOff() || !from || from.length !== values.length || same) {
+            cancelTweens(node);
+            node.__dwShown = values.slice();
+            node.textContent = format(values);
+            return;
+        }
+
+        tween(node, function (t) {
+            var current = values.map(function (value, index) {
+                return lerp(from[index], value, t);
+            });
+            node.__dwShown = current;
+            node.textContent = format(current);
+        });
+    }
+
+    function Morph(container) {
+        this.container = container;
+        this.prev = container.__dwMorph || null;
+        this.next = {};
+        this.queue = [];
+    }
+
+    /** A numeric style (width, left, height, top). `initial` is where a mark
+        with no history starts; leave it undefined to place it without motion. */
+    Morph.prototype.style = function (node, key, prop, target, unit, initial) {
+        var id = key + "|" + prop;
+        this.next[id] = target;
+        var start = this.prev && Object.prototype.hasOwnProperty.call(this.prev, id) ? this.prev[id] : initial;
+
+        if (motionOff() || start === undefined || start === target) {
+            node.style[prop] = target + unit;
+            return;
+        }
+        node.style[prop] = start + unit;
+        this.queue.push(function () {
+            node.style[prop] = target + unit;
+        });
+    };
+
+    /** A class that should cross-fade (a heatmap step, a selection). */
+    Morph.prototype.cls = function (node, key, target) {
+        var id = key + "|class";
+        this.next[id] = target;
+        var start = this.prev && Object.prototype.hasOwnProperty.call(this.prev, id) ? this.prev[id] : target;
+
+        if (motionOff() || start === target) {
+            if (target) node.classList.add(target);
+            return;
+        }
+        if (start) node.classList.add(start);
+        this.queue.push(function () {
+            if (start) node.classList.remove(start);
+            if (target) node.classList.add(target);
+        });
+    };
+
+    Morph.prototype.run = function () {
+        this.container.__dwMorph = this.next;
+        if (!this.queue.length) return;
+        // Reading layout commits the start values, so the targets transition.
+        void this.container.offsetWidth;
+        this.queue.forEach(function (apply) {
+            apply();
+        });
+    };
+
+    /** FLIP for rows a re-sort moves: note where each keyed row sat before the
+        rebuild, then slide it from there to its new slot. */
+    function rowPositions(container) {
+        var positions = {};
+        Array.prototype.forEach.call(container.querySelectorAll("[data-key]"), function (node) {
+            positions[node.getAttribute("data-key")] = node.offsetTop;
+        });
+        return positions;
+    }
+
+    function slideRows(container, before, morph) {
+        if (motionOff()) return;
+        Array.prototype.forEach.call(container.querySelectorAll("[data-key]"), function (node) {
+            var old = before[node.getAttribute("data-key")];
+            if (old === undefined) return;
+            var delta = old - node.offsetTop;
+            if (!delta) return;
+            node.style.transition = "none";
+            node.style.transform = "translateY(" + delta + "px)";
+            morph.queue.push(function () {
+                node.style.transition = "";
+                node.style.transform = "";
+            });
+        });
+    }
+
+    // Every value on the page is INR lakh. The INR/USD toggle only changes how
+    // it is printed, so this is the one place a conversion happens.
+    var currency = { code: "inr", usdInr: 1 };
+
+    function setCurrency(code, usdInr) {
+        currency.code = code === "usd" ? "usd" : "inr";
+        if (usdInr) currency.usdInr = usdInr;
+    }
+
+    /** Value in the active currency, in thousands of dollars for USD. */
+    function toUsdThousands(value) {
+        return (value * 100000) / currency.usdInr / 1000;
+    }
+
+    /** ₹12.5 LPA — the unit Indian designers actually quote — or $158K. */
     function lpa(value) {
         if (value === null || value === undefined) return "—";
+        if (currency.code === "usd") {
+            var thousands = toUsdThousands(value);
+            // "LPA" already says per annum; a bare dollar figure doesn't, so
+            // USD carries the period explicitly. INR stays "₹12.5 LPA".
+            var usd;
+            if (thousands >= 1000) usd = "$" + Math.round(thousands / 100) / 10 + "M";
+            else if (thousands < 1) usd = "$" + Math.round(thousands * 1000);
+            else usd = "$" + (thousands >= 100 ? Math.round(thousands) : Math.round(thousands * 10) / 10) + "K";
+            return usd + "/year";
+        }
         var rounded = value >= 100 ? Math.round(value) : Math.round(value * 10) / 10;
-        return "₹" + rounded + " L";
+        return "₹" + rounded + " LPA";
+    }
+
+    /** The bare number a heatmap cell prints: lakh, or $ thousands. */
+    function compact(value) {
+        var shown = currency.code === "usd" ? toUsdThousands(value) : value;
+        // Bare Math.round prints "0" for an intern stipend of 0.45 L —
+        // a salary of zero. Anything under 10 keeps a decimal.
+        return shown < 10 ? String(Math.round(shown * 10) / 10) : String(Math.round(shown));
     }
 
     // ── range bar ───────────────────────────────────────────────────────────
@@ -110,6 +291,7 @@ var DWCharts = (function () {
 
     function rangeBar(container, options) {
         clear(container);
+        var morph = new Morph(container);
 
         var min = options.min;
         var max = options.max;
@@ -120,11 +302,13 @@ var DWCharts = (function () {
 
         var track = el("div", "sal-range-track", container);
         var fill = el("div", "sal-range-fill", track);
-        fill.style.left = pct(options.p25) + "%";
-        fill.style.width = Math.max(2, pct(options.p75) - pct(options.p25)) + "%";
+        var fillWidth = Math.max(2, pct(options.p75) - pct(options.p25));
+        // First draw opens the band out from the median.
+        morph.style(fill, "fill", "left", pct(options.p25), "%", pct(options.p50));
+        morph.style(fill, "fill", "width", fillWidth, "%", 0);
 
         var median = el("div", "sal-range-median", track);
-        median.style.left = pct(options.p50) + "%";
+        morph.style(median, "median", "left", pct(options.p50), "%");
 
         bindTip(
             track,
@@ -143,6 +327,8 @@ var DWCharts = (function () {
             "Median " + lpa(options.p50) + ", middle 50% from " +
             lpa(options.p25) + " to " + lpa(options.p75)
         );
+
+        morph.run();
     }
 
     // ── horizontal bars ─────────────────────────────────────────────────────
@@ -150,7 +336,9 @@ var DWCharts = (function () {
     // options.selected renders emphasised; the rest recede.
 
     function barChart(container, options) {
+        var before = rowPositions(container);
         clear(container);
+        var morph = new Morph(container);
 
         var items = options.items.filter(function (item) {
             return item.value !== null && item.value !== undefined;
@@ -169,13 +357,14 @@ var DWCharts = (function () {
 
         items.forEach(function (item) {
             var row = el("li", "sal-bar-row", list);
-            if (item.id === options.selected) row.classList.add("is-selected");
+            row.setAttribute("data-key", item.id);
+            morph.cls(row, item.id, item.id === options.selected ? "is-selected" : "");
 
             el("span", "sal-bar-label", row).textContent = item.label;
 
             var track = el("span", "sal-bar-track", row);
             var fill = el("span", "sal-bar-fill", track);
-            fill.style.width = Math.max(1.5, (item.value / max) * 100) + "%";
+            morph.style(fill, item.id, "width", Math.max(1.5, (item.value / max) * 100), "%", 0);
 
             el("span", "sal-bar-value", row).textContent = lpa(item.value);
 
@@ -187,6 +376,9 @@ var DWCharts = (function () {
                 (item.sub ? "<br>" + item.sub : "")
             );
         });
+
+        slideRows(container, before, morph);
+        morph.run();
     }
 
     // ── step chart ──────────────────────────────────────────────────────────
@@ -194,7 +386,10 @@ var DWCharts = (function () {
     // rather than interpolating across a level that does not exist.
 
     function stepChart(container, options) {
+        var previousYs = container.__dwStepYs || null;
+        cancelTweens(container);
         clear(container);
+        var morph = new Morph(container);
 
         var points = options.points;
         var defined = points.filter(function (point) {
@@ -231,16 +426,39 @@ var DWCharts = (function () {
             "aria-hidden": "true"
         });
 
-        var path = "";
-        points.forEach(function (point, index) {
-            if (point.value === null || point.value === undefined) return;
-            path += (path ? " L" : "M") + x(index) + " " + y(point.value);
+        var targetYs = points.map(function (point) {
+            return point.value === null || point.value === undefined ? null : y(point.value);
         });
-        svg.appendChild(
-            svgEl("path", { d: path, class: "sal-step-line", "vector-effect": "non-scaling-stroke" })
-        );
+        var pathFor = function (ys) {
+            var d = "";
+            ys.forEach(function (value, index) {
+                if (value === null) return;
+                d += (d ? " L" : "M") + x(index) + " " + value;
+            });
+            return d;
+        };
 
+        var line = svgEl("path", { d: pathFor(targetYs), class: "sal-step-line", "vector-effect": "non-scaling-stroke" });
+        svg.appendChild(line);
         container.appendChild(svg);
+        container.__dwStepYs = targetYs;
+
+        // The line morphs point by point when the ladder has the same shape of
+        // gaps as before; the first draw rises from the baseline.
+        var startYs = previousYs || targetYs.map(function (value) {
+            return value === null ? null : height - padY;
+        });
+        var sameShape = startYs.length === targetYs.length && startYs.every(function (value, index) {
+            return (value === null) === (targetYs[index] === null);
+        });
+        if (!motionOff() && sameShape) {
+            line.setAttribute("d", pathFor(startYs));
+            tween(container, function (t) {
+                line.setAttribute("d", pathFor(targetYs.map(function (value, index) {
+                    return value === null ? null : lerp(startYs[index], value, t);
+                })));
+            });
+        }
 
         // Markers and labels sit in an HTML overlay rather than in the SVG, so
         // text never inherits the non-uniform scale from preserveAspectRatio.
@@ -252,8 +470,8 @@ var DWCharts = (function () {
             var node = el("button", "sal-step-node", overlay);
             node.type = "button";
             node.style.left = x(index) + "%";
-            node.style.top = (y(point.value) / height) * 100 + "%";
-            if (point.id === options.selected) node.classList.add("is-selected");
+            morph.style(node, point.id, "top", (y(point.value) / height) * 100, "%", ((height - padY) / height) * 100);
+            morph.cls(node, point.id, point.id === options.selected ? "is-selected" : "");
 
             var jump = "";
             if (index > 0) {
@@ -285,6 +503,8 @@ var DWCharts = (function () {
             tick.style.left = x(index) + "%";
             if (point.id === options.selected) tick.classList.add("is-selected");
         });
+
+        morph.run();
     }
 
     // ── histogram ───────────────────────────────────────────────────────────
@@ -294,6 +514,7 @@ var DWCharts = (function () {
 
     function histogram(container, options) {
         clear(container);
+        var morph = new Morph(container);
 
         var bins = options.bins;
         if (!bins || !bins.length) return;
@@ -311,10 +532,10 @@ var DWCharts = (function () {
             var binMax = binMin + span / bins.length;
 
             var column = el("span", "sal-hist-bin", wrap);
-            column.style.height = Math.max(2, value * 100) + "%";
+            morph.style(column, "b" + index, "height", Math.max(2, value * 100), "%", 2);
 
             var inRange = options.p25 !== undefined && binMax >= options.p25 && binMin <= options.p75;
-            if (inRange) column.classList.add("is-mid");
+            morph.cls(column, "b" + index, inRange ? "is-mid" : "");
 
             bindTip(column, lpa(binMin) + " – " + lpa(binMax));
         });
@@ -322,6 +543,8 @@ var DWCharts = (function () {
         var scale = el("div", "sal-hist-scale", container);
         el("span", null, scale).textContent = lpa(options.min);
         el("span", null, scale).textContent = lpa(options.max);
+
+        morph.run();
     }
 
     // ── heatmap ─────────────────────────────────────────────────────────────
@@ -330,6 +553,7 @@ var DWCharts = (function () {
 
     function heatmap(container, options) {
         clear(container);
+        var morph = new Morph(container);
 
         var values = [];
         options.rows.forEach(function (row) {
@@ -370,15 +594,13 @@ var DWCharts = (function () {
                 // Five discrete steps rather than a continuous alpha: banding
                 // makes the ladder readable, and each step is a validated token.
                 var step = Math.min(5, Math.max(1, Math.ceil((value / max) * 5)));
-                cell.classList.add("sal-heat-s" + step);
+                morph.cls(cell, row.id + "|" + col.id, "sal-heat-s" + step);
 
                 if (row.id === options.selectedRow && col.id === options.selectedCol) {
                     cell.classList.add("is-selected");
                 }
 
-                // Bare Math.round prints "0" for an intern stipend of 0.45 L —
-                // a salary of zero. Anything under 10 L keeps a decimal.
-                cell.textContent = value < 10 ? String(Math.round(value * 10) / 10) : String(Math.round(value));
+                cell.textContent = compact(value);
                 cell.setAttribute("aria-label", row.label + ", " + col.label + ": " + lpa(value));
                 bindTip(
                     cell,
@@ -392,6 +614,8 @@ var DWCharts = (function () {
                 }
             });
         });
+
+        morph.run();
     }
 
     // ── meter ───────────────────────────────────────────────────────────────
@@ -401,14 +625,18 @@ var DWCharts = (function () {
         clear(container);
         var track = el("div", "sal-meter", container);
         var fill = el("div", "sal-meter-fill", track);
-        fill.style.width = Math.round(options.value * 100) + "%";
+        var morph = new Morph(container);
+        morph.style(fill, "fill", "width", Math.round(options.value * 100), "%", 0);
         track.setAttribute("role", "img");
         track.setAttribute("aria-label", options.label + ": " + Math.round(options.value * 100) + "%");
         bindTip(track, options.label + "<br><strong>" + Math.round(options.value * 100) + "%</strong>");
+        morph.run();
     }
 
     return {
         lpa: lpa,
+        setCurrency: setCurrency,
+        countTo: countTo,
         attachTip: bindTip,
         rangeBar: rangeBar,
         barChart: barChart,

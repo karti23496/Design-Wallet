@@ -2,12 +2,6 @@
 <!--
   Design Wallet sitemap.
 
-  /list-your-tool/ and /dw-tools/glassmorphism-css-generator/ are deliberately
-  absent: both are held back from main (DECISIONS implementation log), and
-  holding a page back means removing its inbound links too — a sitemap entry
-  pointing at a 404 is exactly the dead link that rule exists to prevent. Add
-  them back here in the same commit that restores them.
-
   /category/* routes are served by 404.html client-side rather than existing as
   files, so they are not listed.
 -->
@@ -58,9 +52,24 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://designwallet.in/dw-tools/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://designwallet.in/dw-tools/color-code-converter/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://designwallet.in/dw-tools/glassmorphism-css-generator/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://designwallet.in/list-your-tool/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://designwallet.in/privacy/</loc>
@@ -71,5 +80,10 @@
     <loc>https://designwallet.in/terms/</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://designwallet.in/changelog/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
   </url>
 </urlset>

@@ -30,8 +30,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/style.css?v=20260905-1">
-    <link rel="stylesheet" href="/salary/salary.css?v=20260905-4">
+    <link rel="stylesheet" href="/style.css?v=20260915-1">
+    <link rel="stylesheet" href="/salary/salary.css?v=20260915-2">
 </head>
 <body>
     <div class="page-shell">
@@ -53,13 +53,17 @@
                     <strong>We don't collect your name, email, phone number, or the name of
                     your company.</strong> There is no free-text box on this form — every
                     field is a dropdown or a number, so there is nothing you could type that
-                    would identify you. Submissions are reviewed before they appear, and a
-                    figure is only ever published once at least five people have reported the
-                    same role, level and city.
+                    would identify you. A figure is only ever published once at least five
+                    people have reported the same role, level and city.
                 </p>
             </div>
 
             <form id="sal-form" class="sal-form" novalidate>
+                <p class="sal-form-rule">
+                    <strong>Every field is required.</strong> If you'd rather not share your
+                    company size, variable pay, ESOPs or gender, choose or type <strong>NIL</strong>.
+                </p>
+
                 <!-- Honeypot. Real people never see it; bots fill everything. -->
                 <div class="sal-honeypot" aria-hidden="true">
                     <label for="sal-website">Website</label>
@@ -100,9 +104,9 @@
                             <select id="f-mode" name="workMode" required></select>
                             <p class="sal-field-error" role="alert"></p>
                         </div>
-                        <div class="sal-field" id="f-employer-field" hidden>
+                        <div class="sal-field" id="f-employer-field">
                             <label for="f-employer">Employer is based <span aria-hidden="true">*</span></label>
-                            <select id="f-employer" name="employerLocation"></select>
+                            <select id="f-employer" name="employerLocation" required></select>
                             <p class="sal-field-error" role="alert"></p>
                         </div>
                         <div class="sal-field">
@@ -111,15 +115,17 @@
                             <p class="sal-field-error" role="alert"></p>
                         </div>
                         <div class="sal-field">
-                            <label for="f-size">Company size</label>
-                            <select id="f-size" name="companySize">
-                                <option value="">Prefer not to say</option>
+                            <label for="f-size">Company size <span aria-hidden="true">*</span></label>
+                            <select id="f-size" name="companySize" required>
+                                <option value="">Choose one</option>
                                 <option value="1-10">1–10 people</option>
                                 <option value="11-50">11–50</option>
                                 <option value="51-200">51–200</option>
                                 <option value="201-1000">201–1,000</option>
                                 <option value="1000+">1,000+</option>
+                                <option value="NIL">NIL — prefer not to say</option>
                             </select>
+                            <p class="sal-field-error" role="alert"></p>
                         </div>
                     </div>
                 </fieldset>
@@ -134,17 +140,20 @@
                             <p class="sal-field-error" role="alert"></p>
                         </div>
                         <div class="sal-field">
-                            <label for="f-variable">Variable or bonus, in ₹ lakh</label>
-                            <input type="number" id="f-variable" name="variableOrBonusLpa" min="0" max="200" step="0.1" inputmode="decimal" placeholder="Optional">
+                            <label for="f-variable">Variable or bonus, in ₹ lakh <span aria-hidden="true">*</span></label>
+                            <input type="text" id="f-variable" name="variableOrBonusLpa" inputmode="decimal" autocomplete="off" placeholder="e.g. 2.5 or NIL" required>
+                            <p class="sal-field-hint">Type 0 if you don't get one, or NIL to skip.</p>
                             <p class="sal-field-error" role="alert"></p>
                         </div>
                         <div class="sal-field">
-                            <label for="f-esops">Do you have ESOPs or equity?</label>
-                            <select id="f-esops" name="hasEsops">
-                                <option value="">Prefer not to say</option>
+                            <label for="f-esops">Do you have ESOPs or equity? <span aria-hidden="true">*</span></label>
+                            <select id="f-esops" name="hasEsops" required>
+                                <option value="">Choose one</option>
                                 <option value="Yes">Yes</option>
                                 <option value="No">No</option>
+                                <option value="NIL">NIL — prefer not to say</option>
                             </select>
+                            <p class="sal-field-error" role="alert"></p>
                         </div>
                         <div class="sal-field">
                             <label for="f-year">This salary is from <span aria-hidden="true">*</span></label>
@@ -155,16 +164,18 @@
                 </fieldset>
 
                 <fieldset class="sal-fieldset">
-                    <legend>Optional</legend>
+                    <legend>About you</legend>
                     <div class="sal-form-grid">
                         <div class="sal-field">
-                            <label for="f-gender">Gender</label>
-                            <select id="f-gender" name="gender">
-                                <option value="">Prefer not to say</option>
+                            <label for="f-gender">Gender <span aria-hidden="true">*</span></label>
+                            <select id="f-gender" name="gender" required>
+                                <option value="">Choose one</option>
                                 <option value="Woman">Woman</option>
                                 <option value="Man">Man</option>
                                 <option value="Non-binary">Non-binary</option>
+                                <option value="NIL">NIL — prefer not to say</option>
                             </select>
+                            <p class="sal-field-error" role="alert"></p>
                             <p class="sal-field-hint">
                                 Only ever used in aggregate, and only once there are enough
                                 responses for it to mean anything.
@@ -182,9 +193,8 @@
             <div class="sal-form-done" id="sal-form-done" hidden>
                 <h2>Thank you — that's in.</h2>
                 <p>
-                    Your submission is queued for review. Once enough designers have reported
-                    the same role, level and city, it will start shaping the figures on the
-                    dashboard.
+                    Once five designers have reported the same role, level and city, your
+                    salary starts shaping the figures on the dashboard, automatically.
                 </p>
                 <a class="primary-button" href="/salary/">Back to the dashboard</a>
             </div>
@@ -192,8 +202,9 @@
     </div>
 
     <script src="/content.js?v=20260508-6"></script>
-    <script src="/header.js?v=20260905-3"></script>
+    <script src="/header.js?v=20260915-2"></script>
     <script src="/newsletter.js?v=20260824-1"></script>
-    <script src="/salary/submit/submit-salary.js?v=20260905-3"></script>
+    <script src="/salary/endpoint.js?v=20260915-1"></script>
+    <script src="/salary/submit/submit-salary.js?v=20260915-2"></script>
 </body>
 </html>

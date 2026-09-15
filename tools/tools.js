@@ -235,10 +235,16 @@ document.addEventListener("DOMContentLoaded", function () {
             .join("") || "DW";
     }
 
+    // One referral tag per outbound link: ref=designwallet, the same tag the
+    // Sheet's links already carry. It is added only when a link has no ref of
+    // its own, so a partner's affiliate ref is never overwritten, and the old
+    // via=designwallet is dropped — adding it on top of the Sheet's ref gave
+    // every link two tags ("?ref=designwallet&via=designwallet").
     function addReferralParam(link) {
         try {
             var url = new URL(link);
-            url.searchParams.set("via", "designwallet");
+            if (!url.searchParams.has("ref")) url.searchParams.set("ref", "designwallet");
+            url.searchParams.delete("via");
             return url.toString();
         } catch (e) {
             return link;

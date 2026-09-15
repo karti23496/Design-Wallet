@@ -353,8 +353,16 @@ function build(seed, submissions) {
         company: {},
         distribution: {},
         highest_city: {},
-        leaderboard: []
+        leaderboard: [],
+        fx: seed.international.fx,
+        countries: seed.international.countries,
+        country_cells: {}
     };
+
+    // Country markets, for a foreign employer. Seed only — the submission form
+    // collects Indian cities, so there is no community data to cascade from.
+    // Stored in INR lakh like every other cell; the page converts for display.
+    const usdToLakh = seed.international.fx.usd_inr / 100000;
 
     for (const role of seed.roles) {
         for (const level of seed.levels) {
@@ -372,6 +380,15 @@ function build(seed, submissions) {
             output.national[pairKey] = national;
 
             output.distribution[pairKey] = distributionShape(national, nationalValues);
+
+            const usdBaseline = seed.international.usd_baselines[level.id];
+            const roleIndex = seed.international.role_index[role.id];
+            if (usdBaseline && roleIndex) {
+                for (const country of seed.international.countries) {
+                    output.country_cells[`${pairKey}|${country.id}`] =
+                        scaleBenchmark(usdBaseline, usdToLakh * country.index * roleIndex);
+                }
+            }
 
             // Tier.
             for (const tier of seed.tiers) {

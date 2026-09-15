@@ -456,6 +456,32 @@ Log out on the right — no marketing nav (see header.js). */
     flex-shrink: 0;
 }
 
+/* Logo plus the latest-version capsule, which links to /changelog/. Kept as
+   one flex child so the header's space-between layout is unchanged. */
+.brand-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.brand-version {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    font-family: "Inter", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    color: var(--muted-strong);
+    text-decoration: none;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
 .brand-copy {
     font-family: "Inter", sans-serif;
     font-size: 1.1rem;
@@ -552,6 +578,246 @@ which previously sat lower than the plain <a> siblings. */
     opacity: 1;
     pointer-events: auto;
     transform: translate(-50%, 0);
+}
+
+/* ── Mini Tools: wide panel ──────────────────────────────────────────────
+   Anchored to the whole header, not the trigger: the wrapper goes static, so
+   the absolute panel resolves against .site-header (sticky, or relative on
+   the dashboard — see tools/dashboard.css). Centred on the trigger instead, a
+   panel this wide would run off the right edge.
+   Text colours sit on the inner spans, never on the <a>, so page-level
+   `.site-nav a` colour overrides (the blog has one) cannot repaint them. */
+.nav-dropdown--wide {
+    position: static;
+}
+
+/* The base hover bridge is sized to the trigger; with the wrapper static it
+   would resolve against the header. The panel carries its own bridge. */
+.nav-dropdown--wide::after {
+    display: none;
+}
+
+/* Taller hit area, so the pointer reaches the panel's bridge without ever
+   leaving the dropdown. The negative margin keeps the header height. */
+.nav-dropdown--wide .nav-dropdown-trigger {
+    gap: 6px;
+    padding-block: 16px;
+    margin-block: -16px;
+}
+
+.nav-dropdown-chevron {
+    transition: transform 0.18s ease;
+}
+
+.nav-dropdown--wide:hover .nav-dropdown-chevron,
+.nav-dropdown--wide:focus-within .nav-dropdown-chevron {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown--wide .nav-mega {
+    top: calc(100% + 10px);
+    width: min(1120px, calc(100% - 32px));
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    padding: 0;
+    border-radius: 24px;
+    background: var(--surface-1);
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.48);
+}
+
+/* Invisible bridge over the gap between the nav row and the panel. It belongs
+   to the dropdown, so :hover holds while the pointer crosses it. */
+.nav-dropdown--wide .nav-mega::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 32px;
+}
+
+.nav-mega-grid {
+    display: grid;
+    /* 260px keeps "Glassmorphism CSS Generator" + icon + arrow on one line. */
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    align-content: start;
+    gap: 8px 16px;
+    padding: 24px;
+}
+
+.site-nav .nav-mega a.nav-mega-item {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    align-items: center;
+    column-gap: 14px;
+    row-gap: 12px;
+    min-height: 0;
+    padding: 16px;
+    border-radius: 16px;
+}
+
+.site-nav .nav-mega a.nav-mega-item:hover,
+.site-nav .nav-mega a.nav-mega-item:focus-visible {
+    background: rgba(var(--fg-rgb), 0.05);
+}
+
+.nav-mega-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: rgba(var(--fg-rgb), 0.04);
+    color: var(--text);
+}
+
+.nav-mega-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.3;
+}
+
+.nav-mega-arrow {
+    flex: 0 0 auto;
+    transition: transform 0.18s ease;
+}
+
+.nav-mega-item:hover .nav-mega-arrow,
+.nav-mega-item:focus-visible .nav-mega-arrow,
+.nav-mega-cta-btn:hover .nav-mega-arrow,
+.nav-mega-cta-btn:focus-visible .nav-mega-arrow {
+    transform: translateX(3px);
+}
+
+/* Lighter than --muted, which is below AA for body copy (§9 note). */
+.nav-mega-desc {
+    grid-column: 1 / -1;
+    color: rgba(var(--fg-rgb), 0.55);
+    font-size: 0.88rem;
+    font-weight: 300;
+    line-height: 1.5;
+}
+
+.nav-mega-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 40px 32px;
+    border-left: 1px solid var(--border);
+    border-radius: 0 23px 23px 0;
+    background: rgba(var(--fg-rgb), 0.06);
+}
+
+.nav-mega-cta-title {
+    margin: 0;
+    color: var(--text);
+    font-size: 1.05rem;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.nav-mega-cta-text {
+    margin: 0 0 8px;
+    color: rgba(var(--fg-rgb), 0.6);
+    font-size: 0.88rem;
+    font-weight: 300;
+    line-height: 1.55;
+}
+
+.site-nav .nav-mega a.nav-mega-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 0;
+    padding: 12px 22px;
+    border-radius: 999px;
+    background: var(--pure);
+    transition: transform 0.18s ease;
+}
+
+.site-nav .nav-mega a.nav-mega-cta-btn:hover,
+.site-nav .nav-mega a.nav-mega-cta-btn:focus-visible {
+    background: var(--pure);
+    transform: translateY(-1px);
+}
+
+.nav-mega-cta-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--surface-0);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Mobile: the nav is a stacked sheet and every menu is always expanded, so the
+   panel becomes one column with the CTA underneath. */
+@media (max-width: 980px) {
+    .nav-dropdown--wide {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .nav-dropdown--wide .nav-dropdown-trigger {
+        padding-block: 0;
+        margin-block: 0;
+    }
+
+    .nav-dropdown-chevron,
+    .nav-dropdown--wide .nav-mega::before {
+        display: none;
+    }
+
+    .nav-dropdown--wide .nav-mega,
+    .nav-dropdown--wide:hover .nav-mega,
+    .nav-dropdown--wide:focus-within .nav-mega {
+        width: auto;
+        grid-template-columns: 1fr;
+        border-radius: 16px;
+        transform: none;
+    }
+
+    .nav-mega-grid {
+        grid-template-columns: 1fr;
+        gap: 2px;
+        padding: 8px;
+    }
+
+    .site-nav .nav-mega a.nav-mega-item {
+        grid-template-columns: 32px minmax(0, 1fr);
+        column-gap: 12px;
+        row-gap: 4px;
+        padding: 10px;
+    }
+
+    .nav-mega-icon {
+        grid-row: span 2;
+        width: 32px;
+        height: 32px;
+    }
+
+    .nav-mega-title {
+        font-size: 0.92rem;
+    }
+
+    .nav-mega-desc {
+        grid-column: 2;
+        font-size: 0.8rem;
+    }
+
+    .nav-mega-cta {
+        gap: 8px;
+        padding: 18px;
+        border-left: none;
+        border-top: 1px solid var(--border);
+        border-radius: 0 0 15px 15px;
+    }
 }
 
 .nav-collections-dropdown::after {
@@ -6167,602 +6433,6 @@ body.blog-index-page::before {
     }
     .book-rating-num {
         font-size: 0.7rem;
-    }
-}
-
-/* ═══════════════════════════════════════════
-   Pricing Page (DreamCut-style)
-   ═══════════════════════════════════════════ */
-
-/* ── Hero ── */
-.pr-hero {
-    position: relative;
-    text-align: center;
-    overflow: hidden;
-}
-
-.pr-hero-title {
-    font-family: "Geist", sans-serif;
-    font-size: 5rem;
-    font-weight: 100;
-    letter-spacing: -6px;
-    line-height: 1;
-    color: var(--text);
-    margin: 80px 0px 16px;
-}
-
-.pr-hero-subtitle {
-    font-family: "Geist", sans-serif;
-    font-size: 2rem;
-    font-weight: 100;
-    letter-spacing: -1px;
-    color: #ffffff70;
-    margin: 0 0 12px;
-    line-height: 1.4;
-}
-
-.pr-hero-desc {
-    color: rgba(var(--fg-rgb), 0.1882);
-    font-size: 0.9rem;
-    margin: 0 auto;
-    line-height: 1.6;
-    text-transform: uppercase;
-}
-
-/* ── Cards Section ── */
-.pr-cards {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 24px 80px;
-    margin-top: 80px;
-}
-
-.pr-billing-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin: 36px 0px;
-    font-family: "Geist", sans-serif;
-}
-
-.pr-billing-option {
-    padding: 0;
-    background: transparent;
-    border: 0;
-    color: var(--muted);
-    font-size: 1rem;
-    font-weight: 200;
-    line-height: 1;
-    cursor: pointer;
-    transition: color 0.2s ease;
-}
-
-.pr-billing-option.is-active {
-    color: var(--text);
-}
-
-.pr-billing-switch {
-    position: relative;
-    width: 48px;
-    height: 32px;
-    border: 0;
-    border-radius: 48px;
-    background: transparent;
-    box-shadow: inset 0 0 0 1px rgba(var(--fg-rgb), 0.2);
-}
-
-.pr-billing-switch-thumb {
-    display: block;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--pure);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.26);
-    transform: translateX(0);
-    transition: transform 0.24s ease;
-}
-
-.pr-billing-switch.is-yearly .pr-billing-switch-thumb {
-    transform: translateX(18px);
-}
-
-.pr-billing-save {
-    display: inline-flex;
-    align-items: center;
-    padding: 8px;
-    border-radius: 8px;
-    border: 1px solid #ffffff10;
-    background: rgba(var(--fg-rgb), 0.06);
-    color: var(--text);
-    font-size: 0.7rem;
-    font-weight: 300;
-    line-height: 1;
-    white-space: nowrap;
-}
-
-.pr-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-    align-items: start;
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-.pr-card {
-    position: relative;
-    background: var(--panel);
-    border-radius: var(--radius-md);
-    padding: 36px 28px 32px;
-    display: flex;
-    flex-direction: column;
-}
-
-.pr-card-featured {
-    background: linear-gradient(180deg, rgba(var(--fg-rgb), 0.06) 0%, var(--panel) 40%);
-    z-index: 1;
-}
-
-.pr-card-featured::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: var(--radius-md);
-    padding: 1px;
-    background: conic-gradient(
-        from var(--shimmer-angle, 0deg),
-        transparent 0%,
-        transparent 70%,
-        rgba(var(--fg-rgb), 0.3) 76%,
-        rgba(var(--fg-rgb), 0.7) 80%,
-        rgba(var(--fg-rgb), 0.3) 84%,
-        transparent 90%,
-        transparent 100%
-    );
-    -webkit-mask: linear-gradient(var(--pure) 0 0) content-box, linear-gradient(var(--pure) 0 0);
-    mask: linear-gradient(var(--pure) 0 0) content-box, linear-gradient(var(--pure) 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-    animation: shimmer-rotate 3s linear infinite;
-}
-
-.pr-card-badge {
-    position: absolute;
-    top: 0px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 5px 16px;
-    background: #3f3f3f;
-    border-bottom: 1px solid rgba(var(--fg-rgb), 0.1255);
-    border-left: 1px solid rgba(var(--fg-rgb), 0.1255);
-    border-right: 1px solid rgba(var(--fg-rgb), 0.1255);
-    color: var(--pure);
-    font-size: 0.68rem;
-    font-weight: 300;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    border-radius: 0 0 10px 10px;
-}
-
-.pr-card-head {
-    text-align: center;
-    margin-bottom: 28px;
-    padding-bottom: 28px;
-    border-bottom: 1px solid var(--border);
-}
-
-.pr-card-name {
-    font-family: "Geist", sans-serif;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text);
-    margin: 0 0 16px;
-}
-
-.pr-card-price {
-    display: flex;
-    align-items: baseline;
-    justify-content: center;
-    gap: 2px;
-    margin-bottom: 4px;
-}
-
-.pr-price-symbol {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--muted-strong);
-    align-self: flex-start;
-    margin-top: 6px;
-}
-
-.pr-price-value {
-    font-family: "Geist", sans-serif;
-    font-size: 5rem;
-    letter-spacing: -5px;
-    font-weight: 100;
-    color: var(--text);
-    line-height: 1;
-}
-
-.pr-card-period {
-    color: rgba(var(--fg-rgb), 0.1882);
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    margin: 0;
-}
-
-.pr-card-features {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 28px;
-    flex: 1;
-}
-.pr-card-head .pr-card-badge {
-    background-color: #000000;
-    color: var(--pure);
-}
-
-.pr-card-features li {
-    display: flex;
-    text-transform: uppercase;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 8px 0;
-    color: var(--muted);
-    font-size: 0.8rem;
-    line-height: 1.4;
-}
-
-.pr-card-features li svg {
-    flex-shrink: 0;
-    margin-top: 2px;
-    color: #a7a7a7;
-}
-
-.pr-card-btn {
-    display: block;
-    width: 100%;
-    padding: 14px 20px;
-    font-family: "Geist", sans-serif;
-    font-size: 0.9rem;
-    font-weight: 400;
-    text-align: center;
-    text-decoration: none;
-    text-transform: uppercase;
-    border-radius: 48px;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-}
-
-.pr-btn-solid {
-    background: var(--accent);
-    color: #000000;
-}
-
-.pr-btn-solid:hover {
-    background: var(--accent-deep);
-    transform: translateY(-1px);
-}
-
-.pr-btn-outline {
-    background: transparent;
-    color: var(--text);
-    border: 1px solid var(--border);
-}
-
-.pr-btn-outline:hover {
-    border-color: var(--border-strong);
-    background: rgba(var(--fg-rgb), 0.04);
-}
-
-.pr-cards-note {
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.8rem;
-    margin-top: 32px;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* ── Compare Plans Table ── */
-.pr-compare {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 24px 100px;
-}
-
-.pr-section-title {
-    font-family: "Geist", sans-serif;
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text);
-    text-align: center;
-    margin: 0 0 48px;
-}
-
-.pr-table-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-.pr-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.88rem;
-}
-
-.pr-table thead th {
-    padding: 20px 16px 24px;
-    text-align: center;
-    vertical-align: top;
-    border-bottom: 1px solid var(--border);
-}
-
-.pr-table thead th:first-child {
-    text-align: left;
-}
-
-.pr-th-name {
-    display: block;
-    font-family: "Geist", sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 4px;
-}
-
-.pr-th-price {
-    display: block;
-    font-family: "Geist", sans-serif;
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: var(--text);
-}
-
-.pr-th-period {
-    display: block;
-    color: var(--muted);
-    font-size: 0.75rem;
-    font-weight: 400;
-}
-
-.pr-table tbody td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-    color: var(--muted);
-    text-align: center;
-}
-
-.pr-table tbody td:first-child {
-    text-align: left;
-    color: var(--muted-strong);
-    font-weight: 500;
-}
-
-.pr-table-section td {
-    padding: 20px 16px 10px !important;
-    font-family: "Geist", sans-serif;
-    font-size: 0.78rem !important;
-    font-weight: 700 !important;
-    color: var(--accent) !important;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    border-bottom: 1px solid var(--border) !important;
-}
-
-.pr-check {
-    color: var(--accent);
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.pr-dash {
-    color: rgba(var(--fg-rgb), 0.15);
-    font-size: 1rem;
-}
-
-/* ── FAQ ── */
-.pr-faq {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0 24px 100px;
-}
-
-.pr-faq-list {
-    border-top: 1px solid var(--border);
-}
-
-.pr-faq-item {
-    border-bottom: 1px solid var(--border);
-    overflow: hidden;
-}
-
-.pr-faq-item summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 0;
-    font-family: "Geist", sans-serif;
-    font-size: 0.92rem;
-    font-weight: 500;
-    color: var(--text);
-    cursor: pointer;
-    list-style: none;
-}
-
-.pr-faq-item summary::-webkit-details-marker {
-    display: none;
-}
-
-.pr-faq-item summary svg {
-    flex-shrink: 0;
-    color: var(--muted);
-    transition: transform 0.28s ease;
-}
-
-.pr-faq-item[open]:not(.is-closing) summary svg,
-.pr-faq-item.is-opening summary svg {
-    transform: rotate(180deg);
-}
-
-.pr-faq-item p {
-    color: var(--muted);
-    font-size: 0.86rem;
-    line-height: 1.7;
-    margin: 0 0 20px;
-    padding-right: 32px;
-    opacity: 0;
-    transform: translateY(-4px);
-    transition: opacity 0.22s ease, transform 0.28s ease;
-}
-
-.pr-faq-item[open]:not(.is-closing) p {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .pr-billing-option,
-    .pr-billing-switch-thumb,
-    .pr-faq-item summary svg,
-    .pr-faq-item p {
-        transition: none;
-    }
-}
-
-/* ── Responsive ── */
-@media (max-width: 900px) {
-    .pr-billing-toggle {
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-bottom: 28px;
-    }
-
-    .pr-billing-option {
-        font-size: 1.05rem;
-    }
-
-    .pr-billing-save {
-        min-height: 38px;
-        padding: 0 14px;
-        font-size: 0.9rem;
-    }
-
-    .pr-cards-grid {
-        grid-template-columns: 1fr;
-        max-width: 400px;
-        margin: 0 auto;
-    }
-
-    .pr-card-featured {
-        transform: none;
-    }
-
-    .pr-hero-title {
-        font-size: 3.5rem;
-        letter-spacing: -1px;
-    }
-
-    .pr-hero-subtitle {
-        font-size: 1.1rem;
-    }
-
-    .pr-section-title {
-        font-size: 1.5rem;
-    }
-
-    .pr-table {
-        font-size: 0.8rem;
-    }
-
-    .pr-table thead th {
-        padding: 12px 8px;
-    }
-
-    .pr-table tbody td {
-        padding: 10px 8px;
-    }
-}
-
-@media (max-width: 560px) {
-    .pr-hero {
-        padding: 80px 16px 40px;
-    }
-
-    .pr-hero-title {
-        font-size: 2.5rem;
-        letter-spacing: -1px;
-    }
-
-    .pr-hero-subtitle {
-        font-size: 0.95rem;
-    }
-
-    .pr-hero-desc {
-        font-size: 0.78rem;
-    }
-
-    .pr-cards {
-        padding: 0 12px 60px;
-    }
-
-    .pr-cards-grid {
-        max-width: 100%;
-    }
-
-    .pr-card {
-        padding: 28px 20px 24px;
-    }
-
-    .pr-compare {
-        padding: 0 12px 60px;
-    }
-
-    .pr-faq {
-        padding: 0 12px 60px;
-    }
-
-    .pr-faq-item summary {
-        font-size: 0.84rem;
-        gap: 12px;
-    }
-
-    .pr-faq-item p {
-        padding-right: 0;
-    }
-
-    .pr-billing-toggle {
-        gap: 8px;
-    }
-
-    .pr-billing-option {
-        font-size: 0.9rem;
-    }
-
-    .pr-billing-switch {
-        width: 52px;
-        height: 34px;
-        padding: 4px;
-    }
-
-    .pr-billing-switch-thumb {
-        width: 26px;
-        height: 26px;
-    }
-
-    .pr-billing-switch.is-yearly .pr-billing-switch-thumb {
-        transform: translateX(18px);
-    }
-
-    .pr-billing-save {
-        min-height: 32px;
-        padding: 0 10px;
-        font-size: 0.78rem;
-        border-radius: 10px;
     }
 }
 

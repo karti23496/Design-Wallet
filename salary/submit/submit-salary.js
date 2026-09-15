@@ -9,17 +9,16 @@
  *
  * TO SWITCH SUBMISSIONS ON: deploy salary/submit/google-apps-script.js as a web
  * app ("execute as me", "anyone can access") and paste its /exec URL into
- * SUBMISSION_URL below. It lives here rather than inline in the page because
- * DECISIONS §11 keeps script out of the HTML — the portfolio form's inline
- * assignment is the older pattern, not the one to copy. Until it is set the
- * form validates normally and tells the visitor submissions aren't open yet.
+ * DW_SALARY_ENDPOINT in salary/endpoint.js — the dashboard reads the same URL.
+ * Until it is set the form validates normally and tells the visitor
+ * submissions aren't open yet.
  */
 
 (function () {
     "use strict";
 
-    var DATA_URL = "/salary/data/salaries.json?v=20260905-3";
-    var SUBMISSION_URL = "";
+    var DATA_URL = "/salary/data/salaries.json?v=20260913-1";
+    var SUBMISSION_URL = typeof DW_SALARY_ENDPOINT === "string" ? DW_SALARY_ENDPOINT : "";
     var STORAGE_KEY = "dw_salary_submitted_at";
     var REPEAT_WINDOW_MS = 24 * 60 * 60 * 1000;
 
@@ -95,7 +94,16 @@
 
         if (!validateNumber(formField("yearsOfExperience"), 0, 45, "Years of experience", true)) ok = false;
         if (!validateNumber(formField("annualFixedCtcLpa"), 0.5, 200, "Fixed CTC", true)) ok = false;
-        if (!validateNumber(formField("variableOrBonusLpa"), 0, 200, "Variable pay", false)) ok = false;
+        // Variable pay takes a number or NIL, in any case; stored as "NIL".
+        var variable = formField("variableOrBonusLpa");
+        if (/^\s*nil\s*$/i.test(variable.value)) {
+            variable.value = "NIL";
+        } else if (!String(variable.value || "").trim()) {
+            setFieldError(variable, "Enter an amount, 0, or NIL to skip.");
+            ok = false;
+        } else if (!validateNumber(variable, 0, 200, "Variable pay", true)) {
+            ok = false;
+        }
 
         // Level against years: a warning, not a block. Someone can genuinely be a
         // lead at four years, and rejecting them would lose a real data point.
@@ -209,22 +217,6 @@
         select.innerHTML = html;
     }
 
-    function bindModeToEmployer() {
-        var mode = formField("workMode");
-        var field = document.getElementById("f-employer-field");
-        var select = formField("employerLocation");
-
-        var sync = function () {
-            var remote = mode.value === "remote";
-            field.hidden = !remote;
-            select.required = remote;
-            if (!remote) select.value = "india";
-        };
-
-        mode.addEventListener("change", sync);
-        sync();
-    }
-
     function start() {
         form = document.getElementById("sal-form");
         if (!form) return;
@@ -241,11 +233,10 @@
                 fillSelect(formField("level"), data.levels, "Choose a level");
                 fillSelect(formField("city"), data.cities, "Choose a city");
                 fillSelect(formField("workMode"), data.work_modes, "Choose one");
-                fillSelect(formField("employerLocation"), data.employers, "");
+                fillSelect(formField("employerLocation"), data.employers, "Choose one");
                 fillSelect(formField("companyType"), data.company_types, "Choose one");
                 fillYears(formField("salaryEffectiveFrom"));
 
-                bindModeToEmployer();
                 form.addEventListener("submit", handleSubmit);
 
                 // Clear an error as soon as the field is touched again.

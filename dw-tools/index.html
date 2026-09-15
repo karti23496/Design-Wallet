@@ -11,8 +11,9 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Good Deals — Design Wallet™</title>
-    <meta name="description" content="Discounts and offers on design tools, worth knowing about. Curated by Design Wallet.">
+    <title>Mini Tools — Free Design Tools | Design Wallet™</title>
+    <meta name="description" content="Free, browser-based tools for designers, made by Design Wallet. No sign-up.">
+    <link rel="canonical" href="https://designwallet.in/dw-tools/">
     <meta property="og:image" content="https://designwallet.in/public/illustrations/Meta%20Image.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -26,29 +27,25 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
     <link rel="stylesheet" href="/style.css?v=20260915-1">
-    <link rel="stylesheet" href="/good-deals/good-deals.css">
+    <link rel="stylesheet" href="/dw-tools/dw-tools.css?v=20260911-1">
 </head>
 <body>
     <div class="page-shell">
         <header class="site-header"></header>
 
-        <main class="ga-main">
-            <section class="ga-hero">
+        <main class="dwt-main">
+            <section class="dwt-hero">
                 <!-- Orbiting starfield, populated by stars.js -->
                 <div class="stars-field" id="stars-field" aria-hidden="true"></div>
-                <p class="ga-eyebrow">Good deals</p>
-                <h1 class="ga-title">Discounts worth<br> knowing about</h1>
-                <p class="ga-subtitle">
-                    Offers on the design tools we already recommend — collected here so you
-                    aren't hunting for a coupon code at checkout.
+                <p class="dwt-eyebrow">Mini Tools</p>
+                <h1 class="dwt-title">Small tools for<br> everyday design work</h1>
+                <p class="dwt-subtitle">
+                    Free and browser-based, with no sign-up. Made by Design Wallet.
                 </p>
-
-                <form class="newsletter-form ga-deals-form">
-                    <input type="email" name="email" placeholder="Email address" aria-label="Email address" required>
-                    <button type="submit" class="primary-button">Notify me</button>
-                </form>
-                <p class="ga-reassure">We're curating the first batch. Subscribe and we'll send them as they land.</p>
             </section>
+
+            <!-- One card per entry in DW_TOOLS (header.js), rendered by dw-tools.js. -->
+            <ul class="dwt-grid" id="dwt-grid" aria-label="Mini tools"></ul>
         </main>
 
     </div>
@@ -57,5 +54,6 @@
     <script src="/header.js?v=20260915-2"></script>
     <script src="/newsletter.js?v=20260824-1"></script>
     <script src="/stars.js?v=20260901-1"></script>
+    <script src="/dw-tools/dw-tools.js?v=20260911-1"></script>
 </body>
 </html>

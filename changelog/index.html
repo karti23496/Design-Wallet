@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HLX9Y7DQV7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changelog — Design Wallet™</title>
+    <meta name="description" content="Every update to Design Wallet, newest first — new pages, tools and improvements across the design library.">
+    <link rel="canonical" href="https://designwallet.in/changelog/">
+    <meta property="og:title" content="Changelog — Design Wallet">
+    <meta property="og:description" content="Every update to Design Wallet, newest first.">
+    <meta property="og:url" content="https://designwallet.in/changelog/">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://designwallet.in/public/illustrations/Meta%20Image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://designwallet.in/public/illustrations/Meta%20Image.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
+    <link rel="stylesheet" href="/style.css?v=20260915-1">
+    <link rel="stylesheet" href="/changelog/changelog.css?v=20260915-5">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header"></header>
+
+        <main class="cl-main">
+            <section class="cl-hero">
+                <!-- Orbiting starfield, populated by stars.js -->
+                <div class="stars-field" id="stars-field" aria-hidden="true"></div>
+                <h1 class="cl-heading">Change-log</h1>
+                <p class="cl-lede">Recent updates and changes from Design Wallet.</p>
+            </section>
+
+            <!--
+              Versions are grouped by major number — one <section class="cl-major">
+              per major, newest major first — and inside each, one <li> per
+              version, newest at the top. Added by the
+              /update-change-log command (.claude/commands/update-change-log.md),
+              which consolidates everything since the previous version into one
+              entry. Screenshots come from `npm run changelog-shot`.
+              data-through is the last day the entry covers — the next version
+              starts from the day after.
+            -->
+            <section class="cl-major" id="version-2" aria-labelledby="version-2-title">
+                <h2 class="cl-major-title" id="version-2-title">Version 2</h2>
+                <ol class="cl-list">
+
+                    <li class="cl-entry" id="v2-2" data-through="2026-09-15">
+                        <div class="cl-meta">
+                            <span class="cl-version">v2.2</span>
+                            <span class="cl-sep" aria-hidden="true">/</span>
+                            <time datetime="2026-09-15">Sep 15, 2026</time>
+                        </div>
+                        <article class="cl-body">
+                            <h3 class="cl-title"><a href="#v2-2">Mini Tools: free tools for everyday design work</a></h3>
+                            <div class="cl-desc">
+                                <p>Design Wallet now makes its own tools. They're free, run in your browser and need no sign-up, and they all live together under Mini Tools in the nav.</p>
+
+                                <h4 class="cl-subhead">Color Code Converter</h4>
+                                <p>Type a colour once and get it in every format you need.</p>
+                                <ul>
+                                    <li><strong>Six formats at once.</strong> HEX, RGB, HSL, HSV, OKLCH and CMYK, updating as you type.</li>
+                                    <li><strong>Copy in one click.</strong> Every value is ready to paste into CSS or your design file.</li>
+                                    <li><strong>Export your colours</strong> as a set of codes to keep or share.</li>
+                                </ul>
+
+                                <h4 class="cl-subhead">Glassmorphism CSS Generator</h4>
+                                <p>Design a frosted-glass effect visually, then take the code with you.</p>
+                                <ul>
+                                    <li><strong>Live controls</strong> for blur, transparency, saturation, tint, border, depth, drop shadow and glow, with a live preview.</li>
+                                    <li><strong>Copy as CSS, Tailwind or React.</strong></li>
+                                    <li><strong>Randomize with locks.</strong> Pin the settings you like and reroll the rest, or reset to start over.</li>
+                                </ul>
+
+                                <h4 class="cl-subhead">All in one place</h4>
+                                <ul>
+                                    <li><strong>A new Mini Tools menu</strong> in the nav, with an icon and a one-line description for each tool.</li>
+                                    <li><strong>A Mini Tools page</strong> listing every tool, so new ones are easy to find as they arrive.</li>
+                                </ul>
+                            </div>
+                        </article>
+                    </li>
+
+                    <li class="cl-entry" id="v2-1" data-through="2026-09-15">
+                        <div class="cl-meta">
+                            <span class="cl-version">v2.1</span>
+                            <span class="cl-sep" aria-hidden="true">/</span>
+                            <time datetime="2026-09-15">Sep 15, 2026</time>
+                        </div>
+                        <article class="cl-body">
+                            <h3 class="cl-title"><a href="#v2-1">"Know your money" dashboard: What designers earn</a></h3>
+                            <figure class="cl-shot">
+                                <a class="cl-shot-link" href="/salary/" aria-label="Open Know your money">
+                                    <img src="/public/changelog/v2-1.webp" alt="The Know your money salary dashboard, showing a senior product designer's median pay, range and distribution" width="1440" height="900" loading="lazy">
+                                </a>
+                            </figure>
+                            <div class="cl-desc">
+                                <p>A free salary dashboard for designers. Pick a role and a level, then narrow it down by city, work mode, employer and company type, and every chart updates as you go.</p>
+                                <ul>
+                                    <li><strong>11 design roles, intern to VP.</strong> Median pay, the middle 50% range, growth with experience, and how cities, disciplines and company types compare.</li>
+                                    <li><strong>Pay abroad.</strong> Choose a foreign employer to compare the United States, UK, Germany, Canada, Australia, the Netherlands, Singapore and the UAE.</li>
+                                    <li><strong>INR or USD.</strong> Switch every figure on the page between rupees and dollars.</li>
+                                    <li><strong>Take it with you.</strong> Export a five-page PDF report of your selection, or flip to a table of every figure.</li>
+                                    <li><strong>List your tool.</strong> Tool makers can book a call to get their product listed.</li>
+                                </ul>
+
+                                <h4 class="cl-subhead">New Hot trends collections</h4>
+                                <p>Three new collections for the tools designers are talking about right now, pinned under Hot trends at the top of the sidebar so they're one click away.</p>
+                                <ul>
+                                    <li><strong>MCP Connectors.</strong> Connect your design tools to AI assistants.</li>
+                                    <li><strong>AI Creative Suites.</strong> All-in-one AI platforms for images, video and design.</li>
+                                    <li><strong>Vibe Coding Tools.</strong> Turn designs and ideas into working apps and sites.</li>
+                                </ul>
+                            </div>
+                        </article>
+                    </li>
+
+                    <li class="cl-entry" id="v2-0" data-through="2026-09-01">
+                        <div class="cl-meta">
+                            <span class="cl-version">v2.0</span>
+                            <span class="cl-sep" aria-hidden="true">/</span>
+                            <time datetime="2026-09-01">Sep 1, 2026</time>
+                        </div>
+                        <article class="cl-body">
+                            <h3 class="cl-title"><a href="#v2-0">A whole new look, open source for everyone.</a></h3>
+                            <figure class="cl-shot">
+                                <a class="cl-shot-link" href="/" aria-label="Open the Design Wallet homepage">
+                                    <img src="/public/changelog/v2-0.webp" alt="The redesigned Design Wallet homepage with the category sidebar, starfield hero and tool grid" width="1440" height="900" loading="lazy">
+                                </a>
+                            </figure>
+                            <div class="cl-desc">
+                                <p>Design Wallet is now completely free. No paywall, no account. The whole library opens straight onto the homepage.</p>
+                                <ul>
+                                    <li><strong>The library is the homepage.</strong> Browse 400+ tools from the first screen, with a sidebar of categories.</li>
+                                    <li><strong>An icon for every category.</strong> 37 custom icons across the sidebar and the tool cards.</li>
+                                    <li><strong>Sharper tool logos</strong>, delivered at full resolution and sized consistently.</li>
+                                    <li><strong>Good deals</strong>, a new page for discounts on the tools we recommend.</li>
+                                    <li><strong>A newsletter</strong>, so new resources reach your inbox.</li>
+                                </ul>
+                            </div>
+                        </article>
+                    </li>
+
+                </ol>
+            </section>
+
+            <section class="cl-major" id="version-1" aria-labelledby="version-1-title">
+                <h2 class="cl-major-title" id="version-1-title">Version 1</h2>
+                <ol class="cl-list">
+
+                    <li class="cl-entry" id="v1-2" data-through="2026-06-14">
+                        <div class="cl-meta">
+                            <span class="cl-version">v1.2</span>
+                            <span class="cl-sep" aria-hidden="true">/</span>
+                            <time datetime="2026-06-14">Jun 14, 2026</time>
+                        </div>
+                        <article class="cl-body">
+                            <h3 class="cl-title"><a href="#v1-2">Submit your portfolio</a></h3>
+                            <figure class="cl-shot">
+                                <a class="cl-shot-link" href="/submit-portfolio/" aria-label="Open Submit your portfolio">
+                                    <img src="/public/changelog/v1-2.webp" alt="The Submit your portfolio page with its submission form" width="1440" height="900" loading="lazy">
+                                </a>
+                            </figure>
+                            <div class="cl-desc">
+                                <p>Designers can now send their portfolio website to be featured in the library, and the blog gained a new story.</p>
+                                <ul>
+                                    <li><strong>Portfolio submissions.</strong> A short form to get your portfolio in front of other designers.</li>
+                                    <li><strong>New on the blog:</strong> <em>The Leadership Lesson Nobody Teaches Designers</em>.</li>
+                                </ul>
+                            </div>
+                        </article>
+                    </li>
+
+                    <li class="cl-entry" id="v1-1" data-through="2026-05-20">
+                        <div class="cl-meta">
+                            <span class="cl-version">v1.1</span>
+                            <span class="cl-sep" aria-hidden="true">/</span>
+                            <time datetime="2026-05-20">May 20, 2026</time>
+                        </div>
+                        <article class="cl-body">
+                            <h3 class="cl-title"><a href="#v1-1">A better blog and a refreshed homepage</a></h3>
+                            <figure class="cl-shot">
+                                <a class="cl-shot-link" href="/blog/" aria-label="Open the Design Wallet blog">
+                                    <img src="/public/changelog/v1-1.webp" alt="The Design Wallet Daily blog index with article cards and categories" width="1440" height="900" loading="lazy">
+                                </a>
+                            </figure>
+                            <div class="cl-desc">
+                                <p>The blog got a redesign and search, the homepage got new copy and navigation, and links now share properly.</p>
+                                <ul>
+                                    <li><strong>Design Wallet Daily</strong>, restyled, with search and category filters.</li>
+                                    <li><strong>First long read:</strong> <em>How to Become a Graphic Design Freelancer: 10 Steps in 2026</em>.</li>
+                                    <li><strong>Rich link previews</strong> when you share the site or a blog post.</li>
+                                    <li><strong>Homepage and navigation updates</strong>, including a Blog link and fixed category links from search.</li>
+                                </ul>
+                            </div>
+                        </article>
+                    </li>
+
+                    <li class="cl-entry" id="v1-0" data-through="2026-04-19">
+                        <div class="cl-meta">
+                            <span class="cl-version">v1.0</span>
+                            <span class="cl-sep" aria-hidden="true">/</span>
+                            <time datetime="2026-04-19">Apr 19, 2026</time>
+                        </div>
+                        <article class="cl-body">
+                            <h3 class="cl-title"><a href="#v1-0">Design Wallet is live</a></h3>
+                            <figure class="cl-shot">
+                                <a class="cl-shot-link" href="/tools/spline/" aria-label="Open the Spline tool page">
+                                    <img src="/public/changelog/v1-0.webp" alt="A Design Wallet tool page for Spline, with its description, category and visit link" width="1440" height="900" loading="lazy">
+                                </a>
+                            </figure>
+                            <div class="cl-desc">
+                                <p>The first release of Design Wallet: a curated library of design tools and resources for curious designers, at designwallet.in.</p>
+                                <ul>
+                                    <li><strong>A curated tool library</strong>, with search and category filters.</li>
+                                    <li><strong>A page for every tool</strong>, with clean, shareable links.</li>
+                                    <li><strong>The Design Wallet blog</strong>, published straight from our writing workspace.</li>
+                                    <li><strong>Privacy policy and terms</strong>, and faster page loads.</li>
+                                </ul>
+                            </div>
+                        </article>
+                    </li>
+
+                </ol>
+            </section>
+        </main>
+    </div>
+
+    <script src="/content.js?v=20260508-6"></script>
+    <script src="/header.js?v=20260915-2"></script>
+    <script src="/stars.js?v=20260901-1"></script>
+</body>
+</html>

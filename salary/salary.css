@@ -55,7 +55,7 @@
     display: grid;
     grid-template-columns: var(--sal-sidebar-w) minmax(0, 1fr);
     gap: 12px;
-    padding: 12px;
+    padding: 12px 12px 12px 0;   /* no left inset — the sidebar sits on the edge */
     min-height: 100vh;
     align-items: start;
 }
@@ -66,17 +66,19 @@
 
 /* ── sidebar ─────────────────────────────────────────────────────────────── */
 
+/* Same treatment as the home page's .dash-sidebar (tools/dashboard.css): no
+   fill, no radius, full height, ruled off from the workspace by a right border.
+   margin-top cancels .sal-app's top padding so it runs to the viewport edge. */
 .sal-sidebar {
     position: sticky;
-    top: 12px;
+    top: 0;
     display: flex;
     flex-direction: column;
     gap: 18px;
-    height: calc(100vh - 24px);
-    padding: 22px 16px 16px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+    height: 100vh;
+    margin-top: -12px;
+    padding: 20px 12px 16px;
+    border-right: 1px solid var(--border);
     overflow: hidden;
 }
 
@@ -102,30 +104,36 @@
 .sal-role-nav {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 8px;                    /* matches .dash-nav on the home page */
     overflow-y: auto;
     flex: 1 1 auto;
     margin: 0 -4px;
     padding: 0 4px;
-    scrollbar-width: thin;
+    /* Still scrolls, the bar just isn't painted. All three rules are needed —
+       the ::-webkit rule alone doesn't reach Firefox or legacy Edge. */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
+.sal-role-nav::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* Rows mirror the home page's .dash-nav-row, so both left panels read as one
+   system: same size, padding, radius and active fill. */
 .sal-role-btn {
     display: flex;
     align-items: center;
     gap: 10px;
     width: 100%;
-    padding-left: 14px;
     background: none;
     border: 0;
-    border-radius: var(--radius-sm);
-    color: var(--muted);
+    border-radius: 10px;
+    color: var(--muted-strong);
     font-family: "Geist", sans-serif;
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     text-align: left;
-    padding: 9px 10px;
+    padding: 8px 12px;
     cursor: pointer;
-    transition: background 0.14s ease, color 0.14s ease;
+    transition: background 0.15s ease, color 0.15s ease;
     white-space: nowrap;
 }
 
@@ -141,23 +149,9 @@
 }
 
 .sal-role-btn.is-active {
-    background: var(--surface-4);
-    color: var(--text);
-}
-
-/* The active rail marker — the one non-recessive thing in the sidebar. */
-.sal-role-btn.is-active::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    width: 3px;
-    height: 20px;
-    border-radius: 0 2px 2px 0;
-    background: var(--pure);
-}
-
-.sal-role-btn {
-    position: relative;
+    background: rgba(var(--fg-rgb), 0.1);
+    color: var(--pure);
+    font-weight: 500;
 }
 
 /* Hidden in the expanded panel — the full role name is enough there, and a
@@ -200,16 +194,14 @@
     padding: 5px 6px;
 }
 
-/* The rail marker would sit on top of the abbreviation at this width. */
-.is-collapsed .sal-role-btn.is-active::before {
-    display: none;
-}
-
+/* Ruled off from the role list, like the home page's .dash-sidebar-foot. */
 .sal-sidebar-foot {
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
 }
 
 .sal-cta-card {
@@ -292,9 +284,9 @@
 }
 
 .sal-h1 {
-    font-size: 1.24rem;
-    font-weight: 400;
-    letter-spacing: -0.015em;
+    font-size: 2.5rem;
+    font-weight: 100;
+    letter-spacing: -0.03em;
     color: var(--text);
     margin: 0;
 }
@@ -346,10 +338,59 @@
     outline-offset: 2px;
 }
 
+/* Actions stack over their caption, both hugging the right edge. */
+.sal-topbar-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
 .sal-topbar-actions {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;     /* three controls now; let them wrap before they squeeze */
     gap: 10px;
+}
+
+.sal-topbar-note {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.72rem;
+    text-align: right;
+}
+
+/* Export sits beside the Charts/Table toggle and borrows its chrome, so the
+   two read as one control group rather than a button bolted on. */
+.sal-export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 14px;
+    color: var(--muted-strong);
+    font-family: "Geist", sans-serif;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.sal-export-btn:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+}
+
+.sal-export-btn:focus-visible {
+    outline: 2px solid var(--pure);
+    outline-offset: 2px;
+}
+
+.sal-export-btn[disabled] {
+    cursor: default;
+    opacity: 0.6;
 }
 
 .sal-topbar-cta {
@@ -368,7 +409,9 @@
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     gap: 12px;
-    align-items: start;
+    /* Every card in a row takes the row's height, so the bento edges line up
+       instead of leaving ragged gaps under the shorter cards. */
+    align-items: stretch;
 }
 
 .sal-card {
@@ -499,6 +542,45 @@
     font-variant-numeric: tabular-nums;
 }
 
+/* INR/USD switch beside the headline figure. A smaller cut of .sal-view-toggle. */
+.sal-hero-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.sal-currency-toggle {
+    display: inline-flex;
+    gap: 2px;
+    background: var(--surface-4);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2px;
+}
+
+.sal-currency-btn {
+    background: none;
+    border: 0;
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: "Geist", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    padding: 4px 9px;
+    cursor: pointer;
+}
+
+.sal-currency-btn.is-active {
+    background: var(--pure);
+    color: var(--bg);
+}
+
+.sal-currency-btn:focus-visible {
+    outline: 2px solid var(--pure);
+    outline-offset: 2px;
+}
+
 .sal-top-city {
     font-size: 1.5rem;
     font-weight: 300;
@@ -583,7 +665,7 @@
     background: var(--surface-4);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    color: var(--text);
+    color: var(--muted);         /* still on "All …" — salary.js adds .is-set once chosen */
     font-family: "Geist", sans-serif;
     font-size: 0.86rem;
     padding: 9px 30px 9px 12px;
@@ -595,12 +677,14 @@
     background-repeat: no-repeat;
 }
 
-.sal-field.is-disabled {
-    opacity: 0.45;
+.sal-field select.is-set {
+    color: var(--pure);
 }
 
-.sal-field select:disabled {
-    cursor: not-allowed;
+/* Some platforms paint the open list in the select's own colour — keep the
+   options readable rather than inheriting the grey. */
+.sal-field select option {
+    color: var(--text);
 }
 
 /* The global focus ring is on a bare element selector, so suppressing it needs
@@ -751,6 +835,7 @@
     bottom: 0;
     background: var(--sal-ramp-3);
     border-radius: 7px;
+    transition: left var(--sal-motion) var(--sal-ease), width var(--sal-motion) var(--sal-ease);
 }
 
 .sal-range-median {
@@ -761,6 +846,7 @@
     margin-left: -1.5px;
     background: var(--sal-ramp-5);
     border-radius: 2px;
+    transition: left var(--sal-motion) var(--sal-ease);
 }
 
 .sal-range-scale {
@@ -774,6 +860,20 @@
 
 .sal-range-scale-mid {
     color: var(--text);
+}
+
+/* Motion for every chart mark. charts.js starts each mark at its previous
+   geometry and these transitions carry it to the new one (DURATION there
+   matches --sal-motion). Reduced motion gets instant updates. */
+.sal-body {
+    --sal-motion: 0.52s;
+    --sal-ease: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sal-body {
+        --sal-motion: 0s;
+    }
 }
 
 /* ── histogram ───────────────────────────────────────────────────────────── */
@@ -790,7 +890,7 @@
     min-width: 0;
     background: var(--sal-ramp-1);
     border-radius: 3px 3px 0 0;
-    transition: background 0.14s ease;
+    transition: background var(--sal-motion) var(--sal-ease), height var(--sal-motion) var(--sal-ease);
 }
 
 .sal-hist-bin.is-mid {
@@ -828,11 +928,19 @@
     gap: 12px;
     border-radius: var(--radius-sm);
     cursor: default;
+    transition: transform var(--sal-motion) var(--sal-ease);
+}
+
+/* USD figures carry "/year", so the value column widens — a fixed width, not
+   max-content, so every track in a chart still ends at the same x. */
+.sal-currency-usd .sal-bar-row {
+    grid-template-columns: 108px minmax(0, 1fr) 96px;
 }
 
 .sal-bar-label {
     font-size: 0.85rem;
     color: var(--muted-strong);
+    transition: color var(--sal-motion) var(--sal-ease);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -851,7 +959,7 @@
     /* Emphasis: everything recedes to ramp-2 until it is the selection. */
     background: var(--sal-ramp-2);
     border-radius: 0 4px 4px 0;
-    transition: background 0.16s ease, width 0.24s ease;
+    transition: background var(--sal-motion) var(--sal-ease), width var(--sal-motion) var(--sal-ease);
 }
 
 .sal-bar-value {
@@ -912,7 +1020,8 @@
     border: 2px solid var(--panel);
     background: var(--sal-ramp-3);
     cursor: pointer;
-    transition: background 0.16s ease, transform 0.16s ease;
+    transition: background var(--sal-motion) var(--sal-ease), transform var(--sal-motion) var(--sal-ease),
+        top var(--sal-motion) var(--sal-ease);
 }
 
 .sal-step-node:hover {
@@ -997,7 +1106,8 @@
     font-size: 0.72rem;
     color: var(--bg);
     cursor: pointer;
-    transition: transform 0.12s ease;
+    transition: transform 0.12s ease, background-color var(--sal-motion) var(--sal-ease),
+        color var(--sal-motion) var(--sal-ease);
 }
 
 .sal-heat-cell:hover {
@@ -1064,7 +1174,7 @@
     height: 100%;
     background: var(--sal-ramp-4);
     border-radius: 4px;
-    transition: width 0.24s ease;
+    transition: width var(--sal-motion) var(--sal-ease);
 }
 
 /* ── tables ──────────────────────────────────────────────────────────────── */
@@ -1331,6 +1441,19 @@
     border-color: var(--muted-strong);
 }
 
+/* "Every field is required — NIL to skip", above the first fieldset. */
+.sal-form-rule {
+    margin: 0 0 20px;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--muted);
+}
+
+.sal-form-rule strong {
+    font-weight: 500;
+    color: var(--text);
+}
+
 .sal-field-hint,
 .sal-field-error {
     font-size: 0.76rem;
@@ -1418,13 +1541,17 @@
         padding: 10px;
     }
 
+    /* As a top rail the rule moves from the right edge to the bottom. */
     .sal-sidebar {
         position: static;
         height: auto;
+        margin-top: 0;
         flex-direction: row;
         align-items: center;
         gap: 14px;
         padding: 12px 14px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
     }
 
     .sal-role-nav {
@@ -1436,17 +1563,6 @@
 
     .sal-role-btn {
         padding: 8px 12px;
-    }
-
-    /* The rail marker is a left edge; horizontally it belongs underneath. */
-    .sal-role-btn.is-active::before {
-        left: 10px;
-        right: 10px;
-        bottom: 2px;
-        top: auto;
-        width: auto;
-        height: 2px;
-        border-radius: 2px;
     }
 
     .sal-sidebar-foot,
@@ -1500,6 +1616,10 @@
     .sal-bar-row {
         grid-template-columns: 84px minmax(0, 1fr) 62px;
         gap: 8px;
+    }
+
+    .sal-currency-usd .sal-bar-row {
+        grid-template-columns: 84px minmax(0, 1fr) 84px;
     }
 
     .sal-bar-label,

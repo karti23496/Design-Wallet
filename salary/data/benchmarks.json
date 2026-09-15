@@ -191,6 +191,52 @@
     "video-editor|vp":          null
   },
 
+  "international": {
+    "_readme": [
+      "Shown only when Employer is set to Foreign employer: the City filter becomes a Country filter.",
+      "usd_baselines are UNITED STATES annual BASE salary for a product designer, [p25, p50, p75] in USD.",
+      "A country figure is usd_baselines * country.index * role_index[role]. country.index is the",
+      "market's base pay relative to the US, already converted to USD. The build converts every",
+      "cell to INR lakh with fx.usd_inr so the page runs one unit; the INR/USD toggle converts back.",
+      "A role/level that is null in India's baselines is null abroad too.",
+      "Sources: Levels.fyi, Glassdoor and Built In country pages for product and UX design, 2025-2026, read as ranges."
+    ],
+    "fx": { "usd_inr": 95.6, "as_of": "2026-09-12" },
+    "countries": [
+      { "id": "united-states", "label": "United States", "index": 1.00 },
+      { "id": "australia", "label": "Australia", "index": 0.62 },
+      { "id": "united-kingdom", "label": "United Kingdom", "index": 0.60 },
+      { "id": "netherlands", "label": "Netherlands", "index": 0.60 },
+      { "id": "singapore", "label": "Singapore", "index": 0.60 },
+      { "id": "germany", "label": "Germany", "index": 0.58 },
+      { "id": "uae", "label": "United Arab Emirates", "index": 0.58 },
+      { "id": "canada", "label": "Canada", "index": 0.56 }
+    ],
+    "usd_baselines": {
+      "intern":   [45000, 60000, 78000],
+      "junior":   [80000, 95000, 115000],
+      "mid":      [105000, 125000, 148000],
+      "senior":   [135000, 158000, 185000],
+      "lead":     [160000, 182000, 210000],
+      "manager":  [170000, 195000, 230000],
+      "director": [205000, 240000, 285000],
+      "vp":       [250000, 300000, 360000]
+    },
+    "role_index": {
+      "product-designer": 1.00,
+      "ux-researcher": 0.98,
+      "design-systems-designer": 1.05,
+      "visual-designer": 0.78,
+      "brand-designer": 0.80,
+      "3d-designer": 0.82,
+      "motion-designer": 0.82,
+      "graphic-designer": 0.62,
+      "illustrator": 0.66,
+      "animator": 0.74,
+      "video-editor": 0.62
+    }
+  },
+
   "extras": {
     "_readme": "Share of people at each level who report variable pay / ESOPs, and typical variable as a share of fixed. Modelled from the same sources; replaced by real data as submissions arrive.",
     "intern":   { "variable_share": 0.02, "variable_pct": 0.00, "esop_share": 0.00 },

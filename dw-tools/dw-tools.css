@@ -1,0 +1,139 @@
+/* ============================================================================
+   Mini Tools index (/dw-tools/).
+   Hero follows the Good deals page; the cards are rendered from DW_TOOLS by
+   dw-tools.js. Uses the global theme tokens from /style.css.
+   ============================================================================ */
+
+.dwt-main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 64px 0 96px;
+}
+
+/* ── Hero ─────────────────────────────────────────────────────────────── */
+.dwt-hero {
+    position: relative;          /* anchors the absolutely-positioned starfield */
+    overflow: hidden;            /* orbits run up to ~1000px wide — clip them */
+    padding: 24px 24px 8px;
+    text-align: center;
+}
+
+/* The field is positioned with z-index 0, so it would paint over the in-flow
+   copy. Lift every sibling above it, as on Good deals. */
+.dwt-hero > :not(.stars-field) {
+    position: relative;
+    z-index: 1;
+}
+
+.dwt-eyebrow {
+    font-family: "Geist", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin: 0 0 18px;
+}
+
+.dwt-title {
+    font-family: "Geist", sans-serif;
+    font-weight: 200;
+    font-size: clamp(2rem, 5vw, 3.6rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin: 0 auto 20px;
+}
+
+.dwt-subtitle {
+    max-width: 52ch;
+    color: var(--muted);
+    font-size: 1.02rem;
+    line-height: 1.6;
+    margin: 0 auto;
+}
+
+/* ── Tool cards ───────────────────────────────────────────────────────── */
+/* auto-fit + a capped track + centring: a short list sits under the centred
+   hero instead of leaving empty columns on the right. */
+.dwt-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 356px));
+    justify-content: center;
+    gap: 16px;
+    margin: 72px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Icon and title share row 1; the description runs the full width beneath,
+   matching the items in the nav's Mini Tools panel. */
+.dwt-card {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 16px;
+    height: 100%;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--panel-soft);
+    transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.dwt-card:hover,
+.dwt-card:focus-visible {
+    border-color: var(--border-strong);
+    background: rgba(var(--fg-rgb), 0.06);
+}
+
+.dwt-card-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: rgba(var(--fg-rgb), 0.04);
+    color: var(--text);
+}
+
+.dwt-card-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+    font-family: "Geist", sans-serif;
+    font-size: 1.05rem;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.dwt-card-arrow {
+    flex: 0 0 auto;
+    transition: transform 0.18s ease;
+}
+
+.dwt-card:hover .dwt-card-arrow,
+.dwt-card:focus-visible .dwt-card-arrow {
+    transform: translateX(3px);
+}
+
+/* Lighter than --muted, which is below AA for body copy (§9 note). */
+.dwt-card-desc {
+    grid-column: 1 / -1;
+    color: rgba(var(--fg-rgb), 0.55);
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+
+@media (max-width: 700px) {
+    .dwt-main { padding: 40px 0 64px; }
+    .dwt-hero { padding-inline: 0; }
+    .dwt-grid {
+        grid-template-columns: 1fr;
+        margin-top: 48px;
+    }
+    .dwt-card { padding: 20px; }
+}

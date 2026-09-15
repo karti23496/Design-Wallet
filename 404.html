@@ -27,8 +27,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/style.css?v=20260901-2">
-    <link rel="stylesheet" href="/tools/dashboard.css?v=20260901-6">
+    <link rel="stylesheet" href="/style.css?v=20260915-1">
+    <link rel="stylesheet" href="/tools/dashboard.css?v=20260915-1">
 </head>
 <body>
     <div class="page-shell">
@@ -52,10 +52,20 @@
                     <nav class="dash-nav" id="dash-nav" aria-label="Tool categories"></nav>
                     <div class="dash-sidebar-foot">
                         <span class="dash-sidebar-copy">&copy; Design Wallet</span>
-                        <a class="dash-sidebar-cta" href="/list-your-tool/">
-                            <svg class="dash-sidebar-cta-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.00005 19L19 5.99996M19 5.99996V18.48M19 5.99996H6.52005"/></svg>
-                            List your tool
-                        </a>
+                        <!-- Drop-up: hover or focus the CTA to reveal the three ways
+                             to contribute. The trigger still links to /list-your-tool/,
+                             so a tap on touch screens goes somewhere useful. -->
+                        <div class="dash-sidebar-menu">
+                            <a class="dash-sidebar-cta" href="/list-your-tool/" aria-haspopup="true">
+                                <svg class="dash-sidebar-cta-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.00005 19L19 5.99996M19 5.99996V18.48M19 5.99996H6.52005"/></svg>
+                                List your tool
+                            </a>
+                            <div class="dash-dropup" aria-label="Contribute to Design Wallet">
+                                <a class="dash-dropup-link" href="/list-your-tool/">List your tool <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.00005 19L19 5.99996M19 5.99996V18.48M19 5.99996H6.52005"/></svg></a>
+                                <a class="dash-dropup-link" href="/submit-portfolio/">Submit your portfolio <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.00005 19L19 5.99996M19 5.99996V18.48M19 5.99996H6.52005"/></svg></a>
+                                <a class="dash-dropup-link" href="/salary/submit/">Add your salary <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.00005 19L19 5.99996M19 5.99996V18.48M19 5.99996H6.52005"/></svg></a>
+                            </div>
+                        </div>
                     </div>
                 </aside>
 
@@ -160,9 +170,9 @@
     </div>
 
     <script src="/content.js?v=20260508-6"></script>
-    <script src="/header.js?v=20260905-3"></script>
+    <script src="/header.js?v=20260915-2"></script>
     <script src="/newsletter.js?v=20260824-1"></script>
     <script src="/stars.js?v=20260901-1"></script>
-    <script src="/tools/tools.js?v=20260901-7"></script>
+    <script src="/tools/tools.js?v=20260915-1"></script>
 </body>
 </html>

@@ -97,51 +97,8 @@
     font-size: 0.82rem;
 }
 
-/* ── Value grid ───────────────────────────────────────────────────────── */
-.ga-value {
-    margin-top: 72px;
-}
-
-.ga-value-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 14px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.ga-value-item {
-    padding: 22px;
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    background: var(--panel-soft);
-}
-
-.ga-value-item h3 {
-    margin: 0 0 8px;
-    font-family: "Geist", sans-serif;
-    font-weight: 500;
-    font-size: 1rem;
-    color: var(--text);
-}
-
-.ga-value-item p {
-    margin: 0;
-    color: var(--muted);
-    font-size: 0.9rem;
-    line-height: 1.55;
-}
-
-.ga-value-item a {
-    color: var(--text);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-}
-
 @media (max-width: 700px) {
     .ga-main { padding: 40px 18px 64px; }
-    .ga-value { margin-top: 48px; }
     .ga-deals-form { flex-wrap: wrap; border-radius: 20px; }
     .ga-deals-form input,
     .ga-deals-form button { width: 100%; }
