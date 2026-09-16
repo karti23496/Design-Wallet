@@ -1414,6 +1414,26 @@
     padding: 0 8px;
 }
 
+/* INR/USD switch above the two pay fields. Reuses the dashboard's
+   .sal-currency-toggle so the control looks the same in both places. */
+.sal-pay-currency {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 18px;
+}
+
+.sal-pay-currency-label {
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+
+/* The running "≈ ₹19.4 LPA" conversion, shown only in USD mode. */
+.sal-pay-converted {
+    color: var(--muted-strong);
+}
+
 .sal-form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

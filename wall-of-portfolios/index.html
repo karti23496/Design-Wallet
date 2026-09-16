@@ -11,8 +11,13 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Good Deals — Design Wallet™</title>
-    <meta name="description" content="Discounts and offers on design tools, worth knowing about. Curated by Design Wallet.">
+    <title>Wall of Portfolios — Design Wallet™</title>
+    <meta name="description" content="A wall of real designer portfolios, collected by Design Wallet. Browse them for inspiration, or submit your own.">
+    <link rel="canonical" href="https://designwallet.in/wall-of-portfolios/">
+    <meta property="og:title" content="Wall of Portfolios — Design Wallet™">
+    <meta property="og:description" content="A wall of real designer portfolios, collected by Design Wallet. Browse them for inspiration, or submit your own.">
+    <meta property="og:url" content="https://designwallet.in/wall-of-portfolios/">
+    <meta property="og:type" content="website">
     <meta property="og:image" content="https://designwallet.in/public/illustrations/Meta%20Image.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -26,28 +31,33 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
     <link rel="stylesheet" href="/style.css?v=20260916-1">
-    <link rel="stylesheet" href="/good-deals/good-deals.css">
+    <link rel="stylesheet" href="/wall-of-portfolios/wall.css?v=20260916-1">
 </head>
 <body>
     <div class="page-shell">
         <header class="site-header"></header>
 
-        <main class="ga-main">
-            <section class="ga-hero">
+        <main class="wop-main">
+            <section class="wop-hero">
                 <!-- Orbiting starfield, populated by stars.js -->
                 <div class="stars-field" id="stars-field" aria-hidden="true"></div>
-                <p class="ga-eyebrow">Good deals</p>
-                <h1 class="ga-title">Discounts worth<br> knowing about</h1>
-                <p class="ga-subtitle">
-                    Offers on the design tools we already recommend — collected here so you
-                    aren't hunting for a coupon code at checkout.
+                <p class="wop-eyebrow">Wall of portfolios</p>
+                <h1 class="wop-title">Portfolios worth<br> stealing from</h1>
+                <p class="wop-subtitle">
+                    Real portfolios from working designers, collected in one place — for
+                    when you're rebuilding your own and need to see how others did it.
                 </p>
 
-                <form class="newsletter-form ga-deals-form">
-                    <input type="email" name="email" placeholder="Email address" aria-label="Email address" required>
-                    <button type="submit" class="primary-button">Notify me</button>
-                </form>
-                <p class="ga-reassure">We're curating the first batch. Subscribe and we'll send them as they land.</p>
+                <div class="wop-hero-actions">
+                    <a class="primary-button wop-submit-btn" href="/submit-portfolio/">Submit your portfolio</a>
+                    <p class="wop-count" id="wop-count"></p>
+                </div>
+            </section>
+
+            <section class="wop-section" aria-labelledby="wop-heading">
+                <h2 class="wop-sr-only" id="wop-heading">Designer portfolios</h2>
+                <p class="wop-status" id="wop-status">Loading portfolios…</p>
+                <div class="wop-grid" id="wop-grid"></div>
             </section>
         </main>
 
@@ -57,5 +67,7 @@
     <script src="/header.js?v=20260916-1"></script>
     <script src="/newsletter.js?v=20260824-1"></script>
     <script src="/stars.js?v=20260901-1"></script>
+    <script src="/submit-portfolio/endpoint.js?v=20260916-1"></script>
+    <script src="/wall-of-portfolios/wall.js?v=20260916-1"></script>
 </body>
 </html>

@@ -609,6 +609,18 @@ which previously sat lower than the plain <a> siblings. */
     transition: transform 0.18s ease;
 }
 
+/* The simple dropdown (Resources) needs the same chevron spacing and flip that
+   --wide gets above. Its taller hit area comes from the ::after bridge rather
+   than trigger padding, so only the gap is set here. */
+.nav-dropdown .nav-dropdown-trigger {
+    gap: 6px;
+}
+
+.nav-dropdown:hover .nav-dropdown-chevron,
+.nav-dropdown:focus-within .nav-dropdown-chevron {
+    transform: rotate(180deg);
+}
+
 .nav-dropdown--wide:hover .nav-dropdown-chevron,
 .nav-dropdown--wide:focus-within .nav-dropdown-chevron {
     transform: rotate(180deg);
@@ -634,6 +646,53 @@ which previously sat lower than the plain <a> siblings. */
     right: 0;
     bottom: 100%;
     height: 32px;
+}
+
+/* ── Resources: the Mini Tools panel, sized for two links ────────────────────
+   Same .nav-mega item styling, but it keeps `position: relative` and anchors
+   to its own trigger. --wide goes static and centres on the header, which only
+   makes sense for a panel wide enough to fill it; a 600px panel centred that
+   way would float away from the word it belongs to.
+   These rules must stay AFTER the base .nav-dropdown-menu hover rule, which
+   has equal specificity and would otherwise win with its translate(-50%). */
+.nav-dropdown--panel .nav-mega {
+    top: calc(100% + 10px);
+    left: 0;
+    width: 600px;
+    max-width: calc(100vw - 32px);
+    min-width: 0;
+    /* One column region: no CTA block, unlike Mini Tools. */
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0;
+    border-radius: 24px;
+    background: var(--surface-1);
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.48);
+    transform: translateY(-6px);
+}
+
+.nav-dropdown--panel:hover .nav-mega,
+.nav-dropdown--panel:focus-within .nav-mega {
+    transform: translateY(0);
+}
+
+/* The base ::after bridge is sized to the trigger and sits under the panel's
+   left edge; the panel carries its own, like --wide. */
+.nav-dropdown--panel::after {
+    display: none;
+}
+
+.nav-dropdown--panel .nav-mega::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 32px;
+}
+
+/* Two links, two columns — auto-fill would drop to one at this width. */
+.nav-dropdown--panel .nav-mega-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .nav-mega-grid {
@@ -759,7 +818,11 @@ which previously sat lower than the plain <a> siblings. */
 /* Mobile: the nav is a stacked sheet and every menu is always expanded, so the
    panel becomes one column with the CTA underneath. */
 @media (max-width: 980px) {
-    .nav-dropdown--wide {
+    /* `.site-nav > *` makes every dropdown an inline-flex ROW, so a menu that
+       has gone `position: static` for the stacked sheet lands BESIDE its
+       trigger instead of under it. Applies to every dropdown, not just --wide:
+       Resources hit exactly this, floating over the hero at 390px. */
+    .nav-dropdown {
         flex-direction: column;
         align-items: stretch;
     }
@@ -776,11 +839,20 @@ which previously sat lower than the plain <a> siblings. */
 
     .nav-dropdown--wide .nav-mega,
     .nav-dropdown--wide:hover .nav-mega,
-    .nav-dropdown--wide:focus-within .nav-mega {
+    .nav-dropdown--wide:focus-within .nav-mega,
+    .nav-dropdown--panel .nav-mega,
+    .nav-dropdown--panel:hover .nav-mega,
+    .nav-dropdown--panel:focus-within .nav-mega {
         width: auto;
+        max-width: none;
         grid-template-columns: 1fr;
         border-radius: 16px;
         transform: none;
+    }
+
+    /* The desktop panel forces two columns; the sheet is one column wide. */
+    .nav-dropdown--panel .nav-mega-grid {
+        grid-template-columns: 1fr;
     }
 
     .nav-mega-grid {

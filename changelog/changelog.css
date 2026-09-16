@@ -64,6 +64,14 @@
     scroll-margin-top: 120px;
 }
 
+/* Every major heading is "V<number> <constellation>" (Karthik's call,
+   2026-09-16) — one name, read as a unit. The constellation is set a step
+   softer than the number so "V2" still reads first when scanning the page,
+   but close enough to --text that the two don't look like separate labels. */
+.cl-major-name {
+    color: var(--muted-strong);
+}
+
 /* ── Entries ──────────────────────────────────────────────────────────── */
 .cl-list {
     list-style: none;

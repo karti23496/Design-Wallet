@@ -1,6 +1,23 @@
 /**
- * Server side for Know your money: stores submissions from /salary/submit/ and
- * serves the live community figures /salary/ reads.
+ * Server side for BOTH Design Wallet forms.
+ *
+ *   Know your money  — stores submissions from /salary/submit/ and serves the
+ *                      live community figures /salary/ reads.
+ *   Portfolios       — stores submissions from /submit-portfolio/ and serves
+ *                      the approved ones to /wall-of-portfolios/.
+ *
+ * WHY ONE SCRIPT FOR TWO FORMS (2026-09-16): the portfolio form had its own
+ * deployment, and that deployment was at some point overwritten with THIS
+ * script's code — so portfolio submissions were being posted into the salary
+ * doPost, rejected, and silently lost. Rather than stand up a second project
+ * that can drift the same way again, both forms now share this one deployment
+ * and are told apart by an explicit field. One URL, one thing to redeploy.
+ *
+ *   doPost  routes on `form`: "portfolio" → portfolio, anything else → salary.
+ *   doGet   routes on `type`: "portfolios" → portfolio, otherwise → salary.
+ *
+ * The salary paths are untouched by that routing: a request with no `form` or
+ * `type` behaves exactly as it did before, so the dashboard keeps working.
  *
  * WHERE IT LIVES: rows go to the "Salary Submission" tab of the private
  * subscriber-responses spreadsheet (restricted, shared with no one). That
@@ -36,6 +53,32 @@
 var SPREADSHEET_ID = "1aKs9XEJUsbmpax583dCsVPEJzmZ5F_L3u-xf1PFRLGc";
 var SHEET_NAME = "Salary Submission";
 var STATUS_OPTIONS = ["Approved", "Rejected"];
+
+/* ── Portfolios (/submit-portfolio/ → /wall-of-portfolios/) ────────────────
+   A different tab of the SAME private spreadsheet. Unlike salary, portfolio
+   entries are opt-in: every new row lands "Rejected" and only shows on the
+   site once Karthik sets it to "Approved" by hand, so an unreviewed spam
+   entry can never appear. */
+var PORTFOLIO_SHEET_NAME = "List of design portfolio";
+var PORTFOLIO_DEFAULT_STATUS = "Rejected";
+var PORTFOLIO_CACHE_KEY = "portfolios-approved";
+
+var PORTFOLIO_HEADERS = [
+    "Submitted At",
+    "Full Name",
+    "Email Address",
+    "Portfolio Website URL",
+    "Designer Role",
+    "Country / Location",
+    "Primary Tools Used",
+    "Portfolio Description",
+    "Permission",
+    "Status",
+    // Filled in by hand at approval time. Both optional — a card falls back to
+    // a lettered avatar and a title-only thumbnail when they are blank.
+    "Profile Image URL",
+    "Thumbnail URL"
+];
 
 var MIN_REPORTS = 5;          // below this a group is not published
 var RECENCY_MONTHS = 24;      // older salaries are ignored
@@ -91,10 +134,18 @@ function doPost(event) {
             throw new Error("Too many submissions right now");
         }
 
+        var params = (event && event.parameter) || {};
+
+        // Route first. `form=portfolio` is sent as a hidden field by
+        // /submit-portfolio/; `portfolioUrl` is a belt-and-braces fallback in
+        // case that field is ever dropped from the form. A salary submission
+        // has neither, so it falls through to the original path below.
+        if (String(params.form || "").toLowerCase() === "portfolio" || params.portfolioUrl) {
+            return handlePortfolioPost(event, params);
+        }
+
         var sheet = getSheet();
         ensureHeaders(sheet);
-
-        var params = (event && event.parameter) || {};
 
         var role = oneOf(params.role, ROLES, "role");
         var level = oneOf(params.level, LEVELS, "level");
@@ -181,7 +232,13 @@ function underFloodLimit() {
 
 // ── read ─────────────────────────────────────────────────────────────────────
 
-function doGet() {
+function doGet(event) {
+    var params = (event && event.parameter) || {};
+
+    if (String(params.type || "").toLowerCase() === "portfolios") {
+        return servePortfolios(params.callback);
+    }
+
     var cache = CacheService.getScriptCache();
     var cached = cache.get("community");
     if (cached) {
@@ -314,6 +371,206 @@ function summarize(values) {
 
 function round1(value) {
     return Math.round(value * 10) / 10;
+}
+
+// ── portfolios ───────────────────────────────────────────────────────────────
+
+/** One submission from /submit-portfolio/ → one row, always "Rejected". */
+function handlePortfolioPost(event, params) {
+    var sheet = getPortfolioSheet();
+    ensurePortfolioHeaders(sheet);
+
+    var multi = (event && event.parameters) || {};
+    var tools = multi.primaryTools ? multi.primaryTools.join(", ") : "";
+
+    var url = String(params.portfolioUrl || "").trim();
+    if (!/^https?:\/\//i.test(url)) {
+        throw new Error("Portfolio URL must start with http:// or https://");
+    }
+    if (!String(params.fullName || "").trim()) {
+        throw new Error("Full name is required");
+    }
+
+    writeRowByHeader(sheet, {
+        "Submitted At": new Date(),
+        "Full Name": String(params.fullName || "").trim(),
+        "Email Address": String(params.email || "").trim(),
+        "Portfolio Website URL": url,
+        "Designer Role": String(params.designerRole || "").trim(),
+        "Country / Location": String(params.location || "").trim(),
+        "Primary Tools Used": tools,
+        "Portfolio Description": String(params.portfolioDescription || "").trim(),
+        "Permission": params.permission === "on" ? "Yes" : String(params.permission || "").trim(),
+        "Status": PORTFOLIO_DEFAULT_STATUS
+    });
+
+    applyPortfolioStatusValidation(sheet, sheet.getLastRow());
+    CacheService.getScriptCache().remove(PORTFOLIO_CACHE_KEY);
+
+    return jsonResponse({ ok: true });
+}
+
+/** The approved rows, for /wall-of-portfolios/. JSONP when a callback is given:
+    the wall reads this cross-origin and Apps Script sends no CORS headers. */
+function servePortfolios(callback) {
+    var cache = CacheService.getScriptCache();
+    var body = cache.get(PORTFOLIO_CACHE_KEY);
+
+    if (!body) {
+        body = JSON.stringify({ ok: true, items: getApprovedPortfolios() });
+        if (body.length < 95000) cache.put(PORTFOLIO_CACHE_KEY, body, CACHE_SECONDS);
+    }
+
+    if (callback && /^[a-zA-Z_$][\w.$]*$/.test(callback)) {
+        return ContentService
+            .createTextOutput(callback + "(" + body + ");")
+            .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
+
+    return ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
+}
+
+/** Approved rows only. The email address is deliberately NOT returned — the
+    website has no use for it, and this endpoint is public. */
+function getApprovedPortfolios() {
+    var sheet = getPortfolioSheet();
+    var values = sheet.getDataRange().getValues();
+    if (values.length < 2) return [];
+
+    var headers = values[0].map(normalizeHeader);
+
+    return values.slice(1).map(function (row) {
+        var record = {};
+        headers.forEach(function (header, index) {
+            if (header) record[header] = row[index];
+        });
+        return record;
+    }).filter(function (record) {
+        return String(record.status || "").trim().toLowerCase() === "approved" &&
+            String(record.full_name || "").trim() &&
+            String(record.portfolio_website_url || "").trim();
+    }).map(function (record) {
+        return {
+            fullName: String(record.full_name || "").trim(),
+            portfolioUrl: String(record.portfolio_website_url || "").trim(),
+            designerRole: String(record.designer_role || "").trim(),
+            location: String(record.country_location || "").trim(),
+            description: String(record.portfolio_description || "").trim(),
+            profileImage: String(record.profile_image_url || "").trim(),
+            thumbnail: String(record.thumbnail_url || "").trim()
+        };
+    });
+}
+
+/* ⚠️ Writes each value into the column whose HEADER matches, never by position.
+ *
+ * Not defensive padding — the live tab really does disagree with
+ * PORTFOLIO_HEADERS. It carries a "Social Link" column at position 7 that this
+ * script has no field for (the form dropped it), so a positional appendRow
+ * would put the tools into Social Link, the description into Primary Tools
+ * Used and THE STATUS INTO PERMISSION — leaving Status blank, which never
+ * matches "approved", so no submission could ever reach the site.
+ */
+function writeRowByHeader(sheet, values) {
+    var lastColumn = sheet.getLastColumn();
+    var headers = sheet.getRange(1, 1, 1, lastColumn).getValues()[0].map(normalizeHeader);
+    var row = [];
+    var i;
+
+    for (i = 0; i < lastColumn; i += 1) row.push("");
+
+    Object.keys(values).forEach(function (key) {
+        var index = headers.indexOf(normalizeHeader(key));
+        if (index !== -1) row[index] = values[key];
+    });
+
+    sheet.appendRow(row);
+}
+
+function getPortfolioSheet() {
+    var book = SPREADSHEET_ID
+        ? SpreadsheetApp.openById(SPREADSHEET_ID)
+        : SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = book.getSheetByName(PORTFOLIO_SHEET_NAME);
+    if (!sheet) {
+        throw new Error("Sheet tab not found: " + PORTFOLIO_SHEET_NAME);
+    }
+    return sheet;
+}
+
+/** Writes the header row when the tab is empty, and appends any header that is
+    missing — so the two image columns arrive without anyone editing the sheet. */
+function ensurePortfolioHeaders(sheet) {
+    var lastColumn = Math.max(sheet.getLastColumn(), 1);
+    var current = sheet.getRange(1, 1, 1, lastColumn).getValues()[0];
+    var hasHeaders = current.some(function (value) {
+        return String(value || "").trim();
+    });
+
+    if (!hasHeaders) {
+        sheet.getRange(1, 1, 1, PORTFOLIO_HEADERS.length).setValues([PORTFOLIO_HEADERS]);
+        sheet.setFrozenRows(1);
+        return;
+    }
+
+    var present = current.map(normalizeHeader);
+    PORTFOLIO_HEADERS.forEach(function (header) {
+        if (present.indexOf(normalizeHeader(header)) === -1) {
+            sheet.getRange(1, sheet.getLastColumn() + 1).setValue(header);
+            present.push(normalizeHeader(header));
+        }
+    });
+}
+
+function applyPortfolioStatusValidation(sheet, row) {
+    var column = getHeaderColumn(sheet, "Status");
+    if (!column) return;
+
+    var rule = SpreadsheetApp.newDataValidation()
+        .requireValueInList(STATUS_OPTIONS, true)
+        .setAllowInvalid(false)
+        .build();
+
+    sheet.getRange(row, column).setDataValidation(rule);
+}
+
+/** Run ONCE by hand after deploying. Adds the two image columns, puts the
+    Approved/Rejected dropdown on every row, and converts the old statuses:
+    "Uploaded" meant live, so it becomes "Approved"; everything else ("In
+    Review", "New") becomes "Rejected", which is the safe direction. */
+function migratePortfolioStatuses() {
+    var sheet = getPortfolioSheet();
+    ensurePortfolioHeaders(sheet);
+
+    var column = getHeaderColumn(sheet, "Status");
+    if (!column) throw new Error("No Status column found.");
+
+    var lastRow = sheet.getLastRow();
+    if (lastRow >= 2) {
+        var range = sheet.getRange(2, column, lastRow - 1, 1);
+        var converted = range.getValues().map(function (cell) {
+            var value = String(cell[0] || "").trim().toLowerCase();
+            var isLive = value === "uploaded" || value === "upload" || value === "approved";
+            return [isLive ? "Approved" : "Rejected"];
+        });
+
+        // Clear validation first: the old rule rejects the new values.
+        range.setDataValidation(null);
+        range.setValues(converted);
+    }
+
+    // Cover the rows in use plus room to grow, so rows added by hand get the
+    // dropdown too.
+    var rows = Math.max(lastRow, 2) - 1 + 200;
+    var rule = SpreadsheetApp.newDataValidation()
+        .requireValueInList(STATUS_OPTIONS, true)
+        .setAllowInvalid(false)
+        .build();
+    sheet.getRange(2, column, rows, 1).setDataValidation(rule);
+
+    CacheService.getScriptCache().remove(PORTFOLIO_CACHE_KEY);
+    Logger.log("Portfolio statuses migrated. Approved rows now: " +
+        getApprovedPortfolios().length);
 }
 
 // ── sheet helpers ────────────────────────────────────────────────────────────

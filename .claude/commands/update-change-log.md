@@ -48,10 +48,37 @@ e.g. `npm run changelog-shot -- /salary/ v2.2`. This writes `public/changelog/v2
 
 ## 5. Insert the entry
 
-The page is grouped by major version: one `<section class="cl-major" id="version-N">` per major, headed `<h2 class="cl-major-title">Version N</h2>`, with the newest major first. Inside each group, the `<ol class="cl-list">` holds that major's releases, newest first.
+The page is grouped by major version: one `<section class="cl-major" id="version-N">` per major, headed `<h2 class="cl-major-title">`, with the newest major first. Inside each group, the `<ol class="cl-list">` holds that major's releases, newest first.
 
-- **Same major** (v2.1 → v2.2): insert the new `<li>` as the FIRST child of that group's `.cl-list`.
-- **New major** (v2.x → v3.0): add a new `<section class="cl-major" id="version-3" aria-labelledby="version-3-title">` above all the others, with its `Version 3` heading and a `.cl-list` holding just the new `<li>`.
+- **Same major** (v2.1 → v2.2): insert the new `<li>` as the FIRST child of that group's `.cl-list`. **The heading is not touched** — the constellation name belongs to the major, not the release.
+- **New major** (v2.x → v3.0): add a new `<section class="cl-major" id="version-3" aria-labelledby="version-3-title">` above all the others, with a `.cl-list` holding just the new `<li>`, and a heading carrying **the next constellation name from the list below**:
+
+The heading format is **`V<major>.0 <constellation>`** — no "Version", no separator, and always `.0` even though the group holds v3.1, v3.2 and so on:
+
+```html
+<h2 class="cl-major-title" id="version-3-title">V3.0 <span class="cl-major-name">Lyra</span></h2>
+```
+
+### Constellation names (Karthik's call, 2026-09-16)
+
+Every major version is named after a constellation. Take the next unused name in
+order — do not invent one, and do not reorder the list:
+
+| Heading | Name | |
+|---|---|---|
+| V1.0 | **Orion** | the hunter — the constellation everyone learns first |
+| V2.0 | **Ursa** | the great bear; its Plough points to the pole star |
+| V3.0 | **Lyra** | the lyre, carrying Vega |
+| V4.0 | **Cygnus** | the swan, flying down the Milky Way |
+| V5.0 | **Carina** | the keel, carrying Canopus |
+| V6.0 | **Draco** | the dragon, coiled around the pole |
+| V7.0 | **Aquila** | the eagle, carrying Altair |
+| V8.0 | **Phoenix** | the bird that returns |
+| V9.0 | **Perseus** | the rescuer |
+| V10.0 | **Andromeda** | holding the nearest spiral galaxy |
+
+If Version 11 is ever reached, pick another well-known constellation, add it to
+this table first, and say which one you chose and why.
 
 Copy the structure of the existing top entry (the title is an `<h3 class="cl-title">`):
 

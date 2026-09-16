@@ -32,7 +32,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
     <link rel="canonical" href="https://www.designwallet.in/submit-portfolio">
-    <link rel="stylesheet" href="/style.css?v=20260915-1">
+    <link rel="stylesheet" href="/style.css?v=20260916-1">
 </head>
 <body class="portfolio-submit-page">
     <div class="page-shell">
@@ -52,6 +52,9 @@
 
                     <form class="portfolio-submit-form" id="portfolio-submission-form" name="portfolio-submissions" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
                         <input type="hidden" name="form-name" value="portfolio-submissions">
+                        <!-- Tells the shared Apps Script which form this is. One
+                             deployment serves both this and the salary form. -->
+                        <input type="hidden" name="form" value="portfolio">
                         <p class="portfolio-bot-field" aria-hidden="true">
                             <label>Leave this field empty <input name="bot-field" tabindex="-1" autocomplete="off"></label>
                         </p>
@@ -145,12 +148,10 @@
 
     </div>
 
-    <script src="/header.js"></script>
+    <script src="/header.js?v=20260916-1"></script>
     <script src="/newsletter.js?v=20260824-1"></script>
-    <script src="/script.js"></script>
-    <script>
-        window.DESIGN_WALLET_PORTFOLIO_SUBMISSION_URL = "https://script.google.com/macros/s/AKfycbzMPNRG2J7SEQOKHG8rAJatbIkXK9yus_9w-tZdAkBwCkArd2S-p85KHyNxHsdRWiHzWQ/exec";
-    </script>
+    <script src="/script.js?v=20260916-1"></script>
+    <script src="/submit-portfolio/endpoint.js?v=20260916-1"></script>
     <script src="/submit-portfolio/submit-portfolio.js"></script>
 </body>
 </html>

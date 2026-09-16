@@ -27,6 +27,16 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://designwallet.in/wall-of-portfolios/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://designwallet.in/submit-portfolio/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://designwallet.in/books/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

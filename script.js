@@ -599,23 +599,21 @@ document.addEventListener("DOMContentLoaded", function () {
         currentYear.textContent = String(new Date().getFullYear());
     }
 
-    if (navToggle && siteHeader) {
+    // header.js binds the toggle on every page that has a header, and sets this
+    // flag. Binding again here would toggle twice per click — i.e. do nothing.
+    if (navToggle && siteHeader && !window.DW_NAV_TOGGLE_BOUND) {
         navToggle.addEventListener("click", function () {
             var isOpen = siteHeader.classList.toggle("is-open");
             navToggle.setAttribute("aria-expanded", String(isOpen));
         });
-    }
 
-    navLinks.forEach(function (link) {
-        link.addEventListener("click", function () {
-            if (!siteHeader || !navToggle) {
-                return;
-            }
-
-            siteHeader.classList.remove("is-open");
-            navToggle.setAttribute("aria-expanded", "false");
+        navLinks.forEach(function (link) {
+            link.addEventListener("click", function () {
+                siteHeader.classList.remove("is-open");
+                navToggle.setAttribute("aria-expanded", "false");
+            });
         });
-    });
+    }
 
     /* ── Blog category filters ── */
     (function () {
