@@ -1073,6 +1073,18 @@ Karthik: *"Take everything live."* This ships the salary dashboard (**Know your 
 
 ---
 
+**2026-09-16 — GO LIVE #3: the salary currency toggle, ALONE** · `designwallet.in` · `90d7fbc` → **`5959863`**
+
+Karthik: *"Let's take only this feature live to get the user inputs."* Everything else built that day — Wall of Portfolios, the Resources nav, the constellation version names, the hamburger fix, the merged portfolio Apps Script — **stays on `remove-paywall`**.
+
+- **Mechanism: a worktree cut from `origin/main`, not a push of the branch.** `git worktree add -b salary-currency-deploy <scratch> origin/main`, then `git checkout remove-paywall -- <the 4 salary files>`. **The diff against main was asserted to be those four files and nothing else** before committing. Only `salary/salary.css`, `salary/submit/index.html`, `salary/submit/submit-salary.js` and `salary/index.html` shipped.
+- **`⚠️ GOTCHA — the one that would have bitten everyone` A partial deploy must ROLL BACK the cache-busters of assets it isn't shipping.** Both salary pages had been bumped to `style.css?v=20260916-1` and `header.js?v=20260916-1` by the nav work. Shipping them without those files would have made browsers **cache the OLD style.css and header.js under the NEW version string** — so the later full deploy would serve a stale nav to anyone who visited `/salary/` first, with no way to bust it short of a third version. They were reverted to main's `20260915-1` / `20260915-2` in the deployed copies only. **Check this on every partial deploy.**
+- **`⚠️ GOTCHA` A stray dev server made the first verification a lie.** `scripts/dev-server.js` takes `PORT=`, not `--port`, so the "deploy tree" server silently fell back and **port 8001 was an older server still serving the main repo**. All 14 currency tests passed against the wrong tree. Caught only by asserting something that had to differ — *the nav must say "Books", not "Resources"* — which it didn't. After killing the strays and using `PORT=8010`, the nav read `Books | Know your money | …` and the tests were real. **Pin a partial-deploy check to something the isolated tree must NOT have.**
+- **Verified on production:** 6 URLs 200, including both new asset versions and the two old ones the pages still point at · `/wall-of-portfolios/` correctly **404s** · the live `header.js` has no "Resources" and `/changelog/` no "Ursa", confirming nothing leaked · in headless Chrome on designwallet.in, 18.5 → **$19,351**, variable → **$2,615**, the label becomes "Annual fixed pay, in US$ a year", the note reads "≈ ₹18.5 LPA … at ₹95.6 to the dollar", and it round-trips back to 18.5. No console errors. **The POST was intercepted and aborted, so no test row reached the sheet.**
+- **`✅ DONE` The deploy commit was merged back into `remove-paywall`** (`760a847`), so the next full deploy is still a fast-forward — asserted with `git merge-base --is-ancestor`. The only conflicts were the two cache-buster lines; the branch's newer versions won. **Without this merge, `git push origin remove-paywall:main` would have been rejected as non-fast-forward.**
+
+---
+
 ## Superseded
 
 - **`SUPERSEDED` The salary report set in Geist**, with a Regular/SemiBold pair and bold titles. Replaced hours later on 2026-09-13 by Inter Regular + Light, on Karthik's call (§12). The embedding machinery was unchanged — only the faces and the type scale — but `geist-regular.ttf`, `geist-semibold.ttf` and `geist-metrics.js` were deleted rather than left as dead weight in the repo.
