@@ -35,7 +35,7 @@ var DW_RESOURCES = [
 
 // The latest changelog version, shown as a capsule beside the logo and linked
 // to /changelog/. /update-change-log bumps this with every new version.
-var DW_VERSION = "v2.2";
+var DW_VERSION = "v2.3";
 
 var NAV_ARROW_ICON =
     '<svg class="nav-mega-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
