@@ -19,8 +19,6 @@
 
     var DATA_URL = "/salary/data/salaries.json?v=20260913-1";
     var SUBMISSION_URL = typeof DW_SALARY_ENDPOINT === "string" ? DW_SALARY_ENDPOINT : "";
-    var STORAGE_KEY = "dw_salary_submitted_at";
-    var REPEAT_WINDOW_MS = 24 * 60 * 60 * 1000;
 
     var form = null;
     var data = null;
@@ -245,23 +243,6 @@
         return pairs.join("&");
     }
 
-    function submittedRecently() {
-        try {
-            var stamp = Number.parseInt(window.localStorage.getItem(STORAGE_KEY), 10);
-            return Number.isFinite(stamp) && Date.now() - stamp < REPEAT_WINDOW_MS;
-        } catch (error) {
-            return false;
-        }
-    }
-
-    function markSubmitted() {
-        try {
-            window.localStorage.setItem(STORAGE_KEY, String(Date.now()));
-        } catch (error) {
-            /* Private mode. A speed bump we can live without. */
-        }
-    }
-
     function handleSubmit(event) {
         event.preventDefault();
 
@@ -275,11 +256,6 @@
             status.textContent = "Please check the highlighted fields.";
             var firstError = form.querySelector(".has-error");
             if (firstError) firstError.focus();
-            return;
-        }
-
-        if (submittedRecently()) {
-            status.textContent = "You've already submitted from this browser today. Thank you.";
             return;
         }
 
@@ -312,7 +288,6 @@
             body: encodeFormData(payload)
         })
             .then(function () {
-                markSubmitted();
                 form.hidden = true;
                 document.getElementById("sal-form-done").hidden = false;
                 window.scrollTo({ top: 0, behavior: "smooth" });
@@ -340,6 +315,45 @@
             html += '<option value="' + year + '">' + year + "</option>";
         }
         select.innerHTML = html;
+    }
+
+    /* ── Location: city or country ───────────────────────────────────────────
+     * The dashboard treats city and country as mutually exclusive — pick a
+     * foreign employer there and the city filter becomes a country filter. The
+     * form mirrors it, because asking a designer employed in Berlin which
+     * Indian city they work in has no good answer.
+     *
+     * One <select> does both jobs, swapping its options, its label and its
+     * NAME ("city" ↔ "country"), so FormData carries exactly one of them and
+     * the Apps Script stores exactly one. Reached by id, never by name, since
+     * the name is the thing that moves.
+     */
+    function locationField() {
+        return document.getElementById("f-city");
+    }
+
+    function foreignEmployer() {
+        return formField("employerLocation").value === "foreign";
+    }
+
+    function syncLocationField() {
+        var select = locationField();
+        var label = document.getElementById("sal-location-label");
+        var foreign = foreignEmployer();
+        var wanted = foreign ? "country" : "city";
+        if (select.getAttribute("data-list") === wanted) return;
+
+        var options = foreign ? data.countries : data.cities;
+        select.name = wanted;
+        if (label) label.textContent = foreign ? "Country" : "City";
+        fillSelect(select, options, foreign ? "Choose a country" : "Choose a city");
+        select.setAttribute("data-list", wanted);
+        setFieldError(select, "");
+    }
+
+    function bindLocationSwap() {
+        formField("employerLocation").addEventListener("change", syncLocationField);
+        syncLocationField();
     }
 
     function bindCurrencyToggle() {
@@ -370,9 +384,9 @@
 
                 fillSelect(formField("role"), data.roles, "Choose a role");
                 fillSelect(formField("level"), data.levels, "Choose a level");
-                fillSelect(formField("city"), data.cities, "Choose a city");
                 fillSelect(formField("workMode"), data.work_modes, "Choose one");
                 fillSelect(formField("employerLocation"), data.employers, "Choose one");
+                bindLocationSwap();
                 fillSelect(formField("companyType"), data.company_types, "Choose one");
                 fillYears(formField("salaryEffectiveFrom"));
 

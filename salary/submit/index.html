@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/style.css?v=20260916-1">
+    <link rel="stylesheet" href="/style.css?v=20260917-3">
     <link rel="stylesheet" href="/salary/salary.css?v=20260916-1">
 </head>
 <body>
@@ -94,8 +94,11 @@
                 <fieldset class="sal-fieldset">
                     <legend>Where you work</legend>
                     <div class="sal-form-grid">
+                        <!-- Becomes a country list when the employer is foreign:
+                             submit-salary.js swaps the label, the options and
+                             the field name between "city" and "country". -->
                         <div class="sal-field">
-                            <label for="f-city">City <span aria-hidden="true">*</span></label>
+                            <label for="f-city"><span id="sal-location-label">City</span> <span aria-hidden="true">*</span></label>
                             <select id="f-city" name="city" required></select>
                             <p class="sal-field-error" role="alert"></p>
                         </div>
@@ -210,8 +213,9 @@
             <div class="sal-form-done" id="sal-form-done" hidden>
                 <h2>Thank you — that's in.</h2>
                 <p>
-                    Once five designers have reported the same role, level and city, your
-                    salary starts shaping the figures on the dashboard, automatically.
+                    We check every submission before it counts. Once it's through, and once
+                    five designers have reported the same role, level and city, your salary
+                    starts shaping the figures on the dashboard.
                 </p>
                 <a class="primary-button" href="/salary/">Back to the dashboard</a>
             </div>
@@ -222,6 +226,6 @@
     <script src="/header.js?v=20260916-1"></script>
     <script src="/newsletter.js?v=20260824-1"></script>
     <script src="/salary/endpoint.js?v=20260915-1"></script>
-    <script src="/salary/submit/submit-salary.js?v=20260916-1"></script>
+    <script src="/salary/submit/submit-salary.js?v=20260916-2"></script>
 </body>
 </html>

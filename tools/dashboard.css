@@ -751,6 +751,51 @@ body.is-dashboard main {
     color: var(--text);
 }
 
+/* The avatars and the Product Hunt badge share one centred row. It wraps as a
+   unit, so on a narrow screen the badge drops under the avatars rather than
+   being squeezed beside them — a 250px badge next to six 36px avatars has no
+   sensible narrow layout. */
+.dash-hero-proof {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    margin-top: 30px;
+}
+
+/* The row above owns the spacing now. */
+.dash-hero-proof .dash-hero-loved {
+    margin-top: 0;
+}
+
+/* Product Hunt launch badge, in Product Hunt's own colours. */
+.dash-hero-ph {
+    display: block;
+    flex: 0 0 auto;
+    border-radius: 10px;          /* matches the badge SVG's own rx, so :focus sits tight */
+    line-height: 0;               /* no inline-image descender gap */
+    transition: transform 0.2s ease;
+}
+
+.dash-hero-ph:hover,
+.dash-hero-ph:focus-visible {
+    transform: translateY(-2px);
+}
+
+.dash-hero-ph img {
+    display: block;
+    width: 250px;
+    max-width: 100%;
+    height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dash-hero-ph { transition: none; }
+    .dash-hero-ph:hover,
+    .dash-hero-ph:focus-visible { transform: none; }
+}
+
 .dash-hero-avatars {
     display: flex;
     align-items: center;
@@ -773,6 +818,7 @@ body.is-dashboard main {
 
 @media (max-width: 700px) {
     .dash-hero-loved { gap: 10px; margin-top: 22px; }
+    .dash-hero-proof { gap: 14px; margin-top: 22px; }
     .dash-hero-loved-label { font-size: 0.92rem; }
     .dash-hero-avatars img { width: 30px; height: 30px; margin-left: -9px; }
 }

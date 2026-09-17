@@ -648,49 +648,19 @@ which previously sat lower than the plain <a> siblings. */
     height: 32px;
 }
 
-/* ── Resources: the Mini Tools panel, sized for two links ────────────────────
-   Same .nav-mega item styling, but it keeps `position: relative` and anchors
-   to its own trigger. --wide goes static and centres on the header, which only
-   makes sense for a panel wide enough to fill it; a 600px panel centred that
-   way would float away from the word it belongs to.
-   These rules must stay AFTER the base .nav-dropdown-menu hover rule, which
-   has equal specificity and would otherwise win with its translate(-50%). */
+/* ── Resources ───────────────────────────────────────────────────────────────
+   Karthik's call, 2026-09-16: it must drop the same way Mini Tools does —
+   filling the header's width and centred — not hanging off its own trigger.
+   So it carries --wide as well, and inherits ALL of that geometry (static
+   wrapper, min(1120px, 100% - 32px), the hover bridge). --panel only removes
+   the CTA column, because Resources has no CTA: the two cards share the whole
+   width instead of being squeezed into --wide's left-hand region. */
 .nav-dropdown--panel .nav-mega {
-    top: calc(100% + 10px);
-    left: 0;
-    width: 600px;
-    max-width: calc(100vw - 32px);
-    min-width: 0;
-    /* One column region: no CTA block, unlike Mini Tools. */
     grid-template-columns: minmax(0, 1fr);
-    padding: 0;
-    border-radius: 24px;
-    background: var(--surface-1);
-    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.48);
-    transform: translateY(-6px);
 }
 
-.nav-dropdown--panel:hover .nav-mega,
-.nav-dropdown--panel:focus-within .nav-mega {
-    transform: translateY(0);
-}
-
-/* The base ::after bridge is sized to the trigger and sits under the panel's
-   left edge; the panel carries its own, like --wide. */
-.nav-dropdown--panel::after {
-    display: none;
-}
-
-.nav-dropdown--panel .nav-mega::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 100%;
-    height: 32px;
-}
-
-/* Two links, two columns — auto-fill would drop to one at this width. */
+/* Two links, two equal columns. --wide's auto-fill would lay them out at
+   260px each against the left edge and leave most of the panel empty. */
 .nav-dropdown--panel .nav-mega-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -9063,4 +9033,24 @@ body.newsletter-modal-open { overflow: hidden; }
     margin: 14px 0 0;
     color: var(--muted);
     font-size: 0.78rem;
+}
+
+/* The affiliate tooltip is 240px wide and centred on an icon that sits near the
+   right edge of the centred header copy, so below ~760px it ran 19px past the
+   viewport and gave /books/ a horizontal scrollbar. Anchoring it to the wrap's
+   right edge keeps it on screen whatever the icon's position; the arrow moves
+   with it so it still points at the icon. */
+@media (max-width: 760px) {
+    .books-info-tooltip {
+        left: auto;
+        right: 0;
+        transform: none;
+        width: min(240px, calc(100vw - 32px));
+    }
+
+    .books-info-tooltip::after {
+        left: auto;
+        right: 4px;
+        transform: none;
+    }
 }

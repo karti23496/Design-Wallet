@@ -37,9 +37,9 @@
  *   After editing this file later: Deploy → Manage deployments → edit → New
  *   version, or the live URL keeps running the old code.
  *
- * doPost  — one submission → one row. No approval step (Karthik's call,
- *           2026-09-15): rows land as "Approved" and count straight away. Set a
- *           row's Status to "Rejected" to pull it out of the dashboard.
+ * doPost  — one submission → one row, landing as "Rejected" (Karthik's call,
+ *           2026-09-16). It is invisible to the dashboard until he sets Status
+ *           to "Approved" by hand. Approval is opt-in for BOTH forms now.
  * doGet   — the community figures: percentiles per role/level at each grain,
  *           ONLY for groups with MIN_REPORTS or more. Raw rows never leave the
  *           sheet, so no individual submission can be read back from the site.
@@ -53,6 +53,13 @@
 var SPREADSHEET_ID = "1aKs9XEJUsbmpax583dCsVPEJzmZ5F_L3u-xf1PFRLGc";
 var SHEET_NAME = "Salary Submission";
 var STATUS_OPTIONS = ["Approved", "Rejected"];
+
+/* Karthik's call, 2026-09-16, reversing the 2026-09-15 "no approval needed":
+   a salary row lands "Rejected" and is invisible to the dashboard until he
+   sets it to "Approved" by hand — the same opt-in rule the portfolio wall
+   uses. Nothing unreviewed can ever move a published figure.
+   readRows() keeps only "approved" rows, so this is the whole mechanism. */
+var SALARY_DEFAULT_STATUS = "Rejected";
 
 /* ── Portfolios (/submit-portfolio/ → /wall-of-portfolios/) ────────────────
    A different tab of the SAME private spreadsheet. Unlike salary, portfolio
@@ -97,6 +104,12 @@ var CITY_TIERS = {
 };
 var WORK_MODES = ["onsite", "hybrid", "remote"];
 var EMPLOYERS = ["india", "foreign"];
+
+/* Foreign-employer submissions give a COUNTRY instead of an Indian city — the
+   same swap the dashboard makes, where city and country are mutually
+   exclusive. Ids must match `countries` in salaries.json / benchmarks.json. */
+var COUNTRIES = ["united-states", "australia", "united-kingdom", "netherlands",
+    "singapore", "germany", "uae", "canada"];
 var COMPANY_TYPES = ["product", "enterprise", "it-services", "freelance", "agency"];
 // Every form field is required; these four also accept "NIL" (prefer not to say).
 var COMPANY_SIZES = ["1-10", "11-50", "51-200", "201-1000", "1000+", "NIL"];
@@ -120,7 +133,11 @@ var HEADERS = [
     "Salary effective from",
     "Gender",
     "Source",
-    "Status"
+    "Status",
+    // Added 2026-09-16. Set instead of City when the employer is foreign; the
+    // two are never both filled. Appended at the end by ensureHeaders, and
+    // placed by NAME on write, so its position in the sheet doesn't matter.
+    "Country"
 ];
 
 // ── write ────────────────────────────────────────────────────────────────────
@@ -149,9 +166,20 @@ function doPost(event) {
 
         var role = oneOf(params.role, ROLES, "role");
         var level = oneOf(params.level, LEVELS, "level");
-        var city = oneOf(params.city, Object.keys(CITY_TIERS), "city");
         var workMode = oneOf(params.workMode, WORK_MODES, "work mode");
         var employer = oneOf(params.employerLocation, EMPLOYERS, "employer");
+
+        // City and country are mutually exclusive, exactly as on the dashboard:
+        // a foreign employer means the location question is "which country",
+        // and an Indian one means "which city". Exactly one is ever stored.
+        var city = "";
+        var country = "";
+        if (employer === "foreign") {
+            country = oneOf(params.country, COUNTRIES, "country");
+        } else {
+            city = oneOf(params.city, Object.keys(CITY_TIERS), "city");
+        }
+
         var companyType = oneOf(params.companyType, COMPANY_TYPES, "company type");
         var companySize = oneOf(params.companySize, COMPANY_SIZES, "company size");
         var hasEsops = oneOf(params.hasEsops, ESOP_ANSWERS, "ESOP answer");
@@ -182,24 +210,29 @@ function doPost(event) {
             throw new Error("Years of experience out of range");
         }
 
-        sheet.appendRow([
-            new Date(),
-            role,
-            level,
-            years,
-            city,
-            workMode,
-            employer,
-            companyType,
-            companySize,
-            ctc,
-            variable,
-            hasEsops,
-            effectiveYear,
-            gender,
-            "community",
-            "Approved"
-        ]);
+        // By NAME, not position — the "Country" column was appended to the end
+        // of an existing sheet, so a positional write would have put it in the
+        // wrong place (and shifted nothing else, which is worse: it would look
+        // fine). Same helper the portfolio path uses.
+        writeRowByHeader(sheet, {
+            "Timestamp": new Date(),
+            "Role": role,
+            "Level": level,
+            "Years of experience": years,
+            "City": city,
+            "Country": country,
+            "Work mode": workMode,
+            "Employer location": employer,
+            "Company type": companyType,
+            "Company size": companySize,
+            "Annual fixed CTC LPA": ctc,
+            "Variable or bonus LPA": variable,
+            "Has ESOPs": hasEsops,
+            "Salary effective from": effectiveYear,
+            "Gender": gender,
+            "Source": "community",
+            "Status": SALARY_DEFAULT_STATUS
+        });
 
         applyStatusValidation(sheet, sheet.getLastRow());
 
@@ -258,13 +291,22 @@ function doGet(event) {
  */
 function buildCommunity() {
     var rows = readRows();
-    var groups = { national: {}, tier: {}, cells: {}, workmode: {}, employer: {}, company: {} };
+    var groups = { national: {}, tier: {}, cells: {}, workmode: {}, employer: {}, company: {}, country: {} };
 
     rows.forEach(function (row) {
         var pair = row.role + "|" + row.level;
-        push(groups.national, pair, row.ctc);
-        push(groups.tier, pair + "|" + CITY_TIERS[row.city], row.ctc);
-        push(groups.cells, pair + "|" + row.city, row.ctc);
+
+        // "National" means the Indian market, so a foreign-employer row must
+        // not be averaged into it — it would drag every Indian figure upward.
+        // Those rows are published under `country` instead.
+        if (row.city) {
+            push(groups.national, pair, row.ctc);
+            push(groups.tier, pair + "|" + CITY_TIERS[row.city], row.ctc);
+            push(groups.cells, pair + "|" + row.city, row.ctc);
+        } else {
+            push(groups.country, pair + "|" + row.country, row.ctc);
+        }
+
         push(groups.workmode, pair + "|" + row.workMode, row.ctc);
         push(groups.employer, pair + "|" + row.employer, row.ctc);
         push(groups.company, pair + "|" + row.companyType, row.ctc);
@@ -317,13 +359,21 @@ function readRows() {
         var year = parseInt(get("salary_effective_from"), 10);
         if (isFinite(year) && year < cutoffYear) continue;
 
+        // A row carries EITHER an Indian city or a country. Anything with
+        // neither is unusable, but a foreign row without a city is normal and
+        // must not be dropped — that was the trap: the old check discarded
+        // every foreign-employer submission before it could be counted.
         var city = String(get("city")).trim();
-        if (!CITY_TIERS[city]) continue;
+        var country = String(get("country")).trim();
+        if (!CITY_TIERS[city]) city = "";
+        if (COUNTRIES.indexOf(country) === -1) country = "";
+        if (!city && !country) continue;
 
         kept.push({
             role: String(get("role")).trim(),
             level: String(get("level")).trim(),
             city: city,
+            country: country,
             workMode: String(get("work_mode")).trim(),
             employer: String(get("employer_location")).trim() || "india",
             companyType: String(get("company_type")).trim(),
@@ -586,8 +636,14 @@ function getSheet() {
     return sheet;
 }
 
+/* Writes the header row on an empty tab, and APPENDS any header that is
+   missing from an existing one. The append matters: the live sheet predates
+   the "Country" column, and the old version of this function did nothing at
+   all once headers existed, so the column would never have arrived. Safe to
+   run on every post — it only ever adds. */
 function ensureHeaders(sheet) {
-    var current = sheet.getRange(1, 1, 1, HEADERS.length).getValues()[0];
+    var lastColumn = Math.max(sheet.getLastColumn(), 1);
+    var current = sheet.getRange(1, 1, 1, lastColumn).getValues()[0];
     var hasHeaders = current.some(function (value) {
         return String(value || "").trim();
     });
@@ -595,7 +651,16 @@ function ensureHeaders(sheet) {
     if (!hasHeaders) {
         sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
         sheet.setFrozenRows(1);
+        return;
     }
+
+    var present = current.map(normalizeHeader);
+    HEADERS.forEach(function (header) {
+        if (present.indexOf(normalizeHeader(header)) === -1) {
+            sheet.getRange(1, sheet.getLastColumn() + 1).setValue(header);
+            present.push(normalizeHeader(header));
+        }
+    });
 }
 
 function applyStatusValidation(sheet, row) {

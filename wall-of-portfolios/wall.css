@@ -5,8 +5,12 @@
    so it follows dark/light automatically.
    ============================================================================ */
 
+/* Wider than the site's --content-width (1300px): this page is a wall, and
+   Karthik asked for four cards across, which needs the extra room to keep each
+   thumbnail big enough to read. The hero inside still centres on its own
+   max-widths, so only the grid actually uses the width. */
 .wop-main {
-    max-width: var(--content-width);
+    max-width: 1680px;
     margin: 0 auto;
     padding: 64px 24px 96px;
 }
@@ -98,10 +102,21 @@
 }
 
 /* ── Grid ─────────────────────────────────────────────────────────────── */
+/* Four across, stepping down explicitly rather than by auto-fill. auto-fill
+   picks the column count from a min width, so the count drifts with the
+   viewport and lands on 3 at exactly the sizes this page is read at. */
 .wop-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 20px;
+}
+
+@media (max-width: 1400px) {
+    .wop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 1080px) {
+    .wop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* The whole card is a single <a>, so every child is inline-level markup turned

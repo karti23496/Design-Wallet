@@ -77,9 +77,9 @@ function loadHeader() {
             '<span></span><span></span><span></span>' +
         '</button>' +
         '<nav class="site-nav" id="primary-nav">' +
-            // Same panel treatment as Mini Tools, sized for two links and with
-            // no CTA column — see .nav-dropdown--panel in style.css.
-            '<div class="nav-dropdown nav-dropdown--panel">' +
+            // --wide gives it Mini Tools' geometry (full width, centred on the
+            // header); --panel drops the CTA column. See style.css.
+            '<div class="nav-dropdown nav-dropdown--wide nav-dropdown--panel">' +
                 // No href: the trigger opens the menu rather than navigating.
                 // tabindex keeps it keyboard-reachable for :focus-within.
                 '<a class="nav-dropdown-trigger" tabindex="0" role="button" aria-haspopup="true">Resources' +
