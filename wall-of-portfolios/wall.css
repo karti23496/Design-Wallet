@@ -83,10 +83,18 @@
     text-decoration: none;
 }
 
+/* The portfolio count, aligned to the grid's right edge. `margin-left: auto`
+   rather than `text-align: right` so it sits against the last column even
+   though the paragraph itself spans the full width. */
 .wop-count {
-    margin: 0;
+    width: fit-content;
+    margin: 0 0 14px auto;
     font-size: 0.85rem;
     color: var(--muted);
+}
+
+.wop-count:empty {
+    display: none;
 }
 
 /* ── Status line ──────────────────────────────────────────────────────── */

@@ -31,7 +31,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
     <link rel="stylesheet" href="/style.css?v=20260917-3">
-    <link rel="stylesheet" href="/wall-of-portfolios/wall.css?v=20260916-1">
+    <link rel="stylesheet" href="/wall-of-portfolios/wall.css?v=20260918-1">
 </head>
 <body>
     <div class="page-shell">
@@ -56,6 +56,9 @@
             <section class="wop-section" aria-labelledby="wop-heading">
                 <h2 class="wop-sr-only" id="wop-heading">Designer portfolios</h2>
                 <p class="wop-status" id="wop-status">Loading portfolios…</p>
+                <!-- Sits on the grid's right edge, so it reads as a label for the
+                     grid rather than part of the hero. Written by wall.js. -->
+                <p class="wop-count" id="wop-count"></p>
                 <div class="wop-grid" id="wop-grid"></div>
             </section>
         </main>
