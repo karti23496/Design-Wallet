@@ -91,7 +91,9 @@ function loadHeader() {
                     '</div>' +
                 '</div>' +
             '</div>' +
-            '<a href="/salary/">Know your money</a>' +
+            // The NEW pill rides inside the link so it moves with it and is
+            // still part of the same tap target.
+            '<a href="/salary/">Know your money<span class="nav-new">NEW</span></a>' +
             '<a href="/good-deals/">Good deals</a>' +
             '<div class="nav-dropdown nav-dropdown--wide">' +
                 // No href: the trigger opens the menu rather than navigating.

@@ -9054,3 +9054,34 @@ body.newsletter-modal-open { overflow: hidden; }
         transform: none;
     }
 }
+
+/* ── "NEW" pill, beside a nav link ───────────────────────────────────────────
+   White capsule, dark label — it inverts the nav rather than tinting it, so it
+   reads as a marker and not another link. The colour sits on the span itself,
+   so page-level `.site-nav a` overrides (the blog has one) cannot repaint it.
+   The pulse is deliberately slow: it should register in peripheral vision
+   without pulling the eye off whatever the reader came for. */
+.nav-new {
+    display: inline-block;
+    margin-left: 7px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: var(--pure);
+    color: var(--bg);
+    font-family: "Geist", sans-serif;
+    font-size: 0.56rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    line-height: 1.6;
+    vertical-align: middle;
+    animation: nav-new-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes nav-new-pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.14); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nav-new { animation: none; }
+}
