@@ -974,6 +974,18 @@ a full-screen panel instead of the site.
   panel's markup, and desktop — which never displays the gate — fetched it anyway. Both decorations
   (starfield and mark) are now created only once `getComputedStyle` says the gate is actually on
   screen, so desktop pays for neither.
+- **`⚠️ GOTCHA — the one to remember` `overflow-y: auto` silently makes the OTHER axis scrollable.**
+  When either axis is set to anything but `visible`, the other computes from `visible` to `auto`. The
+  gate shipped with `overflow-y: auto` alone, so **the whole panel could be dragged half a screen
+  sideways** on a phone. Measured at 390px wide: panel scroll width **939px, 549px of it draggable**.
+  If one axis is set, set both.
+- **`⚠️ GOTCHA` The starfield needs a clipping container.** Orbits are sized off the viewport
+  *diagonal* so the field reaches the corners, which by design puts them well past the screen edges.
+  `.stars-field` in `style.css` clips them for the hero; the gate's `.dw-gate-stars` had **no styles
+  at all**, so they became draggable content. It now clips, with the panel and mark above it on
+  z-index. **Reported by Karthik on a real phone — every automated check had passed**, because they
+  measured `document.scrollWidth`, and the overflow was inside a `position: fixed` element. Assert on
+  the scrolling element itself, and drag it.
 - **`DECIDED` The HIDING is CSS, not JavaScript.** A class toggled by a script runs after first
   paint, so a phone would flash the real page before the gate covered it. A media query applies on
   the first paint. `mobile-gate.js` only injects the panel.
