@@ -29,11 +29,14 @@
     color: #f5f5f5;
     font-family: "Geist", "Inter", system-ui, -apple-system, sans-serif;
     text-align: center;
+    overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
 }
 
 .dw-gate-inner {
+    position: relative;
+    z-index: 1;
     display: flex;
     width: 100%;
     max-width: 420px;
@@ -61,8 +64,17 @@
    slightly so it reads as part of the ground rather than a pasted sticker.
    Served as a 15KB WebP derivative, never the 249KB source PNG (§7). */
 
+.dw-gate-stars {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
 .dw-gate-mark {
     position: absolute;
+    z-index: 1;
     bottom: 0%;
     left: 50%;
     width: min(400px, 100vw);
