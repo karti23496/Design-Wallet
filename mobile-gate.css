@@ -22,7 +22,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 48px 28px;
+    padding: 48px 28px 260px;
     background:
         radial-gradient(120% 80% at 50% 0%, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 60%),
         #070707;
@@ -49,7 +49,6 @@
     opacity: 0.92;
 }
 
-
 .dw-gate-title {
     margin: 0 0 16px;
     font-size: clamp(2.3rem, 9vw, 7rem);
@@ -58,61 +57,26 @@
     line-height: 1.08;
 }
 
-.dw-gate-copy {
-    margin: 0 0 30px;
-    color: rgba(255, 255, 255, 0.58);
-    font-size: 0.95rem;
-    line-height: 1.6;
+/* The 3D wallet mark, anchored to the foot of the screen and bleeding off it
+   slightly so it reads as part of the ground rather than a pasted sticker.
+   Served as a 15KB WebP derivative, never the 249KB source PNG (§7). */
+
+.dw-gate-mark {
+    position: absolute;
+    bottom: -7%;
+    left: 50%;
+    width: min(300px, 64vw);
+    height: auto;
+    transform: translateX(-50%);
+    pointer-events: none;
+    user-select: none;
 }
 
-.dw-gate-action {
-    display: flex;
-    width: 100%;
-    min-height: 52px;
-    align-items: center;
-    justify-content: center;
-    padding: 0 22px;
-    border: 0;
-    border-radius: 14px;
-    background: #ffffff;
-    color: #070707;
-    font-family: inherit;
-    font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: opacity 0.16s ease, transform 0.16s ease;
-}
-
-.dw-gate-action:active {
-    transform: scale(0.985);
-    opacity: 0.9;
-}
-
-.dw-gate-action.is-done {
-    background: rgba(255, 255, 255, 0.14);
-    color: #ffffff;
-}
-
-.dw-gate-url {
-    margin: 16px 0 0;
-    color: rgba(255, 255, 255, 0.46);
-    font-family: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
-    font-size: 0.78rem;
-    overflow-wrap: anywhere;
-}
-
-.dw-gate-foot {
-    margin: 34px 0 0;
-    padding-top: 22px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.34);
-    font-size: 0.76rem;
-    line-height: 1.6;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .dw-gate-action {
-        transition: none;
+/* A short viewport — a phone on its side — has no room for it, and it would
+   land on top of the headline. */
+@media (max-height: 620px) {
+    .dw-gate-mark {
+        display: none;
     }
 }
 

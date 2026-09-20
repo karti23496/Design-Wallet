@@ -75,13 +75,34 @@
         document.head.appendChild(script);
     }
 
-    var starsPainted = false;
+    /* The 3D wallet mark at the foot of the screen. It sits outside
+       .dw-gate-inner so it anchors to the screen rather than to the centred
+       column, and it is served as a 15KB WebP derivative rather than the
+       249KB source PNG. */
+    function mark(gate) {
+        var image = document.createElement("img");
+        image.className = "dw-gate-mark";
+        image.src = "/public/images/dw-element.webp?v=20260920-1";
+        image.alt = "";
+        image.setAttribute("aria-hidden", "true");
+        image.width = 578;
+        image.height = 493;
+        image.decoding = "async";
+        gate.appendChild(image);
+    }
 
-    function paintStarsWhenVisible(gate) {
-        if (starsPainted) return;
+    var decorated = false;
+
+    /* Both decorations cost bytes, and the panel is built on every viewport —
+       so neither is created until the stylesheet has actually put the gate on
+       screen. Asking for the computed style reads that decision rather than
+       duplicating the media query in here, where it would drift. */
+    function decorate(gate) {
+        if (decorated) return;
         if (getComputedStyle(gate).display === "none") return;
-        starsPainted = true;
+        decorated = true;
         stars(gate);
+        mark(gate);
     }
 
     function build() {
@@ -98,7 +119,7 @@
             return;
         }
 
-    var gate = document.createElement("div");
+        var gate = document.createElement("div");
         gate.id = "dw-mobile-gate";
         gate.setAttribute("role", "dialog");
         gate.setAttribute("aria-modal", "true");
@@ -109,36 +130,12 @@
                 /* Karthik's copy, verbatim. The kicker went with it — the
                    headline is a punchline and a preamble only softens it. */
                 '<h1 class="dw-gate-title" id="dw-gate-title">Size matters. This site <br> got big-screen <br> energy. 🔥 </h1>' +
-                '<button class="dw-gate-action" type="button" id="dw-gate-copy">Catch it on desktop!</button>' +
             '</div>';
 
         document.body.appendChild(gate);
         document.body.classList.add("dw-gate-ready");
 
-        paintStarsWhenVisible(gate);
-
-        var url = location.href;
-        var button = gate.querySelector("#dw-gate-copy");
-        var label = button.textContent;
-        button.addEventListener("click", function () {
-            function done(message) {
-                button.textContent = message;
-                button.classList.add("is-done");
-                setTimeout(function () {
-                    button.textContent = label;
-                    button.classList.remove("is-done");
-                }, 2600);
-            }
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(url).then(
-                    function () { done("Copied — paste it on your laptop"); },
-                    function () { done("Copy the address from your browser bar"); }
-                );
-                return;
-            }
-            // Older iOS Safari, and any page served without HTTPS.
-            done("Copy the address from your browser bar");
-        });
+        decorate(gate);
     }
 
     function boot() {
@@ -146,10 +143,10 @@
         var gate = document.getElementById("dw-mobile-gate");
         if (!gate) return;
         window.addEventListener("resize", function () {
-            paintStarsWhenVisible(gate);
+            decorate(gate);
         });
         window.addEventListener("orientationchange", function () {
-            paintStarsWhenVisible(gate);
+            decorate(gate);
         });
     }
 

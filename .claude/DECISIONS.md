@@ -961,6 +961,19 @@ a full-screen panel instead of the site.
   leaves the content pages reachable on a phone and gates only the interactive ones. Nothing else has
   to change. *(No crawler exemption was built. Serving Googlebot the full page while serving people
   an interstitial is cloaking, and the penalty for being caught is worse than the one being avoided.)*
+- **`✅ DONE` The button is gone and a 3D wallet mark sits at the foot of the screen.** Karthik's
+  call, 2026-09-20. The panel is now logo, headline, mark — no call to action, so the clipboard
+  logic went with the button, along with the `.dw-gate-action`, `.dw-gate-url`, `.dw-gate-foot` and
+  `.dw-gate-copy` rules that nothing rendered any more.
+- **`DECIDED` The mark is a 15KB WebP derivative, not the 249KB source PNG** — `public/images/
+  dw-element.webp`, **16x smaller**, with the source kept in the repo untouched exactly as §7
+  requires. It bleeds 7% off the bottom edge so it reads as part of the ground, and it is
+  **hidden below 620px of viewport height**, where a phone on its side has no room and it would
+  land on the headline.
+- **`⚠️ GOTCHA` A hidden panel still downloads its images.** The mark was first written into the
+  panel's markup, and desktop — which never displays the gate — fetched it anyway. Both decorations
+  (starfield and mark) are now created only once `getComputedStyle` says the gate is actually on
+  screen, so desktop pays for neither.
 - **`DECIDED` The HIDING is CSS, not JavaScript.** A class toggled by a script runs after first
   paint, so a phone would flash the real page before the gate covered it. A media query applies on
   the first paint. `mobile-gate.js` only injects the panel.
