@@ -1012,6 +1012,47 @@ a full-screen panel instead of the site.
 
 ## Implementation Log
 
+**2026-09-20 — GO LIVE #5: the mobile gate, ALONE** · `designwallet.in` · `b87a54f` → **`da13987`**
+
+Karthik: *"Take the mobile version live."* Ships **only** the desktop-only gate. The Background
+Remover stayed behind — it is unverified on real hardware and was never part of this ask.
+
+- **`⚠️ GOTCHA — the one to remember` The working tree held two jobs, and they were intermingled.**
+  Shipping "everything modified" would have put an unfinished tool on the live site. `header.js`
+  (its `DW_TOOLS` entry), `sitemap.xml` (its URL) and `dw-tools/background-remover/` were left
+  unstaged on purpose. **Verified in production afterwards: the nav shows two mini tools, and
+  `/dw-tools/background-remover/` returns 404.**
+- **`⚠️ GOTCHA` The `header.js` cache-buster bump had to be REVERTED before shipping.** The 18 pages
+  had been bumped to `20260920-1` because `header.js` gained the tool entry. Shipping that bump
+  without `header.js` would have burned the version string on the *old* file — and when `header.js`
+  finally changes, stale caches would never refresh. Pages went out on `20260918-2`; **the bump is
+  now owed to the Background Remover deploy.**
+- **`⚠️ The one that nearly went out wrong.` Files changed under this workflow mid-session.**
+  `stars.js` and `mobile-gate.js` were edited at 15:30–15:51 by someone other than the agent that
+  wrote them, and the edit **changed the headline**, dropped the body line, the URL and the desktop
+  note, and renamed the button — while `mobile-gate.css`'s no-JS fallback still carried the older
+  wording. It was caught by reading the diff before committing, not by assuming the tree was as
+  left. **Karthik chose the newer copy**; the two were made to agree.
+- **Three defects in that edit, fixed before shipping:** a malformed `<img … height=40">` attribute;
+  the no-JS fallback contradicting the live headline; and the starfield reaching only the 8 pages
+  that load `stars.js`. The gate now pulls `stars.js` in **on demand and only once it is actually on
+  screen** — checked with `getComputedStyle`, so there is no media query duplicated in JS to drift —
+  which also means desktop never fetches it.
+- **`⚠️ GOTCHA` A CSS hex escape swallows the space that ends it.** `"\01F525 Catch"` rendered as
+  "🔥Catch"; it needs two spaces.
+- **`stars.js` is now shared, and its old behaviour is intact.** `DWStars.populate(field, options)`
+  is exported; filling `#stars-field` with the defaults still happens on load. **Verified on all six
+  pages that use the hero field** — 100 orbits, sized and animating, on each.
+- **Pre-flight, all local:** every tracked JS file passes `node --check` · `check-layout.js` passes ·
+  `sitemap.xml` well-formed · 5 gate checks pass (phone with and without `stars.js`, blog, desktop
+  untouched and not fetching `stars.js`, no-JS fallback matching the headline).
+- **Verified in production, in a browser on `designwallet.in`:** the gate covers `/`, `/blog/` and
+  `/privacy/` at 390×844 with 100 stars and the site hidden; **desktop at 1440px is untouched**, hero
+  starfield intact, no gate; `mobile-gate.js`, `mobile-gate.css` and `stars.js` all serve 200.
+- **Left for later:** `/update-change-log` has not been run and `DW_VERSION` is untouched. Worth a
+  changelog line, since this is a visible change to every visitor on a phone.
+
+
 **2026-09-20 (last) — Rotating star behind the mobile gate** · same branch, **not committed**
 
 `mobile-gate.js` injects an SVG star; `mobile-gate.css` sizes and spins it. All 22 gated pages pick
