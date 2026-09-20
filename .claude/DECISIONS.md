@@ -15,7 +15,7 @@
    the headline, so done and not-done stay visible at a glance.
 
 - **Status key:** `✅ DONE` = shipped · `DECIDED` = agreed, not built yet · `PENDING` = needs Karthik's call · `SUPERSEDED` = no longer true, kept for history
-- Last updated: **2026-09-13**
+- Last updated: **2026-09-20**
 
 ---
 
@@ -852,7 +852,248 @@ Karthik reported neither form landing rows. **The server was never the problem b
 - **Verified 2026-09-16:** 16 routes load 200 with no page errors and no horizontal overflow · Resources resolves to Wallet Reads + Wall of Portfolios on all 15 pages that use the shared header (`/salary/` has none, by §12) · the dropdown opens on hover at 1440px and stacks inline under its trigger at 390px · the hamburger opens and closes on 16 routes at 390px · 53 cards render with real avatars, thumbnails and cleaned names · the wall survives a dead submissions endpoint with 0 console errors · `check-layout.js` passes · `sitemap.xml` is well-formed · all JS passes `node --check` · **looked at** at 1440px and 390px, nav sheet open and closed.
 - **Cache-busters bumped to `20260916-1`** on `header.js` (18 pages), `style.css` (19) and `script.js` (7), plus `assetVersion` in `build-blog.js`. All three files changed, so a stale cache would have mismatched the new nav.
 
+## 16. Background Remover (`/dw-tools/background-remover/`)
+
+Scoped and **built 2026-09-20** from Karthik's brief — *"upload any image and remove the background…
+more accurate because it has to cut precisely even when it comes to complex edges like hair"* — with
+[remove.bg](https://www.remove.bg/) as the explored reference. **Full spec lives in
+`.claude/BG-REMOVER-PROJECT.md`**; its **§17 is the one to read**, because building the tool
+disproved four things the spec asserted.
+
+- **`✅ DONE`** ~~A background remover ships at `/dw-tools/background-remover/`.~~ Third entry in
+  `DW_TOOLS`. Drop, browse, paste or sample → cutout → transparent / colour / blurred / custom
+  background, edge controls, erase-and-restore brush, full-resolution PNG, JPG or WebP. **On the
+  branch, not deployed.**
+- **`DECIDED` The model runs in the browser. No backend, no API key, no per-image cost.** A free
+  site with no per-user revenue cannot carry a bill that scales with its own traffic, and a backend
+  would reverse §3 and §4. It also buys the one claim remove.bg structurally cannot copy: **the
+  image never leaves the device.** Verified — no request carries image data.
+- **`DECIDED` Full resolution is free, no watermark, no account.** remove.bg's free tier is a
+  0.25 MP preview and charges a credit for the usable file. Beating that deal *is* the product.
+- **`⚠️ GOTCHA — the one to remember` A wrong runtime version returns an EMPTY mask, silently.**
+  onnxruntime-web **1.22.0** produces all-zero alpha for this model: no exception, no console error.
+  1.23.2 / 1.24.3 / 1.26.0 / **1.30.0 (pinned)** are correct, at 5.6 / 4.3 / 3.7 / 3.7 s. It was
+  pinned at 1.22.0 first and passed a smoke test, because the smoke test asked *"did it throw?"* and
+  the answer was no. **Caught only by compositing the output and looking at it.** Any check of this
+  pipeline must assert on pixels — feed a real photo and require mean alpha ≈ 1 over the subject.
+- **`⚠️ GOTCHA` The obvious model file fails on every Mac.** BiRefNet's decoder has a Concat binding
+  **17 storage buffers** in one compute stage; WebGPU's limit is 8 and **Apple's Metal adapter
+  reports 10** (queried directly, not assumed). The stock export therefore dies on Apple Silicon —
+  most of this audience. The tool ships a **graph-patched export** (`BRPOD123/birefnet-lite-1024-webgpu`,
+  MIT, same upstream weights) for WebGPU, and a **512px fp32 export** for CPU. Two builds of one
+  network, both pinned by revision hash.
+- **`⚠️ GOTCHA` The CPU path cannot run the 1024px model at all** — `std::bad_alloc`, because the
+  activations do not fit in wasm32's address space. And fp16 aborts the CPU runtime outright. That
+  is why the fallback is 512px fp32: **~6 s single-threaded, much faster than the 15–40 s feared**,
+  at the cost of softer edges on very fine hair.
+- **`DECIDED` Licence was a hard constraint and it held.** The repo is going open source (§1, §8)
+  and the site is commercial, which rules out the two easy options: BRIA RMBG-1.4/2.0 are
+  **CC BY-NC 4.0**, and `@imgly/background-removal` — the drop-in npm package — is **AGPL-3.0**,
+  which would reach the whole site's source. **BiRefNet is MIT**; attribution ships on the page.
+- **`DECIDED` Never threshold the model's output into a binary mask.** The soft 0–1 alpha *is* the
+  hair. Two further passes turn a mask into a professional cutout: an edge-aware guided-filter
+  upsample against the full-resolution image, and foreground decontamination that inverts the
+  compositing equation so the old background cannot leave a halo. Verified on black, where a halo
+  that is invisible on white becomes obvious.
+- **`DECIDED` Weights load on first use, never on page load, and are cached.** Landing on the page
+  costs ~100 KB; the model arrives only when the first image does. **Stale weights are pruned** —
+  the cache is keyed by URL, so changing a pinned revision would otherwise strand 100–200 MB on the
+  user's disk forever.
+- **`DECIDED` The weights are not in the repo.** GitHub rejects files over 100 MB, and a blob in
+  history repeats the 124 MB testimonial-JPEG mistake in §7. Hugging Face CDN, pinned by hash.
+- **`DECIDED` `?engine=cpu` / `?engine=gpu` force a backend.** Once you know a GPU can return a
+  wrong answer *without erroring*, an escape hatch is a support tool, not a debug affordance.
+- **`✅ DONE` The canvas is a comparison slider, and nothing else.** Karthik's call, 2026-09-20,
+  against the first build: the hold-to-compare **Original** button is gone, replaced by a handle you
+  drag across the image; **zoom and pan are gone entirely** — *"that is not needed, just the slide
+  and image is enough."* The frame always fits the image, and the file you download is full
+  resolution whatever the frame shows.
+- **`DECIDED` The slider opens on the CUTOUT, with the original revealed from the left.** Before on
+  the left, after on the right, as every comparison slider does it — but resting at 0, because the
+  cutout is the working view and the slider is for checking the result, not living in it.
+  **`⚠️ GOTCHA` The first build had this inverted** and the default view showed the untouched photo;
+  it looked plausible in code and was only caught in a screenshot.
+- **`✅ DONE` The transparency checkerboard is light.** Karthik's call, 2026-09-20. A dark
+  checkerboard on a dark page reads as part of the artwork rather than as "nothing is here"; every
+  other design tool uses a light one.
+- **`✅ DONE` The three hero pills are replaced by one `Export` button.** Karthik's call,
+  2026-09-20. The claims they made — free, no sign-up, never uploaded — now live in the sub-copy and
+  the credit line, and the first fold carries an action instead of a boast.
+- **`✅ DONE` "How it works" and the FAQ are removed.** Karthik's call, 2026-09-20, with a
+  screenshot. The `FAQPage` structured data went with the FAQ — schema describing content that is
+  not on the page is a penalty, not a bonus.
+- **`✅ DONE` The visible credit line is gone too.** Karthik's call, 2026-09-20, after being told it
+  carried the licence obligation — asked again with a screenshot, so it was removed. **The MIT
+  notices did not disappear with it:** the full BiRefNet (© 2024 Peng Zheng) and ONNX Runtime
+  (© Microsoft) notices, with the permission text, now sit in an HTML comment at the top of
+  `<body>`, and the file headers in `bg-worker.js` carry the same. The licences require the notice
+  to travel with the work, not to be rendered on screen, so this satisfies them with nothing
+  visible on the page. **Do not strip those comments** in a future tidy-up — they are the only
+  remaining copy.
+  *(Supersedes the line recorded earlier the same day, which kept a visible credit.)*
+- **`PENDING` The privacy promise is a public commitment.** The page says *"your image never leaves
+  your browser."* True only while the in-browser architecture stands — cheap to make, expensive to
+  walk back.
+- **`PENDING` Not verified, and not verifiable from here:** any non-Chromium browser, any non-Apple
+  GPU, real iOS and Android hardware, and 18 of the 20 images in the spec's §6 benchmark.
+  **Karthik should try it on his own machine and phone before this ships.**
+- **Measured, cached model:** click-to-ready **6.7 s** (WebGPU) and **8.1 s** (CPU), of which ~2.5 s
+  is session start. First use adds a **114.8 MB** (WebGPU) or **191.9 MB** (CPU) download, once.
+
+## 17. Mobile gate — desktop only (`mobile-gate.js` / `mobile-gate.css`)
+
+Karthik's call, 2026-09-20: *"The mobile version of Design Wallet is not needed… when the user opens
+the website in the mobile version we need to redirect them to the desktop version."* A phone now gets
+a full-screen panel instead of the site.
+
+- **`✅ DONE` Every public page is gated on a phone.** 22 pages carry `mobile-gate.css` and
+  `mobile-gate.js`. **`admin/` is deliberately exempt** (internal, and gating it could lock Karthik
+  out on his phone), and the 16 redirect stubs under `tools/` are skipped because they bounce before
+  anything renders.
+- **`DECIDED` There is no "desktop version" to redirect to** — it is one responsive site on one URL.
+  So the gate *is* the mechanism, and the action that gets a visitor to their laptop is a **Copy the
+  link** button, not a redirect.
+- **`⚠️ The one to think about — SEO.` Google indexes mobile-first.** Its smartphone crawler renders
+  the page, and on a gated site what it finds is "Made for a bigger screen" — on the blog, the
+  catalogue and `/salary/`, which are precisely the pages §4 and §5 say the business runs on.
+  **Karthik was told before this was built and asked for it anyway**, so it ships gating everything.
+  **The narrowing lever is one line:** `GATE_SCOPE` at the top of `mobile-gate.js`, set to `"tools"`,
+  leaves the content pages reachable on a phone and gates only the interactive ones. Nothing else has
+  to change. *(No crawler exemption was built. Serving Googlebot the full page while serving people
+  an interstitial is cloaking, and the penalty for being caught is worse than the one being avoided.)*
+- **`DECIDED` The HIDING is CSS, not JavaScript.** A class toggled by a script runs after first
+  paint, so a phone would flash the real page before the gate covered it. A media query applies on
+  the first paint. `mobile-gate.js` only injects the panel.
+- **`⚠️ GOTCHA` The base `#dw-mobile-gate { display: none }` beat the media query and the phone got a
+  BLANK PAGE.** Same specificity, and the base rule came later in the file, so it won the cascade —
+  content hidden, gate never shown. **The query that reveals the gate has to be the last thing in
+  the file.** Caught by testing at 390px, not by reading the CSS.
+- **`DECIDED` There is a CSS-only fallback if the script never runs.** `body:not(.dw-gate-ready)::after`
+  carries the message, so a blocked or failed script still leaves a sentence rather than a black
+  screen.
+- **`DECIDED` The trigger is `max-width: 767px`, plus landscape phones** (`pointer: coarse` and
+  `max-height: 520px`). **Tablets are not gated** — an iPad at 820px gets the site. A desktop window
+  narrowed under 768px does see the gate, which is why the panel ends with *"Already on a desktop?
+  Widen your browser window and this disappears."*
+- **`✅ DONE` The copy is Karthik's, verbatim:** *"Size matters 👀"* / *"This site hits different on a
+  bigger screen. Switch to desktop!"* — supplied 2026-09-20, tightened by him from a first version
+  (*"Size matters, in bed and on this website"* / *"big-screen energy"*), itself replacing the
+  explanatory version this section first recorded. **The kicker was dropped with it**: the headline
+  is a punchline and a preamble only softens it. The no-JS CSS fallback carries the same line, so the
+  voice does not change depending on whether the script ran. The headline sits on **one line at 375,
+  390 and 412px**; the type scale went back up to `clamp(1.95rem, 9vw, 2.6rem)` once it got short.
+- **Flagged, and Karthik's call to make:** this is the first thing a prospective listing partner sees
+  if they open a Design Wallet link on a phone, and `list-your-tool/` (§1) is the revenue model. Said
+  once, recorded here, not re-litigated.
+- **`✅ DONE` The rotating star sits behind the panel.** Karthik's call, 2026-09-20: *"add the rotating
+  star behind the mobile version, the star should be fully covered on the mobile screen."* It is the
+  four-point mark from `public/images/star-bg.jpg`, **redrawn as an SVG path in `mobile-gate.js`, not
+  loaded as that file** — the PNG is 2.9 MB, which is a lot to send a phone whose whole reward is a
+  sentence telling it to leave. Big star and inner star are two subpaths under one `fill-rule:
+  evenodd`, so the centre is a **hole**, not a shape painted in the panel's colour; it stays right
+  whatever sits behind. One turn every 64s, killed by `prefers-reduced-motion`.
+- **`DECIDED` The star is sized `118vmax`, and the number is not arbitrary.** "Fully covered" has to
+  hold at every angle, not just at rest, so tip-to-tip the star must span the screen's **diagonal** —
+  110–115% of `vmax` on 390x844, 375x667 and 414x896. **`%` would not do**: a percentage of a 390px
+  viewport leaves the star floating in the middle. The first try, `148vmax`, covered fine and was
+  zoomed so far in it **stopped reading as a star**. 118 clears every corner with the shape still
+  legible. *A star can never cover the corners at 45° — its arms pinch to ~41% of the tip radius by
+  construction. "Covered" here means it bleeds off all four edges, not that no dark pixel remains.*
+- **`⚠️ GOTCHA` — same z-index trap as §10.** `.dw-gate-star` is positioned at `z-index: 0`, and a
+  positioned element at 0 paints **over** in-flow siblings, so `.dw-gate-inner` needed
+  `position: relative; z-index: 1` or the copy sat behind the star. The clip is `position: fixed;
+  overflow: hidden` — an oversized rotating square would otherwise give the panel a scrollbar.
+- **`🐛 FIXED` The "Catch it on desktop!" button did nothing, on every phone, since it shipped.**
+  `build()` queried `#dw-gate-url` and set `.textContent` on it, but that element had been dropped
+  from the markup — so the line threw, **before `addEventListener` ran**. The gate rendered perfectly
+  and its one action was dead. The dead lines are gone. The reset label is now captured from the
+  button (`var label = button.textContent`) instead of being hardcoded to `"Copy the link"`, which
+  had also drifted from the copy on the button.
+
 ## Implementation Log
+
+**2026-09-20 (last) — Rotating star behind the mobile gate** · same branch, **not committed**
+
+`mobile-gate.js` injects an SVG star; `mobile-gate.css` sizes and spins it. All 22 gated pages pick
+it up for free — they share the two files. Full reasoning in §17.
+
+- **The size was the whole problem.** 148vmax covered the screen and read as abstract blobs; 118vmax
+  is the diagonal-plus-a-margin that keeps the star a star. Shot at 0deg and 45deg on 390x844,
+  375x667 and 740x400 landscape: no horizontal overflow, no scrollbar on the panel.
+- **`🐛` Found while editing: the gate's only button had been dead since it shipped** — a query for a
+  `#dw-gate-url` element that no longer exists threw before the click handler was attached. Fixed and
+  verified in headless Chrome: the button now reads "Copied — paste it on your laptop", no page
+  errors. Reduced motion resolves `animation-name: none`; 1440px still shows the site, not the gate.
+
+**2026-09-20 (later still) — Mobile gate: the site is desktop-only on a phone** · same branch, **not committed**
+
+New `mobile-gate.css` + `mobile-gate.js`, linked from 22 pages and from both templates in
+`build-blog.js` so a rebuild cannot drop them. Full reasoning in §17.
+
+- **`⚠️ GOTCHA` The first build showed phones a BLANK PAGE.** The media query revealing the panel sat
+  above the panel's own `display: none`, lost the cascade at equal specificity, and hid everything
+  including the gate. The CSS read perfectly.
+- **`⚠️ GOTCHA` `git ls-files` does not list untracked files**, so the brand-new background-remover
+  page was missed by the first pass that added the tags. Anything added to "every page" has to be
+  checked against the filesystem, not the index.
+- **Verified at 5 viewports across 6 pages:** gate covers the site on a portrait phone (390×844) and
+  a landscape phone (844×390); **tablet at 820px and desktop at 1440px are untouched**; no page
+  errors anywhere; with **JavaScript disabled** the site stays hidden and the CSS fallback sentence
+  shows. The Copy button copies the full URL and confirms — verified against a stubbed clipboard,
+  because headless Chrome denies the clipboard permission outright; the real-clipboard path falls
+  back to "Copy the address from your browser bar", which is the same branch a phone in a non-secure
+  context would take.
+
+
+**2026-09-20 — Background Remover built** · branch `remove-paywall`, **not committed, not deployed**
+
+Karthik: *"Build this tool now."* Built from `.claude/BG-REMOVER-PROJECT.md` on its recommended
+path — in-browser inference, no backend — and the spec was corrected against what the machine
+actually did (§17 of that file).
+
+- **Files:** `dw-tools/background-remover/` — `index.html`, `background-remover.css`,
+  `background-remover.js` (page, state machine, canvas, brush, export), `bg-worker.js` (model,
+  inference, guided filter, decontamination) and four WebP samples with 240px thumbnails. Plus one
+  `DW_TOOLS` entry in `header.js`, one `sitemap.xml` URL, and `FAQPage` + `WebApplication`
+  structured data following the `/salary/` precedent.
+- **Three bugs found by reading the code before running it:** the canvas was sized at boot while the
+  workspace was still `hidden`, so it would have stayed 1×1 all session; `.bgr-workspace { display:
+  grid }` is an author rule and beats the UA's `[hidden]`, so the empty workspace rendered on page
+  load; and a JPG export with a transparent background would have come out black.
+- **`⚠️ GOTCHA` Piping a long test through `tail` hid 20 minutes of progress.** The first
+  end-to-end run buffered its whole log, so a failure at 38 s looked like a hang. Log to a file and
+  tail the file.
+- **`⚠️ GOTCHA` ORT's WASM build throws raw numbers, not Errors.** `e.message` on a thrown C++
+  exception pointer is `undefined`, which swallowed the one clue there was — the real cause turned
+  out to be `std::bad_alloc`. Errors are now described defensively.
+- **Verified:** 9 automated checks against the running page — both engines reach a result, edge
+  controls recompose without re-running inference, the cached model is reused with **zero bytes on
+  the wire**, an unsupported type gets its own message, no page errors, no horizontal overflow at
+  390px with the workspace open. **And looked at:** the flyaway-hair portrait composited on white
+  *and* black at 100% (strands survive, no halo from the original light wall), and the fur case on
+  a dark ground with no green fringe.
+- **Cache-busters bumped to `20260920-1`** on `header.js` across the 18 tracked pages, plus
+  `assetVersion` in `build-blog.js` — `header.js` changed, and a stale copy would show two mini
+  tools instead of three. The twelve `" (1)"` duplicate files in the working tree were left alone.
+- **Not done:** `/update-change-log` has not been run and `DW_VERSION` is untouched, because the
+  tool is not live. Run both when it ships.
+
+**2026-09-20 (later) — Karthik's five changes to the first build** · same branch, **not committed**
+
+Checkerboard to light · comparison slider in place of the Original button · zoom and pan removed ·
+hero pills replaced by an `Export` button · "How it works" and the FAQ deleted.
+
+- **`⚠️ GOTCHA` The split was inverted on the first pass.** At 100% the frame showed the original,
+  because the left-of-handle region was painted with the source image and the handle rested at the
+  right edge. The code read fine; the screenshot did not. **Look at the frame, not the diff.**
+- **Kept deliberately, against the instruction's letter:** the MIT attribution for BiRefNet and ONNX
+  Runtime, as a one-line credit. Removing it would breach the licences the whole tool depends on.
+- **Verified:** 18 automated checks — the removed elements are gone, the slider appears only with a
+  result and starts on the cutout, dragging and Home/End/arrows move it, the wheel no longer zooms,
+  the checkerboard samples light (`rgb(228,228,228)`), the hero Export downloads the file, no page
+  errors, no overflow at 390px. **And looked at** at 1440px: default view, mid-drag with the
+  Original/Cutout labels, and the narrow layout.
+
 
 **2026-08-24 — Paywall removal** · branch `remove-paywall`, not merged to `main`
 
