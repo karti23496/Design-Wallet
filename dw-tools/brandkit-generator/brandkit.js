@@ -1237,6 +1237,11 @@
 
         relayGet(url.href).then(function (page) {
             if (run !== state.run) return null;
+            // A bot check answers with a perfectly valid little page ("Just a moment...")
+            // whose Roboto and one grey would pass for the site's brand. Say so instead.
+            if (page.status >= 400 || /<title>\s*(?:Just a moment|Attention Required|Access denied|Verify you are human|Pardon Our Interruption)/i.test(page.body)) {
+                throw new Error("This site blocks automated readers, so its colors and fonts can't be read. Sites behind a bot check (Cloudflare, for one) do this.");
+            }
             var doc = new DOMParser().parseFromString(page.body, "text/html");
             var sources = [];
             doc.querySelectorAll("style").forEach(function (s) { sources.push({ text: s.textContent, base: page.url }); });
