@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HLX9Y7DQV7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Brandkit Generator - Colors and Fonts From Any Site | Design Wallet</title>
+    <meta
+        name="description"
+        content="Paste any website link and get its color palette, typography and design assets in seconds. Copy any color, and download the lot as one brandkit zip. Free, no sign-up."
+    >
+    <link rel="canonical" href="https://designwallet.in/dw-tools/brandkit-generator/">
+    <meta property="og:title" content="Website Brandkit Generator - Design Wallet">
+    <meta property="og:description" content="Paste a website link and get its colors, fonts and design assets, with a live preview. Download everything as one brandkit zip.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://designwallet.in/dw-tools/brandkit-generator/">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Website Brandkit Generator",
+      "url": "https://designwallet.in/dw-tools/brandkit-generator/",
+      "applicationCategory": "DesignApplication",
+      "operatingSystem": "Any",
+      "description": "Paste any website link and get its color palette, typography and design assets, with a live preview. Download everything as a brandkit zip.",
+      "isAccessibleForFree": true,
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Design Wallet",
+        "url": "https://designwallet.in/"
+      }
+    }
+    </script>
+    <link rel="stylesheet" href="/style.css?v=20261014-2">
+    <link rel="stylesheet" href="/dw-tools/brandkit-generator/brandkit.css?v=20261015-5">
+    <link rel="stylesheet" href="/mobile-gate.css?v=20261014-2">
+</head>
+<body class="dw-tool-page bk-page">
+    <div class="page-shell">
+        <header class="site-header"></header>
+
+        <main class="bk-main" id="bk-app" data-phase="idle">
+            <section class="bk-hero">
+                <a href="/" class="tool-back-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M5 12L12 19M5 12L12 5"/></svg>
+                    Back to Design Wallet
+                </a>
+                <p class="tool-kicker">Design Wallet Tools</p>
+                <h1 class="tool-title">Website Brandkit Generator</h1>
+                <p class="tool-intro">Drop the website link here. This tool will fetch the colors and typographies.</p>
+            </section>
+
+            <section class="bk-card" aria-label="Brandkit">
+                <div class="bk-col">
+                    <form class="bk-form" id="bk-form" novalidate>
+                        <label class="bk-visually-hidden" for="bk-url">Website link</label>
+                        <input
+                            type="text"
+                            id="bk-url"
+                            class="bk-input"
+                            placeholder="www.designwallet.in"
+                            inputmode="url"
+                            autocomplete="off"
+                            autocapitalize="off"
+                            spellcheck="false"
+                        >
+                        <button type="submit" class="bk-go" id="bk-go" aria-label="Generate brandkit">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M5 12h14M13 6l6 6-6 6"/>
+                            </svg>
+                        </button>
+                    </form>
+
+                    <p class="bk-error" id="bk-error" role="alert" hidden></p>
+
+                    <section class="bk-section" aria-labelledby="bk-palette-title">
+                        <div class="bk-section-head">
+                            <h2 class="bk-section-title" id="bk-palette-title">Color Palette</h2>
+                            <button type="button" class="bk-download" id="bk-download" disabled>
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19h14"/>
+                                </svg>
+                                <span>Download brandkit</span>
+                            </button>
+                        </div>
+                        <div class="bk-palette" id="bk-palette">
+                            <div class="bk-placeholder bk-placeholder--palette"></div>
+                        </div>
+                    </section>
+
+                    <section class="bk-section" aria-labelledby="bk-type-title">
+                        <h2 class="bk-section-title" id="bk-type-title">Typographies</h2>
+                        <div class="bk-type" id="bk-type">
+                            <div class="bk-placeholder bk-placeholder--type"></div>
+                        </div>
+                    </section>
+                </div>
+
+                <aside class="bk-preview" aria-label="Website preview">
+                    <div class="bk-preview-frame" id="bk-preview">
+                        <p class="bk-empty bk-empty--preview" id="bk-preview-empty">A preview of the site appears here.</p>
+                        <img id="bk-shot" alt="" width="1200" height="1228" hidden>
+                    </div>
+                    <button type="button" class="bk-scroll-cue" id="bk-scroll-cue" aria-label="Scroll the preview down" hidden>
+                        <span>Scroll</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                </aside>
+
+                <section class="bk-section bk-assets-section" aria-labelledby="bk-assets-title">
+                    <div class="bk-section-head">
+                        <h2 class="bk-section-title" id="bk-assets-title">Design Assets</h2>
+                        <p class="bk-assets-count" id="bk-assets-count"></p>
+                    </div>
+                    <div class="bk-assets" id="bk-assets">
+                        <div class="bk-placeholder bk-placeholder--assets"></div>
+                    </div>
+                </section>
+            </section>
+
+            <div class="bk-toast" id="bk-toast" role="status" aria-live="polite"></div>
+        </main>
+    </div>
+
+    <script src="/header.js?v=20260920-1"></script>
+    <script src="/dw-tools/brandkit-generator/zip.js?v=20261015-4"></script>
+    <script src="/dw-tools/brandkit-generator/brandkit.js?v=20261015-7"></script>
+    <script src="/mobile-gate.js?v=20260920-1"></script>
+</body>
+</html>

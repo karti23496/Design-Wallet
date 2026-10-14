@@ -22,6 +22,13 @@ var DW_TOOLS = [
         icon: '<rect x="3" y="3" width="18" height="18" rx="3" stroke-dasharray="3.2 3.2"/><circle cx="9" cy="9.4" r="1.5"/><path d="M6.5 16.5 10 12.6l2.4 2.7 2-2.3 3.1 3.5"/>'
     },
     {
+        name: "Website Brandkit Generator",
+        category: "Color & Brand",
+        href: "/dw-tools/brandkit-generator/",
+        description: "Paste a link and pull a site's colors and fonts.",
+        icon: '<circle cx="8.5" cy="8.5" r="4.5"/><circle cx="15.5" cy="8.5" r="4.5"/><circle cx="12" cy="14.5" r="4.5"/>'
+    },
+    {
         name: "Glassmorphism CSS Generator",
         category: "CSS & Code",
         href: "/dw-tools/glassmorphism-css-generator/",

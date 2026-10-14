@@ -1,0 +1,541 @@
+/* Website Brandkit Generator — page styles.
+
+   Built from the Figma frame "Website BrandKit Generator" (node 805:85).
+   Chrome uses the site's tokens like the other mini tools; the one local token
+   is the card's #1c1c1c, which the design uses and the site has no name for.
+
+   The swatches and the font specimen are CONTENT, not chrome: they show a
+   third-party site's colours and typefaces, so they are literal on purpose. */
+
+.bk-page {
+    --bk-card: #1c1c1c;
+    --bk-preview-bg: #262626; /* empty / loading preview; a screenshot covers it */
+}
+
+.bk-main {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: 30px 0 72px;
+}
+
+.bk-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+
+.bk-hero {
+    margin-bottom: 36px;
+}
+
+/* ── Card ───────────────────────────────────────────────────────────────── */
+
+.bk-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 542px);
+    gap: 46px;
+    padding: 26px 22px 26px 16px;
+    border-radius: 30px;
+    background: var(--bk-card);
+}
+
+.bk-col {
+    min-width: 0;
+}
+
+/* ── URL field ──────────────────────────────────────────────────────────── */
+
+.bk-form {
+    position: relative;
+    max-width: 440px;
+    margin: 10px 0 0;
+}
+
+.bk-input {
+    width: 100%;
+    height: 56px;
+    padding: 0 60px 0 22px;
+    border: 1px solid rgba(var(--fg-rgb), 0.2);
+    border-radius: 50px;
+    background: rgba(var(--fg-rgb), 0.05);
+    color: var(--pure);
+    font: inherit;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+    outline: none;
+    transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.bk-input::placeholder {
+    color: rgba(var(--fg-rgb), 0.3);
+}
+
+.bk-input:focus {
+    border-color: rgba(var(--fg-rgb), 0.5);
+    background: rgba(var(--fg-rgb), 0.08);
+}
+
+.bk-go {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--pure);
+    color: var(--bg);
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.bk-go:hover {
+    transform: translateY(-50%) scale(1.05);
+}
+
+.bk-main[data-phase="loading"] .bk-go {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.bk-error {
+    margin: 12px 0 0 22px;
+    color: #ff8a80;
+    font-size: 0.9rem;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.bk-section {
+    margin-top: 40px;
+}
+
+.bk-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.bk-section-title {
+    margin: 0 0 20px;
+    color: var(--pure);
+    font-family: "Geist", "Inter", sans-serif;
+    font-size: 2rem;
+    font-weight: 200;
+    letter-spacing: -0.045em;
+    line-height: 1.1;
+}
+
+.bk-section-head .bk-section-title {
+    margin: 0;
+}
+
+.bk-empty {
+    margin: 0;
+    color: rgba(var(--fg-rgb), 0.4);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* ── Download ───────────────────────────────────────────────────────────── */
+
+.bk-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--pure);
+    color: var(--bg);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.bk-download:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.bk-download:disabled {
+    cursor: not-allowed;
+    opacity: 0.35;
+}
+
+/* ── Palette ────────────────────────────────────────────────────────────── */
+
+.bk-palette {
+    min-height: 103px;
+}
+
+/* Blank until a site is read: a dark field the size of what will replace it. */
+.bk-placeholder {
+    display: grid;
+    padding: 0 20px;
+    place-items: center;
+    background: var(--surface-2);
+    color: rgba(var(--fg-rgb), 0.4);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.bk-placeholder--palette {
+    height: 103px;
+    border-radius: 12px;
+}
+
+.bk-placeholder--type {
+    height: 160px;
+    border-radius: 20px;
+}
+
+.bk-palette:has(.bk-swatch) {
+    display: flex;
+    height: 103px;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.bk-swatch {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: var(--swatch);
+    color: var(--ink);
+    cursor: pointer;
+    font: inherit;
+    transition: flex-grow 0.25s ease;
+}
+
+.bk-swatch:hover,
+.bk-swatch:focus-visible,
+.bk-swatch.is-copied {
+    flex-grow: 1.5;
+    outline: none;
+}
+
+.bk-swatch-hex,
+.bk-swatch-copy {
+    position: absolute;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+}
+
+.bk-swatch-hex {
+    top: 11px;
+    left: 50%;
+    font-size: 0.75rem;
+    letter-spacing: -0.02em;
+    transform: translateX(-50%);
+}
+
+.bk-swatch-copy {
+    bottom: 14px;
+    left: 50%;
+    width: 15px;
+    height: 15px;
+    background: currentColor;
+    -webkit-mask: url("/dw-tools/brandkit-generator/copy.svg") center / contain no-repeat;
+    mask: url("/dw-tools/brandkit-generator/copy.svg") center / contain no-repeat;
+    transform: translateX(-50%);
+}
+
+.bk-swatch:hover .bk-swatch-hex,
+.bk-swatch:hover .bk-swatch-copy,
+.bk-swatch:focus-visible .bk-swatch-hex,
+.bk-swatch:focus-visible .bk-swatch-copy,
+.bk-swatch.is-copied .bk-swatch-hex,
+.bk-swatch.is-copied .bk-swatch-copy {
+    opacity: 1;
+}
+
+/* ── Design assets ──────────────────────────────────────────────────────── */
+
+.bk-assets-section {
+    grid-column: 1 / -1;
+    margin-top: 0;
+}
+
+.bk-assets-count {
+    margin: 0;
+    color: rgba(var(--fg-rgb), 0.4);
+    font-size: 0.8rem;
+}
+
+.bk-assets {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 10px;
+}
+
+.bk-assets:has(.bk-placeholder),
+.bk-assets:has(.bk-skeleton) {
+    display: block;
+}
+
+.bk-placeholder--assets {
+    height: 114px;
+    border-radius: 12px;
+}
+
+.bk-assets .bk-skeleton {
+    height: 114px;
+}
+
+/* Mid-grey tile: black icons and white logos both have to be visible on it. */
+.bk-asset {
+    position: relative;
+    aspect-ratio: 1;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 12px;
+    background: #9d9d9d;
+    cursor: pointer;
+    transition: transform 0.18s ease;
+}
+
+.bk-asset:hover,
+.bk-asset:focus-visible {
+    outline: none;
+    transform: translateY(-2px);
+}
+
+.bk-asset img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 14px;
+    object-fit: contain;
+}
+
+.bk-asset-type {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: rgba(16, 16, 16, 0.78);
+    color: var(--pure);
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+}
+
+/* ── Typographies ───────────────────────────────────────────────────────── */
+
+.bk-type-card {
+    min-height: 160px;
+    padding: 16px 21px 20px;
+    border-radius: 20px;
+    background: var(--surface-2);
+    color: var(--pure);
+}
+
+.bk-type:not(:has(.bk-type-card)) {
+    min-height: 0;
+}
+
+.bk-type-label {
+    display: block;
+    color: rgba(var(--fg-rgb), 0.38);
+    font-size: 0.68rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.bk-type-primary {
+    margin: 2px 0 14px;
+    overflow: hidden;
+    font-size: 3rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bk-type-para {
+    margin: 2px 0 0;
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 0;
+    line-height: 1.5;
+}
+
+.bk-type-note {
+    margin: 14px 0 0;
+    color: rgba(var(--fg-rgb), 0.4);
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
+/* ── Preview ────────────────────────────────────────────────────────────── */
+
+.bk-preview {
+    position: relative; /* anchors the scroll cue, which must NOT scroll with the frame */
+}
+
+.bk-preview-frame {
+    position: relative;
+    height: 555px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.35) transparent;
+    border-radius: 20px;
+    background: var(--bk-preview-bg);
+}
+
+.bk-preview-frame .bk-empty {
+    display: grid;
+    height: 100%;
+    padding: 0 32px;
+    place-items: center;
+    color: rgba(var(--fg-rgb), 0.4);
+    text-align: center;
+}
+
+/* Full width, natural height: the frame is a window onto a tall page. */
+#bk-shot {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+#bk-shot[hidden] {
+    display: none;
+}
+
+/* Bottom-centre cue that the preview scrolls. It sits on the aside, not inside
+   the scrolling frame, so it stays put; JS hides it once the page is scrolled. */
+.bk-scroll-cue {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px 8px 16px;
+    border: 1px solid rgba(var(--fg-rgb), 0.18);
+    border-radius: 999px;
+    background: rgba(16, 16, 16, 0.78);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: var(--pure);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.75rem;
+    opacity: 1;
+    transform: translateX(-50%);
+    transition: opacity 0.2s ease;
+}
+
+.bk-scroll-cue[hidden] {
+    display: none;
+}
+
+.bk-scroll-cue.is-away {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.bk-scroll-cue svg {
+    animation: bk-nudge 1.4s ease-in-out infinite;
+}
+
+@keyframes bk-nudge {
+    0%, 100% { transform: translateY(-2px); }
+    50% { transform: translateY(2px); }
+}
+
+/* ── Loading ────────────────────────────────────────────────────────────── */
+
+.bk-skeleton,
+.bk-preview-frame.is-loading::after {
+    background: linear-gradient(100deg, rgba(var(--fg-rgb), 0.04) 30%, rgba(var(--fg-rgb), 0.1) 50%, rgba(var(--fg-rgb), 0.04) 70%);
+    background-size: 300% 100%;
+    animation: bk-shimmer 1.4s linear infinite;
+}
+
+.bk-skeleton {
+    height: 103px;
+    border-radius: 12px;
+}
+
+.bk-type .bk-skeleton {
+    height: 160px;
+    border-radius: 20px;
+}
+
+.bk-preview-frame.is-loading::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background-color: var(--bk-preview-bg);
+    background-image: linear-gradient(100deg, rgba(var(--fg-rgb), 0) 30%, rgba(var(--fg-rgb), 0.08) 50%, rgba(var(--fg-rgb), 0) 70%);
+    background-size: 300% 100%;
+}
+
+@keyframes bk-shimmer {
+    from { background-position: 100% 0; }
+    to { background-position: -100% 0; }
+}
+
+/* ── Toast ──────────────────────────────────────────────────────────────── */
+
+.bk-toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    padding: 10px 18px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--panel-strong);
+    color: var(--pure);
+    font-size: 0.85rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 8px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.bk-toast.is-visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+@media (max-width: 1100px) {
+    .bk-card {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 22px 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bk-skeleton,
+    .bk-preview-frame.is-loading::after,
+    .bk-scroll-cue svg {
+        animation: none;
+    }
+
+    .bk-swatch,
+    .bk-toast {
+        transition: none;
+    }
+}
