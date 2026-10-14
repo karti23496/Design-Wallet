@@ -1,0 +1,730 @@
+/* Background Remover — page styles.
+
+   Chrome uses the site's theme tokens (--fg-rgb, --pure, --surface-*, --border)
+   like the rest of style.css, following the glass generator's precedent: a tool
+   this heavy does not belong in the 209KB stylesheet every page loads.
+
+   The one deliberate exception is the stage: the checkerboard and the canvas
+   are *content*, not chrome — they have to read as "this is transparent",
+   which is a literal look, not a themed one. */
+
+.bgr-main {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: 30px 0 72px;
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+
+.bgr-hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 26px;
+}
+
+.bgr-hero-copy {
+    flex: 1 1 auto;
+    max-width: 620px;
+}
+
+.bgr-group-label,
+.bgr-samples-label {
+    margin: 0;
+    color: rgba(var(--fg-rgb), 0.48);
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.bgr-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bgr-export {
+    min-width: 132px;
+}
+
+/* ── Dropzone ───────────────────────────────────────────────────────────── */
+
+.bgr-dropzone {
+    padding: 52px 32px 34px;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    background: var(--panel);
+    text-align: center;
+    transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.bgr-dropzone.is-dragging {
+    border-color: rgba(var(--fg-rgb), 0.5);
+    background: var(--panel-strong);
+}
+
+.bgr-main[data-phase="loading"] .bgr-dropzone,
+.bgr-main[data-phase="working"] .bgr-dropzone,
+.bgr-main[data-phase="ready"] .bgr-dropzone {
+    display: none;
+}
+
+.bgr-drop-icon {
+    color: rgba(var(--fg-rgb), 0.42);
+}
+
+.bgr-drop-title {
+    margin: 14px 0 8px;
+    color: var(--pure);
+    font-family: "Geist", "Inter", sans-serif;
+    font-size: 1.32rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+}
+
+.bgr-drop-copy {
+    margin: 0 0 10px;
+    color: rgba(var(--fg-rgb), 0.62);
+    font-size: 0.92rem;
+}
+
+.bgr-drop-meta {
+    margin: 0;
+    color: rgba(var(--fg-rgb), 0.38);
+    font-size: 0.78rem;
+}
+
+.bgr-link-button {
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid rgba(var(--fg-rgb), 0.4);
+    background: none;
+    color: var(--pure);
+    font: inherit;
+    cursor: pointer;
+}
+
+.bgr-link-button:hover {
+    border-bottom-color: var(--pure);
+}
+
+kbd {
+    padding: 2px 6px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    background: rgba(var(--fg-rgb), 0.05);
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 0.74em;
+}
+
+/* ── Samples ────────────────────────────────────────────────────────────── */
+
+.bgr-samples {
+    margin-top: 32px;
+    padding-top: 26px;
+    border-top: 1px solid var(--border);
+}
+
+.bgr-samples-label {
+    margin-bottom: 14px;
+}
+
+.bgr-samples-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+}
+
+.bgr-sample {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: rgba(var(--fg-rgb), 0.6);
+    font-size: 0.76rem;
+    cursor: pointer;
+}
+
+.bgr-sample img {
+    width: 92px;
+    height: 92px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    transition: border-color 0.18s ease, transform 0.18s ease;
+}
+
+.bgr-sample:hover img {
+    border-color: rgba(var(--fg-rgb), 0.42);
+    transform: translateY(-2px);
+}
+
+.bgr-sample:hover {
+    color: var(--pure);
+}
+
+/* ── Workspace ──────────────────────────────────────────────────────────── */
+
+/* An author `display` beats the UA's [hidden] rule, so the attribute needs
+   saying again here — without this the empty workspace renders on page load. */
+.bgr-workspace[hidden],
+.bgr-row[hidden],
+.bgr-status[hidden] {
+    display: none;
+}
+
+.bgr-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 316px;
+    gap: 20px;
+    align-items: start;
+}
+
+.bgr-stage {
+    position: relative;
+    min-height: 460px;
+    height: clamp(460px, 62vh, 760px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-1);
+    overflow: hidden;
+}
+
+.bgr-stage canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    cursor: default;
+}
+
+.bgr-main[data-phase="ready"] .bgr-stage canvas {
+    cursor: crosshair;
+}
+
+.bgr-main[data-phase="loading"] .bgr-stage canvas,
+.bgr-main[data-phase="working"] .bgr-stage canvas {
+    cursor: progress;
+    opacity: 0.45;
+}
+
+/* ── Comparison slider ──────────────────────────────────────────────────
+
+   The handle is a real focusable element sitting over the canvas, so it can be
+   tabbed to and nudged with the arrow keys. Everything else in the layer is
+   pointer-transparent, or it would swallow brush strokes. */
+
+.bgr-split {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.bgr-split[hidden] {
+    display: none;
+}
+
+.bgr-split-handle {
+    position: absolute;
+    display: flex;
+    width: 44px;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(-50%);
+    cursor: ew-resize;
+    pointer-events: auto;
+    touch-action: none;
+}
+
+.bgr-split-grip {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid rgba(var(--fg-rgb), 0.55);
+    border-radius: 50%;
+    background: rgba(10, 10, 10, 0.82);
+    color: var(--pure);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.bgr-split-handle:hover .bgr-split-grip,
+.bgr-split.is-dragging .bgr-split-grip {
+    transform: scale(1.08);
+    border-color: var(--pure);
+}
+
+.bgr-split-handle:focus-visible {
+    outline: none;
+}
+
+.bgr-split-handle:focus-visible .bgr-split-grip {
+    outline: 2px solid var(--pure);
+    outline-offset: 3px;
+}
+
+.bgr-split-label {
+    position: absolute;
+    top: calc(var(--split-top, 0px) + 12px);
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: rgba(10, 10, 10, 0.78);
+    color: rgba(var(--fg-rgb), 0.82);
+    font-size: 0.7rem;
+    opacity: 0;
+    transition: opacity 0.16s ease;
+}
+
+.bgr-split-label--before {
+    left: calc(var(--split-left, 0px) + 12px);
+}
+
+.bgr-split-label--after {
+    right: calc(var(--split-right, 0px) + 12px);
+}
+
+.bgr-split.is-open .bgr-split-label {
+    opacity: 1;
+}
+
+/* ── Status overlay ─────────────────────────────────────────────────────── */
+
+.bgr-status {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    width: min(420px, calc(100% - 28px));
+    transform: translateX(-50%);
+    padding: 16px 18px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: rgba(10, 10, 10, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    text-align: left;
+}
+
+.bgr-status-title {
+    margin: 0;
+    color: var(--pure);
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+.bgr-status-detail {
+    margin: 5px 0 0;
+    color: rgba(var(--fg-rgb), 0.56);
+    font-size: 0.8rem;
+    line-height: 1.45;
+}
+
+.bgr-status-detail:empty {
+    display: none;
+}
+
+.bgr-status-bar {
+    height: 4px;
+    margin-top: 12px;
+    border-radius: 999px;
+    background: rgba(var(--fg-rgb), 0.12);
+    overflow: hidden;
+}
+
+.bgr-status-fill {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--pure);
+    transition: width 0.2s ease;
+}
+
+#bgr-status-action {
+    margin-top: 12px;
+}
+
+/* ── Rail ───────────────────────────────────────────────────────────────── */
+
+.bgr-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--panel);
+    overflow: hidden;
+}
+
+.bgr-group,
+.bgr-actions {
+    padding: 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.bgr-actions {
+    border-bottom: 0;
+    background: rgba(var(--fg-rgb), 0.02);
+}
+
+.bgr-group-label {
+    margin-bottom: 12px;
+}
+
+.bgr-row {
+    margin-top: 14px;
+}
+
+/* ── Segmented buttons ──────────────────────────────────────────────────── */
+
+.bgr-segment {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(var(--fg-rgb), 0.03);
+}
+
+.bgr-segment button {
+    padding: 8px 6px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: rgba(var(--fg-rgb), 0.58);
+    font-family: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.bgr-segment button:hover {
+    color: var(--pure);
+}
+
+.bgr-segment button.is-active {
+    background: rgba(var(--fg-rgb), 0.12);
+    color: var(--pure);
+}
+
+/* ── Fields ─────────────────────────────────────────────────────────────── */
+
+.bgr-field {
+    display: block;
+    margin-top: 12px;
+}
+
+.bgr-field > span {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 7px;
+    color: rgba(var(--fg-rgb), 0.62);
+    font-size: 0.8rem;
+}
+
+.bgr-field b {
+    color: var(--pure);
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 0.78rem;
+    font-weight: 400;
+}
+
+input[type="range"] {
+    width: 100%;
+    height: 3px;
+    margin: 6px 0;
+    border-radius: 999px;
+    background: rgba(var(--fg-rgb), 0.16);
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    width: 14px;
+    height: 14px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--pure);
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--pure);
+}
+
+input[type="range"]:focus-visible {
+    outline: 2px solid rgba(var(--fg-rgb), 0.5);
+    outline-offset: 4px;
+}
+
+.bgr-swatches {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.bgr-swatches button {
+    aspect-ratio: 1;
+    border: 1px solid var(--border-strong);
+    border-radius: 7px;
+    background: var(--swatch);
+    cursor: pointer;
+}
+
+.bgr-swatches button:hover {
+    border-color: var(--pure);
+}
+
+.bgr-colour-fields {
+    display: flex;
+    gap: 8px;
+}
+
+input[type="color"] {
+    width: 38px;
+    height: 34px;
+    padding: 2px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: none;
+    cursor: pointer;
+}
+
+#bgr-colour-hex {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: rgba(var(--fg-rgb), 0.03);
+    color: var(--pure);
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 0.78rem;
+}
+
+.bgr-file-field span {
+    display: block;
+    margin-bottom: 8px;
+    color: rgba(var(--fg-rgb), 0.62);
+    font-size: 0.8rem;
+}
+
+.bgr-file-field input[type="file"] {
+    width: 100%;
+    color: rgba(var(--fg-rgb), 0.55);
+    font-size: 0.75rem;
+}
+
+.bgr-switch {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 14px;
+    color: rgba(var(--fg-rgb), 0.72);
+    font-size: 0.82rem;
+    cursor: pointer;
+}
+
+.bgr-switch input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--pure);
+}
+
+.bgr-hint {
+    margin: 10px 0 0;
+    color: rgba(var(--fg-rgb), 0.38);
+    font-size: 0.73rem;
+    line-height: 1.5;
+}
+
+.bgr-history {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+.bgr-ghost-button {
+    padding: 8px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    background: rgba(10, 10, 10, 0.72);
+    color: rgba(var(--fg-rgb), 0.82);
+    font-family: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.bgr-ghost-button:hover:not(:disabled) {
+    border-color: rgba(var(--fg-rgb), 0.45);
+    color: var(--pure);
+}
+
+.bgr-ghost-button.is-active {
+    background: rgba(var(--fg-rgb), 0.16);
+    color: var(--pure);
+}
+
+.bgr-ghost-button:disabled {
+    opacity: 0.34;
+    cursor: not-allowed;
+}
+
+.bgr-primary-button {
+    flex: 1 1 auto;
+    padding: 12px 18px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--pure);
+    color: #070707;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.bgr-primary-button:hover:not(:disabled) {
+    opacity: 0.88;
+}
+
+.bgr-primary-button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.bgr-download-row {
+    display: flex;
+    gap: 8px;
+}
+
+#bgr-format {
+    padding: 0 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    background: rgba(var(--fg-rgb), 0.04);
+    color: var(--pure);
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.bgr-secondary-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+/* ── Toast and live region ──────────────────────────────────────────────── */
+
+.bgr-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    z-index: 40;
+    padding: 11px 18px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: rgba(10, 10, 10, 0.94);
+    color: var(--pure);
+    font-size: 0.82rem;
+    opacity: 0;
+    transform: translate(-50%, 10px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.bgr-toast.is-visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.bgr-live {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* ── Narrow ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 980px) {
+    .bgr-main {
+        padding: 24px 0 56px;
+    }
+
+    .bgr-workspace {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .bgr-stage {
+        height: clamp(320px, 55vh, 520px);
+        min-height: 320px;
+    }
+
+    .bgr-rail {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 0;
+    }
+
+    .bgr-group {
+        border-right: 1px solid var(--border);
+    }
+}
+
+@media (max-width: 640px) {
+    .bgr-dropzone {
+        padding: 36px 18px 26px;
+    }
+
+    .bgr-sample img {
+        width: 68px;
+        height: 68px;
+    }
+
+    .bgr-rail {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .bgr-group {
+        border-right: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bgr-sample img,
+    .bgr-toast,
+    .bgr-status-fill {
+        transition: none;
+    }
+}

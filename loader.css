@@ -1,0 +1,166 @@
+/* Entry loader — a spiral galaxy that holds for 5s, then fades away once its
+   0-99% counter finishes, to reveal the homepage.
+
+   It is a fake loader on purpose: nothing is being waited on. The whole
+   timeline is CSS, so it runs on the first paint with no script in the way:
+
+     0.0s – 0.9s   galaxy fades in
+     0.0s – 5.0s   discs rotate
+     counter runs 0 → 99% over 5s; only then does the loader fade out (0.9s)
+     and the page show through
+
+   loader.js only (a) skips the loader on repeat visits in one session,
+   (b) paints the stars, and (c) unlocks scrolling. If it never runs, the
+   loader still removes itself by CSS alone.
+
+   Phones never see it: mobile-gate.css hides every `body > *` except the
+   gate on narrow screens. */
+
+:root {
+    --dw-lo-hold: 5s;
+}
+
+html.dw-loading {
+    overflow: hidden;
+}
+
+.dw-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 2147482000; /* above the page, below the mobile gate */
+    overflow: hidden;
+    background: var(--surface-2); /* same as the homepage body */
+    color: #f5f5f5;
+    font-family: "Geist", "Inter", system-ui, sans-serif;
+    }
+
+.dw-loader.is-done {
+    animation: dw-lo-out 0.9s ease-in forwards;
+}
+
+html.dw-loader-skip .dw-loader {
+    display: none;
+}
+
+/* ── Wrapper ──────────────────────────────────────────────────────────── */
+.dw-lo-zoom {
+    position: absolute;
+    inset: 0;
+}
+
+.dw-lo-field,
+.dw-lo-galaxy {
+    opacity: 0;
+    animation: dw-lo-in 0.9s ease-out forwards;
+}
+
+/* Far background stars, fixed to the screen */
+.dw-lo-field {
+    position: absolute;
+    inset: 0;
+}
+
+.dw-lo-field i {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    border-radius: 50%;
+    background: transparent;
+    animation: dw-lo-twinkle 4s ease-in-out infinite alternate;
+}
+
+.dw-lo-field i:nth-child(2) {
+    animation-duration: 6s;
+    animation-delay: -2s;
+}
+
+/* ── The galaxy ───────────────────────────────────────────────────────── */
+.dw-lo-galaxy {
+    --w: min(112vw, 1700px);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--w);
+    height: var(--w);
+    margin: calc(var(--w) / -2) 0 0 calc(var(--w) / -2);
+}
+
+/* The disc lies flat, then tilts back. */
+.dw-lo-tilt {
+    position: absolute;
+    inset: 0;
+    transform: perspective(1400px) rotateX(62deg) rotateZ(-22deg);
+    transform-style: preserve-3d;
+}
+
+.dw-lo-spin {
+    position: absolute;
+    inset: 0;
+    animation: dw-lo-spin 90s linear infinite;
+    will-change: transform;
+}
+
+.dw-lo-spin--arms { animation-duration: 140s; }
+.dw-lo-spin--near { animation-duration: 100s; }
+
+/* Each star layer is one zero-size dot whose box-shadow list is written by
+   loader.js — thousands of stars, one element, one raster. */
+.dw-lo-stars {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1px;
+    height: 1px;
+    border-radius: 50%;
+    background: transparent;
+}
+
+/* ── Counter (0-99, no % sign), bottom right ─────────────────────────────────── */
+.dw-lo-count {
+    position: absolute;
+    right: clamp(24px, 4vw, 56px);
+    bottom: clamp(20px, 4vh, 44px);
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    font-size: clamp(2.6rem, 6vw, 5rem);
+    font-weight: 100;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: rgba(245, 245, 245, 0.92);
+    opacity: 0;
+    animation: dw-lo-in 0.9s ease-out 0.3s forwards;
+}
+
+/* ── Keyframes ────────────────────────────────────────────────────────── */
+@keyframes dw-lo-in { to { opacity: 1; } }
+
+@keyframes dw-lo-spin { to { transform: rotate(360deg); } }
+
+@keyframes dw-lo-pulse {
+    from { opacity: 0.82; }
+    to   { opacity: 1; }
+}
+
+@keyframes dw-lo-twinkle {
+    from { opacity: 0.35; }
+    to   { opacity: 1; }
+}
+
+@keyframes dw-lo-out {
+    0%   { opacity: 1; visibility: visible; }
+    99%  { opacity: 0; visibility: visible; }
+    100% { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+/* Reduced motion keeps the 5s hold (it is the brand moment) but drops the
+   spin; the loader simply fades out. */
+@media (prefers-reduced-motion: reduce) {
+    .dw-lo-spin,
+    .dw-lo-field i {
+        animation: none;
+    }
+}

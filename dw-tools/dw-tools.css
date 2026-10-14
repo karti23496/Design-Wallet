@@ -5,7 +5,7 @@
    ============================================================================ */
 
 .dwt-main {
-    max-width: 1100px;
+    max-width: var(--content-width); /* the nav pill's width; the hero is centred within it */
     margin: 0 auto;
     padding: 64px 0 96px;
 }
@@ -53,14 +53,39 @@
 }
 
 /* ── Tool cards ───────────────────────────────────────────────────────── */
-/* auto-fit + a capped track + centring: a short list sits under the centred
-   hero instead of leaving empty columns on the right. */
+/* Category groups. Left-aligned under a left-aligned heading: the old centred
+   grid existed so a two-tool list did not hug the left of a centred hero, but a
+   heading above each group makes the left edge the natural one. */
+.dwt-groups {
+    display: grid;
+    gap: 56px;
+    margin-top: 72px;
+}
+
+.dwt-group-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 0 0 20px;
+    color: rgba(var(--fg-rgb), 0.92);
+    font-family: "Geist", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: -0.03em;
+}
+
+.dwt-group-count {
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0;
+}
+
 .dwt-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 356px));
-    justify-content: center;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: 16px;
-    margin: 72px 0 0;
+    margin: 0;
     padding: 0;
     list-style: none;
 }
@@ -131,9 +156,7 @@
 @media (max-width: 700px) {
     .dwt-main { padding: 40px 0 64px; }
     .dwt-hero { padding-inline: 0; }
-    .dwt-grid {
-        grid-template-columns: 1fr;
-        margin-top: 48px;
-    }
+    .dwt-groups { margin-top: 48px; gap: 40px; }
+    .dwt-grid { grid-template-columns: 1fr; }
     .dwt-card { padding: 20px; }
 }

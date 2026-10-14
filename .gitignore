@@ -1,6 +1,12 @@
 .DS_Store
 .env
 .env.*
+# Supabase credentials notepad. Covered by .env.* above; named explicitly
+# because this repo is going open source and the cost of that rule ever
+# changing is a published database password.
+supabase/.env.local
+# One-time subscriber import: real email addresses, never committed.
+supabase/.import-subscribers.local.sql
 node_modules/
 dist/
 .netlify/

@@ -1,0 +1,90 @@
+/* The ticker bar — homepage only.
+
+   Loaded by index.html alone, so it stays out of the 209KB site-wide
+   stylesheet that every other page pays for. Uses the site's theme tokens
+   (--fg-rgb, --surface-*, --border) like the rest of the chrome.
+
+   The scroll is one animation on the track, driven by two custom properties
+   that ticker-bar.js measures: --dw-ticker-distance (one group's width) and
+   --dw-ticker-duration (that width at a constant reading speed). Sliding by
+   exactly one group's width is what makes the loop seamless. */
+
+.dw-ticker {
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.dw-ticker-link {
+    display: block;
+    padding: 10px 0;
+    color: rgba(var(--fg-rgb), 0.78);
+    text-decoration: none;
+}
+
+.dw-ticker-link:hover {
+    color: var(--pure);
+}
+
+.dw-ticker-track {
+    display: flex;
+    width: max-content;
+    animation: dw-ticker-scroll var(--dw-ticker-duration, 40s) linear infinite;
+    will-change: transform;
+}
+
+.dw-ticker-group {
+    display: flex;
+}
+
+.dw-ticker-item {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.78rem;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+.dw-ticker-dot {
+    margin: 0 30px;
+    color: rgba(var(--fg-rgb), 0.3);
+}
+
+/* Hovering slows the scroll rather than stopping it — handled in
+   ticker-bar.js, because changing `animation-duration` on a running CSS
+   animation makes it jump to a new position. The Web Animations API changes
+   the rate in place, so it eases down from wherever it is. */
+
+.dw-ticker-link:focus-visible {
+    outline: 2px solid var(--pure);
+    outline-offset: -2px;
+}
+
+@keyframes dw-ticker-scroll {
+    from {
+        transform: translate3d(0, 0, 0);
+    }
+    to {
+        transform: translate3d(calc(var(--dw-ticker-distance, 0px) * -1), 0, 0);
+    }
+}
+
+/* No motion: one copy, centred, no scroll. */
+@media (prefers-reduced-motion: reduce) {
+    .dw-ticker-track {
+        width: 100%;
+        animation: none;
+        justify-content: center;
+    }
+
+    .dw-ticker-group + .dw-ticker-group,
+    .dw-ticker-group .dw-ticker-item + .dw-ticker-item {
+        display: none;
+    }
+
+    .dw-ticker-dot {
+        display: none;
+    }
+}

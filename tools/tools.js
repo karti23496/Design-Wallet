@@ -1,33 +1,27 @@
 document.addEventListener("DOMContentLoaded", function () {
-    var SHEET_ID = "1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8";
-    // ── Sheet tabs the catalogue reads ──────────────────────────────────────
-    // Every tab is fetched, parsed with the same 8-column schema, and merged
-    // into one tool list (duplicates are collapsed by slug), so a tool's
-    // category still comes from its `categories` COLUMN, not from which tab it
-    // sits in. Tabs are just how the data is organised for editing.
+    // ── Where the catalogue comes from ──────────────────────────────────────
+    // Supabase, not the Google Sheet. The Sheet is still where Karthik edits;
+    // an Apps Script pushes it here within seconds of an edit. See
+    // `supabase/README.md` and DECISIONS §20a.
     //
-    // An entry is either a TAB NAME — exactly as it reads in the Sheet's tab
-    // bar, matched case-insensitively — or a numeric gid. Prefer the name: it
-    // is readable, and it survives a tab being deleted and recreated, which
-    // changes the gid.
+    // The key is PUBLISHABLE and belongs in the browser. It can only read the
+    // three `public_*` views: row-level security refuses it the base tables,
+    // and refuses every write. Verified 21/21 on 2026-10-04.
     //
-    // Adding a category tab is one line here. See the note on request cost in
-    // DECISIONS.md before adding many: every tab is one JSONP request, on load
-    // and on every refresh tick.
-    // WARNING: a wrong entry here does NOT fail loudly. gviz answers an unknown
-    // tab name or a dead gid with `status: ok` and ANOTHER tab's rows. The
-    // signature check in loadAllTools() catches that, but keep this list
-    // accurate — delete an entry when its tab goes.
-    var SHEET_TABS = [
-        "0",                 // main tab (legacy gid; being emptied during the 2026-09 cleanup)
-        "1218813985",        // secondary legacy tab
-        "MCP Connectors",
-        "AI creative suites",
-        "AI voiceover"
-    ];
+    // Duplicated in `script.js` and `wall-of-portfolios/wall.js`, exactly as
+    // the sheet id was before it. One shared config file would mean a script
+    // tag on a dozen pages and a load-order dependency that fails silently.
+    var SUPABASE_URL = "https://ugjtyuikvdeymwsfsgfl.supabase.co";
+    var SUPABASE_KEY = "sb_publishable_IOdPnIa_tf6DjQShp_gTZA_i36nRCTe";
+
+    // PostgREST caps a response; ask for more than the catalogue will plausibly
+    // hold and warn if we ever hit the ceiling, because the failure is silent
+    // truncation rather than an error.
+    var ROW_LIMIT = 5000;
+
     var CACHE_KEY = "dw_tool_detail_cache_v4";
     var CACHE_TTL = 10 * 60 * 1000;
-    var SHEET_REFRESH_INTERVAL = 5000;
+    var REQUEST_TIMEOUT_MS = 12000;
 
     // ── "Hot trends": a promoted shortcut list above the category nav ───────
     // Edit this array to change what appears there; nothing else needs touching.
@@ -145,15 +139,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return "";
     }
 
-    function normalizeHeader(value) {
-        return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
-    }
-
-    function getCellValue(cell) {
-        if (!cell || typeof cell.v === "undefined" || cell.v === null) return "";
-        return String(cell.v).trim();
-    }
-
     function escapeHtml(value) {
         return String(value || "")
             .replace(/&/g, "&amp;")
@@ -199,20 +184,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return String(value || "").split(/\n+|,\s*(?=https?:\/\/)/).map(function (p) { return p.trim(); }).filter(Boolean);
     }
 
-    function collectThumbnailLinks(record) {
-        var links = [];
-
-        Object.keys(record).forEach(function (key) {
-            if (key.indexOf("thumbnail") === -1 && key.indexOf("banner") === -1) {
-                return;
-            }
-
-            links = links.concat(splitThumbnailLinks(record[key]));
-        });
-
-        return Array.from(new Set(links));
-    }
-
     function normalizePrice(value) {
         var cleaned = String(value || "").trim().toLowerCase();
         if (!cleaned) return "free";
@@ -251,42 +222,33 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function buildTools(rows) {
-        if (!Array.isArray(rows) || !rows.length) return [];
-        var headers = (rows[0].c || []).map(function (cell) { return normalizeHeader(getCellValue(cell)); });
+    /**
+     * One Supabase row → the tool object the rest of this file renders.
+     *
+     * The shape is unchanged from the Google Sheet era, deliberately: every
+     * renderer, filter and search path downstream still receives exactly what
+     * it did before. What disappeared is the parsing — header aliases, missing
+     * header rows, comma-splitting of column names — because the sync job in
+     * `supabase/sheet-sync.gs` resolved all of that before the row was stored.
+     */
+    function toTool(row) {
+        var thumbnails = splitThumbnailLinks(row.thumbnails);
+        var price = normalizePrice(row.pricing);
 
-        // A tab mid-edit can lose its header row, in which case row 0 is a data
-        // row and every key built from it is nonsense — the tab then yields
-        // titleless junk that gets merged into the catalogue. Require a
-        // recognisable header before trusting the tab; skipping it entirely
-        // means one broken tab cannot poison the others.
-        if (headers.indexOf("title") === -1 && headers.indexOf("name") === -1) return [];
-
-        return rows.slice(1).map(function (row) {
-            var cells = row.c || [];
-            var record = {};
-            headers.forEach(function (header, index) {
-                if (header) record[header] = getCellValue(cells[index]);
-            });
-
-            var title = record.title || record.name || "";
-            var slug = slugify(record.slug || title);
-            var thumbnails = collectThumbnailLinks(record);
-            return {
-                title: title,
-                subtitle: record.subtitle || record.description || "",
-                description: record.description || record.subtitle || "Curated design resource.",
-                categories: parseCategories(record.categories || record.category),
-                price: normalizePrice(record.pricing || record.price),
-                priceLabel: formatPrice(normalizePrice(record.pricing || record.price)),
-                link: record.link || record.url || "",
-                icon: record.image || record.logo || "",
-                thumbnail: thumbnails[0] || "",
-                thumbnails: thumbnails,
-                slug: slug,
-                initials: getInitials(title)
-            };
-        }).filter(function (item) { return item.title && item.slug; });
+        return {
+            title: row.title || "",
+            subtitle: row.subtitle || row.description || "",
+            description: row.description || row.subtitle || "Curated design resource.",
+            categories: parseCategories(row.categories),
+            price: price,
+            priceLabel: formatPrice(price),
+            link: row.link || "",
+            icon: row.image || "",
+            thumbnail: thumbnails[0] || "",
+            thumbnails: thumbnails,
+            slug: row.slug || "",
+            initials: getInitials(row.title)
+        };
     }
 
     function dedupeTools(tools) {
@@ -1018,92 +980,64 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (e) {}
     }
 
-    function addResponseHandler(url, callbackName) {
-        if (url.indexOf("tqx=") !== -1) {
-            return url.replace(/tqx=([^&]*)/, function (match, value) {
-                return "tqx=" + value + ";responseHandler:" + callbackName;
-            });
+    /**
+     * One request, plain `fetch`. The Sheet needed JSONP — neither gviz nor
+     * Apps Script sends CORS headers — which meant injecting a <script> tag,
+     * a global callback and a manual timeout. Supabase sends CORS headers, so
+     * all of that machinery is gone.
+     */
+    function fetchSupabase(path, onSuccess, onError) {
+        var settled = false;
+        var timer = window.setTimeout(function () {
+            if (settled) return;
+            settled = true;
+            onError();
+        }, REQUEST_TIMEOUT_MS);
+
+        function finish(fn, value) {
+            if (settled) return;
+            settled = true;
+            window.clearTimeout(timer);
+            fn(value);
         }
 
-        return url + (url.indexOf("?") === -1 ? "?" : "&") + "tqx=out:json;responseHandler:" + callbackName;
+        fetch(SUPABASE_URL + "/rest/v1/" + path, { headers: { apikey: SUPABASE_KEY } })
+            .then(function (response) {
+                if (!response.ok) throw new Error("Supabase responded " + response.status);
+                return response.json();
+            })
+            .then(function (rows) { finish(onSuccess, Array.isArray(rows) ? rows : []); })
+            .catch(function () { finish(onError); });
     }
 
-    function requestSheetData(url, onSuccess, onError) {
-        var script = document.createElement("script");
-        var timeoutId = 0;
-        var callbackName = "__dwToolSheetCallback_" + Date.now() + "_" + Math.random().toString(36).slice(2);
-
-        function cleanup() {
-            clearTimeout(timeoutId);
-            script.remove();
-            delete window[callbackName];
-        }
-
-        window[callbackName] = function (payload) {
-            cleanup();
-            onSuccess(payload);
-        };
-
-        script.async = true;
-        script.src = addResponseHandler(url, callbackName);
-        script.onerror = function () { cleanup(); onError(); };
-        timeoutId = window.setTimeout(function () { cleanup(); onError(); }, 12000);
-        document.body.appendChild(script);
-    }
-
-    // A numeric entry is a gid; anything else is a tab name. gviz accepts
-    // either, and matches the name case-insensitively.
-    function buildSheetUrl(tab) {
-        var selector = /^\d+$/.test(String(tab))
-            ? "gid=" + encodeURIComponent(tab)
-            : "sheet=" + encodeURIComponent(tab);
-        return "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&" + selector + "&cachebust=" + Date.now();
-    }
-
+    /**
+     * Was five JSONP requests, one per sheet tab, merged and de-duplicated in
+     * the browser. It is now a single call: the tabs are merged by the sync
+     * job, so `public_tools` is already the whole catalogue.
+     *
+     * `dedupeTools` is still called on the result. It is a no-op on clean data
+     * — the sync merges duplicate slugs before storing — but it is also what
+     * de-duplicates the cached copy from a previous version of this file, and
+     * it costs nothing.
+     */
     function loadAllTools(onSuccess, onError) {
-        var remaining = SHEET_TABS.length;
-        var allTools = [];
-        var seenSignatures = {};
+        fetchSupabase("public_tools?select=*&limit=" + ROW_LIMIT, function (rows) {
+            if (rows.length >= ROW_LIMIT) {
+                console.warn("Catalogue hit the " + ROW_LIMIT + "-row ceiling; raise ROW_LIMIT.");
+            }
 
-        SHEET_TABS.forEach(function (tab) {
-            requestSheetData(buildSheetUrl(tab), function (payload) {
-                var rows = payload && payload.table && payload.table.rows ? payload.table.rows : [];
+            var tools = dedupeTools(rows.map(toTool).filter(function (tool) {
+                return tool.title && tool.slug;
+            }));
 
-                // gviz NEVER errors on a tab that isn't there — a renamed tab,
-                // a typo, or a deleted gid all come back `status: ok` carrying
-                // some other tab's rows. `sig` is a per-tab content signature,
-                // so a repeat means this entry resolved to a tab already loaded
-                // and merging it would quietly import the wrong data. Drop it.
-                var signature = payload && payload.sig;
-                if (signature) {
-                    if (seenSignatures[signature]) rows = [];
-                    else seenSignatures[signature] = true;
-                }
+            if (!tools.length) {
+                onError();
+                return;
+            }
 
-                allTools = allTools.concat(buildTools(rows));
-                remaining -= 1;
-                if (remaining === 0) {
-                    allTools = dedupeTools(allTools);
-                    if (allTools.length) {
-                        setCachedTools(allTools);
-                        onSuccess(allTools);
-                    } else {
-                        onError();
-                    }
-                }
-            }, function () {
-                remaining -= 1;
-                if (remaining === 0) {
-                    allTools = dedupeTools(allTools);
-                    if (allTools.length) {
-                        setCachedTools(allTools);
-                        onSuccess(allTools);
-                    } else {
-                        onError();
-                    }
-                }
-            });
-        });
+            setCachedTools(tools);
+            onSuccess(tools);
+        }, onError);
     }
 
     function init() {
@@ -1180,14 +1114,15 @@ document.addEventListener("DOMContentLoaded", function () {
             processTools(cachedTools);
         }
 
+        // Fetched once per page load, not on a timer. The old 5-second poll
+        // re-read the entire catalogue 720 times an hour per open tab, to catch
+        // an edit that now reaches the database within seconds of being typed —
+        // so anyone opening or refreshing the page sees it. DECISIONS §20a.
         loadAllTools(processTools, function () {
             if (!cachedTools) {
                 showNotFound("Could not load this tool", "Please refresh the page or try another listing.");
             }
         });
-        window.setInterval(function () {
-            loadAllTools(processTools, function () {});
-        }, SHEET_REFRESH_INTERVAL);
     }
 
     init();

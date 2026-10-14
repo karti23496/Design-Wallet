@@ -14,17 +14,16 @@
 (function () {
     "use strict";
 
-    var SHEET_ID = "1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8";
-
-    // WARNING: gviz NEVER errors on a tab that isn't there — a typo, a rename
-    // or a dead gid all answer `status: ok` carrying some OTHER tab's rows.
-    // See DECISIONS §8c. `sig` is checked below as the defence.
-    var SHEET_TAB = "Wall of portfolio";
-
-    // Recorded the first time the real tab answered, so a silent fallback to
-    // another tab can be spotted. A legitimate edit to the tab changes this, so
-    // a mismatch only warns — it never discards rows.
-    var EXPECTED_SIG = "1628441740";
+    // The curated wall comes from Supabase. The Google Sheet is still where the
+    // rows are edited; a sync job pushes the "Wall of portfolio" tab here within
+    // seconds of a change. See DECISIONS §20a.
+    //
+    // The whole §8c trap goes with it: gviz answered a renamed or deleted tab
+    // with `status: ok` and SOME OTHER tab's rows, which is why this file used
+    // to carry a recorded content signature as a tripwire. A table either
+    // exists or the request fails.
+    var SUPABASE_URL = "https://ugjtyuikvdeymwsfsgfl.supabase.co";
+    var SUPABASE_KEY = "sb_publishable_IOdPnIa_tf6DjQShp_gTZA_i36nRCTe";
 
     var REQUEST_TIMEOUT_MS = 12000;
 
@@ -77,77 +76,46 @@
         document.body.appendChild(script);
     }
 
-    function sheetUrl(callbackName) {
-        return "https://docs.google.com/spreadsheets/d/" + SHEET_ID +
-            "/gviz/tq?tqx=out:json;responseHandler:" + callbackName +
-            "&sheet=" + encodeURIComponent(SHEET_TAB) +
-            "&cachebust=" + Date.now();
+    // Plain fetch, because Supabase sends CORS headers. requestJsonp above is
+    // still needed for the Apps Script submissions feed, which does not.
+    function fetchSupabase(path, onSuccess, onError) {
+        var done = false;
+        var timeoutId = window.setTimeout(function () {
+            if (done) return;
+            done = true;
+            onError();
+        }, REQUEST_TIMEOUT_MS);
+
+        function settle(fn, value) {
+            if (done) return;
+            done = true;
+            window.clearTimeout(timeoutId);
+            fn(value);
+        }
+
+        fetch(SUPABASE_URL + "/rest/v1/" + path, { headers: { apikey: SUPABASE_KEY } })
+            .then(function (response) {
+                if (!response.ok) throw new Error("Supabase responded " + response.status);
+                return response.json();
+            })
+            .then(function (rows) { settle(onSuccess, Array.isArray(rows) ? rows : []); })
+            .catch(function () { settle(onError); });
     }
 
     /* ── Parsing ─────────────────────────────────────────────────────────── */
 
-    function cellValue(row, index) {
-        var cell = row && row.c ? row.c[index] : null;
-        return cell && cell.v != null ? String(cell.v).trim() : "";
-    }
-
-    function normalizeHeader(value) {
-        return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
-    }
-
-    // The tab carries its own header row as data (gviz reports no typed header
-    // here), so the columns are resolved by name rather than by position — a
-    // reordered column then costs nothing.
-    function columnMap(headerRow) {
-        var map = {};
-        var aliases = {
-            image: "image", profileimage: "image", favicon: "image", logo: "image",
-            title: "title", name: "title",
-            subtitle: "subtitle", description: "subtitle",
-            categories: "categories", category: "categories",
-            pricing: "pricing",
-            link: "link", url: "link", website: "link",
-            thumbnails: "thumbnail", thumbnail: "thumbnail", banner: "thumbnail",
-            bannerimage: "thumbnail",
-            slug: "slug"
+    // One Supabase row → the raw entry normalizeEntry() expects. The sheet's
+    // header row, its aliases and its positional fallback were all resolved by
+    // the sync job before the row was stored, so none of that lives here now.
+    function toEntry(row) {
+        return {
+            name: row.title || "",
+            subtitle: row.subtitle || "",
+            image: row.image || "",
+            thumbnail: row.thumbnail || "",
+            link: row.link || "",
+            slug: row.slug || ""
         };
-
-        (headerRow.c || []).forEach(function (cell, index) {
-            var key = aliases[normalizeHeader(cell && cell.v)];
-            if (key && map[key] === undefined) map[key] = index;
-        });
-
-        return map;
-    }
-
-    function looksLikeHeaderRow(row) {
-        var first = normalizeHeader(cellValue(row, 0));
-        var second = normalizeHeader(cellValue(row, 1));
-        return (first === "image" || first === "title") && (second === "title" || second === "subtitle");
-    }
-
-    function rowsToEntries(rows) {
-        if (!rows.length) return [];
-
-        var map = looksLikeHeaderRow(rows[0])
-            ? columnMap(rows[0])
-            : { image: 0, title: 1, subtitle: 2, categories: 3, pricing: 4, link: 5, thumbnail: 6, slug: 7 };
-        var body = looksLikeHeaderRow(rows[0]) ? rows.slice(1) : rows;
-
-        return body.map(function (row) {
-            function at(key) {
-                return map[key] === undefined ? "" : cellValue(row, map[key]);
-            }
-
-            return {
-                name: at("title"),
-                subtitle: at("subtitle"),
-                image: at("image"),
-                thumbnail: at("thumbnail"),
-                link: at("link"),
-                slug: at("slug")
-            };
-        });
     }
 
     /* ── Cleaning ────────────────────────────────────────────────────────── */
@@ -321,18 +289,8 @@
     function start() {
         setStatus("Loading portfolios…", false);
 
-        requestJsonp(sheetUrl, function (payload) {
-            if (payload && payload.sig && EXPECTED_SIG && payload.sig !== EXPECTED_SIG) {
-                // Either the tab was edited (fine) or gviz silently served a
-                // different tab (not fine). Loud in the console, quiet on screen.
-                if (window.console && console.warn) {
-                    console.warn("[wall] tab signature changed: expected " + EXPECTED_SIG +
-                        ", got " + payload.sig + ". Check the \"" + SHEET_TAB + "\" tab still exists.");
-                }
-            }
-
-            var rows = payload && payload.table && payload.table.rows ? payload.table.rows : [];
-            var curated = dedupe(rowsToEntries(rows).map(normalizeEntry).filter(Boolean));
+        fetchSupabase("public_portfolios?select=*&limit=2000", function (rows) {
+            var curated = dedupe(rows.map(toEntry).map(normalizeEntry).filter(Boolean));
 
             render(curated);
 

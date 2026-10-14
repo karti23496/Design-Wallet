@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HLX9Y7DQV7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Background Remover - Free, Full Resolution, Hair-Accurate | Design Wallet</title>
+    <meta
+        name="description"
+        content="Remove the background from any image in your browser. Hair-accurate cutouts at full resolution, free, no sign-up and no upload - your image never leaves your device."
+    >
+    <link rel="canonical" href="https://designwallet.in/dw-tools/background-remover/">
+    <meta property="og:title" content="Background Remover - Design Wallet">
+    <meta property="og:description" content="Hair-accurate background removal that runs in your browser. Full resolution, free, no sign-up, and nothing is ever uploaded.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://designwallet.in/dw-tools/background-remover/">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://huggingface.co" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Background Remover",
+      "url": "https://designwallet.in/dw-tools/background-remover/",
+      "applicationCategory": "DesignApplication",
+      "operatingSystem": "Any browser with WebGPU",
+      "description": "Remove the background from any image in your browser. Hair-accurate cutouts at full resolution, free, with no sign-up and no upload.",
+      "isAccessibleForFree": true,
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR"
+      },
+      "featureList": [
+        "Automatic background removal",
+        "Hair and fur edge refinement",
+        "Colour fringe removal",
+        "Erase and restore brush",
+        "Transparent, colour, blurred or custom image backgrounds",
+        "Full-resolution PNG, JPG and WebP export"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Design Wallet",
+        "url": "https://designwallet.in/"
+      }
+    }
+    </script>
+    <link rel="stylesheet" href="/style.css?v=20261015-3">
+    <link rel="stylesheet" href="/dw-tools/background-remover/background-remover.css?v=20261014-2">
+    <link rel="stylesheet" href="/mobile-gate.css?v=20261014-2">
+</head>
+<body class="dw-tool-page bgr-page">
+    <!--
+      Third-party notices for the models and runtime this page loads at run time.
+
+      BiRefNet — https://github.com/ZhengPeng7/BiRefNet
+      MIT License. Copyright (c) 2024 Peng Zheng.
+      Zheng, Peng and Gao, Dehong and Fan, Deng-Ping and Liu, Li and Laaksonen, Jorma
+      and Ouyang, Wanli and Sebe, Nicu. "Bilateral Reference for High-Resolution
+      Dichotomous Image Segmentation", CAAI Artificial Intelligence Research, 2024.
+
+      ONNX Runtime Web — https://onnxruntime.ai/
+      MIT License. Copyright (c) Microsoft Corporation.
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy of
+      this software and associated documentation files (the "Software"), to deal in
+      the Software without restriction, including without limitation the rights to
+      use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+      of the Software, and to permit persons to whom the Software is furnished to do
+      so, subject to the following conditions: the above copyright notice and this
+      permission notice shall be included in all copies or substantial portions of
+      the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+    -->
+    <div class="page-shell">
+        <header class="site-header"></header>
+
+        <main class="bgr-main" id="bgr-app" data-phase="idle">
+            <section class="bgr-hero">
+                <div class="bgr-hero-copy">
+                    <a href="/" class="tool-back-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M5 12L12 19M5 12L12 5"/></svg>
+                        Back to Design Wallet
+                    </a>
+                    <p class="tool-kicker">Design Wallet Tools</p>
+                    <h1 class="tool-title">Background Remover</h1>
+                    <p class="tool-intro">
+                        Drop in an image and get a clean cutout — hair, fur and soft edges included.
+                        It runs on your device, so nothing is uploaded and nothing is capped.
+                    </p>
+                </div>
+                <div class="bgr-hero-actions">
+                    <button type="button" class="bgr-primary-button bgr-export" id="bgr-export" disabled>Export</button>
+                </div>
+            </section>
+
+            <section class="bgr-dropzone" id="bgr-dropzone" aria-labelledby="bgr-drop-title">
+                <div class="bgr-drop-inner">
+                    <svg class="bgr-drop-icon" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 16V4"></path>
+                        <path d="M7.5 8.5 12 4l4.5 4.5"></path>
+                        <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path>
+                    </svg>
+                    <h2 class="bgr-drop-title" id="bgr-drop-title">Drop an image here</h2>
+                    <p class="bgr-drop-copy">
+                        or <button type="button" class="bgr-link-button" id="bgr-browse">browse your files</button>
+                        — you can also paste with <kbd>⌘V</kbd>
+                    </p>
+                    <p class="bgr-drop-meta" id="bgr-drop-meta">PNG, JPEG or WebP · up to 25 megapixels</p>
+                    <input type="file" id="bgr-file" accept="image/png,image/jpeg,image/webp" hidden>
+                </div>
+
+                <div class="bgr-samples">
+                    <p class="bgr-samples-label">Or try one of these</p>
+                    <div class="bgr-samples-row">
+                        <button type="button" class="bgr-sample" data-sample="/dw-tools/background-remover/samples/hair.webp">
+                            <img src="/dw-tools/background-remover/samples/hair-thumb.webp" alt="Portrait of a person with frizzy, flyaway hair against a plain wall" width="240" height="240" loading="lazy" decoding="async">
+                            <span>Flyaway hair</span>
+                        </button>
+                        <button type="button" class="bgr-sample" data-sample="/dw-tools/background-remover/samples/curls.webp">
+                            <img src="/dw-tools/background-remover/samples/curls-thumb.webp" alt="Studio portrait with loose strands of hair against a yellow background" width="240" height="240" loading="lazy" decoding="async">
+                            <span>Loose strands</span>
+                        </button>
+                        <button type="button" class="bgr-sample" data-sample="/dw-tools/background-remover/samples/fur.webp">
+                            <img src="/dw-tools/background-remover/samples/fur-thumb.webp" alt="Two golden retriever puppies sitting in grass" width="240" height="240" loading="lazy" decoding="async">
+                            <span>Fur</span>
+                        </button>
+                        <button type="button" class="bgr-sample" data-sample="/dw-tools/background-remover/samples/busy.webp">
+                            <img src="/dw-tools/background-remover/samples/busy-thumb.webp" alt="Portrait of a person on a city street with traffic behind them" width="240" height="240" loading="lazy" decoding="async">
+                            <span>Busy background</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bgr-workspace" id="bgr-workspace" hidden aria-label="Cutout workspace">
+                <div class="bgr-stage" id="bgr-stage">
+                    <canvas id="bgr-canvas" aria-label="Your image with its background removed"></canvas>
+
+                    <div class="bgr-split" id="bgr-split" hidden>
+                        <span class="bgr-split-label bgr-split-label--before">Original</span>
+                        <span class="bgr-split-label bgr-split-label--after">Cutout</span>
+                        <div
+                            class="bgr-split-handle"
+                            id="bgr-split-handle"
+                            role="slider"
+                            tabindex="0"
+                            aria-label="Compare the original with the cutout"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            aria-valuenow="0"
+                            aria-valuetext="Showing the cutout"
+                        >
+                            <span class="bgr-split-grip" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 6 5 12l4 6M15 6l4 6-4 6"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="bgr-status" id="bgr-status" role="status" hidden>
+                        <p class="bgr-status-title" id="bgr-status-title">Working</p>
+                        <p class="bgr-status-detail" id="bgr-status-detail"></p>
+                        <div class="bgr-status-bar" id="bgr-status-bar" hidden>
+                            <span class="bgr-status-fill" id="bgr-status-fill"></span>
+                        </div>
+                        <button type="button" class="bgr-ghost-button" id="bgr-status-action" hidden></button>
+                    </div>
+                </div>
+
+                <aside class="bgr-rail" aria-label="Cutout controls">
+                    <div class="bgr-group">
+                        <p class="bgr-group-label">Background</p>
+                        <div class="bgr-segment">
+                            <button type="button" data-bg="transparent" aria-pressed="true">Transparent</button>
+                            <button type="button" data-bg="colour" aria-pressed="false">Colour</button>
+                            <button type="button" data-bg="blur" aria-pressed="false">Blur</button>
+                            <button type="button" data-bg="image" aria-pressed="false">Image</button>
+                        </div>
+
+                        <div class="bgr-row" id="bgr-colour-row" hidden>
+                            <div class="bgr-swatches">
+                                <button type="button" data-swatch="#ffffff" style="--swatch:#ffffff" aria-label="White"></button>
+                                <button type="button" data-swatch="#f5f5f5" style="--swatch:#f5f5f5" aria-label="Off white"></button>
+                                <button type="button" data-swatch="#000000" style="--swatch:#000000" aria-label="Black"></button>
+                                <button type="button" data-swatch="#0a0a0a" style="--swatch:#0a0a0a" aria-label="Near black"></button>
+                                <button type="button" data-swatch="#1d4ed8" style="--swatch:#1d4ed8" aria-label="Blue"></button>
+                                <button type="button" data-swatch="#16a34a" style="--swatch:#16a34a" aria-label="Green"></button>
+                                <button type="button" data-swatch="#dc2626" style="--swatch:#dc2626" aria-label="Red"></button>
+                                <button type="button" data-swatch="#f59e0b" style="--swatch:#f59e0b" aria-label="Amber"></button>
+                            </div>
+                            <div class="bgr-colour-fields">
+                                <input type="color" id="bgr-colour" value="#ffffff" aria-label="Pick a background colour">
+                                <input type="text" id="bgr-colour-hex" value="#FFFFFF" spellcheck="false" aria-label="Background colour hex code">
+                            </div>
+                        </div>
+
+                        <div class="bgr-row" id="bgr-blur-row" hidden>
+                            <label class="bgr-field">
+                                <span>Blur amount</span>
+                                <input type="range" id="bgr-blur" min="4" max="80" step="1" value="24">
+                            </label>
+                        </div>
+
+                        <div class="bgr-row" id="bgr-bg-image-row" hidden>
+                            <label class="bgr-file-field">
+                                <span>Choose a background image</span>
+                                <input type="file" id="bgr-bg-image" accept="image/png,image/jpeg,image/webp">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="bgr-group">
+                        <p class="bgr-group-label">Edges</p>
+                        <label class="bgr-field">
+                            <span>Feather <b id="bgr-feather-value">0</b></span>
+                            <input type="range" id="bgr-feather" min="0" max="5" step="1" value="0" aria-valuetext="0 pixels">
+                        </label>
+                        <label class="bgr-field">
+                            <span>Shift edge <b id="bgr-shift-value">0</b></span>
+                            <input type="range" id="bgr-shift" min="-5" max="5" step="1" value="0" aria-valuetext="0 pixels">
+                        </label>
+                        <label class="bgr-switch">
+                            <input type="checkbox" id="bgr-decontaminate" checked>
+                            <span>Remove colour fringe</span>
+                        </label>
+                        <p class="bgr-hint">Fringe removal rebuilds the true colour of every soft pixel, so the old background can't show up as a halo.</p>
+                    </div>
+
+                    <div class="bgr-group">
+                        <p class="bgr-group-label">Touch up</p>
+                        <div class="bgr-segment">
+                            <button type="button" data-brush="erase" aria-pressed="true">Erase</button>
+                            <button type="button" data-brush="restore" aria-pressed="false">Restore</button>
+                        </div>
+                        <label class="bgr-field">
+                            <span>Brush size <b id="bgr-brush-value">48</b></span>
+                            <input type="range" id="bgr-brush-size" min="4" max="200" step="2" value="48">
+                        </label>
+                        <div class="bgr-history">
+                            <button type="button" class="bgr-ghost-button" id="bgr-undo" disabled>Undo</button>
+                            <button type="button" class="bgr-ghost-button" id="bgr-redo" disabled>Redo</button>
+                        </div>
+                        <p class="bgr-hint">Paint on the image to fix what the model missed. <kbd>E</kbd> erase, <kbd>R</kbd> restore, <kbd>[</kbd> <kbd>]</kbd> size, <kbd>⌘Z</kbd> undo.</p>
+                    </div>
+
+                    <div class="bgr-actions">
+                        <div class="bgr-download-row">
+                            <button type="button" class="bgr-primary-button" id="bgr-download" disabled>Download</button>
+                            <select id="bgr-format" aria-label="Download format">
+                                <option value="png">PNG</option>
+                                <option value="jpg">JPG</option>
+                                <option value="webp">WebP</option>
+                            </select>
+                        </div>
+                        <div class="bgr-secondary-row">
+                            <button type="button" class="bgr-ghost-button" id="bgr-copy" disabled>Copy</button>
+                            <button type="button" class="bgr-ghost-button" id="bgr-new">New image</button>
+                        </div>
+                        <p class="bgr-hint">Always full resolution. No watermark, no credits, no account.</p>
+                    </div>
+                </aside>
+            </section>
+
+            <div class="bgr-toast" id="bgr-toast" role="status" aria-live="polite"></div>
+            <div class="bgr-live" id="bgr-live" aria-live="polite" role="status"></div>
+
+        </main>
+    </div>
+
+    <script src="/header.js?v=20261015-3"></script>
+    <script src="/dw-tools/background-remover/background-remover.js?v=20260920-1"></script>
+    <script src="/mobile-gate.js?v=20260920-1"></script>
+</body>
+</html>

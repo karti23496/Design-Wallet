@@ -31,23 +31,15 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ICON_DIR = path.join(__dirname, "..", "public", "icons");
 const TOOLS_JS = path.join(__dirname, "..", "tools", "tools.js");
-const SHEET_ID = "1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8";
-
-/**
- * The tab list lives in tools.js and is read from there, never duplicated.
- * It used to be a second hardcoded copy, which silently went stale the moment
- * categories moved into their own tabs: the script then could not see
- * `mcp-connectors` or `ai-creative-suites` as live categories and would have
- * DELETED both from CATEGORY_ICONS on the next --write.
- */
-function sheetTabs() {
-    const js = fs.readFileSync(TOOLS_JS, "utf8");
-    const block = js.match(/var SHEET_TABS = \[([\s\S]*?)\];/);
-    if (!block) throw new Error("SHEET_TABS not found in tools.js");
-    const tabs = [...block[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]);
-    if (!tabs.length) throw new Error("SHEET_TABS in tools.js is empty");
-    return tabs;
-}
+// The live category list comes from Supabase, which is where the site reads the
+// catalogue now. The Google Sheet is still the editing surface — a sync job
+// pushes it here within seconds — but this script must NOT read the sheet: once
+// the sheet is restricted, an anonymous request to it fails. See DECISIONS §20a.
+//
+// This is the publishable key the website already ships. It can read the
+// `public_*` views and nothing else.
+const SUPABASE_URL = "https://ugjtyuikvdeymwsfsgfl.supabase.co";
+const SUPABASE_KEY = "sb_publishable_IOdPnIa_tf6DjQShp_gTZA_i36nRCTe";
 // Not category icons — UI marks referenced straight from CSS. Without this
 // the script reports them as unmatched on every run.
 const KEEP_AS_SOURCE = ["3d Software.png", "all-categories.svg"];
@@ -71,30 +63,36 @@ const WRITE = process.argv.includes("--write");
 const slugify = (v) =>
     String(v || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
+/**
+ * Every category that at least one live tool claims.
+ *
+ * This used to fetch each sheet tab in turn and locate the `categories` column
+ * by reading the header row — and it read the tab list out of tools.js by regex,
+ * because a second hardcoded copy had already gone stale once and would have
+ * deleted two categories from the registry. Both couplings are gone: the sync
+ * job merges the tabs, so one request returns the whole catalogue.
+ */
 async function liveCategorySlugs() {
+    const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/public_tools?select=categories&limit=5000`,
+        { headers: { apikey: SUPABASE_KEY } }
+    );
+    if (!res.ok) {
+        throw new Error(`Supabase responded ${res.status}: ${await res.text()}`);
+    }
+
+    const rows = await res.json();
+    if (!Array.isArray(rows) || !rows.length) {
+        // An empty set would make every icon look unmatched, and `--write`
+        // would then empty CATEGORY_ICONS. Fail loudly instead.
+        throw new Error("Supabase returned no tools — refusing to rebuild the icon registry.");
+    }
+
     const slugs = new Set();
-    for (const tab of sheetTabs()) {
-        // Numeric entries are gids, anything else is a tab name — same rule as
-        // buildSheetUrl() in tools.js.
-        const selector = /^\d+$/.test(tab)
-            ? `gid=${encodeURIComponent(tab)}`
-            : `sheet=${encodeURIComponent(tab)}`;
-        const res = await fetch(
-            `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&${selector}`
-        );
-        const text = await res.text();
-        const json = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
-        const rows = json.table.rows || [];
-        const headers = (rows[0].c || []).map((c) => slugify((c && (c.v || c.f)) || ""));
-        const ci = headers.indexOf("categories");
-        if (ci < 0) continue;
-        for (let i = 1; i < rows.length; i++) {
-            const cell = (rows[i].c || [])[ci];
-            if (!cell) continue;
-            String(cell.f || cell.v || "")
-                .split(/[,;\n]+/).map((s) => s.trim()).filter(Boolean)
-                .forEach((s) => slugs.add(slugify(s)));
-        }
+    for (const row of rows) {
+        String(row.categories || "")
+            .split(/[,;\n]+/).map((s) => s.trim()).filter(Boolean)
+            .forEach((s) => slugs.add(slugify(s)));
     }
     return slugs;
 }

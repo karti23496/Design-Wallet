@@ -580,6 +580,54 @@ which previously sat lower than the plain <a> siblings. */
     transform: translate(-50%, 0);
 }
 
+/* ── Resources: plain list panel ─────────────────────────────────────────
+   Deliberately NOT the wide Mini Tools panel — two text links do not need
+   icons, descriptions or a CTA column. Built on the base .nav-dropdown, so
+   the stacked mobile sheet needs no special casing.
+   Text colour sits on the inner span, never on the <a>: `.blog-index-page
+   .site-nav a` lands later at equal specificity and would paint these white
+   on the blog. Same trap the mega panel hit. */
+
+.nav-list {
+    min-width: 226px;
+    row-gap: 2px;
+    padding: 12px 10px 10px;
+    /* Opaque, matching the Mini Tools panel. The base dropdown surface is 96%
+       and the hero text showed faintly through it — two panels in one nav
+       should not have different surfaces. */
+    background: var(--surface-1);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.44);
+    text-align: left;
+}
+
+.nav-list-heading {
+    margin: 0 0 6px;
+    padding: 0 12px;
+    color: rgba(var(--fg-rgb), 0.4);
+    font-size: 0.64rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.site-nav .nav-list a.nav-list-item {
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 10px;
+}
+
+.nav-list-label {
+    color: rgba(var(--fg-rgb), 0.78);
+    font-size: 0.86rem;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.nav-list-item:hover .nav-list-label,
+.nav-list-item:focus-visible .nav-list-label {
+    color: var(--pure);
+}
+
 /* ── Mini Tools: wide panel ──────────────────────────────────────────────
    Anchored to the whole header, not the trigger: the wrapper goes static, so
    the absolute panel resolves against .site-header (sticky, or relative on
@@ -6506,6 +6554,38 @@ body.blog-index-page::before {
     color: var(--text);
 }
 
+/* The header every Design Wallet tool shares: back link, kicker, title, intro.
+   Tools use these classes rather than their own, so the four cannot drift. */
+.tool-kicker {
+    margin: 0;
+    color: rgba(var(--fg-rgb), 0.48);
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.tool-title {
+    margin: 16px 0 18px;
+    color: rgba(var(--fg-rgb), 0.92);
+    font-family: "Geist", sans-serif;
+    font-size: clamp(1.35rem, 5.2vw, 3.6rem);
+    font-weight: 200;
+    letter-spacing: -0.055em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.tool-intro {
+    max-width: 620px;
+    margin: 0;
+    color: rgba(var(--fg-rgb), 0.58);
+    font-size: 0.875rem;
+    font-weight: 200;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
 .tool-loading,
 .tool-not-found {
     text-align: center;
@@ -7453,9 +7533,11 @@ body.category-search-open {
 }
 
 .converter-main {
-    max-width: none;
+    /* Same cap as .site-header, and no side padding, so the content's edges
+       line up with the nav pill's edges instead of running full width. */
+    max-width: var(--content-width);
     margin: 0 auto;
-    padding: 30px 40px 24px;
+    padding: 30px 0 24px;
 }
 
 .converter-hero {
@@ -7470,7 +7552,6 @@ body.category-search-open {
     padding-top: 4px;
 }
 
-.converter-kicker,
 .converter-output-row span,
 .converter-css-head span,
 .converter-input-group label {
@@ -7478,28 +7559,6 @@ body.category-search-open {
     color: rgba(var(--fg-rgb), 0.48);
     font-size: 0.72rem;
     font-weight: 400;
-    letter-spacing: 0;
-    text-transform: uppercase;
-}
-
-.converter-hero h1 {
-    max-width: 780px;
-    margin: 18px 0 22px;
-    color: rgba(var(--fg-rgb), 0.92);
-    font-family: "Geist", sans-serif;
-    font-size: clamp(4.35rem, 5.7vw, 5.2rem);
-    font-weight: 200;
-    letter-spacing: -0.07em;
-    line-height: 0.98;
-    white-space: nowrap;
-}
-
-.converter-intro {
-    max-width: 620px;
-    margin: 0;
-    color: rgba(var(--fg-rgb), 0.58);
-    font-size: 0.875rem;
-    font-weight: 200;
     letter-spacing: 0;
     text-transform: uppercase;
 }
@@ -8264,11 +8323,6 @@ body.converter-export-open {
         padding-top: 0;
     }
 
-    .converter-hero h1 {
-        font-size: 4rem;
-        white-space: normal;
-    }
-
     .converter-export-sheet {
         width: calc(100% - 28px);
         height: calc(100dvh - 28px);
@@ -8296,10 +8350,6 @@ body.converter-export-open {
 @media (max-width: 760px) {
     .converter-main {
         padding: 32px 0 18px;
-    }
-
-    .converter-hero h1 {
-        font-size: 3rem;
     }
 
     .converter-workbench {
@@ -8367,14 +8417,6 @@ body.converter-export-open {
 }
 
 @media (max-width: 560px) {
-    .converter-hero h1 {
-        font-size: 2.35rem;
-    }
-
-    .converter-intro {
-        font-size: 0.88rem;
-    }
-
     .converter-input-row {
         grid-template-columns: 1fr;
     }

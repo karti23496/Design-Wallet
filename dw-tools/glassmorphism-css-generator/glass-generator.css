@@ -9,7 +9,7 @@
 .glass-main {
     max-width: var(--content-width);
     margin: 0 auto;
-    padding: 30px 40px 64px;
+    padding: 30px 0 64px;
 }
 
 /* ── Hero ───────────────────────────────────────────────────────────────── */
@@ -27,7 +27,6 @@
     flex: 1 1 auto;
 }
 
-.glass-kicker,
 .glass-panel-head > span,
 .glass-control-group legend,
 .glass-field label {
@@ -35,27 +34,6 @@
     color: rgba(var(--fg-rgb), 0.48);
     font-size: 0.72rem;
     font-weight: 400;
-    letter-spacing: 0;
-    text-transform: uppercase;
-}
-
-.glass-hero h1 {
-    margin: 16px 0 18px;
-    color: rgba(var(--fg-rgb), 0.92);
-    font-family: "Geist", sans-serif;
-    font-size: clamp(1.35rem, 5.2vw, 3.6rem);
-    font-weight: 200;
-    letter-spacing: -0.055em;
-    line-height: 1;
-    white-space: nowrap;
-}
-
-.glass-intro {
-    max-width: 620px;
-    margin: 0;
-    color: rgba(var(--fg-rgb), 0.58);
-    font-size: 0.875rem;
-    font-weight: 200;
     letter-spacing: 0;
     text-transform: uppercase;
 }
@@ -618,7 +596,7 @@
 
 @media (max-width: 720px) {
     .glass-main {
-        padding: 24px 20px 48px;
+        padding: 24px 0 48px;
     }
 
     .glass-hero {

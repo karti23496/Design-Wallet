@@ -29,11 +29,27 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/style.css?v=20260918-2">
+    <link rel="stylesheet" href="/style.css?v=20261015-3">
     <link rel="stylesheet" href="/tools/dashboard.css?v=20260917-2">
+    <link rel="stylesheet" href="/ticker/ticker.css?v=20261003-3">
     <link rel="stylesheet" href="/mobile-gate.css?v=20260920-1">
+    <link rel="stylesheet" href="/loader.css?v=20261012-1">
+    <script src="/loader.js?v=20261012-1"></script>
 </head>
 <body>
+    <div class="dw-loader" id="dw-loader" aria-hidden="true">
+        <div class="dw-lo-zoom">
+            <div class="dw-lo-field"><i></i><i></i></div>
+            <div class="dw-lo-galaxy">
+                <div class="dw-lo-tilt">
+                    <div class="dw-lo-spin dw-lo-spin--arms"><div class="dw-lo-stars dw-lo-stars--dust"></div></div>
+                    <div class="dw-lo-spin"><div class="dw-lo-stars dw-lo-stars--mid"></div></div>
+                    <div class="dw-lo-spin dw-lo-spin--near"><div class="dw-lo-stars dw-lo-stars--bright"></div></div>
+                </div>
+            </div>
+        </div>
+        <div class="dw-lo-count"><span id="dw-lo-pct">0</span></div>
+    </div>
     <div class="page-shell">
         <header class="site-header"></header>
 
@@ -189,10 +205,12 @@
     </div>
 
     <script src="/content.js?v=20260508-6"></script>
-    <script src="/header.js?v=20260918-2"></script>
-    <script src="/newsletter.js?v=20260824-1"></script>
+    <script src="/ticker/edit-ticker.js?v=20261003-3"></script>
+    <script src="/ticker/ticker-bar.js?v=20261003-3"></script>
+    <script src="/header.js?v=20261015-3"></script>
+    <script src="/newsletter.js?v=20261015-3"></script>
     <script src="/stars.js?v=20260901-1"></script>
-    <script src="/tools/tools.js?v=20260915-1"></script>
+    <script src="/tools/tools.js?v=20261015-3"></script>
     <script src="/mobile-gate.js?v=20260920-1"></script>
 </body>
 </html>

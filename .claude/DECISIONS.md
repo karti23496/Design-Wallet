@@ -1035,6 +1035,318 @@ a full-screen panel instead of the site.
   button (`var label = button.textContent`) instead of being hardcoded to `"Copy the link"`, which
   had also drifted from the copy on the button.
 
+## 20. Data security (`.claude/DATA-SECURITY-PLAN.md`)
+
+Karthik asked on 2026-10-03 whether the Google Sheet database can be reached by attackers, and
+proposed migrating to Supabase. **Full review and phased plan in `.claude/DATA-SECURITY-PLAN.md`.**
+
+- **`🔴 URGENT — needs Karthik, cannot be fixed from the repo` The submissions spreadsheet is
+  publicly readable, and it holds 381 subscriber email addresses.** The Apps Script describes it as
+  *"private … restricted, shared with no one"*; it is not. Verified by an anonymous, logged-out
+  request to its gviz endpoint: **HTTP 200 with rows**. **The fix is a sharing setting** — Share →
+  Restricted, plus File → Share → *Stop publishing* — and it **breaks nothing**, because the Apps
+  Script runs `Execute as: Me` and no client file references that spreadsheet.
+- **`⚠️ Why it is worse than it looks` The spreadsheet's ID is committed and pushed** —
+  `salary/submit/google-apps-script.js` line 53, on `origin/main`. §1 commits this repo to going
+  open source. **On the day it does, those addresses are a one-line `curl` for any reader.** The
+  only thing protecting them today is that nobody has looked.
+- **`PENDING` Rotate the spreadsheet after restricting it.** The leaked ID cannot be un-published
+  from git history, so copying the data to a fresh spreadsheet is what actually invalidates it.
+  Disclosure under DPDP 2023 / GDPR is worth real advice, not a guess.
+- **`DECIDED` The catalogue sheet being public is NOT a bug.** A static site fetching from the
+  browser needs a browser-readable source; there is no setting that is both. It is read-only and
+  holds no personal data. The cost — anyone can copy the catalogue — is already an accepted
+  trade-off in §1.
+- **`⚠️ The premise to correct` Supabase would not have prevented this, and does not fix the
+  catalogue either.** The leak was a sharing checkbox, and Supabase's equivalent failure — a table
+  with RLS off, read with the anon key every visitor holds — is more common and strictly worse,
+  because the key ships to every visitor. **What removes the catalogue from public reach is §3's
+  build-time generation**, already decided and still unbuilt: bake rows into HTML and the browser
+  never sees an ID, key or endpoint at all.
+- **`DECIDED` Supabase is a capability upgrade, not a security one** — schema, constraints,
+  queryable submissions, auth for cross-device favourites. Worth doing after build-time generation,
+  with **RLS designed before the first table exists**, and with the Sheet kept as the editing
+  surface. **Check §6 first:** the old Supabase project may still exist and still bill.
+- **`✅ Verified clean, do not break:** `.env` is gitignored and was never committed, no service keys
+  in history, the write endpoints validate every field against whitelists, rate-limit, lock, and
+  land submissions as "Rejected" until approved by hand. `doGet` returns only aggregates above
+  `MIN_REPORTS`, so **raw submissions never leave the sheet**.
+
+### 20a. Sheet → Supabase, decided (2026-10-04)
+
+After several days' deliberation between **build-time static generation** and **Supabase**, Karthik's
+call: *"Let's connect the google sheet to supabase."* **Google Sheet → Supabase → website listing.**
+Step-by-step process in `.claude/DATA-SECURITY-PLAN.md` §5 (Phases A–E).
+
+- **`DECIDED` The Sheet stays the editing surface.** Karthik keeps editing a grid; an Apps Script
+  sync job writes Sheet → Supabase on a 5–10 minute trigger. **Sheets remains the source of truth**,
+  so a rollback is one line in the fetch code, and Sheets' version history remains the undo —
+  Supabase has none.
+- **`DECIDED` The site reads Supabase only, over plain `fetch` against the REST endpoint.** No SDK;
+  the gviz JSONP machinery and its silent-wrong-tab failure mode (§8c) go away with it.
+- **`⚠️ The two rules that decide whether this helps or hurts`** — **RLS on before any data exists**
+  (Supabase with RLS off is *worse* than the public sheet, because the anon key ships to every
+  visitor whereas the sheet ID had to be found), and **`service_role` never in the browser or the
+  repo** — it lives in Apps Script Script Properties only.
+- **`DECIDED` What this actually buys, stated precisely.** Not secrecy of the listings — they are on
+  a public website. Today the browser needs the **whole spreadsheet** public, so the 6 emails inside
+  subtitle cells are public with it and **any tab added later goes public the moment it is saved**.
+  After this the site reads only the columns in the published view and the file goes private. The
+  copying barrier moves from one-click `File → Make a copy` to writing code.
+- **`⚠️ Order matters — the catalogue sheet is restricted LAST`**, only once the site is live on
+  Supabase. Restricting it first blanks the site; that already happened once.
+- **`DECIDED` The 5-second pollers go.** `SHEET_REFRESH_INTERVAL = 5000` in `script.js` and
+  `tools/tools.js` polls faster than a 5-minute sync can change anything, and it is what made the
+  egress arithmetic bad (~15 MB per 10-minute visit vs 42 KB per load).
+- **`PENDING` Surfaces to move:** `script.js` (4 fetch sites — listings, category cloud, featured
+  grid, books), `tools/tools.js` (**5 tabs collapse into 1 request**), `wall-of-portfolios/wall.js`,
+  and **`scripts/build-icons.js`, which is easy to miss** — it reads the sheet anonymously at build
+  time and breaks the day the sheet is restricted. `admin/index.html` only *links* to the sheet and
+  stays as is.
+- **`PENDING` Tables needed:** `tools` (the 5 tool tabs merged, keyed on `slug`), `books`
+  (`gid=1540089306`), `portfolios` (the "Wall of portfolio" tab). `supabase/schema.sql` covers the
+  first two; portfolios is still to be added. Deletions handled by a `sync_batch` stamp, since rows
+  removed from the sheet would otherwise linger forever.
+- **`SUPERSEDED for serving, still true for editing` §3's "Google Sheets stays as the database".**
+  And **§3/§5's build-time generation is not cancelled** — it was the alternative, it remains the
+  only option that also fixes SEO, and it composes with this: the build script would later read
+  Supabase instead of the Sheet, which is a one-line change. Doing Supabase first costs more than
+  doing it second.
+- **`PENDING` Check §6 before creating the project.** Supabase was in this project once and was
+  deliberately removed with 7 edge functions; the hosted project may still exist and still bill.
+- **`✅ DONE` `supabase/` now holds the three files the migration needs:** `schema.sql` (tables, RLS,
+  published views), `sheet-sync.gs` (the Apps Script sync), `README.md` (the step-by-step runbook,
+  with the verification commands). **Nothing in the website has changed yet** — that is step 5 of the
+  runbook and it waits on the project URL and anon key.
+- **`✅ Verified against the live sheet, 2026-10-04` The sync parses it cleanly: 430 tools, 21 books,
+  145 portfolios.** Every tool has a link and a pricing value; 2 are missing an image, 1 a category,
+  23 a thumbnail. The books tab is positional (`thumbnail, title, author, rating, link`) and gviz
+  consumes its header row while Apps Script does not, so the sync detects and drops it explicitly.
+- **`⚠️ The trap this nearly shipped with` Duplicate slugs across tabs must be MERGED, not dropped.**
+  `dedupeTools()` in `tools/tools.js` unions categories and thumbnails and fills blank fields from
+  the duplicate. The first version of the sync kept the first row and discarded the rest, which
+  measurably lost data: **`saasframe` lost "UI/UX Inspirations" and `lovo-ai` lost "AI Voiceover"**,
+  so both would have vanished from those category pages. `mergeTool()` now mirrors the site, and
+  **the two must be changed together.**
+- **`DECIDED` A row-count floor (`MIN_ROWS`) guards every table.** A sync reading fewer rows than the
+  floor writes nothing and deletes nothing. Without it, one bad read — renamed tab, half-saved edit,
+  API blip — empties the table and blanks the site, because the stale-batch delete would have nothing
+  to keep.
+- **`DECIDED` The published views run with the view OWNER's rights, and `anon` is revoked from the
+  base tables entirely.** Supabase's linter flags owner-rights views; here it is deliberate — the
+  view *is* the public surface and the anon key cannot address the tables at all. **Adding
+  `security_invoker = true` without granting `anon` SELECT on the tables blanks the site.**
+- **`DECIDED` `source_tab` is recorded but NOT published.** `scripts/build-icons.js` derives the live
+  category list from the sheet's tabs, so the information has to survive the migration — and it is
+  the first real demonstration of the view's value: an internal column that the website never sees.
+- **`DECIDED` The sync is event-driven, not polled — Karthik's requirement, 2026-10-04: *"This
+  should happen in real time."*** An **installable** `onEdit` trigger puts an edit into Supabase in
+  about two seconds. It has to be installable: a simple `onEdit(e)` runs without authorization and
+  **cannot call `UrlFetchApp`**, so it would fail silently on every edit. `onChange` covers rows
+  added and deleted, which edit events do not report.
+- **`DECIDED` An edit syncs the WHOLE affected table, not the edited row.** One table is a single
+  HTTP request and a few seconds, and doing it whole means a renamed slug, a deleted row and a
+  pasted block all just work — **no second code path that has to stay correct**. The first sketch of
+  a row-level path would have needed its own orphan handling for slug renames.
+- **`DECIDED` The 10-minute timer stays, as a safety net rather than the main path.** Edit events do
+  **not** fire when a formula or `IMPORTRANGE` recalculates, or when another script or the Sheets API
+  writes a cell. Those changes arrive within 10 minutes instead of seconds. It also reconciles after
+  a failed trigger.
+- **`DECIDED` Concurrent syncs coalesce behind a lock and a dirty flag.** A burst of edits would
+  otherwise start one sync each and race, and **the slowest finishing last would write the OLDEST
+  data**. One runs at a time; anything arriving mid-flight sets a flag and the running sync loops
+  once more, bounded at five passes. **Verified: 12 tests over the coalescing logic, 8 over
+  tab-to-table resolution.**
+- **`PENDING — Karthik's call` Real time has a second half: the visitor's browser.** Supabase being
+  current in two seconds does nothing until the page asks. **Recommendation on record: fetch on page
+  load and delete the 5-second poll.** §3's requirement is that a new listing is live *immediately*,
+  which is **publish** latency — now solved at the sync. It was never about injecting a row under
+  the cursor of someone already staring at the page, and polling every 5s paid a permanent bandwidth
+  cost (~15 MB per 10-minute visit) for that case. Supabase Realtime is the alternative if an open
+  tab must update itself: a websocket per visitor, 200 concurrent and 2M messages/month on the free
+  tier.
+- **`⚠️ Quota to know about` 90 minutes of trigger runtime a day** on a consumer Google account. One
+  table sync is a single request and a few seconds, so roughly a thousand edits a day — far beyond
+  human editing. Only a script hammering the sheet could exhaust it.
+- **`✅ DONE` The website reads Supabase.** `tools/tools.js`, `script.js` (books),
+  `wall-of-portfolios/wall.js` and `scripts/build-icons.js` — **344 lines deleted, 234 added**, a net
+  110 lines lighter, because the JSONP transport, the header-alias parsing and the per-tab merge all
+  became unnecessary.
+- **`✅ Verified by differential test, not by inspection.` The old and new paths were run side by
+  side against live data and the outputs compared field by field:** 430 tools vs 430 (every field
+  identical), 21 books vs 21, 145 portfolios vs 145, 40 category slugs vs 40. **Zero differences.**
+  The point was not that the code looks right — it is that the site renders exactly what it did.
+- **`⚠️ Correction to the earlier estimate` Three of the four `script.js` fetch sites were DEAD
+  CODE.** `loadListings`, `loadHomeCategoryCloud` and `loadFeatured` all bail on a missing element,
+  and **none of the 8 pages that load `script.js` contain `#catalog`, `#home-category-cloud` or
+  `#featured-grid`** — the homepage does not even load `script.js`; `tools/tools.js` renders it. Only
+  the books grid was live. **The runbook's "4 fetch sites in script.js" was wrong.**
+- **`PENDING` Those three dead loaders still hold the sheet id and will fail if ever revived.** Left
+  in place deliberately — deleting them is a separate change that deserves its own verification —
+  but they are now a trap: adding `#catalog` to a page would silently reach a restricted sheet.
+- **`PENDING` `script.js` carries ~400 lines of DUPLICATED catalogue logic** (lines ~178–595),
+  shadowed by later definitions of the same names in the same scope. Found while mapping the fetch
+  sites. Unrelated to this migration; recorded so it is not re-discovered.
+- **`DECIDED` The URL and publishable key are duplicated in three client files**, exactly as the
+  sheet id was in six. One shared config file would mean a script tag on ~12 pages and a load-order
+  dependency that fails silently — worse than the duplication it removes.
+- **`DECIDED` `build-icons.js` now refuses to run on an empty result.** Previously a failed fetch
+  yielded an empty category set, every icon looked unmatched, and `--write` would have emptied
+  `CATEGORY_ICONS`. It also no longer reads `SHEET_TABS` out of `tools.js` by regex — that coupling
+  existed because a duplicated tab list had already gone stale once; both copies are now gone.
+- **`DECIDED` The 5-second poll in `tools/tools.js` is deleted; the catalogue is fetched once per
+  page load.** It re-read the entire catalogue 720 times an hour per open tab to catch an edit that
+  now reaches the database within seconds of being typed.
+- **`⚠️ At deploy time` `script.js`, `tools/tools.js` and `wall-of-portfolios/wall.js` all changed,
+  so their cache-busters must be bumped wherever they are referenced** — otherwise returning visitors
+  keep a cached copy that fetches a sheet which is about to be restricted.
+- **`✅ DONE` The Supabase project exists:** `design-twallet`, **Mumbai (`ap-south-1`)**, free tier,
+  project `ugjtyuikvdeymwsfsgfl`. The old `karti23496's Project` was **deleted** — it was in Tokyo
+  (a region cannot be changed after creation), reported **Unhealthy**, and was serving 242
+  requests/hour at 64.5% success to auth and realtime endpoints **that nothing in this repo
+  references**. Its only stored accounts were Karthik's own, so nothing was exported.
+- **`⚠️ The hole step 3 caught, and the reason that step exists` Granting `select` on a view does NOT
+  make it read-only.** Supabase's `ALTER DEFAULT PRIVILEGES` gives `anon` **full** privileges on
+  everything created in `public` — **views included** — so `grant select` added nothing that was not
+  already there. The first schema revoked the blanket grants on the *tables* but not on the *views*,
+  and because these views run with the owner's rights, **`DELETE /rest/v1/public_tools` answered 204
+  — a write that reached the base table without passing RLS.** The `POST` failing was luck, not
+  security: it tripped on `sync_batch NOT NULL`, not on a permission.
+- **`DECIDED` The pattern is revoke-then-grant, never grant alone, on every view.** Recorded in
+  `schema.sql` beside the statements, because a view added later inherits the same dangerous default.
+- **`✅ Verified 2026-10-04, 21/21` against the live project with the publishable key:** the three
+  published views read; the three base tables refuse to read; and `POST`, `PATCH` and `DELETE` are
+  all refused on every view and every table. The `PATCH`/`DELETE` probes filter on `title=neq.zzz`,
+  which would match every row if any existed — this is a real test, not a no-op.
+- **`DECIDED` The site uses the new-style publishable key** (`sb_publishable_…`), not a legacy JWT
+  `anon` key. It maps to the same `anon` Postgres role, so every policy and grant above applies
+  unchanged.
+- **`DECIDED` Credentials live in `supabase/.env.local`, gitignored and named explicitly in
+  `.gitignore`.** `.env.*` already covered it; the explicit line is there because §1 publishes this
+  repo and the cost of that rule ever changing is a published database password. **Nothing reads the
+  file** — it is a notepad so the values are in one place.
+- **`PENDING` The database password is weak and was pasted into a chat transcript.** Recommended:
+  Settings → Database → Reset password. Nothing in this setup breaks, because the site and the sync
+  both authenticate with API keys and never use it.
+
+## 21. Newsletter subscriptions (`.claude/NEWSLETTER-PLAN.md`)
+
+Karthik's question, 2026-10-04: subscribers should land in Supabase rather than the Google Sheet —
+and can Mailchimp then pull them in automatically, or should they go straight to Mailchimp?
+**`PLAN ONLY — nothing built.` Full plan in `.claude/NEWSLETTER-PLAN.md`.**
+
+- **`⚠️ The premise to correct` Mailchimp cannot fetch from Supabase.** It has no mechanism to read
+  an external database; every integration is **push**. "A row appears and Mailchimp notices" cannot
+  happen on its own — code you own, or a paid middleman, has to push it.
+- **`⚠️ The number that decides this before any architecture does` Mailchimp's free plan is 250
+  contacts and 500 sends a month** since January 2026 (it was 500, and 2,000 before that). **There
+  are already 381 subscribers**, so Mailchimp is a paid product for this site from day one.
+  **Brevo's free tier is 100,000 contacts at 300 sends/day** and is the only free plan the current
+  list fits in; the integration work is identical either way.
+- **`RECOMMENDED` Site → Edge Function → Supabase, then push to the provider**, with the provider
+  one function call behind an interface so it can be repointed in an afternoon. Pointed at Brevo on
+  cost grounds unless Karthik is committed to Mailchimp for reasons outside the document.
+- **`DECIDED` The `subscribers` table is NOT shaped like the catalogue tables.** RLS on with **no
+  `anon` policy at all**, no public view, `service_role` only. The catalogue is public data; this is
+  personal data, and the schema should make that difference visible.
+- **`⚠️ Found while planning` `newsletter.js` reports success on every failure.** It does
+  `fetch(...).then(...)` without checking `response.ok`, so a 500, a quota error or a rejected
+  address all show the subscriber **"You're in"**. Some number of people believe they are subscribed
+  and are not. **Worth fixing on its own, independent of any of this.**
+- **`⚠️ The Mailchimp traps, recorded so they are not rediscovered`** — a contact is addressed by the
+  **MD5 of the lowercased email**; use **`status_if_new`, never `status`**, or a re-signup either
+  errors or silently resurrects someone who opted out; and **an unsubscribed contact cannot be
+  re-subscribed through the API at all** (400 *"Member In Compliance State"*) — they must opt in
+  again through a Mailchimp form.
+- **`PENDING` Drift is the real long-term cost of owning the list.** Someone unsubscribes in the
+  provider and the Supabase row still says subscribed. Needs a provider webhook or a nightly
+  reconciliation — **the part people skip and then email people who opted out.**
+- **`PENDING` Open questions:** Mailchimp specifically or any newsletter tool; single or double
+  opt-in (it changes the schema and is awkward to add later); whether subscriber data is ever used
+  on the site, since "no" makes the no-backend option genuinely tempting.
+- **`PENDING` The existing 381 addresses need a one-time manual import.** Nothing automates a
+  backfill.
+
+## 19. Resources dropdown — a plain list
+
+Karthik's call, 2026-10-03, against a Zocket screenshot: Resources should be a compact list of text
+links, not the wide Mini Tools panel. **Mini Tools is explicitly unchanged.**
+
+- **`✅ DONE` Resources drops `--wide --panel` and uses the base `.nav-dropdown`.** The base dropdown
+  already *was* this shape — a 226px rounded card with 40px rows and a hover highlight — so the work
+  was removing the mega geometry, not building a new component. It also means the stacked mobile
+  sheet needed no special casing: the base variant already behaves there.
+- **`SUPERSEDED` §2's "one template, so both dropdowns stay identical by construction".** That
+  invariant is deliberately broken: there are now two renderers in `header.js`, `megaItems()` for
+  Mini Tools and `listItems()` for Resources. **The `header.js` comment that promised it was updated
+  too** — a stale comment claiming an invariant that no longer holds is worse than none.
+- **`DECIDED` `icon` and `description` stay on every `DW_RESOURCES` entry** even though the list
+  renderer ignores them, so moving back to the mega panel needs no data changes.
+- **`⚠️ The trap this inherits` Text colour sits on an inner `<span>`, never on the `<a>`.**
+  `.blog-index-page .site-nav a` lands later at equal specificity and would paint these links white
+  on their own white-ish… — the same trap §2 records for the mega panel. **Verified on `/blog/`:**
+  the label computes to `rgba(255,255,255,0.78)` on `rgba(13,13,13,…)`, not white-on-white.
+- **`DECIDED` The panel is opaque (`--surface-1`), not the base 96%.** At 96% the homepage hero text
+  showed faintly through it, and the Mini Tools panel beside it is already opaque — two panels in one
+  nav should not have different surfaces.
+- **`DECIDED` The heading reads "Browse", not "Resources".** Echoing the trigger directly above it
+  reads as a mistake, especially in the mobile sheet where the two sit together.
+- **`PENDING` Dead CSS left in place:** `.nav-dropdown--panel .nav-mega` and
+  `.nav-dropdown--panel .nav-mega-grid` now have no consumer, and `--panel` also appears in two
+  shared selector lists in the 980px block. Left alone deliberately — §8b records what happens when
+  selectors are deleted from shared lists rather than trimmed out of them.
+- **`⚠️ At deploy time` `header.js` and `style.css` both changed, so their cache-busters must be
+  bumped across all pages** — and `header.js` *also* carries the unshipped Background Remover
+  `DW_TOOLS` entry, which would put a nav link to a 404 live. One of the two has to be dealt with
+  before this ships.
+- **Verified:** 14 checks — the list renders on `/`, `/books/`, `/blog/` and `/good-deals/` with two
+  links, no icons and no descriptions, inside the viewport; **Mini Tools still measures 1120px wide
+  with 3 icons, 3 descriptions and its CTA**; at 390px the list stacks under its trigger with no
+  overflow.
+
+## 18. Homepage ticker (`ticker/`)
+
+Karthik's call, 2026-10-03, against a pmprep screenshot: a marquee bar at the top of the page
+carrying the latest product update, hyperlinked, **with the words in a file of their own** so
+shipping an update means editing one line rather than hunting through code.
+
+- **`✅ DONE` `ticker/ticker.js` holds nothing but the content.** Three fields — `text`, `href`,
+  `show` — under a comment block saying so. `ticker/ticker-bar.js` renders it and `ticker/ticker.css`
+  styles it. That split is the whole point of the request: **the file you edit contains no logic to
+  break.**
+- **`✅ DONE` All three live in `ticker/`,** Karthik's call 2026-10-03, so the thing he edits on every
+  release is one folder rather than three files loose in a root that already holds a dozen.
+- **`⚠️ GOTCHA` An editor with the old path open will write the file back after a move.** A
+  byte-identical `ticker.css` reappeared at the root minutes after the move, from an open buffer.
+  Harmless here, but **an edit saved to a root `ticker.js` would go nowhere** — the page only loads
+  `/ticker/`. Close and reopen from the folder.
+- **`✅ DONE` Homepage only.** Karthik's call mid-build, after it was first wired site-wide. The
+  three tags live in `index.html` alone, which is also why the CSS is its own file rather than ~60
+  lines added to the 209KB `style.css` that every other page loads. *(`404.html` and `tools/index.html`
+  share the homepage's dashboard shell but are separate files, so they do not get it.)*
+- **`DECIDED` The number of copies is measured, never guessed.** A short update on a wide monitor
+  needs more copies to fill the bar than a long one on a laptop; a fixed count leaves a visible gap
+  on one or the other. The track holds two identical groups and slides left by exactly one group's
+  width, so the loop closes with no seam. Re-measured on resize and again when web fonts land, since
+  both change the width the maths depends on.
+- **`DECIDED` Speed is 55px per second, not a fixed duration.** A duration would make a long sentence
+  race and a short one crawl. Distance ÷ speed keeps the reading pace constant whatever the copy.
+- **`DECIDED` It slows to a quarter speed on hover and on focus** — Karthik's call, 2026-10-03,
+  changed from a full stop. Slow enough to read, still clearly a ticker. The whole bar is the link
+  rather than just the words, since a moving target is hard enough to click.
+- **`⚠️ GOTCHA` Rewriting `animation-duration` to change speed makes the animation JUMP.** It
+  re-times the running animation against the new duration, so the text leaps to a different position
+  the instant you hover. The Web Animations API's `updatePlaybackRate()` changes the rate in place
+  and keeps the current position, which is why the slowdown lives in JS and not in the stylesheet.
+  Measured: **55 px/s → 13.7 px/s under the pointer, back to 55 on the way out.**
+- **`⚠️ GOTCHA` A marquee repeats itself to a screen reader.** The track is `aria-hidden` and the
+  sentence is carried once on the link's `aria-label`, or the same update is announced ten times.
+- **`DECIDED` `prefers-reduced-motion` gets one static centred copy**, not a slower scroll.
+- **Verified:** 14 checks — renders above the header as the body's first child, text and link come
+  from `ticker.js`, the marquee actually moves, the track covers the viewport, hover pauses it,
+  reduced motion shows one copy, **no ticker on `/books/`, `/blog/`, `/dw-tools/`, `/good-deals/` or
+  `/changelog/`**, and on a phone the mobile gate still covers it.
+
 ## Implementation Log
 
 **2026-09-20 — GO LIVE #5: the mobile gate, ALONE** · `designwallet.in` · `b87a54f` → **`da13987`**
@@ -1454,3 +1766,96 @@ Karthik: *"Take everything live in the website."* Ships the Wall of Portfolios, 
 - **Pre-flight, all local:** every JS file passes `node --check` · `check-layout.js` passes · `sitemap.xml` well-formed · **20 routes × 2 widths (1440 and 390px) all 200, no page errors, no horizontal overflow** · **502 internal links, 0 broken**.
 - **`⚠️ GOTCHA` `git fetch` still fails** on the stray `.git/refs/heads/remove-paywall (1)` ref ("did not send all necessary objects"). `git ls-remote` and pushing still work. The rejected push is how `main`'s drift surfaced — **not** a fetch.
 - **Verified in production, in a browser on designwallet.in:** the homepage shows the badge loaded and Resources resolving to Wallet Reads + Wall of Portfolios over **4,291 cards** · `/category/ai-tools/` renders "AI Tools" with the badge (its **404 status is by design** — Pages serves `404.html` and the catalogue renders client-side) · the wall shows **53 portfolios, 4 per row** · the salary form has its currency toggle and City label · the changelog reads **V2.0 Ursa / V1.0 Orion** · `/books/` reads **Wallet Reads**. 16 routes return 200 and the `"(1)"` URLs do not resolve.
+
+---
+
+**2026-10-12 — Entry loader: a spiral galaxy, 5s, then a zoom into the homepage**
+
+Karthik: a fake loader for the first 5s of a visit, the reference being a rotating star galaxy, recreated in CSS, then zoomed into to reveal the first page.
+
+- **`✅ DONE` The loader is `loader.css` + `loader.js` + one block of markup after `<body>` in `index.html`.** Files kept separate per the file-organisation rule; no inline scripts.
+- **`DECIDED` Timeline is pure CSS** (hold 5s, zoom 1.6s, white flash, loader fades, page scales 1.06 → 1). The galaxy is three rotating box-shadow star layers on a tilted disc plus a glowing core. `loader.js` only handles the skip rule, paints the star positions, and unlocks scrolling at 7.4s. If it never runs, the loader still removes itself by CSS.
+- **`DECIDED` Shows on the homepage on EVERY load — refresh and hard refresh included** (Karthik, 2026-10-12; supersedes the earlier once-per-session rule, `sessionStorage` removed). Other pages skip it. To show it on every page, add the same `<link>`, `<script>` and markup to each page and to `scripts/build-blog.js`.
+- **`DECIDED` Phones don't see it.** `mobile-gate.css` hides every `body > *` except the gate, which covers the loader too.
+- **`DECIDED` Reduced motion keeps the 5s hold** but drops the spin, dive and page scale.
+- **Verified in headless Chrome at 1440×810:** loader gone and `html` class clear by 8.5s, no JS errors, a reload shows it again.
+- **`✅ DONE` No glow on the loader galaxy** (Karthik, 2026-10-12: *"The glow is not good"*). The haze and core gradient are deleted; the galaxy is stars only, ~20,000 across three layers, clustered into a dense bulge and wider spiral arms. Don't add a gradient glow back.
+- **`✅ DONE` No zoom either** (Karthik, 2026-10-12: *"The zoom effect is not going well"*). The dive, the tilt change, the white flash and the page scale are all deleted. After the 5s hold the loader just fades out over 0.9s. **Supersedes** the "5s, then a zoom into the homepage" timeline above; the loader is unlocked at 6s, not 7.4s.
+- **`✅ DONE` Loader gets a 0 → 99% counter, bottom right; the "Design Wallet" wordmark and the progress line are gone** (Karthik, 2026-10-12). The counter, not a CSS timer, is the clock: it runs 0 → 99 over 5s and **only when it lands on 99 does the loader fade (0.9s) and the page show**. It is cosmetic — nothing is really loading, so the page is not held for slow assets beyond that. Galaxy also gained loose scattered stars between the arms and small star clumps, to match the reference.
+- **`✅ DONE` The loader counter has no "%" sign and is Geist weight 100, matching the homepage H1** (Karthik, 2026-10-12). Still counts 0 → 99.
+- **`✅ DONE` The loader background is the homepage body background** (`var(--surface-2)`, `#101010`), not its own near-black (Karthik, 2026-10-12). It uses the token, so it follows the page if the palette changes.
+- **`✅ DONE` Loader stars are pure white round dots, 1–3.5px, like the homepage star field** (Karthik, 2026-10-12). The earlier warm and blue tints are gone; only opacity varies.
+
+---
+
+**2026-10-13 — Website Brandkit Generator** · `/dw-tools/brandkit-generator/` · branch `remove-paywall`, **not committed, not deployed**
+
+Karthik: paste a website link, get its colour palette and typography, with the site's preview in a side card; every colour easy to copy, plus an export; fonts shown in their own style, primary and paragraph. Built from Figma node `805:85`.
+
+- **`✅ DONE` The tool is `dw-tools/brandkit-generator/` — `index.html`, `brandkit.css`, `brandkit.js`, `copy.svg`** (the Figma copy icon, painted as a CSS mask). Fourth entry in `DW_TOOLS` (`header.js`), plus one `sitemap.xml` URL. Files kept separate per the file-organisation rule.
+- **`DECIDED` A relay is required, and it is `supabase/functions/brandkit-fetch/index.ts`.** A page on designwallet.in cannot read another site's HTML or CSS (CORS). The public CORS proxies were tried first and **failed** (`allorigins` and `codetabs` unreachable, `corsproxy.io` 401), so they are not used. The function only fetches and returns `{url, status, contentType, body}`; **all colour and font analysis runs in the browser.**
+- **`⚠️ BLOCKER — the tool does not work on the live site until the function is deployed:** `supabase functions deploy brandkit-fetch --no-verify-jwt`. `--no-verify-jwt` because the publishable key is not a JWT. The Supabase CLI is not installed here, so this was **not** deployed. Locally the page talks to `http://localhost:8787/` (`deno run --allow-net --allow-env supabase/functions/brandkit-fetch/index.ts`).
+- **`DECIDED` The relay is public, so it refuses everything but a plain public text GET.** http(s) only, no credentials in the URL, the name is resolved and private/loopback/link-local/CGNAT ranges are refused, **every redirect hop is re-checked**, 2 MB and 10 s caps, text content types only. Verified: `127.0.0.1`, `localhost`, `ftp://` and a non-resolving domain all return an error.
+- **`DECIDED` Colours are a ranked reading of what the CSS declares, not a pixel measurement.** Colour tokens in colour-bearing properties (plus custom properties, `theme-color`, inline styles, SVG fills) are weighted — brand-named variables ×4, `html/body` background and text +12, `:hover` states halved, translucent colours dropped — near-duplicates merged (RGB distance < 30), then **5 are picked: the strongest chromatic colours plus one dark and one light neutral.** Any CSS colour syntax works (oklch, hsl, `color()`), parsed by the browser's own canvas.
+- **`DECIDED` Fonts come from the element, not the stylesheet.** The first `<h1>` and the first long `<p>` are matched against every font rule with `element.matches()`, ranked by specificity, walking up through ancestors. Bare-tag scoring is only the fallback for pages with no `<h1>`/`<p>` in their static HTML. `var()` is resolved; `next/font` names (`__Inter_a1b2c3`) and Framer `Placeholder`/`Fallback` names are cleaned.
+- **`⚠️ GOTCHA` Scoring selectors by pattern picked the wrong font.** designwallet.in came back as **Georgia** because `.blog-content p` scored as a `p` rule. Matching against the real element fixed it (now Geist). Same lesson as the grouped-selector traps above: a selector that merely *ends* in `p` is not a rule for every `p`.
+- **`⚠️ GOTCHA` Big sites split CSS into dozens of files.** linear.app has **48**, with its font tokens in the 36th; the first cut stopped at 12 and found no fonts. Cap is now 60, fetched 8 at a time, **in page order** (later rules win the cascade).
+- **`DECIDED` A font is shown in its own style by trying Google Fonts, then the site's own `@font-face` files, then an honest stand-in** with a note saying so. Verified: Geist and Inter Variable load; **Stripe's `sohne-var` falls to the stand-in because Stripe's CDN sends no CORS header for the font file.** That is the site's choice and cannot be worked around from the browser.
+- **`DECIDED` The preview is a screenshot from a third-party service, microlink first, thum.io as spare.** thum.io answers a refusal with a **200 image reading "Image not authorized"**, so it can never be first — the `onerror` fallback never fires on it. **Microlink's free tier is rate-limited (about 50 requests/day per IP)**, so heavy use will fall through to thum.io and may show a blank or a refusal image. A site behind a bot check (lovable.dev) screenshots as the check page. A paid key or a self-hosted screenshot function would remove this.
+- **`DECIDED` Export is one button with a format select: CSS variables, JSON, SVG swatches.** CSS and JSON also carry the two font names. Click a swatch to copy its hex; the hex and a copy icon show on hover and focus, as in the design.
+- **`DECIDED` Spelling: "Color Palette", not the design's "Color Palatte".** The page chrome is Geist, as on every other tool, not the design's Inter; the headline tracking is -0.045em, not the design's -0.07em, which crushed Geist. The specimen tracking is neutral so a third-party typeface is not squeezed. The design's "all the website assets" line is dropped — the tool does colours and fonts only.
+- **Verified in headless Chrome at 1440×1000** on designwallet.in, lovable.dev, linear.app and stripe.com: palette, fonts and preview render; the brand colours match the brands (Linear `#5E6AD2`, Stripe `#533AFD`); copy puts the hex on the clipboard; all three exports download with correct content; empty, malformed, unresolvable and private inputs show an error. No page errors beyond Stripe's font CORS.
+- **Not verified:** the deployed function (see the blocker), phones (the mobile gate covers every page), and the page against sites that render entirely from JavaScript, where it will find little.
+
+**2026-10-14 — Color Code Converter content matches the nav width**
+
+- **`✅ DONE` The converter's content now spans exactly the nav pill's width** (Karthik's call). `.converter-main` had `max-width: none` and 40px side padding, so it ran full width while `.site-header` is capped at `--content-width` (1300px). It now uses the same cap with no side padding. Measured at 1551, 1440 and 1100px: nav, hero and results panel share identical left and right edges, and there is no horizontal overflow. The page's `style.css?v=` is now `20261014-1`. The ≤760px rule already had zero side padding, so phones are unchanged.
+
+**2026-10-14 — One shared header for every mini tool**
+
+- **`✅ DONE` All four tools share one hero: back link → kicker → title → intro** (Karthik's call, shown against the Glassmorphism generator's header). Defined once in `style.css` as **`.tool-back-link`, `.tool-kicker`, `.tool-title`, `.tool-intro`** (Geist 200, `clamp(1.35rem, 5.2vw, 3.6rem)`, uppercase 0.875rem intro). The converter and the glass generator had **their own identical-ish copies** (`.converter-*`, `.glass-*`), now deleted; the Background Remover (kicker "Mini tool", no back link) and the Brandkit Generator (neither) were brought in line. Kicker reads "Design Wallet Tools" on all four.
+- **`DECIDED` A new tool uses those four classes and does not write its own hero type.** Copy the back-link block from any existing tool; only the title and intro text change.
+- **`DECIDED` The title is 3.6rem on every tool, so the Color Code Converter's title shrank** from its old 5.2rem (it was the only one that big). Its former responsive size overrides were deleted with it.
+- **`✅ DONE` Every tool's content now spans exactly the nav pill's width**, extending the converter fix above: `.glass-main`, `.bgr-main` and `.bk-main` lost their 40px side padding (and the 20px one in their narrow media queries). Measured at 1440px on all four: nav, `main` and title share left/right edges (70 / 1370), the title fits on one line, no horizontal overflow. `style.css?v=` and each tool's own CSS are `20261014-2` on the four pages.
+- **Not verified:** widths below ~980px (phones are behind the mobile gate), and the glass and remover tools' interactive states after the padding change — only their headers and outer edges were measured.
+
+**2026-10-14 — Brandkit preview is grey, not white** — `✅ DONE` (Karthik's call). The empty and loading preview frame is `--bk-preview-bg: #d9d9d9` (was `var(--pure)`; the loading shimmer used a separate `#e9e9e9`, now the same token). A loaded screenshot covers it. `brandkit.css?v=20261014-3`.
+
+**2026-10-15 — Brandkit: dark preview, blank placeholder fields** — `✅ DONE` (Karthik's call). The preview frame is `--bk-preview-bg: #262626` (blackish grey; supersedes the `#d9d9d9` of 2026-10-14), and its loading shimmer is a light-on-dark sweep. Before a site is read, Color Palette and Typographies show **blank `#101010` fields at their final size** (103px and 160px, `.bk-placeholder`) with **no text**; the result replaces them. An error also resets them to blank. A message appears in the field only for a real outcome ("no colors found", "no fonts found"). The preview frame still carries its "A preview of the site appears here." line — not asked about, so left. `brandkit.css?v=20261014-4`, `brandkit.js?v=20261014-1`. Verified in headless Chrome: idle shows both blank fields; after reading localcan.com, 5 swatches and no placeholders left.
+
+**2026-10-15 — Brandkit: scrollable preview, smaller URL field** — `✅ DONE` (Karthik's calls). **The preview is now the whole page, scrolled inside its frame like a mini browser**: microlink `screenshot.fullPage` as a 70%-quality JPEG (stripe.com: 1200×15160, 1.3 MB), thum.io `fullpage` as the spare (a PNG, ~8 MB for the same page — heavy, so it stays second). The frame is `overflow-y: auto` with `overscroll-behavior: contain`, so wheeling over it scrolls the preview and not the page; scroll resets to the top for each new site. Verified: frame scrollHeight 6847 vs 555 visible, wheel moved the frame to 1400 and the page stayed at 0. It is an image, not a live iframe, because most sites forbid framing — so links in it are not clickable. **The URL field is smaller**: 56px tall (was 76), 440px wide (was 544), 1.05rem text, 40px button. `brandkit.css?v=20261015-2`.
+
+**2026-10-15 — Brandkit: scroll cue on the preview** — `✅ DONE` (Karthik's call). A "Scroll ⌄" pill sits bottom-centre of the preview, 14px up, nudging gently (still under reduced motion). It lives on the `<aside>`, **not inside the scrolling frame**, because an absolutely-positioned child of a scroller scrolls away with it. It shows only when the loaded screenshot is taller than the frame, fades out once the reader is past 40px, returns at the top, and is clickable (scrolls 80% of a frame). Hidden while loading and when empty. Verified on lovable.dev: centred to 0px, 14px from the bottom, opacity 1 → 0 after a 600px wheel. `brandkit.css?v=20261015-3`, `brandkit.js?v=20261015-2`.
+
+**2026-10-15 — Brandkit: design assets, "Download brandkit", thin section titles** — `✅ DONE` (Karthik's calls).
+
+- **`✅ DONE` A Design Assets row shows 10 tiles** under the card (full width, one row at 1440px), with "Showing 10 of N found". Candidates come from `og:image`/`twitter:image`, the app icons, `<img>` (largest `srcset`, `data-src`, `/_next/image?url=` unwrapped), `<picture>`, inline `<svg>` and stylesheet `url()` images; ranked (social 90, logos 80–90, images 50, backgrounds 40, bare icons 35). Up to 40 are probed in the browser and the first 10 that actually load are shown, **at most 3 of them bare UI icons**, so chevrons cannot fill the row. A click copies the link (or the SVG code). Tiles are mid-grey `#9d9d9d`: black icons and white logos both have to be visible, and the earlier white/light greys were rejected.
+- **`✅ DONE` "Export" is replaced by "Download brandkit"** — one zip, `brandkit-<host>.zip`: `colors/` (CSS variables, JSON, SVG swatch strip) · `fonts/` (the font files) · `assets/` (every image and SVG found, up to 40) · `README.txt`. The format select is gone; the zip carries all three formats. Built by `zip.js` (store-only, no dependency; PNG/JPEG/WOFF2 are already compressed). Files are fetched 6 at a time and a dead one is skipped and counted, not fatal. Button shows "Packing n/total".
+- **`DECIDED` Fonts: the site's own `@font-face` files first (best of woff2 → woff → ttf → otf per face), else Google's `.ttf`s.** Google answers a non-browser client with one plain `.ttf` per weight, which is what a designer installs. Verified: designwallet.in → 5 Geist `.ttf` (300–700); stripe.com → its own `sohne-var-1-1000.woff2`; lovable.dev → 2 Camera Plain Variable `.woff2`. A family with no files found is named in the README rather than silently missing. **Only the primary and paragraph families are packaged**, not every font on the page.
+- **`⚠️ BLOCKER — redeploy the relay.`** `brandkit-fetch` gained **`raw=1`** (images and fonts only; 8 MB cap; refuses HTML and everything else; the same public-address and per-redirect checks as before). The deployed copy, once it exists, must be the new one: `supabase functions deploy brandkit-fetch --no-verify-jwt`. Without it the download works only locally. The text mode is unchanged. Verified: a PNG comes back as `image/png`, an HTML page with `raw=1` is refused, `169.254.169.254` is refused.
+- **`DECIDED` The specimen can now show fonts the browser blocks.** If a site's font file has no CORS header (Stripe's), the page loads it through the relay as a blob instead of falling to the stand-in. Stripe's specimen now renders in sohne rather than a stand-in.
+- **`⚠️ GOTCHA` "Inside the header" does not make an SVG a logo.** The first ranking filled Stripe's tiles with chevrons and arrows because every nav glyph lives in `<header>`. A logo is now named like one (`logo`/`brand`/`wordmark`) or is the link back to `/`; identical glyphs differing only in ids and classes are de-duplicated.
+- **`✅ DONE` "Color Palette", "Typographies" and "Design Assets" are thin** (Geist 200, -0.045em), matching the page title.
+- **Licensing, on record:** fonts and assets belong to their owners and foundries; the README in every zip says to check the licence before use. Colours are ranked from CSS, not measured.
+- **Verified in headless Chrome on lovable.dev, designwallet.in and stripe.com:** 10 tiles each, count text correct, download enabled, `unzip -t` clean, expected folder contents, no page errors. **Not verified:** the deployed function, sites that block the relay's user agent, and a zip over a few hundred MB (capped at 40 assets × 8 MB, so ≤ ~320 MB worst case, held in memory).
+
+**2026-10-15 — The /dw-tools/ index groups tools by category** — `✅ DONE` (Karthik's call: "categorise the mini tools in the index page"). Karthik named no categories, so these are **my proposal, not his words**: **Color & Brand** (Color Code Converter, Website Brandkit Generator) · **Image** (Background Remover) · **CSS & Code** (Glassmorphism CSS Generator). Rename or regroup by editing `DW_TOOL_CATEGORIES` and each tool's `category` in `header.js`.
+
+- **`DECIDED` Each `DW_TOOLS` entry now carries a `category`**, and `DW_TOOL_CATEGORIES` (same file) sets the display order. A tool whose category is missing or not listed lands under a trailing **"More"**, so a new tool can never vanish from the index. The **nav panel is unchanged — still one flat list**; `category` only affects `/dw-tools/`.
+- **`DECIDED` The groups are left-aligned and full nav width, not centred in a 1100px column.** **Supersedes the "cards centre in the grid" decision in §2**: that existed so a two-tool list did not hug the left of a centred hero, but a heading above each group makes the left edge the natural one. `.dwt-main` is now `var(--content-width)` (measured: nav and groups both 70 → 1370px at 1440), cards are `repeat(auto-fill, minmax(340px, 1fr))`, and the hero stays centred within it. Group heading: Geist 300, 1.5rem, with a small count.
+- **Gotcha:** the cards are still rendered by JS from `DW_TOOLS`, so the index is empty without JS — same trade-off as before. Cache-busters: `dw-tools.css?v=20261015-2`, `dw-tools.js?v=20261015-1`, and the index loads `header.js?v=20261015-1`. **Other pages still load the older `header.js` from cache until their `?v=` is bumped**, which only matters for the new Brandkit nav entry, not for `category`.
+- **Verified in headless Chrome at 1440px:** three groups in order with the right tools, no page errors. **Not verified:** below 700px.
+
+---
+
+**2026-10-15 — GO LIVE #6: everything on the branch, except the Brandkit Generator** · `designwallet.in` · `14d9990` → (this commit)
+
+Karthik: *"Take everything live on what we did so far."* Remote `main` was exactly `14d9990` (the branch tip), so this is a plain fast-forward: the working tree is committed and `main` moves to it. (**Local `main` is a stale ref** — `a7780c8` — because `git fetch` still fails on the stray `remove-paywall (1)` ref; never merge from it. `git ls-remote origin main` is the truth.)
+
+- **`✅ DONE` Ships:** the Supabase catalogue (`tools/tools.js`, `script.js`, `wall-of-portfolios/wall.js`, `supabase/` schema, sync and runbook) · the entry loader · the ticker bar · the newsletter changes · the **Background Remover** (and its nav entry and sitemap URL) · the shared tool header on all tools · every tool's content at nav width · the `/dw-tools/` index grouped by category.
+- **`⚠️ HELD` The Website Brandkit Generator is NOT live.** Its page and relay are committed on the branch only. **Why:** it needs the `brandkit-fetch` function deployed on Supabase, and the Supabase CLI is not installed here; without it the live page would load and then say "Could not reach the fetcher" to every visitor. Held back exactly as the glass generator once was: its `DW_TOOLS` entry (so the nav and index cannot link to it) and its `sitemap.xml` URL are out of the shipped commit, and `dw-tools/brandkit-generator/` is not on `main`. **To ship it:** `supabase functions deploy brandkit-fetch --no-verify-jwt`, then restore the entry and URL (the follow-up commit on the branch carries them).
+- **Verified live data first:** the three public views the new catalogue code reads hold **433 tools · 21 books · 145 portfolios** (expected ≥ 430 / 21 / 145). No secret-shaped strings in anything committed. All JS passes `node --check`; `check-layout.js` passes; `sitemap.xml` is well-formed.
+- **Verified locally before pushing:** **21 routes × 1440 and 1100px — 200, no page errors, no horizontal overflow.** `/dw-tools/` shows three groups with one card each (Color Code Converter, Background Remover, Glassmorphism); the nav panel lists the same three.
+- **`DECIDED` Cache-busters moved together** to `20261015-3` for `header.js`, `newsletter.js`, `script.js`, `style.css`, `tools.js` and `wall.js` on every page that loads them (20 pages, 65 references), plus `assetVersion` in `build-blog.js`, so a rebuild cannot put the old versions back. **This closes the debt noted in GO LIVE #5** (the `header.js` bump owed to the Background Remover).
+- **Deliberately NOT committed:** `.claude/DATA-SECURITY-PLAN.md` and `.claude/NEWSLETTER-PLAN.md` (internal plans, they describe the security gaps in detail — **Karthik to decide**; DECISIONS §20a points at the first one) and the 27 stray `… (1).…` Finder duplicates, which are not site files.
+- **`PENDING` Not verified by anyone, and now live:** the Background Remover on real hardware and phones (§16 asked Karthik to try it before it shipped); the Supabase catalogue on a cold cache and in non-Chromium browsers; the loader and ticker on Safari and Firefox. Phones see the mobile gate everywhere.

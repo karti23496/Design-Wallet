@@ -1,23 +1,40 @@
+// The groups the /dw-tools/ index sorts tools into, in display order. A tool's
+// `category` must be one of these; one that is not lands in a trailing "More".
+var DW_TOOL_CATEGORIES = ["Color & Brand", "Image", "CSS & Code"];
+
 // Design Wallet's own free tools, listed in the nav "Mini Tools" panel.
 // Add a new one here and it appears in the nav on every page. `icon` is the
 // inner markup of a 24×24 stroked SVG, in the house style of public/icons/.
+// `category` only affects the /dw-tools/ index; the nav panel stays one list.
 var DW_TOOLS = [
     {
         name: "Color Code Converter",
+        category: "Color & Brand",
         href: "/dw-tools/color-code-converter/",
         description: "Convert between HEX, RGB, HSL, HSV, OKLCH and CMYK.",
         icon: '<circle cx="9" cy="9" r="5.5"/><circle cx="15" cy="15" r="5.5"/>'
     },
     {
+        name: "Background Remover",
+        category: "Image",
+        href: "/dw-tools/background-remover/",
+        description: "Cut out any subject \u2014 hair included \u2014 without uploading it.",
+        icon: '<rect x="3" y="3" width="18" height="18" rx="3" stroke-dasharray="3.2 3.2"/><circle cx="9" cy="9.4" r="1.5"/><path d="M6.5 16.5 10 12.6l2.4 2.7 2-2.3 3.1 3.5"/>'
+    },
+    {
         name: "Glassmorphism CSS Generator",
+        category: "CSS & Code",
         href: "/dw-tools/glassmorphism-css-generator/",
         description: "Design frosted glass, then copy it as CSS, Tailwind or React.",
         icon: '<rect x="3" y="7" width="13" height="13" rx="3"/><rect x="8" y="4" width="13" height="13" rx="3"/>'
     }
 ];
 
-// The nav "Resources" panel. Same shape as a DW_TOOLS entry, and rendered by
-// the same template, so both dropdowns stay identical by construction.
+// The nav "Resources" panel. Rendered as a PLAIN LIST, not the wide Mini Tools
+// panel — Karthik's call, 2026-10-03, against a Zocket reference: two text
+// links do not need icons, descriptions or a CTA column.
+// `icon` and `description` are kept on each entry so a future move back to the
+// mega template needs no data changes; the list renderer simply ignores them.
 var DW_RESOURCES = [
     {
         name: "Wallet Reads",
@@ -63,8 +80,19 @@ function loadHeader() {
         }).join("");
     }
 
+    // The plain-list renderer. The label sits in a <span>, never on the <a>:
+    // `.blog-index-page .site-nav a` lands later at equal specificity and
+    // would paint these white on the blog. Same trap the mega panel hit.
+    function listItems(entries) {
+        return entries.map(function (entry) {
+            return '<a class="nav-list-item" href="' + entry.href + '">' +
+                '<span class="nav-list-label">' + entry.name + '</span>' +
+            '</a>';
+        }).join("");
+    }
+
     var toolsMenu = megaItems(DW_TOOLS);
-    var resourcesMenu = megaItems(DW_RESOURCES);
+    var resourcesMenu = listItems(DW_RESOURCES);
 
     var html =
         '<div class="brand-group">' +
@@ -77,18 +105,18 @@ function loadHeader() {
             '<span></span><span></span><span></span>' +
         '</button>' +
         '<nav class="site-nav" id="primary-nav">' +
-            // --wide gives it Mini Tools' geometry (full width, centred on the
-            // header); --panel drops the CTA column. See style.css.
-            '<div class="nav-dropdown nav-dropdown--wide nav-dropdown--panel">' +
+            // A plain dropdown, anchored to its own trigger. It keeps the base
+            // .nav-dropdown geometry, which is why the mobile stacked sheet
+            // needs no special casing for it.
+            '<div class="nav-dropdown nav-dropdown--list">' +
                 // No href: the trigger opens the menu rather than navigating.
                 // tabindex keeps it keyboard-reachable for :focus-within.
                 '<a class="nav-dropdown-trigger" tabindex="0" role="button" aria-haspopup="true">Resources' +
                     '<svg class="nav-dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' +
                 '</a>' +
-                '<div class="nav-dropdown-menu nav-mega" aria-label="Design Wallet resources">' +
-                    '<div class="nav-mega-grid">' +
-                        resourcesMenu +
-                    '</div>' +
+                '<div class="nav-dropdown-menu nav-list" aria-label="Design Wallet resources">' +
+                    '<p class="nav-list-heading">Browse</p>' +
+                    resourcesMenu +
                 '</div>' +
             '</div>' +
             // The NEW pill rides inside the link so it moves with it and is

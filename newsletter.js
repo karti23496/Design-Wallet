@@ -6,11 +6,18 @@
 //      every page gets it without editing each HTML file)
 //   2. any inline .newsletter-form      -> e.g. the homepage hero
 //
-// Posts to the same Google Apps Script endpoint the old waitlist used, so
-// existing subscribers keep landing in the same sheet.
+// Addresses go into the Supabase `subscribers` table. They used to go to a
+// Google Apps Script which wrote them to a spreadsheet; that spreadsheet is
+// publicly readable and holds the existing 381 addresses, which is its own
+// problem — see .claude/DATA-SECURITY-PLAN.md §0. Nothing writes to it now.
+//
+// The key below may only INSERT into that table. It cannot read it: there is no
+// select policy, so a visitor can add their own address and cannot discover
+// anyone else's. See supabase/subscribers.sql.
 // ============================================================================
 (function () {
-    var ENDPOINT = "https://script.google.com/macros/s/AKfycbyyFhF70bpxR6nJbjULkETuxYNjAfEFfoshx_ven2Z3JrwC3Zjp61eJIBjx2SCouHYVig/exec";
+    var SUPABASE_URL = "https://ugjtyuikvdeymwsfsgfl.supabase.co";
+    var SUPABASE_KEY = "sb_publishable_IOdPnIa_tf6DjQShp_gTZA_i36nRCTe";
 
     var MODAL_HTML =
         '<div class="newsletter-modal" id="newsletter-modal" role="dialog" aria-modal="true" aria-labelledby="newsletter-modal-title" hidden>' +
@@ -63,10 +70,12 @@
                 button.textContent = "Submitting...";
             }
 
-            fetch(ENDPOINT, {
-                method: "POST",
-                body: new URLSearchParams({ email: email })
-            }).then(function () {
+            // Lowercased and trimmed here so the table's primary key does its
+            // job — Karthik@x.com and karthik@x.com are one person. The database
+            // enforces this too; this just avoids a pointless rejection.
+            email = String(email || "").trim().toLowerCase();
+
+            function succeed() {
                 form.reset();
                 if (button) button.textContent = "You're in";
                 window.setTimeout(function () {
@@ -76,12 +85,37 @@
                         button.textContent = original;
                     }
                 }, 1200);
-            }).catch(function () {
+            }
+
+            function fail() {
                 if (button) {
                     button.disabled = false;
                     button.textContent = "Try again";
                 }
-            });
+            }
+
+            // One RPC, not a table insert. The publishable key has no
+            // privileges on `subscribers` at all — it may only call this
+            // function, which runs as its owner and returns nothing.
+            //
+            // That matters for more than tidiness: a direct insert answers 409
+            // when the address is already there, which would turn this form
+            // into a way to ask whether any given person is on the list. The
+            // function answers 204 either way.
+            fetch(SUPABASE_URL + "/rest/v1/rpc/subscribe", {
+                method: "POST",
+                headers: {
+                    "apikey": SUPABASE_KEY,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ p_email: email, p_source: window.location.pathname })
+            }).then(function (response) {
+                // The old version called succeed() on ANY settled request, so a
+                // server error, a quota failure or a rejected address all showed
+                // "You're in" to someone who had not been subscribed.
+                if (response.ok) succeed();
+                else fail();
+            }).catch(fail);
         });
     }
 

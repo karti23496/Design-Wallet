@@ -1726,8 +1726,11 @@ document.addEventListener("DOMContentLoaded", function () {
     var booksGrid = document.getElementById("books-grid");
     if (!booksGrid) return; // not on books page
 
-    var SHEET_ID = "1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8";
-    var GID = "1540089306";
+    // Supabase, not the books tab of the Google Sheet. The Sheet is still the
+    // editing surface; a sync job pushes it here within seconds. The key is
+    // publishable and can only read the `public_*` views — see DECISIONS §20a.
+    var SUPABASE_URL = "https://ugjtyuikvdeymwsfsgfl.supabase.co";
+    var SUPABASE_KEY = "sb_publishable_IOdPnIa_tf6DjQShp_gTZA_i36nRCTe";
     var CACHE_KEY = "dw_books_cache";
     var CACHE_TTL = 10 * 60 * 1000;
 
@@ -1755,22 +1758,18 @@ document.addEventListener("DOMContentLoaded", function () {
         return (cell.v != null ? String(cell.v) : "").trim();
     }
 
-    function parseBooks(payload) {
-        var rows = payload && payload.table && payload.table.rows ? payload.table.rows : [];
-        var books = [];
-        for (var i = 0; i < rows.length; i++) {
-            var c = rows[i].c || [];
-            var title = cellValue(c[1]);
-            if (!title) continue;
-            books.push({
-                thumbnail: cellValue(c[0]),
-                title: title,
-                author: cellValue(c[2]),
-                rating: parseFloat(cellValue(c[3])) || 0,
-                link: cellValue(c[4])
-            });
-        }
-        return books;
+    // The sheet's books tab was read by COLUMN POSITION — c[0] thumbnail,
+    // c[1] title, and so on — so inserting a column in the sheet silently
+    // shifted every field. The sync job resolved the positions once; these are
+    // named columns now and a reordered sheet cannot reach this code.
+    function toBook(row) {
+        return {
+            thumbnail: row.thumbnail || "",
+            title: row.title || "",
+            author: row.author || "",
+            rating: parseFloat(row.rating) || 0,
+            link: row.link || ""
+        };
     }
 
     function buildStars(rating) {
@@ -1909,42 +1908,42 @@ document.addEventListener("DOMContentLoaded", function () {
             initBooks(cached);
         }
 
-        var callbackName = "__booksSheetCallback_" + Date.now();
-        var url = "https://docs.google.com/spreadsheets/d/" + SHEET_ID +
-            "/gviz/tq?tqx=out:json;responseHandler:" + callbackName + "&gid=" + GID;
-
-        var script = document.createElement("script");
-        var timeoutId;
-
-        window[callbackName] = function (payload) {
-            clearTimeout(timeoutId);
-            script.remove();
-            delete window[callbackName];
-            var books = parseBooks(payload);
-            setCache(books);
-            if (!cached) initBooks(books);
-        };
-
-        script.async = true;
-        script.src = url;
-        script.onerror = function () {
-            clearTimeout(timeoutId);
-            script.remove();
-            delete window[callbackName];
-            if (!cached) {
-                booksGrid.innerHTML = '<p class="books-loading">Could not load books.</p>';
-            }
-        };
-
-        timeoutId = setTimeout(function () {
-            script.remove();
-            delete window[callbackName];
-            if (!cached) {
-                booksGrid.innerHTML = '<p class="books-loading">Books timed out.</p>';
-            }
+        var settled = false;
+        var timer = setTimeout(function () {
+            if (settled) return;
+            settled = true;
+            if (!cached) booksGrid.innerHTML = '<p class="books-loading">Books timed out.</p>';
         }, 12000);
 
-        document.body.appendChild(script);
+        function fail() {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            if (!cached) booksGrid.innerHTML = '<p class="books-loading">Could not load books.</p>';
+        }
+
+        // Plain fetch. The sheet needed a <script> tag, a global callback and a
+        // manual cleanup path because gviz sends no CORS headers; Supabase does.
+        fetch(SUPABASE_URL + "/rest/v1/public_books?select=*&limit=1000", {
+            headers: { apikey: SUPABASE_KEY }
+        })
+            .then(function (response) {
+                if (!response.ok) throw new Error("Supabase responded " + response.status);
+                return response.json();
+            })
+            .then(function (rows) {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timer);
+
+                var books = (Array.isArray(rows) ? rows : []).map(toBook).filter(function (book) {
+                    return book.title;
+                });
+
+                setCache(books);
+                if (!cached) initBooks(books);
+            })
+            .catch(fail);
     }
 
     loadBooks();
