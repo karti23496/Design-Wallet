@@ -110,10 +110,12 @@
     }
 
     // The same relay in raw mode: bytes in, a Blob out. Used only for the download.
-    function relayBytes(url) {
+    // `asFont` asks the relay to turn a web font (.woff / .woff2) back into the
+    // installable .ttf / .otf inside it. Without it the bytes come back as served.
+    function relayBytes(url, asFont) {
         var controller = new AbortController();
         var timer = setTimeout(function () { controller.abort(); }, BYTES_TIMEOUT_MS);
-        return fetch(RELAY + "?url=" + encodeURIComponent(url) + "&raw=1", {
+        return fetch(RELAY + "?url=" + encodeURIComponent(url) + "&raw=1" + (asFont ? "&font=sfnt" : ""), {
             headers: { apikey: SUPABASE_KEY },
             signal: controller.signal
         }).then(function (res) {
@@ -1112,7 +1114,22 @@
             total = fontPlan.files.length + assets.length;
 
             var fontJob = pool(fontPlan.files, DOWNLOAD_POOL, function (f) {
-                return relayBytes(f.url).then(function (blob) { tick(); return blob.arrayBuffer().then(function (buf) { return { f: f, data: new Uint8Array(buf) }; }); });
+                return relayBytes(f.url, true).then(function (blob) {
+                    tick();
+                    return blob.arrayBuffer().then(function (buf) {
+                        var data = new Uint8Array(buf);
+                        // Name the file for what it is, whatever the site called it:
+                        // "OTTO" marks a CFF-flavoured OpenType font, anything else is TrueType.
+                        var magic = String.fromCharCode(data[0], data[1], data[2], data[3]);
+                        // An older relay ignores font=sfnt and returns the .woff2 untouched.
+                        // Never label that as installable: refuse it, and it is skipped and counted.
+                        if (magic !== "OTTO" && magic !== "true" && magic !== "ttcf" && magic !== "\x00\x01\x00\x00") {
+                            throw new Error("not an installable font");
+                        }
+                        var ext = magic === "OTTO" ? "otf" : "ttf";
+                        return { f: f, data: data, ext: ext };
+                    });
+                });
             });
             var assetJob = pool(assets, DOWNLOAD_POOL, function (item) {
                 if (item.kind === "svg") { tick(); return { item: item, ext: "svg", data: bytesOf(item.svg) }; }
@@ -1129,7 +1146,7 @@
             results[0].forEach(function (r) {
                 if (!r) { report.skipped++; return; }
                 var style = /italic|oblique/i.test(r.f.style) ? "-italic" : "";
-                files.push({ name: name("fonts", r.f.family + "-" + r.f.weight.replace(/\s+/g, "-") + style, r.f.ext), data: r.data });
+                files.push({ name: name("fonts", r.f.family + "-" + r.f.weight.replace(/\s+/g, "-") + style, r.ext), data: r.data });
                 report.fonts++;
             });
             var inline = 0;
@@ -1151,7 +1168,7 @@
                 "Date: " + new Date().toISOString().slice(0, 10),
                 "",
                 "colors/  " + report.colors + " colors, as CSS variables, JSON and an SVG swatch strip.",
-                "fonts/   " + report.fonts + " font file(s)" + (report.fontsMissing.length ? " (no files found for: " + report.fontsMissing.join(", ") + ")" : "") + ".",
+                "fonts/   " + report.fonts + " installable font file(s) (.ttf / .otf)" + (report.fontsMissing.length ? " (no files found for: " + report.fontsMissing.join(", ") + ")" : "") + ".",
                 "assets/  " + report.assets + " image and SVG file(s) found on the page.",
                 report.skipped ? "\n" + report.skipped + " file(s) could not be downloaded and were skipped." : "",
                 "",

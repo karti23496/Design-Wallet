@@ -12,6 +12,8 @@
 // therefore public, which is why it refuses everything that is not a plain,
 // public, text GET — see the guards below.
 
+import wawoff2 from "npm:wawoff2@2.0.1";
+
 const MAX_BYTES = 2_000_000;
 // Images and font files are bigger than CSS; `raw=1` mode allows them.
 const MAX_RAW_BYTES = 8_000_000;
@@ -128,11 +130,80 @@ async function relayText(target: URL): Promise<{ url: string; status: number; co
     return { url, status: res.status, contentType, body: new TextDecoder("utf-8").decode(bytes) };
 }
 
+// ── Web fonts -> installable fonts ──────────────────────────────────────────
+// Sites serve .woff / .woff2, which a computer cannot install. `font=sfnt` turns
+// them back into the plain TrueType (.ttf) or OpenType (.otf) file inside.
+
+function tag(bytes: Uint8Array): string {
+    return String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]);
+}
+
+async function inflate(data: Uint8Array): Promise<Uint8Array> {
+    const stream = new Blob([data as BlobPart]).stream().pipeThrough(new DecompressionStream("deflate"));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+// WOFF 1 is an sfnt with each table zlib-compressed: unpack and re-lay-out.
+async function woff1ToSfnt(woff: Uint8Array): Promise<Uint8Array> {
+    const v = new DataView(woff.buffer, woff.byteOffset, woff.byteLength);
+    const flavor = v.getUint32(4);
+    const count = v.getUint16(12);
+    const tables: { tag: Uint8Array; checksum: number; data: Uint8Array }[] = [];
+    for (let i = 0; i < count; i++) {
+        const e = 44 + i * 20;
+        const offset = v.getUint32(e + 4);
+        const compLength = v.getUint32(e + 8);
+        const origLength = v.getUint32(e + 12);
+        const raw = woff.subarray(offset, offset + compLength);
+        tables.push({
+            tag: woff.subarray(e, e + 4),
+            checksum: v.getUint32(e + 16),
+            data: compLength < origLength ? await inflate(raw) : raw,
+        });
+    }
+    let entrySelector = 0;
+    while (1 << (entrySelector + 1) <= count) entrySelector++;
+    const searchRange = (1 << entrySelector) * 16;
+    const headerSize = 12 + count * 16;
+    const total = tables.reduce((n, t) => n + ((t.data.length + 3) & ~3), headerSize);
+    const out = new Uint8Array(total);
+    const o = new DataView(out.buffer);
+    o.setUint32(0, flavor);
+    o.setUint16(4, count);
+    o.setUint16(6, searchRange);
+    o.setUint16(8, entrySelector);
+    o.setUint16(10, count * 16 - searchRange);
+    let cursor = headerSize;
+    tables.forEach((t, i) => {
+        const r = 12 + i * 16;
+        out.set(t.tag, r);
+        o.setUint32(r + 4, t.checksum);
+        o.setUint32(r + 8, cursor);
+        o.setUint32(r + 12, t.data.length);
+        out.set(t.data, cursor);
+        cursor += (t.data.length + 3) & ~3;
+    });
+    return out;
+}
+
+// Returns installable font bytes and their extension, or throws.
+async function toInstallable(bytes: Uint8Array): Promise<{ bytes: Uint8Array; ext: "ttf" | "otf" }> {
+    let sfnt = bytes;
+    const sig = tag(bytes);
+    // wawoff2 hands back a VIEW into its own WASM memory; copy it, or `.buffer` is the whole heap.
+    if (sig === "wOF2") sfnt = new Uint8Array(await wawoff2.decompress(bytes));
+    else if (sig === "wOFF") sfnt = await woff1ToSfnt(bytes);
+    const head = tag(sfnt);
+    if (head === "OTTO") return { bytes: sfnt, ext: "otf" };
+    if (head === "\x00\x01\x00\x00" || head === "true" || head === "ttcf") return { bytes: sfnt, ext: "ttf" };
+    throw new Error("That font is not in a format that can be installed.");
+}
+
 // Images and fonts, for the brandkit download. Anything else is refused, so this
 // cannot be used to pull arbitrary files through the relay.
 const RAW_TYPES = /^(image\/|font\/|application\/(font|x-font|vnd\.ms-fontobject|octet-stream)|binary\/octet-stream)/i;
 
-async function relayRaw(target: URL): Promise<Response> {
+async function relayRaw(target: URL, asFont: boolean): Promise<Response> {
     const { res } = await fetchSafe(target);
     const contentType = res.headers.get("content-type") || "";
     if (!res.ok) {
@@ -143,7 +214,15 @@ async function relayRaw(target: URL): Promise<Response> {
         await res.body?.cancel();
         throw new Error("That file is not an image or a font.");
     }
-    const bytes = await readBytes(res, MAX_RAW_BYTES);
+    let bytes = await readBytes(res, MAX_RAW_BYTES);
+    if (asFont) {
+        const font = await toInstallable(bytes);
+        bytes = font.bytes;
+        return new Response(bytes.buffer as ArrayBuffer, {
+            status: 200,
+            headers: { ...CORS, "Content-Type": font.ext === "otf" ? "font/otf" : "font/ttf", "Cache-Control": "public, max-age=3600" },
+        });
+    }
     return new Response(bytes.buffer as ArrayBuffer, { // exact-size buffer, see readBytes
         status: 200,
         headers: { ...CORS, "Content-Type": contentType, "Cache-Control": "public, max-age=3600" },
@@ -162,7 +241,7 @@ export async function handler(req: Request): Promise<Response> {
     try { target = new URL(raw); } catch { return json({ error: "That is not a valid link." }, 400); }
 
     try {
-        return params.get("raw") === "1" ? await relayRaw(target) : json(await relayText(target));
+        return params.get("raw") === "1" ? await relayRaw(target, params.get("font") === "sfnt") : json(await relayText(target));
     } catch (err) {
         const message = err instanceof Error ? err.message : "Could not fetch that link.";
         return json({ error: message }, 502);
