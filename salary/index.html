@@ -34,7 +34,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
     <link rel="stylesheet" href="/style.css?v=20261015-3">
-    <link rel="stylesheet" href="/salary/salary.css?v=20260916-1">
+    <link rel="stylesheet" href="/salary/salary.css?v=20261021-1">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -63,21 +63,24 @@
 
     <!-- Sidebar ─────────────────────────────────────────────────────────── -->
     <aside class="sal-sidebar" id="sal-sidebar">
-        <a class="sal-brand" href="/" aria-label="Design Wallet home">
-            <img class="sal-brand-logo" src="/public/Logo/Website-logo.svg" alt="Design Wallet" width="132" height="24">
-        </a>
+        <div class="sal-brand-row">
+            <a class="sal-brand" href="/" aria-label="Design Wallet home">
+                <img class="sal-brand-logo" src="/public/Logo/Website-logo.svg" alt="Design Wallet" width="162" height="30">
+            </a>
+            <button type="button" class="sal-collapse-btn" id="sal-collapse-btn" aria-expanded="true" aria-label="Collapse sidebar">
+                <span class="sal-collapse-icon" aria-hidden="true"></span>
+                <span class="sal-collapse-label">Collapse sidebar</span>
+            </button>
+        </div>
 
         <nav class="sal-role-nav" id="sal-role-nav" aria-label="Design role"></nav>
 
         <div class="sal-sidebar-foot">
             <div class="sal-cta-card">
-                <h2>Know a number we don't?</h2>
-                <p>Add your salary anonymously. No name, no email, no company.</p>
+                <h2>Know a number?</h2>
+                <p>Add your salary anonymously.<br>No name, no email, no company.</p>
                 <a class="sal-cta-btn" href="/salary/submit/">Add your salary</a>
             </div>
-            <button type="button" class="sal-collapse-btn" id="sal-collapse-btn" aria-expanded="true">
-                <span aria-hidden="true">«</span> <span class="sal-collapse-label">Collapse sidebar</span>
-            </button>
         </div>
     </aside>
 
@@ -89,23 +92,16 @@
             <div class="sal-topbar-head">
                 <div>
                     <h1 class="sal-h1">Know your money</h1>
-                    <p class="sal-summary" id="sal-summary"></p>
+                    <p class="sal-subtitle">All the data is gathered from real designers from different communities.</p>
+                    <p class="sal-summary sal-sr-only" id="sal-summary"></p>
                 </div>
                 <div class="sal-topbar-side">
                 <div class="sal-topbar-actions">
-                    <div class="sal-view-toggle" id="sal-view-toggle" role="group" aria-label="View mode">
-                        <button type="button" class="sal-view-btn is-active" data-view="charts" aria-pressed="true">Charts</button>
-                        <button type="button" class="sal-view-btn" data-view="table" aria-pressed="false">Table</button>
-                    </div>
                     <button type="button" class="sal-export-btn" id="sal-export-btn" title="Download a five-page PDF of the current selection">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M12 3v12M7 11l5 5 5-5M4 20h16"/>
-                        </svg>
                         <span class="sal-export-label">Export PDF</span>
                     </button>
                     <a class="sal-topbar-cta" href="/salary/submit/">Add your salary</a>
                 </div>
-                <p class="sal-topbar-note">All the data are real-time. Based on community's input</p>
                 </div>
             </div>
 
@@ -113,26 +109,48 @@
 
             <div class="sal-filter-grid">
                 <div class="sal-field">
-                    <label for="sal-city-select" id="sal-city-label">City</label>
                     <select id="sal-city-select"></select>
+                    <label for="sal-city-select" id="sal-city-label">Location</label>
                 </div>
                 <div class="sal-field">
-                    <label for="sal-mode-select">Work mode</label>
                     <select id="sal-mode-select"></select>
+                    <label for="sal-mode-select">Work Mode</label>
                 </div>
                 <div class="sal-field">
-                    <label for="sal-employer-select">Employer</label>
                     <select id="sal-employer-select"></select>
+                    <label for="sal-employer-select">Employer</label>
                 </div>
                 <div class="sal-field">
-                    <label for="sal-company-select">Company type</label>
                     <select id="sal-company-select"></select>
+                    <label for="sal-company-select">Company Type</label>
                 </div>
             </div>
         </div>
 
         <!-- Charts view ─────────────────────────────────────────────────── -->
         <div class="sal-grid" id="sal-charts-view">
+
+            <!-- World map: only while Employer is "Foreign employer" -->
+            <section class="sal-card sal-card--12 sal-card--map sal-card--map-world" id="sal-map-card" aria-labelledby="sal-map-title" hidden>
+                <div class="sal-card-head">
+                    <div>
+                        <div class="sal-map-title-row">
+                            <h2 class="sal-card-title" id="sal-map-title">Pay around the world</h2>
+                            <div class="sal-currency-toggle" role="group" aria-label="Currency">
+                                <button type="button" class="sal-currency-btn is-active" data-currency="inr" aria-pressed="true">INR</button>
+                                <button type="button" class="sal-currency-btn" data-currency="usd" aria-pressed="false">USD</button>
+                            </div>
+                        </div>
+                        <p class="sal-card-sub">Hover a country for its salary range for this role and level. Eight markets are researched; the rest are estimated from local income levels, not surveyed.</p>
+                    </div>
+                    <div class="sal-legend">
+                        <span><i class="sal-swatch sal-swatch--primary"></i> Researched</span>
+                        <span><i class="sal-swatch sal-swatch--secondary"></i> Estimated</span>
+                        <span><i class="sal-swatch sal-swatch--none"></i> No estimate</span>
+                    </div>
+                </div>
+                <div class="sal-map" id="sal-map-host"></div>
+            </section>
 
             <!-- Headline + distribution -->
             <section class="sal-card sal-card--6 sal-card--hero">
@@ -185,6 +203,27 @@
                 <p class="sal-kpi-note" id="sal-kpi-top-city-note"></p>
                 <hr class="sal-rule">
                 <p class="sal-card-body" id="sal-top-city-body"></p>
+            </section>
+
+            <!-- India map: the default, for any employer that is not "Foreign employer" -->
+            <section class="sal-card sal-card--12 sal-card--map sal-card--map-india" id="sal-india-card" aria-labelledby="sal-india-title" hidden>
+                <div class="sal-card-head">
+                    <div>
+                        <div class="sal-map-title-row">
+                            <h2 class="sal-card-title" id="sal-india-title">Pay across India</h2>
+                            <div class="sal-currency-toggle" role="group" aria-label="Currency">
+                                <button type="button" class="sal-currency-btn is-active" data-currency="inr" aria-pressed="true">INR</button>
+                                <button type="button" class="sal-currency-btn" data-currency="usd" aria-pressed="false">USD</button>
+                            </div>
+                        </div>
+                        <p class="sal-card-sub">Hover a state for the salary ranges of the cities we cover there, for this role and level</p>
+                    </div>
+                    <div class="sal-legend">
+                        <span><i class="sal-swatch sal-swatch--primary"></i> Has city figures</span>
+                        <span><i class="sal-swatch sal-swatch--none"></i> No city figures yet</span>
+                    </div>
+                </div>
+                <div class="sal-map sal-map--india" id="sal-india-host"></div>
             </section>
 
             <!-- Experience ladder -->
@@ -341,7 +380,11 @@
                         <strong>Country figures appear when the employer is set to foreign.</strong>
                         They are annual base salary in each market, from the same kinds of public
                         sources, and are research estimates only — the submission form collects
-                        Indian cities, so no community reports feed them yet. The USD switch
+                        Indian cities, so no community reports feed them yet. The world map shows
+                        eight researched markets and about 140 more that are <em>modelled</em>, not
+                        surveyed: a country's pay level is set from its average income (World Bank
+                        GDP per person) on a damped curve calibrated so India matches this page's
+                        national figure. Treat those as a rough guide to the order of magnitude. The USD switch
                         converts at a fixed rate of ₹<span id="sal-fx-rate"></span> to the dollar
                         (<span id="sal-fx-date"></span>).
                     </p>
@@ -391,11 +434,12 @@
 
 <script src="/newsletter.js?v=20261015-3"></script>
 <script src="/salary/endpoint.js?v=20260915-1"></script>
-<script src="/salary/charts.js?v=20260915-1"></script>
+<script src="/salary/charts.js?v=20261020-1"></script>
+<script src="/salary/world-map.js?v=20261020-4"></script>
 <script src="/salary/fonts/inter-metrics.js?v=20260913-4"></script>
 <script src="/salary/pdf-writer.js?v=20260913-4"></script>
 <script src="/salary/report.js?v=20260915-1"></script>
-<script src="/salary/salary.js?v=20260915-2"></script>
+<script src="/salary/salary.js?v=20261021-1"></script>
     <script src="/mobile-gate.js?v=20260920-1"></script>
 </body>
 </html>

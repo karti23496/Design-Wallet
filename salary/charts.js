@@ -278,6 +278,13 @@ var DWCharts = (function () {
         return "₹" + rounded + " LPA";
     }
 
+    /** "₹19 – ₹30 LPA" or "$150K – $210K/year": a low–high pair that names its unit once. */
+    function lpaRange(low, high) {
+        var a = lpa(low);
+        var b = lpa(high);
+        return currency.code === "usd" ? a.replace("/year", "") + " – " + b : a.replace(" LPA", "") + " – " + b;
+    }
+
     /** The bare number a heatmap cell prints: lakh, or $ thousands. */
     function compact(value) {
         var shown = currency.code === "usd" ? toUsdThousands(value) : value;
@@ -635,6 +642,7 @@ var DWCharts = (function () {
 
     return {
         lpa: lpa,
+        lpaRange: lpaRange,
         setCurrency: setCurrency,
         countTo: countTo,
         attachTip: bindTip,
@@ -644,6 +652,7 @@ var DWCharts = (function () {
         histogram: histogram,
         heatmap: heatmap,
         meter: meter,
+        showTip: showTooltip,
         hideTooltip: hideTooltip
     };
 })();

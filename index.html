@@ -33,20 +33,49 @@
     <link rel="stylesheet" href="/tools/dashboard.css?v=20260917-2">
     <link rel="stylesheet" href="/ticker/ticker.css?v=20261003-3">
     <link rel="stylesheet" href="/mobile-gate.css?v=20260920-1">
-    <link rel="stylesheet" href="/loader.css?v=20261012-1">
-    <script src="/loader.js?v=20261012-1"></script>
+    <link rel="stylesheet" href="/loader.css?v=20261022-3">
+    <script src="/loader.js?v=20261022-1"></script>
 </head>
 <body>
     <div class="dw-loader" id="dw-loader" aria-hidden="true">
-        <div class="dw-lo-zoom">
-            <div class="dw-lo-field"><i></i><i></i></div>
-            <div class="dw-lo-galaxy">
-                <div class="dw-lo-tilt">
-                    <div class="dw-lo-spin dw-lo-spin--arms"><div class="dw-lo-stars dw-lo-stars--dust"></div></div>
-                    <div class="dw-lo-spin"><div class="dw-lo-stars dw-lo-stars--mid"></div></div>
-                    <div class="dw-lo-spin dw-lo-spin--near"><div class="dw-lo-stars dw-lo-stars--bright"></div></div>
-                </div>
-            </div>
+        <div class="dw-lo-ground"></div>
+        <div class="dw-lo-glow"></div>
+        <div class="dw-lo-stage">
+            <i class="dw-lo-corner dw-lo-corner--tl"></i>
+            <i class="dw-lo-corner dw-lo-corner--tr"></i>
+            <i class="dw-lo-corner dw-lo-corner--bl"></i>
+            <i class="dw-lo-corner dw-lo-corner--br"></i>
+            <svg class="dw-lo-frame" viewBox="0 0 200 200" width="200" height="200" fill="none">
+                <rect x="0.5" y="0.5" width="199" height="199" pathLength="100"/>
+            </svg>
+            <svg class="dw-lo-mark" viewBox="41 31 76 93.208" width="99" height="121" fill="none">
+                <defs>
+                    <linearGradient id="dw-lo-ink" x1="79" y1="31" x2="79" y2="124.208" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#fff"/>
+                        <stop offset="1" stop-color="#fff" stop-opacity="0.62"/>
+                    </linearGradient>
+                    <mask id="dw-lo-stripes" maskUnits="userSpaceOnUse" x="41" y="31" width="76" height="93.208">
+                    <rect class="dw-lo-stripe" style="--i:0" x="41" y="31.000" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:1" x="41" y="36.825" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:2" x="41" y="42.651" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:3" x="41" y="48.477" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:4" x="41" y="54.302" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:5" x="41" y="60.127" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:6" x="41" y="65.953" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:7" x="41" y="71.779" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:8" x="41" y="77.604" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:9" x="41" y="83.429" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:10" x="41" y="89.255" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:11" x="41" y="95.081" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:12" x="41" y="100.906" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:13" x="41" y="106.731" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:14" x="41" y="112.557" width="76" height="7.026"/>
+                    <rect class="dw-lo-stripe" style="--i:15" x="41" y="118.382" width="76" height="7.026"/>
+                    <rect class="dw-lo-solid" x="41" y="31" width="76" height="93.208"/>
+                </mask>
+                </defs>
+                <path mask="url(#dw-lo-stripes)" fill="url(#dw-lo-ink)" d="M117 77.6038C117 90.4727 111.783 102.125 103.353 110.557C94.9219 118.99 83.2722 124.208 70.4059 124.208H59.471C64.129 106.13 84.4746 87.9681 102.226 87.9681C82.0367 87.9681 58.4864 64.4697 58.4864 44.3282C58.4864 55.63 51.0734 67.9876 41 76.6568V31H70.4059C96.1385 31 117 51.8659 117 77.6038Z"/>
+            </svg>
         </div>
         <div class="dw-lo-count"><span id="dw-lo-pct">0</span></div>
     </div>
@@ -207,7 +236,7 @@
     <script src="/content.js?v=20260508-6"></script>
     <script src="/ticker/edit-ticker.js?v=20261003-3"></script>
     <script src="/ticker/ticker-bar.js?v=20261003-3"></script>
-    <script src="/header.js?v=20261015-3"></script>
+    <script src="/header.js?v=20261019-1"></script>
     <script src="/newsletter.js?v=20261015-3"></script>
     <script src="/stars.js?v=20260901-1"></script>
     <script src="/tools/tools.js?v=20261015-3"></script>

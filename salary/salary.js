@@ -490,6 +490,166 @@
             "s, by " + (abroad ? "country" : "city") + " and level.";
     }
 
+    // ── maps ────────────────────────────────────────────────────────────────
+    // A quick look at other places, hover only. Foreign employer gets the world
+    // (a range for every country); everything else gets India (a range for the
+    // cities we cover in each state). Neither map changes a filter: the page's
+    // own figures stay driven by the filter row.
+
+    var WORLD_URL = "/salary/data/world-map.json?v=20261020-2";
+    var INDIA_URL = "/salary/data/india-map.json?v=20261020-1";
+    var PAY_URL = "/salary/data/world-pay.json?v=20261020-1";
+
+    // null = not asked for yet · "loading" · the map's API · false = failed
+    var maps = { world: null, india: null };
+    var worldPay = null;   // world-pay.json: pay indices for every country, loaded with the world map
+
+    /**
+     * A salary range for any country on the world map: [p25, p50, p75] in ₹ lakh
+     * and where it came from, or null. The eight RESEARCHED markets use the
+     * figures the build made; every other country is the same sum the build does
+     * (US baseline × country index × role index), done here with the MODELLED
+     * index in world-pay.json. See scripts/build-world-pay.js for how that index
+     * is made, and why it is an estimate and not a survey.
+     */
+    function worldCell(role, level, id) {
+        var built = countryCell(role, level, id);
+        if (built) return { cell: built, kind: "researched" };
+        if (!worldPay || !national(role, level)) return null;   // that role has no such level
+        var estimate = worldPay.estimates[id];
+        var baseline = worldPay.usd_baselines[level];
+        var roleIndex = worldPay.role_index[role];
+        if (!estimate || !baseline || roleIndex === undefined) return null;
+        var perUsd = (estimate[0] * roleIndex * worldPay.fx.usd_inr) / 100000;
+        return {
+            cell: baseline.map(function (usd) { return Math.round(usd * perUsd * 10) / 10; }),
+            kind: "estimated"
+        };
+    }
+
+    function worldTitle(id, name) {
+        var label = labelFor(data.countries || [], id);
+        return label !== id ? label : name;
+    }
+
+    function worldTip(id, name) {
+        var title = worldTitle(id, name);
+        var hit = worldCell(state.role, state.level, id);
+        if (!hit) {
+            var known = worldPay && (worldPay.researched[id] !== undefined || worldPay.estimates[id]);
+            return "<strong>" + title + "</strong><br>" + (known ? "No figures for this role and level" : "No estimate for this country");
+        }
+        var cell = hit.cell;
+        var reference = national(state.role, state.level);
+        var multiple = reference && reference[1] ? Math.round((cell[1] / reference[1]) * 10) / 10 : null;
+        return "<strong>" + title + "</strong><br>" +
+            DWCharts.lpaRange(cell[0], cell[2]) + "<br>" +
+            "Median " + DWCharts.lpa(cell[1]) + (multiple ? " · " + multiple + "× India" : "") + "<br>" +
+            (hit.kind === "researched" ? "Researched estimate" : "Estimated from local income, not surveyed");
+    }
+
+    function worldLabel(id, name) {
+        var hit = worldCell(state.role, state.level, id);
+        return hit ? worldTitle(id, name) + ": " + DWCharts.lpaRange(hit.cell[0], hit.cell[2]) + ", median " + DWCharts.lpa(hit.cell[1]) : name;
+    }
+
+    /** The covered cities that sit in a state, in the dashboard's own city order. */
+    function citiesIn(stateId) {
+        var map = maps.india && maps.india.data ? maps.india.data.cities : {};
+        return data.cities.filter(function (city) { return map[city.id] === stateId; });
+    }
+
+    function indiaTip(id, name) {
+        var rows = [];
+        citiesIn(id).forEach(function (city) {
+            var cell = cityCell(state.role, state.level, city.id);
+            if (cell) {
+                rows.push("<br>" + city.label + ": " + DWCharts.lpaRange(cell[0], cell[2]) + " (median " + DWCharts.lpa(cell[1]) + ")");
+            }
+        });
+        if (rows.length) return "<strong>" + name + "</strong>" + rows.join("");
+        var reference = national(state.role, state.level);
+        return "<strong>" + name + "</strong><br>No city figures here yet" +
+            (reference ? "<br>India median " + DWCharts.lpa(reference[1]) : "");
+    }
+
+    function indiaLabel(id, name) {
+        var parts = [];
+        citiesIn(id).forEach(function (city) {
+            var cell = cityCell(state.role, state.level, city.id);
+            if (cell) parts.push(city.label + " " + DWCharts.lpaRange(cell[0], cell[2]) + ", median " + DWCharts.lpa(cell[1]));
+        });
+        return parts.length ? name + ": " + parts.join("; ") : name;
+    }
+
+    function syncMap(which) {
+        var api = maps[which];
+        var kinds = {};
+        var selected = null;
+        if (which === "world") {
+            api.data.groups.forEach(function (group) {
+                var hit = worldCell(state.role, state.level, group.id);
+                if (hit) kinds[group.id] = hit.kind === "researched" ? "primary" : "secondary";
+            });
+            if (state.country !== "all") selected = state.country;
+        } else {
+            api.data.groups.forEach(function (group) {
+                var covered = citiesIn(group.id).some(function (city) { return cityCell(state.role, state.level, city.id); });
+                if (covered) kinds[group.id] = "primary";
+            });
+            if (state.city !== "all") selected = api.data.cities[state.city] || null;
+        }
+        api.update({ kinds: kinds, selected: selected });
+    }
+
+    function ensureMap(which) {
+        if (maps[which] === "loading" || maps[which] === false) return;
+        if (maps[which]) { syncMap(which); return; }
+
+        maps[which] = "loading";
+        var host = which === "world" ? dom.mapHost : dom.indiaHost;
+        var mounted = which === "world"
+            ? Promise.all([
+                DWWorldMap.mount(host, {
+                    url: WORLD_URL,
+                    title: "World map. Hover or focus a country for its salary range.",
+                    tip: worldTip,
+                    label: worldLabel
+                }),
+                fetch(PAY_URL).then(function (response) {
+                    if (!response.ok) throw new Error("pay data " + response.status);
+                    return response.json();
+                })
+            ]).then(function (parts) {
+                worldPay = parts[1];
+                return parts[0];
+            })
+            : DWWorldMap.mount(host, {
+                url: INDIA_URL,
+                title: "Map of India. Hover or focus a state for the salary ranges of the cities covered there.",
+                tip: indiaTip,
+                label: indiaLabel
+            });
+
+        mounted.then(function (api) {
+            maps[which] = api;
+            syncMap(which);
+        }, function () {
+            maps[which] = false;
+            host.textContent = "The map could not be loaded.";
+        });
+    }
+
+    function renderMap() {
+        var abroad = foreignMode();
+        dom.mapCard.hidden = !abroad;
+        dom.indiaCard.hidden = abroad;
+        // The page lays itself out around whichever map is showing (see salary.css).
+        dom.chartsView.classList.toggle("sal-layout-world", abroad);
+        dom.chartsView.classList.toggle("sal-layout-india", !abroad);
+        ensureMap(abroad ? "world" : "india");
+    }
+
     function render() {
         DWCharts.setCurrency(state.currency, data.fx && data.fx.usd_inr);
         document.body.classList.toggle("sal-currency-usd", state.currency === "usd");
@@ -498,6 +658,7 @@
         renderHeadline();
         renderDistribution();
         renderCities();
+        renderMap();
         renderLadder();
         renderRoles();
         renderHeatmap();
@@ -553,11 +714,12 @@
                 fillSelect(dom.citySelect, data.cities, "All India");
             }
             dom.citySelect.setAttribute("data-list", listKind);
-            dom.cityLabel.textContent = foreignMode() ? "Country" : "City";
+            dom.cityLabel.textContent = foreignMode() ? "Country" : "Location";
         }
         dom.citySelect.value = foreignMode() ? state.country : state.city;
 
-        Array.prototype.forEach.call(dom.currencyToggle.querySelectorAll("[data-currency]"), function (button) {
+        // Three switches share one state: the headline's and one on each map card.
+        Array.prototype.forEach.call(document.querySelectorAll(".sal-currency-toggle [data-currency]"), function (button) {
             var active = button.getAttribute("data-currency") === state.currency;
             button.classList.toggle("is-active", active);
             button.setAttribute("aria-pressed", active ? "true" : "false");
@@ -661,7 +823,7 @@
         dom.levelLadder.innerHTML = data.levels.map(function (level) {
             return (
                 '<button type="button" class="sal-level-btn" data-level="' + level.id + '" ' +
-                'aria-pressed="false"><span>' + level.label + "</span>" +
+                'aria-pressed="false" title="' + level.label + " · " + level.years + '"><span>' + level.label + "</span>" +
                 '<small>' + level.years + "</small></button>"
             );
         }).join("");
@@ -685,11 +847,14 @@
         dom.citySelect.addEventListener("change", function () {
             setState(foreignMode() ? { country: this.value } : { city: this.value });
         });
-        dom.currencyToggle.addEventListener("click", function (event) {
-            var button = event.target.closest("[data-currency]");
-            if (!button) return;
-            setState({ currency: button.getAttribute("data-currency") });
+        Array.prototype.forEach.call(document.querySelectorAll(".sal-currency-toggle"), function (toggle) {
+            toggle.addEventListener("click", function (event) {
+                var button = event.target.closest("[data-currency]");
+                if (!button) return;
+                setState({ currency: button.getAttribute("data-currency") });
+            });
         });
+
         dom.modeSelect.addEventListener("change", function () {
             setState({ workMode: this.value });
         });
@@ -698,19 +863,6 @@
         });
         dom.companySelect.addEventListener("change", function () {
             setState({ companyType: this.value });
-        });
-
-        dom.viewToggle.addEventListener("click", function (event) {
-            var button = event.target.closest("[data-view]");
-            if (!button) return;
-            state.view = button.getAttribute("data-view");
-            dom.chartsView.hidden = state.view !== "charts";
-            dom.tableView.hidden = state.view !== "table";
-            Array.prototype.forEach.call(this.querySelectorAll("[data-view]"), function (item) {
-                var active = item.getAttribute("data-view") === state.view;
-                item.classList.toggle("is-active", active);
-                item.setAttribute("aria-pressed", active ? "true" : "false");
-            });
         });
 
         dom.exportBtn.addEventListener("click", function () {
@@ -1114,7 +1266,7 @@
             "companyChart", "variableMeter", "esopMeter", "variableValue", "esopValue",
             "variableNote", "leaderboard", "tableHead", "tableBody", "tableCaption",
             "roleNav", "citySelect", "modeSelect", "employerSelect",
-            "companySelect", "levelLadder", "viewToggle", "chartsView", "tableView",
+            "companySelect", "levelLadder", "chartsView", "tableView", "mapCard", "mapHost", "indiaCard", "indiaHost",
             "sidebar", "collapseBtn", "exportBtn", "cityLabel", "kpiTopLabel", "cityTitle",
             "citySub", "modeSub", "heatUnit", "tableSub", "currencyToggle", "fxRate", "fxDate", "heroSub", "kpiMedianLabel"
         ].forEach(function (key) {

@@ -1,0 +1,190 @@
+/* Entry loader — the Design Wallet mark in a four-point box, with a shimmer
+   that runs along the mark's own border.
+
+   Built from the Figma frame "Website BrandKit Generator" (node 825:138, the
+   157×159 "Frame" inside it). A soft glow sits behind everything; on top of it,
+   three layers, all in the frame's coordinates:
+
+     body   the mark, a faint white (8% at the top fading to 2% at the foot)
+     line   a bright line that runs along the mark's own border
+     box    four 4px corner points joined by a hairline; turns 90° every second
+
+   (A first version spun a conic gradient behind a mask of the outline. It lit
+   several separate pieces of the border at once and moved at uneven speed, so
+   it read as a spotlight, not a line. The line is now a dash on the border
+   path itself; see .dw-lo-run below.)
+
+   It is a fake loader on purpose: nothing is being waited on. A 0-99 counter
+   (bottom right) is the clock: loader.js runs it 0 → 100 over 2s, holds on 100
+   for 1s, then fades the loader out over 0.6s: 3.6s, inside Karthik's 3-4s.
+   If the script never runs, the CSS fallback below removes it anyway, so it can never
+   trap a visitor.
+
+   Phones never see it: mobile-gate.css hides every `body > *` except the
+   gate on narrow screens. */
+
+:root {
+    --dw-lo-lap: 2s;              /* one lap of the shimmer along the mark's border */
+    --dw-lo-turn: 1s;             /* the box makes one 90° turn per this */
+    --dw-lo-fade: 0.6s;           /* keep equal to FADE_MS in loader.js */
+}
+
+html.dw-loading {
+    overflow: hidden;
+}
+
+.dw-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 2147482000; /* above the page, below the mobile gate */
+    overflow: hidden;
+    background: var(--surface-2); /* #101010, the design's field and the homepage body */
+    /* Fallback: with no script, fade away by ~5s rather than cover the site forever. */
+    animation: dw-lo-out var(--dw-lo-fade) ease-in 4.4s forwards;
+}
+
+.dw-loader.is-done {
+    animation: dw-lo-out var(--dw-lo-fade) ease-in forwards;
+}
+
+html.dw-loader-skip .dw-loader {
+    display: none;
+}
+
+/* ── The glow ─────────────────────────────────────────────────────────── */
+/* From the design: a white disc, radius 264px, at 20% and clear by 86% of its
+   radius, behind the mark and blurred with a standard deviation of 220px, which
+   is what `filter: blur(220px)` means. It is static, so the browser paints it
+   once and it costs nothing while the loader animates. */
+.dw-lo-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 528px;
+    height: 528px;
+    margin: -264px 0 0 -264px;
+    border-radius: 50%;
+    background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.2) 0, rgba(255, 255, 255, 0) 86.23%);
+    filter: blur(220px);
+    opacity: 0;
+    animation: dw-lo-in 0.3s ease-out forwards;
+}
+
+/* ── The frame ────────────────────────────────────────────────────────── */
+/* The design places it at (641, 355) in a 1440×865 frame, i.e. 79px left of
+   centre and 77.5px above it. */
+.dw-lo-frame {
+    position: absolute;
+    top: calc(50% - 77.5px);
+    left: calc(50% - 79px);
+    width: 157px;
+    height: 159px;
+    opacity: 0;
+    animation: dw-lo-in 0.3s ease-out forwards;
+}
+
+.dw-lo-body,
+.dw-lo-box {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 157px;
+    height: 159px;
+}
+
+/* The shimmer: ONE line that runs along the logo's own border at a steady
+   speed — the outer curve, the tail and the notch, as a single closed path.
+
+   Each <use> in the markup draws the border as a dash of a different length
+   (--l, in percent of the path) and all of them are slid along together so
+   they share one front end. Where they overlap, at the head, it is bright; the
+   further back, the fewer overlap, so it thins to nothing: a comet tail.
+   `pathLength="100"` makes the numbers percentages, and a dash pattern whose
+   period is the whole path (L on, 100 - L off) wraps cleanly across the seam.
+   The stroke is 2px clipped to the shape, so 1px shows: the design's edge. */
+.dw-lo-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    overflow: visible;
+}
+
+.dw-lo-run {
+    stroke-opacity: 0.3;    /* six short dashes stack to ~0.9 at the head, 0.3 at the tail's end */
+    stroke-dasharray: calc(var(--l) * 1px) calc(100px - var(--l) * 1px);
+    stroke-dashoffset: calc(var(--l) * 1px);
+    animation: dw-lo-run var(--dw-lo-lap) linear infinite;
+}
+
+.dw-lo-run--head {
+    stroke-opacity: 1; /* a crisp bright tip on the front of the tail */
+}
+
+/* One 90° turn at the start of each second (0.4s of movement, 0.6s still),
+   four seconds to a full circle. The 1px by which this 157×159 box is not
+   square is the design's own. */
+.dw-lo-box {
+    animation: dw-lo-turn calc(var(--dw-lo-turn) * 4) infinite;
+    will-change: transform;
+}
+
+/* ── Counter (0-100, no % sign), bottom right ────────────────────────────── */
+.dw-lo-count {
+    position: absolute;
+    right: clamp(24px, 4vw, 56px);
+    bottom: clamp(20px, 4vh, 44px);
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    font-family: "Geist", "Inter", system-ui, sans-serif;
+    font-size: clamp(2.6rem, 6vw, 5rem);
+    font-weight: 100;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: rgba(245, 245, 245, 0.92);
+    opacity: 0;
+    animation: dw-lo-in 0.9s ease-out 0.3s forwards;
+}
+
+/* ── Keyframes ────────────────────────────────────────────────────────── */
+@keyframes dw-lo-in { to { opacity: 1; } }
+
+/* The front end moves 0 → 100 along the path; each dash trails it by its own length. */
+@keyframes dw-lo-run {
+    to { stroke-dashoffset: calc(var(--l) * 1px - 100px); }
+}
+
+@keyframes dw-lo-turn {
+    0%   { transform: rotate(0deg);   animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+    10%  { transform: rotate(90deg); }
+    25%  { transform: rotate(90deg);  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+    35%  { transform: rotate(180deg); }
+    50%  { transform: rotate(180deg); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+    60%  { transform: rotate(270deg); }
+    75%  { transform: rotate(270deg); animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+    85%  { transform: rotate(360deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes dw-lo-out {
+    0%   { opacity: 1; visibility: visible; }
+    99%  { opacity: 0; visibility: visible; }
+    100% { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+/* Reduced motion keeps the hold (it is the brand moment) and the still
+   composition of the design: the line rests at the top of the mark (about 92%
+   of the way round the border) instead of running. */
+@media (prefers-reduced-motion: reduce) {
+    .dw-lo-run {
+        animation: none;
+        stroke-dashoffset: calc(var(--l) * 1px - 92px);
+    }
+
+    .dw-lo-box {
+        animation: none;
+    }
+}

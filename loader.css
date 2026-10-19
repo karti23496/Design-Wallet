@@ -1,23 +1,38 @@
-/* Entry loader — a spiral galaxy that holds for 5s, then fades away once its
-   0-99% counter finishes, to reveal the homepage.
+/* Entry loader — the Design Wallet preloader.
 
-   It is a fake loader on purpose: nothing is being waited on. The whole
-   timeline is CSS, so it runs on the first paint with no script in the way:
+   Modelled on the reference clip in public/reference/ (an agency site's intro).
+   Its choreography, in this site's own colours:
 
-     0.0s – 0.9s   galaxy fades in
-     0.0s – 5.0s   discs rotate
-     counter runs 0 → 99% over 5s; only then does the loader fade out (0.9s)
-     and the page show through
+     1. four small white squares start wide apart, converge on one point, then
+        spread out to the corners of a box
+     2. the square's 1px border draws itself round
+     3. the Design Wallet mark builds inside it through horizontal stripes, like a
+        venetian blind opening, while the counter runs 0 → 100
+     4. on 100 it holds for a second
+     5. the box opens out until the page fills the screen
 
-   loader.js only (a) skips the loader on repeat visits in one session,
-   (b) paints the stars, and (c) unlocks scrolling. If it never runs, the
-   loader still removes itself by CSS alone.
+   The first half is pure CSS, timed from when the script starts. The second half
+   is driven by loader.js, which adds `is-opening` (the
+   hole opening) and `is-done` (the last fade). Nothing is really loading: the
+   counter is the clock. If the script never runs, the CSS fallback below removes
+   the loader anyway, so it can never trap a visitor.
 
-   Phones never see it: mobile-gate.css hides every `body > *` except the
-   gate on narrow screens. */
+   The reference's intro is LIGHT grey with dark marks; this one is dark, to match
+   the dark-only site. The ground and most of the ink are the custom
+   properties just below, but the mark's gradient and the corner squares are
+   white inside the SVG and this file, so a light version needs those changed
+   too, not just the variables.
+
+   Phones never see it: mobile-gate.css hides every `body > *` except the gate
+   on narrow screens. */
 
 :root {
-    --dw-lo-hold: 5s;
+    --dw-lo-ground: #080808;               /* the screen the card sits on */
+    --dw-lo-ink: #f5f5f5;                  /* the mark and the counter */
+    --dw-lo-line: rgba(255, 255, 255, 0.25); /* the border: a blackish grey, 25% white */
+    --dw-lo-stage: 200px;                  /* the square */
+    --dw-lo-open: 0.9s;                    /* keep equal to OPEN_MS in loader.js */
+    --dw-lo-fade: 0.3s;                    /* keep equal to FADE_MS in loader.js */
 }
 
 html.dw-loading {
@@ -29,95 +44,137 @@ html.dw-loading {
     inset: 0;
     z-index: 2147482000; /* above the page, below the mobile gate */
     overflow: hidden;
-    background: var(--surface-2); /* same as the homepage body */
-    color: #f5f5f5;
+    color: var(--dw-lo-ink);
     font-family: "Geist", "Inter", system-ui, sans-serif;
-    }
+    /* Fallback: with no script, leave by ~7s rather than cover the site forever. */
+    animation: dw-lo-out 0.4s ease-in 6.5s forwards;
+}
 
 .dw-loader.is-done {
-    animation: dw-lo-out 0.9s ease-in forwards;
+    animation: dw-lo-out var(--dw-lo-fade) ease-in forwards;
 }
 
 html.dw-loader-skip .dw-loader {
     display: none;
 }
 
-/* ── Wrapper ──────────────────────────────────────────────────────────── */
-.dw-lo-zoom {
+/* ── Glow: a soft white disc behind the square (from the Figma loader) ───── */
+.dw-lo-glow {
     position: absolute;
-    inset: 0;
-}
-
-.dw-lo-field,
-.dw-lo-galaxy {
+    top: 50%;
+    left: 50%;
+    width: 528px;
+    height: 528px;
+    margin: -264px 0 0 -264px;
+    border-radius: 50%;
+    background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.2) 0, rgba(255, 255, 255, 0) 86.23%);
+    filter: blur(220px);
     opacity: 0;
-    animation: dw-lo-in 0.9s ease-out forwards;
+    animation: dw-lo-in 0.5s ease-out forwards;
 }
 
-/* Far background stars, fixed to the screen */
-.dw-lo-field {
+/* ── The ground, which opens a square HOLE when the loader finishes ─────── */
+/* Until then it is one unbroken sheet, so the box has NO fill of its own and the
+   glow shows evenly behind the mark (a card inside the box read as a flat black
+   square). When the loader opens, a centred square of the ground goes missing
+   and grows until it is bigger than the screen, so the PAGE shows through the
+   widening hole. `exclude` subtracts the second mask layer from the first,
+   hence the -webkit- twin for Safari. */
+.dw-lo-ground {
     position: absolute;
     inset: 0;
+    background: var(--dw-lo-ground);
 }
 
-.dw-lo-field i {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 1px;
-    height: 1px;
-    border-radius: 50%;
-    background: transparent;
-    animation: dw-lo-twinkle 4s ease-in-out infinite alternate;
+.dw-loader.is-opening .dw-lo-ground {
+    -webkit-mask: linear-gradient(#000 0 0), linear-gradient(#000 0 0) center / var(--dw-lo-stage) var(--dw-lo-stage) no-repeat;
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0), linear-gradient(#000 0 0) center / var(--dw-lo-stage) var(--dw-lo-stage) no-repeat;
+    mask-composite: exclude;
+    animation: dw-lo-hole var(--dw-lo-open) cubic-bezier(0.76, 0, 0.24, 1) forwards;
 }
 
-.dw-lo-field i:nth-child(2) {
-    animation-duration: 6s;
-    animation-delay: -2s;
-}
-
-/* ── The galaxy ───────────────────────────────────────────────────────── */
-.dw-lo-galaxy {
-    --w: min(112vw, 1700px);
+/* ── The stage: everything that sits on the card ──────────────────────────── */
+.dw-lo-stage {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: var(--w);
-    height: var(--w);
-    margin: calc(var(--w) / -2) 0 0 calc(var(--w) / -2);
+    width: var(--dw-lo-stage);
+    height: var(--dw-lo-stage);
+    margin: calc(var(--dw-lo-stage) / -2) 0 0 calc(var(--dw-lo-stage) / -2);
 }
 
-/* The disc lies flat, then tilts back. */
-.dw-lo-tilt {
-    position: absolute;
-    inset: 0;
-    transform: perspective(1400px) rotateX(62deg) rotateZ(-22deg);
-    transform-style: preserve-3d;
+.dw-loader.is-opening .dw-lo-stage,
+.dw-loader.is-opening .dw-lo-glow,
+.dw-loader.is-opening .dw-lo-count {
+    animation: dw-lo-fade-out 0.25s ease-in forwards;
 }
 
-.dw-lo-spin {
-    position: absolute;
-    inset: 0;
-    animation: dw-lo-spin 90s linear infinite;
-    will-change: transform;
-}
-
-.dw-lo-spin--arms { animation-duration: 140s; }
-.dw-lo-spin--near { animation-duration: 100s; }
-
-/* Each star layer is one zero-size dot whose box-shadow list is written by
-   loader.js — thousands of stars, one element, one raster. */
-.dw-lo-stars {
+/* 1. The four corner squares, white and 4px: far out -> the centre -> the square's corner. */
+.dw-lo-corner {
+    --size: 4px;
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 1px;
-    height: 1px;
-    border-radius: 50%;
-    background: transparent;
+    width: var(--size);
+    height: var(--size);
+    margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+    background: #fff;
+    opacity: 0;
+    animation: dw-lo-corner 1.35s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
-/* ── Counter (0-99, no % sign), bottom right ─────────────────────────────────── */
+.dw-lo-corner--tl { --sx: -34vw; --sy: -30vh; --ex: calc(var(--dw-lo-stage) / -2); --ey: calc(var(--dw-lo-stage) / -2); }
+.dw-lo-corner--tr { --sx:  34vw; --sy: -30vh; --ex: calc(var(--dw-lo-stage) /  2); --ey: calc(var(--dw-lo-stage) / -2); }
+.dw-lo-corner--bl { --sx: -34vw; --sy:  30vh; --ex: calc(var(--dw-lo-stage) / -2); --ey: calc(var(--dw-lo-stage) /  2); }
+.dw-lo-corner--br { --sx:  34vw; --sy:  30vh; --ex: calc(var(--dw-lo-stage) /  2); --ey: calc(var(--dw-lo-stage) /  2); }
+
+/* 2. The border draws itself, clockwise from the top-left corner. */
+.dw-lo-frame {
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+}
+
+.dw-lo-frame rect {
+    stroke: var(--dw-lo-line);
+    stroke-width: 1;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: dw-lo-draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.95s forwards;
+}
+
+/* 3. The mark. A mask of sixteen horizontal bands, each opening from alternate
+      sides a little after the one above, so the shape appears in slats. */
+.dw-lo-mark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    transform: translate(-50%, -50%);
+}
+
+.dw-lo-stripe {
+    fill: #fff;
+    transform-box: fill-box;
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    animation: dw-lo-stripe 0.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    animation-delay: calc(1.5s + var(--i) * 0.065s);
+}
+
+/* Sixteen bands that only touch leave hairline seams between them where the
+   browser anti-aliases each edge. The bands overlap, and once the last one is
+   open this solid fill closes the mask completely, so no seam can show. */
+.dw-lo-solid {
+    fill: #fff;
+    opacity: 0;
+    animation: dw-lo-in 0.2s linear 3s forwards;
+}
+
+.dw-lo-stripe:nth-child(even) { transform-origin: 100% 50%; }
+
+/* ── Counter (0-100, no % sign), bottom right ─────────────────────────────── */
 .dw-lo-count {
     position: absolute;
     right: clamp(24px, 4vw, 56px);
@@ -135,19 +192,32 @@ html.dw-loader-skip .dw-loader {
     animation: dw-lo-in 0.9s ease-out 0.3s forwards;
 }
 
-/* ── Keyframes ────────────────────────────────────────────────────────── */
+/* ── Keyframes ────────────────────────────────────────────────────────────── */
 @keyframes dw-lo-in { to { opacity: 1; } }
 
-@keyframes dw-lo-spin { to { transform: rotate(360deg); } }
+@keyframes dw-lo-fade-out { to { opacity: 0; } }
 
-@keyframes dw-lo-pulse {
-    from { opacity: 0.82; }
-    to   { opacity: 1; }
+@keyframes dw-lo-corner {
+    0%   { opacity: 0; transform: translate(var(--sx), var(--sy)); }
+    18%  { opacity: 1; }
+    52%  { opacity: 1; transform: translate(0, 0); }
+    100% { opacity: 1; transform: translate(var(--ex), var(--ey)); }
 }
 
-@keyframes dw-lo-twinkle {
-    from { opacity: 0.35; }
-    to   { opacity: 1; }
+@keyframes dw-lo-draw { to { stroke-dashoffset: 0; } }
+
+@keyframes dw-lo-stripe { to { transform: scaleX(1); } }
+
+/* Second mask layer = the hole; 160vmax is larger than any screen's diagonal. */
+@keyframes dw-lo-hole {
+    from {
+        -webkit-mask-size: 100% 100%, var(--dw-lo-stage) var(--dw-lo-stage);
+        mask-size: 100% 100%, var(--dw-lo-stage) var(--dw-lo-stage);
+    }
+    to {
+        -webkit-mask-size: 100% 100%, 160vmax 160vmax;
+        mask-size: 100% 100%, 160vmax 160vmax;
+    }
 }
 
 @keyframes dw-lo-out {
@@ -156,11 +226,17 @@ html.dw-loader-skip .dw-loader {
     100% { opacity: 0; visibility: hidden; pointer-events: none; }
 }
 
-/* Reduced motion keeps the 5s hold (it is the brand moment) but drops the
-   spin; the loader simply fades out. */
+/* Reduced motion keeps the hold (it is the brand moment) and the finished
+   picture, but nothing travels: the marks sit at the corners, the border and the
+   mark are already drawn, and the loader simply fades out at the end. */
 @media (prefers-reduced-motion: reduce) {
-    .dw-lo-spin,
-    .dw-lo-field i {
+    .dw-lo-corner {
+        opacity: 1;
+        transform: translate(var(--ex), var(--ey));
         animation: none;
     }
+
+    .dw-lo-frame rect { stroke-dashoffset: 0; animation: none; }
+    .dw-lo-stripe { transform: none; animation: none; }
+    .dw-lo-solid { opacity: 1; animation: none; }
 }

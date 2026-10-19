@@ -10,7 +10,7 @@ const notion = new Client({
 });
 
 const databaseId = process.env.NOTION_DATABASE_ID;
-const assetVersion = "20261015-3";
+const assetVersion = "20261019-1";
 const siteUrl = "https://designwallet.in";
 const fallbackAuthor = "Karthik S Krishnan";
 const fallbackCoverImages = [

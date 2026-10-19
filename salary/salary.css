@@ -542,7 +542,7 @@
     font-variant-numeric: tabular-nums;
 }
 
-/* INR/USD switch beside the headline figure. A smaller cut of .sal-view-toggle. */
+/* INR/USD switch beside the headline figure. */
 .sal-hero-row {
     display: flex;
     align-items: center;
@@ -691,7 +691,6 @@
    its own :focus-visible rule — a plain class with outline:none does nothing. */
 .sal-field select:focus-visible,
 .sal-level-btn:focus-visible,
-.sal-view-btn:focus-visible,
 .sal-role-btn:focus-visible,
 .sal-collapse-btn:focus-visible,
 .sal-bar-row:focus-visible,
@@ -752,33 +751,6 @@
 .sal-level-btn:disabled {
     opacity: 0.3;
     cursor: not-allowed;
-}
-
-/* ── view toggle ─────────────────────────────────────────────────────────── */
-
-.sal-view-toggle {
-    display: inline-flex;
-    gap: 4px;
-    background: var(--surface-4);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 3px;
-}
-
-.sal-view-btn {
-    background: none;
-    border: 0;
-    border-radius: 11px;
-    color: var(--muted);
-    font-family: "Geist", sans-serif;
-    font-size: 0.8rem;
-    padding: 6px 14px;
-    cursor: pointer;
-}
-
-.sal-view-btn.is-active {
-    background: var(--pure);
-    color: var(--bg);
 }
 
 /* ── methodology ─────────────────────────────────────────────────────────── */
@@ -1545,6 +1517,520 @@
 
 /* Below this the 12-column grid stops being readable: five-column cards get
    ~180px each. Collapse to six columns and let cards pair up. */
+/* ============================================================================
+   Know your Money Dashboard — Figma node 829:179 (2026-10-19)
+
+   Restyles the shell to the design: a plain role list with a star on the
+   chosen role, a title with one standing line, text-only level pills, filter
+   pills that carry their own name, and the headline figure on the page itself.
+   Placed BEFORE the responsive blocks below so those still win at their widths.
+   Sizes are the design's own, read off the frame at 1440px.
+   ============================================================================ */
+
+:root {
+    --sal-sidebar-w: 300px;
+    --sal-pill-bg: var(--surface-4);       /* #1a1a1a */
+    --sal-pill-border: #313131;            /* the design's pill edge */
+    --sal-dim: rgba(var(--fg-rgb), 0.4);   /* the design's 40% text */
+}
+
+.sal-body { background: var(--surface-2); }
+
+.sal-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.sal-app {
+    gap: 0;
+    padding: 12px 34px 12px 0;
+}
+
+.sal-workspace {
+    padding-left: 29px;   /* content starts 329px in: 300px sidebar + 29px */
+}
+
+/* ── sidebar ─────────────────────────────────────────────────────────────── */
+
+.sal-sidebar {
+    gap: 0;
+    padding: 26px 0 0;
+    background: var(--surface-2);
+}
+
+.sal-brand-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+    padding: 0 60px 0 29px;
+}
+
+.sal-brand { padding: 0; }
+.sal-brand-logo { height: 30px; }
+
+.sal-collapse-btn {
+    display: grid;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    place-items: center;
+    color: rgba(var(--fg-rgb), 0.2);
+    transition: color 0.15s ease;
+}
+
+.sal-collapse-btn:hover { color: rgba(var(--fg-rgb), 0.7); }
+
+.sal-collapse-icon {
+    display: block;
+    width: 18px;
+    height: 18px;
+    background: currentColor;
+    -webkit-mask: url("/salary/ui/collapse.svg") center / contain no-repeat;
+    mask: url("/salary/ui/collapse.svg") center / contain no-repeat;
+    transform: rotate(-90deg);          /* the design turns its double chevron to point left */
+    transition: transform 0.2s ease;
+}
+
+.sal-collapse-label { /* the button's name is its aria-label; the icon says the rest */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+}
+
+.sal-role-nav {
+    gap: 0;
+    margin: 45px 0 0;
+    padding: 0;
+}
+
+.sal-role-btn {
+    position: relative;
+    padding: 14.5px 32px;
+    border-radius: 0;
+    background: none;
+    color: var(--sal-dim);
+    font-size: 1rem;
+    letter-spacing: -0.04em;
+    line-height: 19px;                  /* rows sit 48px apart, as in the design */
+}
+
+.sal-role-btn:hover {
+    background: none;
+    color: rgba(var(--fg-rgb), 0.75);
+}
+
+.sal-role-btn.is-active {
+    padding-left: 52px;                 /* makes room for the star */
+    background: none;
+    color: var(--pure);
+    font-weight: 400;
+}
+
+.sal-role-btn.is-active::before {
+    position: absolute;
+    top: 50%;
+    left: 31px;
+    width: 10.66px;
+    height: 10.66px;
+    margin-top: -5.33px;
+    background: currentColor;
+    content: "";
+    -webkit-mask: url("/salary/ui/star.svg") center / contain no-repeat;
+    mask: url("/salary/ui/star.svg") center / contain no-repeat;
+}
+
+.sal-sidebar-foot {
+    margin-top: auto;
+    padding: 33px 0 28px 14px;
+    gap: 0;
+}
+
+.sal-cta-card {
+    width: 248px;
+    max-width: calc(100% - 28px);
+    padding: 17px 23px 16px;
+    background: var(--sal-pill-bg);
+    border: 0;
+    border-radius: 20px;
+}
+
+.sal-cta-card h2 {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+    color: var(--pure);
+}
+
+.sal-cta-card p {
+    margin: 10px 0 0;
+    font-size: 0.8125rem;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+    color: var(--sal-dim);
+}
+
+.sal-cta-btn {
+    display: inline-flex;
+    margin-top: 18px;
+    padding: 10px 20px;
+    border-radius: 26px;
+    font-size: 0.8125rem;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+}
+
+/* Collapsed rail: the chevron turns to point right and drops under the glyph. */
+.is-collapsed .sal-brand-row {
+    flex-direction: column;
+    gap: 16px;
+    padding: 0;
+}
+
+.is-collapsed .sal-collapse-icon { transform: rotate(90deg); }
+
+.is-collapsed .sal-role-nav { margin-top: 28px; }
+
+.is-collapsed .sal-role-btn,
+.is-collapsed .sal-role-btn.is-active {
+    padding: 9px 0;
+}
+
+.is-collapsed .sal-role-btn.is-active::before { display: none; }
+.is-collapsed .sal-sidebar-foot { padding: 14px 0 20px; }
+
+/* ── top bar ─────────────────────────────────────────────────────────────── */
+
+.sal-topbar {
+    top: 0;
+    padding: 20px 0 3px;
+    gap: 0;
+    background: var(--surface-2);   /* solid, so charts scroll behind it, not through it */
+    border: 0;
+    border-radius: 0;
+}
+
+.sal-h1 {
+    margin: 0 0 0 17px;
+    font-size: 3.45rem;
+    font-weight: 250;
+    letter-spacing: -0.055em;
+    line-height: 1.2;
+}
+
+.sal-subtitle {
+    margin: 8px 0 0 17px;
+    font-size: 1rem;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+    color: var(--sal-dim);
+}
+
+.sal-topbar-actions {
+    gap: 12px;
+    padding-top: 16px;
+}
+
+.sal-export-btn {
+    padding: 10px 20px;
+    background: var(--pure);
+    border: 0;
+    border-radius: 26px;
+    color: var(--surface-2);
+    font-size: 0.8125rem;
+    letter-spacing: -0.04em;
+}
+
+.sal-export-btn:hover {
+    color: var(--surface-2);
+    background: rgba(var(--fg-rgb), 0.88);
+}
+
+/* The sidebar card already carries "Add your salary"; the top bar link is only
+   needed when that card is hidden in the collapsed rail. */
+.sal-topbar-cta {
+    display: none;
+    padding: 10px 20px;
+    border-radius: 26px;
+    font-size: 0.8125rem;
+    letter-spacing: -0.04em;
+}
+
+.is-collapsed .sal-topbar-cta { display: inline-flex; }
+
+/* ── level pills ─────────────────────────────────────────────────────────── */
+
+.sal-level-ladder {
+    flex-wrap: wrap;
+    gap: 0;
+    margin-top: 30px;
+    overflow: visible;
+    padding: 0;
+}
+
+.sal-level-btn {
+    flex: 0 0 auto;
+    display: block;
+    /* 22px a side, not the design's 28.7: our level names ("Director / Head of
+       Design") are longer than the design's, and eight must still fit one row. */
+    padding: 14.4px 22px;
+    background: none;
+    border: 1.44px solid transparent;
+    border-radius: 57px;
+    color: var(--sal-dim);
+    font-size: 0.9375rem;               /* 15px: Karthik asked for smaller than the design's 17.2px */
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+}
+
+.sal-level-btn small { display: none; }   /* the years live in each pill's tooltip */
+
+.sal-level-btn:hover:not(:disabled) {
+    border-color: transparent;
+    color: rgba(var(--fg-rgb), 0.75);
+}
+
+.sal-level-btn.is-active {
+    background: var(--sal-pill-bg);
+    border-color: var(--sal-pill-border);
+    color: var(--pure);
+}
+
+.sal-level-btn:disabled { opacity: 0.2; }
+
+/* ── filter pills: the field's name sits inside the pill until a value is chosen ── */
+
+.sal-filter-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 248px));
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.sal-field {
+    position: relative;
+    display: block;
+}
+
+.sal-field select {
+    height: 45px;
+    padding: 0 56px 0 24.7px;
+    background-color: var(--sal-pill-bg);
+    background-image: url("/salary/ui/chevron-down.svg");
+    background-position: right 24.7px center;
+    background-size: 17.27px;
+    background-repeat: no-repeat;
+    border: 1.23px solid var(--sal-pill-border);
+    border-radius: 49px;
+    color: var(--pure);
+    font-size: 0.925rem;
+    letter-spacing: -0.04em;
+}
+
+.sal-field select:not(.is-set) { color: transparent; }   /* the label below shows instead */
+
+.sal-field select option {
+    background: var(--sal-pill-bg);
+    color: var(--text);
+}
+
+.sal-field label {
+    position: absolute;
+    top: 50%;
+    left: 24.7px;
+    transform: translateY(-50%);
+    color: rgba(var(--fg-rgb), 0.5);
+    font-size: 0.925rem;
+    letter-spacing: -0.04em;
+    text-transform: none;
+    pointer-events: none;
+}
+
+.sal-field select.is-set + label { display: none; }
+
+/* ── headline: on the page, not in a card ────────────────────────────────── */
+
+.sal-card--hero {
+    padding: 0;
+    background: none;
+    border: 0;
+}
+
+.sal-card--hero .sal-card-head {
+    flex-wrap: wrap;           /* a wider figure (₹52.8 LPA, $158K/year) sends the legend below, not under the next card */
+    justify-content: flex-start;
+    gap: 10px 36px;
+}
+
+.sal-hero-figure {
+    font-size: 3.45rem;
+    font-weight: 300;
+    letter-spacing: -0.055em;
+}
+
+.sal-card--hero .sal-card-head > div:first-child { flex: 0 0 auto; }
+
+.sal-hero-row {
+    flex-wrap: nowrap;
+    gap: 22px;
+}
+
+.sal-currency-toggle {
+    gap: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+}
+
+.sal-currency-btn {
+    padding: 10px 20px;
+    border-radius: 40px;
+    color: rgba(var(--fg-rgb), 0.5);
+    font-size: 0.75rem;
+    letter-spacing: -0.04em;
+}
+
+.sal-currency-btn.is-active {
+    background: var(--pure);
+    color: var(--surface-2);
+}
+
+.sal-card--hero .sal-card-sub {
+    margin-top: 10px;
+    font-size: 0.75rem;
+    letter-spacing: -0.04em;
+    color: var(--sal-dim);
+}
+
+.sal-card--hero .sal-legend {
+    align-self: flex-start;
+    margin-top: 28px;
+    gap: 14px;
+    font-size: 0.75rem;
+    letter-spacing: -0.04em;
+    color: var(--sal-dim);
+}
+
+.sal-swatch { width: 10px; height: 10px; }
+
+/* ── world map (foreign employer only) ───────────────────────────────────── */
+
+.sal-card--map {
+    padding: 8px 0 0;
+    background: none;
+    border: 0;
+}
+
+.sal-map {
+    width: 100%;
+    max-width: 980px;             /* the design's map is ~960px wide */
+    margin: 0 auto;
+    aspect-ratio: 150 / 102;      /* the map's grid, so the page does not jump when it loads */
+    color: var(--sal-dim);
+    font-size: 0.8rem;
+}
+
+.sal-map-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.sal-map-hit {
+    fill: none;
+    stroke: transparent;
+    stroke-linecap: square;
+    pointer-events: stroke;       /* hit-testable even though it paints nothing */
+}
+
+.sal-map-dots {
+    fill: none;
+    stroke: rgba(var(--fg-rgb), 0.2);
+    stroke-linecap: round;
+    pointer-events: none;
+    transition: stroke 0.15s ease;
+}
+
+.sal-map-country { outline: none; }
+.sal-map-country:hover .sal-map-dots { stroke: rgba(var(--fg-rgb), 0.4); }
+
+/* "primary" is the best-sourced group (a researched market, a state with city
+   figures); "secondary" is an estimate. Either turns white when pointed at or chosen. */
+.sal-map-country.is-secondary .sal-map-dots { stroke: rgba(var(--fg-rgb), 0.38); }
+.sal-map-country.is-primary .sal-map-dots { stroke: rgba(var(--fg-rgb), 0.62); }
+
+.sal-map-country.is-primary:hover .sal-map-dots,
+.sal-map-country.is-primary:focus-visible .sal-map-dots,
+.sal-map-country.is-secondary:hover .sal-map-dots,
+.sal-map-country.is-selected .sal-map-dots {
+    stroke: var(--pure);
+}
+
+.sal-swatch--primary   { background: rgba(var(--fg-rgb), 0.62); border-radius: 50%; }
+.sal-swatch--secondary { background: rgba(var(--fg-rgb), 0.38); border-radius: 50%; }
+.sal-swatch--none      { background: rgba(var(--fg-rgb), 0.2); border-radius: 50%; }
+
+/* India is nearly square, so at the world map's width it would be a screenful tall. */
+.sal-map--india {
+    max-width: 600px;
+    aspect-ratio: 1000 / 1002;
+}
+
+/* The title and its own INR/USD switch, side by side; the switch is the headline's
+   (same state), repeated here because on a foreign employer the map comes first
+   and the headline sits below it. */
+.sal-map-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+}
+
+.sal-map-title-row .sal-card-title { margin: 0; }
+
+/* ── layout around the map ───────────────────────────────────────────────── */
+
+/* Foreign employer: the world map is the first section and the figures follow
+   it. Nothing to do here: the map card is first in the markup and spans the row. */
+
+/* Everyone else: the India map sits on the RIGHT, and the headline and the
+   figure cards stack on the LEFT beside it. Only where there is room; below
+   that the map simply follows the first row, full width. */
+@media (min-width: 1281px) {
+    .sal-layout-india .sal-card--hero { grid-column: 1 / span 7; grid-row: 1; }
+    .sal-layout-india .sal-card--stats { grid-column: 1 / span 4; grid-row: 2; }
+    .sal-layout-india .sal-card--top { grid-column: 5 / span 3; grid-row: 2; }
+    .sal-layout-india .sal-card--map-india {
+        grid-column: 8 / span 5;
+        grid-row: 1 / span 2;
+        align-self: start;
+    }
+}
+
+/* Under 1000px the sidebar becomes a rail above the workspace (see below); the
+   design's roomy desktop spacing would only waste that space. */
+@media (max-width: 1000px) {
+    .sal-app { padding: 10px; }
+    .sal-workspace { padding-left: 0; }
+    .sal-sidebar { padding: 12px 14px; }
+    .sal-brand-row { padding: 0; }
+    .sal-role-nav { margin: 0; }
+    .sal-role-btn,
+    .sal-role-btn.is-active { padding: 8px 12px; }
+    .sal-role-btn.is-active::before { display: none; }
+    .sal-topbar { top: 10px; }
+    .sal-h1 { margin-left: 0; font-size: 2.6rem; }
+    .sal-subtitle { margin-left: 0; }
+}
+
 @media (max-width: 1280px) {
     .sal-card--3,
     .sal-card--4,
