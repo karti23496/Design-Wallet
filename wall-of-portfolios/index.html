@@ -31,7 +31,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
     <link rel="stylesheet" href="/style.css?v=20261015-3">
-    <link rel="stylesheet" href="/wall-of-portfolios/wall.css?v=20260918-1">
+    <link rel="stylesheet" href="/wall-of-portfolios/wall.css?v=20261019-1">
     <link rel="stylesheet" href="/mobile-gate.css?v=20260920-1">
 </head>
 <body>
@@ -56,10 +56,28 @@
 
             <section class="wop-section" aria-labelledby="wop-heading">
                 <h2 class="wop-sr-only" id="wop-heading">Designer portfolios</h2>
+                <!-- Filters (Figma 844:4256): role tabs on the left, search on the
+                     right. Roles are matched from each portfolio's own title and
+                     description in wall.js; "All" is ours, not in the design, so
+                     portfolios that match no role still have somewhere to be. -->
+                <div class="wop-toolbar">
+                    <div class="wop-tabs" role="group" aria-label="Filter by role">
+                        <button type="button" class="wop-tab is-active" data-role="all" aria-pressed="true">All</button>
+                        <button type="button" class="wop-tab" data-role="product" aria-pressed="false">Product Designers</button>
+                        <button type="button" class="wop-tab" data-role="visual" aria-pressed="false">Visual Designers</button>
+                        <button type="button" class="wop-tab" data-role="uiux" aria-pressed="false">UI/UX Designers</button>
+                        <button type="button" class="wop-tab" data-role="motion" aria-pressed="false">Motion Graphic Designers</button>
+                    </div>
+                    <label class="wop-search">
+                        <img class="wop-search-icon" src="/wall-of-portfolios/search.svg" width="16" height="16" alt="">
+                        <span class="wop-sr-only">Search portfolios</span>
+                        <input class="wop-search-input" id="wop-search" type="search" placeholder="Search portfolio inspiration" autocomplete="off">
+                    </label>
+                </div>
                 <p class="wop-status" id="wop-status">Loading portfolios…</p>
-                <!-- Sits on the grid's right edge, so it reads as a label for the
-                     grid rather than part of the hero. Written by wall.js. -->
-                <p class="wop-count" id="wop-count"></p>
+                <!-- Not in the design, so not shown; still announced to screen
+                     readers as the filters change. Written by wall.js. -->
+                <p class="wop-count wop-sr-only" id="wop-count" aria-live="polite"></p>
                 <div class="wop-grid" id="wop-grid"></div>
             </section>
         </main>
@@ -71,7 +89,7 @@
     <script src="/newsletter.js?v=20261015-3"></script>
     <script src="/stars.js?v=20260901-1"></script>
     <script src="/submit-portfolio/endpoint.js?v=20260916-1"></script>
-    <script src="/wall-of-portfolios/wall.js?v=20261015-3"></script>
+    <script src="/wall-of-portfolios/wall.js?v=20261019-1"></script>
     <script src="/mobile-gate.js?v=20260920-1"></script>
 </body>
 </html>

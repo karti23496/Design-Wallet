@@ -159,6 +159,12 @@
     object-position: top;
 }
 
+/* An image that isn't a 16:10 page screenshot (e.g. v2.4's pre-loader still)
+   keeps its own shape, so nothing at its edges is cropped. */
+.cl-shot--natural img {
+    aspect-ratio: auto;
+}
+
 .cl-desc {
     color: var(--muted-strong);
     font-size: 1rem;

@@ -83,18 +83,98 @@
     text-decoration: none;
 }
 
-/* The portfolio count, aligned to the grid's right edge. `margin-left: auto`
-   rather than `text-align: right` so it sits against the last column even
-   though the paragraph itself spans the full width. */
-.wop-count {
-    width: fit-content;
-    margin: 0 0 14px auto;
-    font-size: 0.85rem;
-    color: var(--muted);
+/* ── Filters (Figma 844:4256) ─────────────────────────────────────────── */
+/* Role tabs on the left, search on the right; they wrap onto two lines when
+   the row runs out of room rather than squeezing the search. */
+.wop-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 24px;
+    margin-bottom: 20px;
 }
 
-.wop-count:empty {
-    display: none;
+.wop-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.wop-tab {
+    padding: 11.8px 23.6px;
+    border: 1.18px solid transparent;
+    border-radius: 47px;
+    background: none;
+    color: var(--text);
+    font-family: "Inter", sans-serif;
+    font-size: 14.17px;
+    letter-spacing: -0.04em;
+    line-height: normal;
+    white-space: nowrap;
+    opacity: 0.4;
+    cursor: pointer;
+    transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.wop-tab:hover {
+    opacity: 0.7;
+}
+
+.wop-tab.is-active {
+    border-color: #313131;
+    background: var(--surface-4);
+    opacity: 1;
+}
+
+.wop-tab:focus-visible {
+    outline: 1px solid var(--border-strong);
+    outline-offset: 2px;
+}
+
+.wop-search {
+    position: relative;
+    display: block;
+    flex: 0 1 374px;
+    min-width: 240px;
+}
+
+.wop-search-icon {
+    position: absolute;
+    top: 50%;
+    left: 13px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.wop-search-input {
+    width: 100%;
+    height: 46px;
+    padding: 0 20px 0 48px;
+    border: 1px solid var(--border);
+    border-radius: 57px;
+    background: var(--panel);
+    color: var(--text);
+    font-family: "Inter", sans-serif;
+    font-weight: 300;
+    font-size: 14.95px;
+    letter-spacing: -0.04em;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.wop-search-input::placeholder {
+    color: var(--text);
+    opacity: 0.3;
+}
+
+.wop-search-input:focus {
+    border-color: var(--border-strong);
+}
+
+/* The native clear button is styled for light pages; hide it. Escape clears. */
+.wop-search-input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
 }
 
 /* ── Status line ──────────────────────────────────────────────────────── */
@@ -288,6 +368,17 @@
         margin-bottom: 36px;
     }
 
+    .wop-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        max-width: 100%;
+        scrollbar-width: none;
+    }
+
+    .wop-search {
+        flex-basis: 100%;
+    }
+
     .wop-grid {
         grid-template-columns: 1fr;
         gap: 16px;
@@ -297,7 +388,9 @@
 @media (prefers-reduced-motion: reduce) {
     .wop-card,
     .wop-arrow,
-    .wop-thumb-img {
+    .wop-thumb-img,
+    .wop-tab,
+    .wop-search-input {
         transition: none;
     }
 

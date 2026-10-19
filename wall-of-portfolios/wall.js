@@ -146,6 +146,21 @@
         return /^https?:\/\//i.test(String(value || "").trim());
     }
 
+    // The role tabs. Nothing in the data says what kind of designer someone is,
+    // so each portfolio is matched on the words in its own title and
+    // description. A portfolio can sit under several roles, or none: about half
+    // match none (2026-10-19), and those show only under "All".
+    var ROLES = {
+        product: /product design/,
+        visual: /visual design|graphic design|brand|illustrat|art direct|typograph/,
+        uiux: /\bui\s*\/?\s*ux\b|\bux\s*\/?\s*ui\b|\bux\b|\bui designer|user experience|interaction design/,
+        motion: /motion|animat|\b3d\b|video|after effects/
+    };
+
+    function rolesOf(text) {
+        return Object.keys(ROLES).filter(function (role) { return ROLES[role].test(text); });
+    }
+
     function normalizeEntry(raw) {
         var link = String(raw.link || "").trim();
         if (!isHttpUrl(link)) return null;
@@ -153,14 +168,19 @@
         var name = displayName(raw.name) || hostOf(link);
         if (!name) return null;
 
+        var subtitle = String(raw.subtitle || "").trim();
+        var text = (String(raw.name || "") + " " + subtitle).toLowerCase();
+
         return {
             name: name,
             host: hostOf(link),
-            subtitle: String(raw.subtitle || "").trim(),
+            subtitle: subtitle,
             image: isHttpUrl(raw.image) ? raw.image.trim() : "",
             thumbnail: isHttpUrl(raw.thumbnail) ? raw.thumbnail.trim() : "",
             link: link,
-            key: (raw.slug || hostOf(link) || link).toLowerCase()
+            key: (raw.slug || hostOf(link) || link).toLowerCase(),
+            roles: rolesOf(text),
+            haystack: text + " " + hostOf(link)
         };
     }
 
@@ -227,8 +247,28 @@
         statusEl.classList.toggle("is-error", Boolean(isError));
     }
 
-    function render(entries) {
-        if (!entries.length) {
+    /* ── Filters ─────────────────────────────────────────────────────────── */
+
+    var searchEl = document.getElementById("wop-search");
+    var tabEls = Array.prototype.slice.call(document.querySelectorAll(".wop-tab"));
+    var allEntries = [];
+    var loaded = false;
+    var filter = { role: "all", query: "" };
+
+    function matches(entry) {
+        if (filter.role !== "all" && entry.roles.indexOf(filter.role) === -1) return false;
+        if (!filter.query) return true;
+        // Every word typed has to appear somewhere, in any order.
+        return filter.query.split(/\s+/).every(function (word) {
+            return entry.haystack.indexOf(word) !== -1;
+        });
+    }
+
+    function draw() {
+        if (!loaded) return;
+        var entries = allEntries.filter(matches);
+
+        if (!allEntries.length) {
             gridEl.innerHTML = "";
             setStatus("No portfolios to show yet. Check back soon.", false);
             if (countEl) countEl.textContent = "";
@@ -236,10 +276,42 @@
         }
 
         gridEl.innerHTML = entries.map(cardHtml).join("");
-        setStatus("", false);
+        setStatus(entries.length ? "" : "No portfolios match that. Try another role or search.", false);
         if (countEl) {
             countEl.textContent = entries.length + (entries.length === 1 ? " portfolio" : " portfolios");
         }
+    }
+
+    function render(entries) {
+        allEntries = entries;
+        loaded = true;
+        draw();
+    }
+
+    tabEls.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+            filter.role = tab.getAttribute("data-role") || "all";
+            tabEls.forEach(function (other) {
+                var on = other === tab;
+                other.classList.toggle("is-active", on);
+                other.setAttribute("aria-pressed", on ? "true" : "false");
+            });
+            draw();
+        });
+    });
+
+    if (searchEl) {
+        searchEl.addEventListener("input", function () {
+            filter.query = searchEl.value.trim().toLowerCase();
+            draw();
+        });
+        searchEl.addEventListener("keydown", function (event) {
+            if (event.key === "Escape" && searchEl.value) {
+                searchEl.value = "";
+                filter.query = "";
+                draw();
+            }
+        });
     }
 
     /* ── Approved submissions (private sheet, via Apps Script) ───────────── */
@@ -299,6 +371,7 @@
                 render(dedupe(approved.concat(curated)));
             });
         }, function () {
+            loaded = false;
             gridEl.innerHTML = "";
             setStatus("We couldn't load the portfolios just now. Please refresh the page.", true);
         });
