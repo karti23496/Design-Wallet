@@ -108,7 +108,7 @@
     background: none;
     color: var(--text);
     font-family: "Inter", sans-serif;
-    font-size: 14.17px;
+    font-size: 12.04px;
     letter-spacing: -0.04em;
     line-height: normal;
     white-space: nowrap;
@@ -157,7 +157,7 @@
     color: var(--text);
     font-family: "Inter", sans-serif;
     font-weight: 300;
-    font-size: 14.95px;
+    font-size: 12.71px;
     letter-spacing: -0.04em;
     outline: none;
     transition: border-color 0.2s ease;
@@ -199,11 +199,13 @@
     gap: 20px;
 }
 
-@media (max-width: 1400px) {
+/* Four across down to 1080px (was 1400px, which gave every 1280-1400px
+   laptop three; Karthik, 2026-10-23), then 3, then 2, then one on phones. */
+@media (max-width: 1080px) {
     .wop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 900px) {
     .wop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -302,6 +304,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+/* The heart sits before the arrow (tools/favourites.js; base styles in
+   style.css). Pulled in a little so the head doesn't get wider. */
+.wop-card-head .dw-fav { flex: 0 0 auto; margin-right: -6px; }
 
 .wop-arrow {
     flex: 0 0 auto;

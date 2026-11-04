@@ -1,0 +1,44 @@
+name: Build Changelog from Notion
+
+# Rebuilds /changelog/ from the Notion Changelog database and commits it to
+# main, which GitHub Pages serves. Only rows marked Published appear.
+# Visitors already see Notion edits live (changelog-live.js and the
+# changelog-feed function); this keeps the built HTML, which search engines
+# and no-JS visitors read, in step. Runs daily, from the Actions tab ("Run
+# workflow"), or on a repository_dispatch of type notion_changelog_update.
+on:
+  schedule:
+    - cron: "30 0 * * *"   # 06:00 IST
+  repository_dispatch:
+    types: [notion_changelog_update]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build changelog
+        run: npm run build-changelog
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_CHANGELOG_DATABASE_ID: ${{ secrets.NOTION_CHANGELOG_DATABASE_ID }}
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add changelog public/changelog
+          git commit -m "Auto-update changelog from Notion" || echo "No changes to commit"
+          git push

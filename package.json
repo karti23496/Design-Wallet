@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build-blog": "node scripts/build-blog.js",
+    "build-changelog": "node scripts/build-changelog.js",
     "build-salary": "node scripts/build-salary.js",
     "dev": "node scripts/dev-server.js",
     "changelog-shot": "node scripts/changelog-screenshot.js"

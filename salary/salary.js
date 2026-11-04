@@ -22,6 +22,8 @@
 
     var COMMUNITY_REFRESH_MS = 60000;
     var communityStamp = null;
+    var SUPABASE_URL = "https://ugjtyuikvdeymwsfsgfl.supabase.co";
+    var SUPABASE_KEY = "sb_publishable_IOdPnIa_tf6DjQShp_gTZA_i36nRCTe";
 
     var state = {
         role: "product-designer",
@@ -1137,18 +1139,23 @@
     // ── live community figures ──────────────────────────────────────────────
 
     /**
-     * Pulls the community figures from the Apps Script (salary/endpoint.js) on
-     * load and every minute, and redraws when they change. The script only ever
-     * returns groups with MIN_REPORTS or more — percentiles, never raw rows — so
+     * Pulls the community figures from salary_community() in Supabase
+     * (supabase/submissions.sql) on load and every minute, and redraws when they
+     * change. It only ever returns groups with MIN_REPORTS or more — percentiles,
+     * never raw rows — so
      * the research estimates stay in place until a group has real volume, then
      * give way to it with no build or approval step (Karthik's call, 2026-09-15).
      * Any failure leaves the page on the figures it already shows.
      */
     function startCommunity() {
-        if (typeof DW_SALARY_ENDPOINT !== "string" || !DW_SALARY_ENDPOINT || !window.fetch) return;
+        if (!window.fetch) return;
 
         var pull = function () {
-            fetch(DW_SALARY_ENDPOINT + (DW_SALARY_ENDPOINT.indexOf("?") === -1 ? "?" : "&") + "t=" + Date.now())
+            fetch(SUPABASE_URL + "/rest/v1/rpc/salary_community", {
+                method: "POST",
+                headers: { "apikey": SUPABASE_KEY, "Content-Type": "application/json" },
+                body: "{}"
+            })
                 .then(function (response) {
                     if (!response.ok) throw new Error("HTTP " + response.status);
                     return response.json();

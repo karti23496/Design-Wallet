@@ -13,15 +13,15 @@
     color-scheme: dark;
     --fg-rgb: 255, 255, 255;
     --pure: #ffffff;
-    --surface-0: #070707;
-    --surface-1: #0d0d0d;
-    --surface-2: #101010;
-    --surface-3: #111111;
-    --surface-4: #1a1a1a;
+    --surface-0: #000000;
+    --surface-1: #030303;
+    --surface-2: #050505;
+    --surface-3: #070707;
+    --surface-4: #101010;
 
-    --bg: #0a0a0a;
-    --panel: #121212;
-    --panel-strong: #171717;
+    --bg: #030303;
+    --panel: #0a0a0a;
+    --panel-strong: #0f0f0f;
     --panel-soft: rgba(var(--fg-rgb), 0.04);
     --border: rgba(var(--fg-rgb), 0.1);
     --border-strong: rgba(var(--fg-rgb), 0.18);
@@ -52,6 +52,8 @@
 }
 
 html {
+    /* Site-wide type scale: every rem font follows this. 85% of the browser default. */
+    font-size: 85%;
     scroll-behavior: smooth;
 }
 
@@ -580,52 +582,85 @@ which previously sat lower than the plain <a> siblings. */
     transform: translate(-50%, 0);
 }
 
-/* ── Resources: plain list panel ─────────────────────────────────────────
-   Deliberately NOT the wide Mini Tools panel — two text links do not need
-   icons, descriptions or a CTA column. Built on the base .nav-dropdown, so
-   the stacked mobile sheet needs no special casing.
-   Text colour sits on the inner span, never on the <a>: `.blog-index-page
-   .site-nav a` lands later at equal specificity and would paint these white
-   on the blog. Same trap the mega panel hit. */
+/* ── Resources: card panel (Figma 847:4287) ──────────────────────────────
+   One card per resource: a 38px icon tile, a title and a grey description.
+   Built on the base .nav-dropdown, anchored to its trigger. Text colours sit
+   on the inner spans, never on the <a>: `.blog-index-page .site-nav a` lands
+   later at equal specificity and would paint them on the blog. */
 
-.nav-list {
-    min-width: 226px;
-    row-gap: 2px;
-    padding: 12px 10px 10px;
-    /* Opaque, matching the Mini Tools panel. The base dropdown surface is 96%
-       and the hero text showed faintly through it — two panels in one nav
-       should not have different surfaces. */
-    background: var(--surface-1);
+.nav-res {
+    width: 349px;
+    row-gap: 7px;
+    padding: 22px 14px 17px 13px;
+    border-color: #282828;
+    border-radius: 30px;
+    background: var(--surface-2);
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.44);
     text-align: left;
 }
 
-.nav-list-heading {
-    margin: 0 0 6px;
-    padding: 0 12px;
-    color: rgba(var(--fg-rgb), 0.4);
-    font-size: 0.64rem;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-}
-
-.site-nav .nav-list a.nav-list-item {
-    min-height: 40px;
-    padding: 0 12px;
+.site-nav .nav-res a.nav-res-item {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    align-items: center;
+    column-gap: 17px;
+    min-height: 0;
+    padding: 9px 15px 16px 6px;
     border-radius: 10px;
 }
 
-.nav-list-label {
-    color: rgba(var(--fg-rgb), 0.78);
-    font-size: 0.86rem;
-    line-height: 1.2;
-    white-space: nowrap;
+.site-nav .nav-res a.nav-res-item:hover,
+.site-nav .nav-res a.nav-res-item:focus-visible {
+    background: rgba(217, 217, 217, 0.02);
 }
 
-.nav-list-item:hover .nav-list-label,
-.nav-list-item:focus-visible .nav-list-label {
-    color: var(--pure);
+.nav-res-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #282828;
+    border-radius: 4px;
+    background: var(--surface-2);
+}
+
+.nav-res-icon img {
+    display: block;
+}
+
+.nav-res-text {
+    display: grid;
+    row-gap: 6px;
+}
+
+.nav-res-title {
+    color: #fff;
+    font-family: "Inter", sans-serif;
+    font-size: 12.89px;
+    line-height: normal;
+    letter-spacing: -0.04em;
+}
+
+.nav-res-desc {
+    color: rgba(255, 255, 255, 0.4);
+    font-family: "Inter", sans-serif;
+    font-size: 13.17px;
+    line-height: normal;
+    letter-spacing: -0.04em;
+    white-space: normal;
+}
+
+.nav-res-item:hover .nav-res-desc,
+.nav-res-item:focus-visible .nav-res-desc {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+/* In the stacked mobile sheet the panel takes the sheet's width. */
+@media (max-width: 980px) {
+    .nav-res {
+        width: auto;
+        border-radius: 20px;
+    }
 }
 
 /* ── Mini Tools: wide panel ──────────────────────────────────────────────
@@ -4091,7 +4126,14 @@ input:focus-visible {
         padding: 18px;
         border: 1px solid var(--border);
         border-radius: 20px;
-        background: rgba(13, 13, 13, 0.95);
+        /* Opaque, and scrollable on its own: on a phone the open sheet (two
+           panels of cards) is taller than the screen, and at 95% the page
+           read through it. */
+        background: var(--surface-1);
+        max-height: calc(100vh - 110px);
+        max-height: calc(100dvh - 110px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
@@ -4430,8 +4472,28 @@ input:focus-visible {
 }
 
 @media (max-width: 560px) {
+    /* 16px: the phone gutter (mobile version, 2026-10-20). Was 10px, which
+       put most pages' text and cards right against the screen edge. */
     .page-shell {
-        padding: 10px;
+        padding: 16px;
+    }
+
+    /* These pages' own wrappers add a second side padding on top of the
+       shell's, which left their text 32-40px in from the edge on a phone.
+       The shell's 16px is the gutter; they keep only their vertical padding.
+       `.page-shell` in front out-ranks each page's own stylesheet, which
+       loads after this one. */
+    .page-shell .books-section,
+    .page-shell .cl-main,
+    .page-shell .ga-main,
+    .page-shell .privacy-section,
+    .page-shell .terms-section,
+    .page-shell .wop-main,
+    .page-shell .sal-main,
+    .page-shell .tool-container,
+    .page-shell .blog-article {
+        padding-left: 0;
+        padding-right: 0;
     }
 
     .hero,
@@ -4805,7 +4867,7 @@ body.blog-index-page::before {
     margin: 0;
     color: var(--text);
     font-family: "Geist", sans-serif;
-    font-size: 48px;
+    font-size: 40.8px;
     font-weight: 200;
     letter-spacing: -0.1rem;
     line-height: 0.96;
@@ -4847,7 +4909,7 @@ body.blog-index-page::before {
     margin: 0 0 8px;
     color: var(--text);
     font-family: "Geist", sans-serif;
-    font-size: 22px;
+    font-size: 18.7px;
     font-weight: 200;
     letter-spacing: 0;
     line-height: 1.1;
@@ -4919,7 +4981,7 @@ body.blog-index-page::before {
     margin: 0;
     color: var(--text);
     font-family: "Geist", sans-serif;
-    font-size: 36px;
+    font-size: 30.6px;
     font-weight: 200;
     letter-spacing: 0;
     line-height: 1.1;
@@ -4993,7 +5055,7 @@ body.blog-index-page::before {
     margin: 0;
     color: var(--text);
     font-family: "Geist", sans-serif;
-    font-size: 24px;
+    font-size: 20.4px;
     font-weight: 200;
     letter-spacing: 0;
     line-height: 1.16;
@@ -5104,7 +5166,7 @@ body.blog-index-page::before {
     }
 
     .design-index-header h1 {
-        font-size: 46px;
+        font-size: 39.1px;
     }
 
     .design-index-header p:not(.design-index-kicker) {
@@ -5131,7 +5193,7 @@ body.blog-index-page::before {
     }
 
     .design-story-copy h2 {
-        font-size: 26px;
+        font-size: 22.1px;
     }
 
     .design-story-copy p {
@@ -5141,7 +5203,7 @@ body.blog-index-page::before {
 
 @media (max-width: 520px) {
     .design-index-header h1 {
-        font-size: 64px;
+        font-size: 54.4px;
     }
 
     .design-index-header {
@@ -5150,7 +5212,7 @@ body.blog-index-page::before {
     }
 
     .design-story-copy h2 {
-        font-size: 24px;
+        font-size: 20.4px;
     }
 }
 
@@ -7269,7 +7331,7 @@ body.category-search-open {
     }
 
     .bento-copy h3 {
-        font-size: 24px;
+        font-size: 20.4px;
         letter-spacing: -1px;
         line-height: 1;
     }
@@ -8973,6 +9035,190 @@ body.converter-export-open {
     transform: none;
 }
 
+/* ══ Nav: signed-out capsules (Figma 982:2557, 2026-10-30) ════════════════
+   "Create account for free" (white) and "Sign in" (outlined), 48px tall,
+   replacing the single Sign in link. Colours on the inner span, for the
+   same blog `.site-nav a` reason as below. */
+.nav-ctas { display: inline-flex; align-items: center; gap: 12px; }
+/* With the 48px capsules the pill would grow to 82px; the frame's is 62
+   (7px above and below), with 8px on the right as in Figma 982:2544. */
+.site-header:has(.nav-ctas) { padding-top: 7px; padding-bottom: 7px; padding-right: 8px; }
+.site-nav a.nav-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    padding: 0 22px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+.site-nav a.nav-cta--primary { min-width: 240px; background: var(--pure); }
+.site-nav a.nav-cta--primary span { color: #050505; }
+.site-nav a.nav-cta--primary:hover { background: #e6e6e6; transform: none; }
+.site-nav a.nav-cta--line { min-width: 140px; border-color: rgba(var(--fg-rgb), 0.35); }
+.site-nav a.nav-cta--line span { color: #f5f5f5; }
+.site-nav a.nav-cta--line:hover { border-color: rgba(var(--fg-rgb), 0.6); transform: none; }
+.site-nav a.nav-cta .nav-cta-short { display: none; }
+/* Between the hamburger (980px) and 1280px the full label and the 240/140px
+   widths push the links onto two lines. */
+@media (max-width: 1280px) {
+    .site-header:has(.nav-ctas) .site-nav > a,
+    .site-header:has(.nav-ctas) .nav-dropdown-trigger { white-space: nowrap; }
+    .site-nav a.nav-cta--primary,
+    .site-nav a.nav-cta--line { min-width: 0; padding: 0 18px; }
+    .site-nav a.nav-cta .nav-cta-long { display: none; }
+    .site-nav a.nav-cta .nav-cta-short { display: inline; }
+}
+/* Still tight down to the hamburger: drop the version capsule and close up
+   the links, so nothing slides under the logo. */
+@media (max-width: 1180px) {
+    .site-header:has(.nav-ctas) .brand-version { display: none; }
+    .site-header:has(.nav-ctas) .brand-group { flex-shrink: 0; }
+    .site-header:has(.nav-ctas) .site-nav { gap: 18px; }
+}
+
+/* ══ Nav: signed-in account pill + menu (Figma 934:1399, 2026-10-28) ══════
+   "Sign in" reuses the Subscribe capsule above. Signed in, header.js swaps it
+   for this pill. The menu hangs from the pill's right edge: it is the last
+   thing in the nav, so centring it would push it off the page. Colours sit on
+   the inner spans, never on the <a>s (the blog's `.site-nav a` trap). */
+.nav-account-trigger {
+    gap: 10px;
+    padding: 5px 14px 5px 5px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--panel-soft);
+}
+.nav-account-avatar {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--pure);
+    color: var(--bg);
+    font-size: 0.8rem;
+    font-weight: 500;
+    object-fit: cover;
+}
+.nav-account-name { color: var(--text); font-size: 0.9rem; }
+
+.nav-dropdown-menu.nav-account-menu {
+    left: auto;
+    right: 0;
+    min-width: 240px;
+    transform: translateY(-6px);
+}
+.nav-dropdown.nav-account:hover .nav-account-menu,
+.nav-dropdown.nav-account:focus-within .nav-account-menu { transform: none; }
+
+.nav-account-who {
+    display: grid;
+    gap: 4px;
+    padding: 8px 12px 12px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+}
+.nav-account-full { color: var(--text); font-size: 0.88rem; font-weight: 500; }
+.nav-account-email { color: var(--muted); font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; }
+.nav-account-item span { color: var(--muted-strong); font-size: 0.86rem; }
+
+/* Favourites: a heart beside the pill, no ring or fill (Karthik,
+   2026-11-01). Red on hover and once you're on the favourites page. */
+.nav-account-row { display: flex; align-items: center; gap: 4px; }
+.site-nav a.nav-favs {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--pure);
+    transition: color 0.15s ease;
+}
+.site-nav a.nav-favs svg { width: 20px; height: 20px; }
+.site-nav a.nav-favs:hover,
+.site-nav a.nav-favs[aria-current="page"] { color: #ff4d6d; }
+.site-nav a.nav-favs[aria-current="page"] svg { fill: currentColor; }
+.site-nav a.nav-favs:focus-visible { border-radius: 50%; outline: 1px solid rgba(var(--fg-rgb), 0.5); outline-offset: 2px; }
+
+/* ══ Favourites heart (tools/favourites.js, 2026-10-30) ═══════════════════
+   On every tool card and beside Visit on the tool page. z-index 2 lifts it
+   above .dash-card-hit, the card-wide link, the same way .dash-card-visit is.
+   Saved hearts are the one red on the site, so they read at a glance. */
+.dw-fav {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    border: 0;          /* just the heart: no ring and no fill, saved or not */
+    border-radius: 999px;
+    background: none;   /* (Karthik, 2026-10-30) */
+    color: var(--muted-strong);
+    font: inherit;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+.dw-fav:hover,
+.dw-fav:focus-visible { color: var(--text); }
+.dw-fav:focus-visible { outline: 1px solid rgba(var(--fg-rgb), 0.5); outline-offset: 2px; }
+.dw-fav[aria-pressed="true"] {
+    color: #ff4d6d;
+}
+.dw-fav[aria-pressed="true"] .dw-fav-icon { fill: currentColor; animation: dw-fav-pop 0.28s ease; }
+/* Unsaved: a white outline. Saved: filled red (Karthik, 2026-10-30). */
+.dw-fav-icon { display: block; flex: none; color: var(--pure); }
+.dw-fav[aria-pressed="true"] .dw-fav-icon { color: #ff4d6d; }
+.dw-fav-count { font-variant-numeric: tabular-nums; }
+.dw-fav-count[hidden],
+.dw-fav[aria-pressed="true"] .dw-fav-count { display: none; }   /* saved: the heart alone (Karthik, 2026-10-30) */
+.dw-fav.is-error { animation: dw-fav-shake 0.3s ease; }
+
+/* Tool page: sized to sit beside Visit Website. */
+.tool-header-right { display: flex; align-items: center; gap: 10px; }
+.dw-fav--large { height: 40px; min-width: 40px; padding: 0 14px; font-size: 13px; }
+.dw-fav--large .dw-fav-icon { width: 18px; height: 18px; }
+
+/* Books: top right of the cover (the Best Seller tag has the left). Still no
+   fill; a soft shadow keeps the white outline readable on light covers. */
+.book-thumb .dw-fav {
+    position: absolute;
+    top: 8px;
+    right: 6px;
+    z-index: 3;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.7));
+}
+.book-thumb .dw-fav .dw-fav-count { color: var(--pure); }
+
+@keyframes dw-fav-pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.28); }
+    100% { transform: scale(1); }
+}
+@keyframes dw-fav-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .dw-fav[aria-pressed="true"] .dw-fav-icon, .dw-fav.is-error { animation: none; }
+}
+
 /* ══ Newsletter modal (injected by newsletter.js on every page) ═══════════ */
 body.newsletter-modal-open { overflow: hidden; }
 
@@ -9071,6 +9317,18 @@ body.newsletter-modal-open { overflow: hidden; }
     cursor: pointer;
 }
 
+/* Phones make every .primary-button full width (see the 560px block), which
+   crushed the email field to nothing inside this one-line pill. Stack them. */
+@media (max-width: 560px) {
+    .newsletter-modal-card .newsletter-form {
+        flex-direction: column;
+        align-items: stretch;
+        border-radius: 22px;
+    }
+
+    .newsletter-modal-card .newsletter-form input { padding: 12px 14px; }
+}
+
 .newsletter-note {
     margin: 14px 0 0;
     color: var(--muted);
@@ -9126,4 +9384,146 @@ body.newsletter-modal-open { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
     .nav-new { animation: none; }
+}
+
+/* ══ Mobile pop-up menu (Figma 851:4332, 2026-10-20) ══════════════════════
+   Opened by the hamburger, which only exists at 980px and below. The frame
+   is drawn at 218px wide; every size here is the frame's ×1.82, which is
+   its 197px card scaled to a 358px card (a 390px phone less two 16px
+   gutters). Built in header.js as its own element on <body>. */
+.mnav[hidden] { display: none; }
+
+.mnav {
+    position: fixed;
+    inset: 0;
+    z-index: 2147481000;          /* over the header and everything on the page; under the pre-loader */
+}
+
+.mnav-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.mnav-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 32px);
+    max-width: 420px;
+    max-height: calc(100vh - 72px);
+    max-height: calc(100dvh - 72px);
+    margin: 36px auto 0;
+    padding: 45px 0 35px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid #282828;
+    border-radius: 54px;
+    background: var(--panel);
+    font-family: "Inter", sans-serif;
+    letter-spacing: -0.04em;
+    animation: mnav-in 0.18s ease-out;
+}
+
+.mnav-logo {
+    align-self: center;
+    display: block;
+}
+
+.mnav-logo img {
+    display: block;
+    width: 190px;
+    height: auto;
+}
+
+.mnav-links {
+    display: flex;
+    flex-direction: column;
+    margin-top: 48px;
+    padding: 0 29px;
+}
+
+.mnav-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 20px 0;
+    border: 0;
+    background: none;
+    color: #fff;
+    font: inherit;
+    font-size: 17px;
+    line-height: 1.2;
+    letter-spacing: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.mnav-chevron {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.2s ease;
+}
+
+.mnav-expand[aria-expanded="true"] .mnav-chevron { transform: rotate(180deg); }
+
+/* Resources' secondary list: plain links, indented and dimmer than the main
+   five, no cards. */
+.mnav-sublist {
+    display: flex;
+    flex-direction: column;
+    margin: -8px 0 8px;
+    padding-left: 16px;
+    border-left: 1px solid #282828;
+}
+
+.mnav-sublist[hidden] { display: none; }
+
+.mnav-sublink {
+    padding: 12px 0;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14.45px;
+    text-decoration: none;
+}
+
+.mnav-sublink:hover,
+.mnav-sublink:focus-visible { color: #fff; }
+
+.mnav-subscribe {
+    align-self: center;
+    width: 87%;
+    margin-top: 47px;
+    padding: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 999px;
+    background: #191919;
+    color: #fff;
+    font-size: 20.4px;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+}
+
+.mnav-link:focus-visible,
+.mnav-subscribe:focus-visible,
+.mnav-logo:focus-visible {
+    outline: 1px solid rgba(255, 255, 255, 0.4);
+    outline-offset: 4px;
+    border-radius: 8px;
+}
+
+html.mnav-open { overflow: hidden; }
+
+@keyframes mnav-in {
+    from { opacity: 0; transform: translateY(-8px); }
+}
+
+@media (min-width: 981px) {
+    .mnav { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mnav-card { animation: none; }
+    .mnav-chevron { transition: none; }
 }

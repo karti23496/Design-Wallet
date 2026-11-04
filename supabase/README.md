@@ -183,8 +183,8 @@ is bound to the sheet and runs as you.
 ## Step 8 — tidy up
 
 - Delete the sheet IDs from client code; they address nothing public now.
-- The **submissions** spreadsheet (`1aKs9XEJ…`, 381 email addresses) is a **separate, still-open
-  problem** — DATA-SECURITY-PLAN §0. This migration does not touch it.
+- The **submissions** spreadsheet (`1aKs9XEJ…`) was Restricted on 2026-11-01. New salary and portfolio
+  submissions go to Supabase (`submissions.sql`), not the sheet.
 
 ---
 
@@ -199,3 +199,69 @@ collect them. The barrier moves from one click to writing code. That is the real
 **build-time generation (DECISIONS §3/§5) is still the stronger answer** to copying and the only one
 that also fixes SEO. It composes with this: a build script would later read Supabase instead of the
 Sheet, which is a one-line change.
+
+---
+
+# Sign-in portal — setup (2026-10-28)
+
+The code is done: `/sign-in/`, `/sign-up/`, `/reset-password/`, `/welcome/` (files in `auth/`), plus
+"Sign in" / the account menu in `header.js`. **None of it works until these dashboard steps are done**,
+and only you can do them: they need your Supabase and Google logins. Do them in order.
+
+## A — run `profiles.sql` (2 min)
+
+SQL Editor → paste all of `supabase/profiles.sql` → Run. Idempotent. It creates the private
+`profiles` table and the trigger that gives every new account a row. **Run it before anyone signs
+up**: an account created earlier has no row, and onboarding can't save for it.
+
+## B — URL configuration (2 min)
+
+Authentication → URL Configuration:
+
+| Setting | Value |
+|---|---|
+| Site URL | `https://designwallet.in` |
+| Redirect URLs | `https://designwallet.in/welcome/` · `https://designwallet.in/reset-password/` · for local testing, `http://localhost:8000/welcome/` and `http://localhost:8000/reset-password/` |
+
+Exact addresses, no wildcards: the code only ever asks for these, and carries `?next=` in localStorage
+instead (`dw_auth_next`, 24 h). A redirect that isn't listed silently falls back to the Site URL. That looks
+like "the email link just opens the homepage".
+
+## C — email + password (2 min)
+
+Authentication → Sign In / Providers → **Email**: on. **Confirm email: on.** Minimum password length:
+**8**, which matches what the forms say.
+
+## D — your own email sender (15 min; required before launch)
+
+**Supabase's built-in email only delivers to your project's team members**, and only a few an hour.
+Real visitors would never get their confirmation or reset emails. Authentication → Emails → SMTP
+Settings → set up a sender (Resend, Brevo, or Mailchimp Transactional, since the newsletter is already on
+Mailchimp). Sender: e.g. `hello@designwallet.in`, which needs the provider's DNS records on the domain.
+
+Optional, in the same place: reword the "Confirm signup" and "Reset password" templates. The
+defaults work.
+
+## E — Google (15 min)
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → a project → **OAuth consent screen**:
+   External, app name "Design Wallet", your support email, authorised domain `designwallet.in`.
+   Publish it (Testing mode only lets in test users you list).
+2. **Credentials → Create credentials → OAuth client ID** → Web application.
+   Authorised redirect URI: `https://ugjtyuikvdeymwsfsgfl.supabase.co/auth/v1/callback`
+3. Supabase → Authentication → Sign In / Providers → **Google**: on, paste the client ID and secret.
+
+Until this is done, "Continue with Google" shows "Google sign-in isn't switched on yet."
+
+## F — test it (5 min)
+
+On `designwallet.in` once deployed (or `localhost:8000`):
+
+1. `/sign-up/` with a real address → "Check your inbox" → click the link → lands on `/welcome/`.
+2. Finish the 3 steps → "You're in". The nav shows your initial and name.
+3. Account menu → Sign out → `/sign-in/` says "You're signed out."
+4. Sign in with the password. Then `/reset-password/` → email → set a new one.
+5. "Continue with Google" on both pages.
+6. SQL Editor: `select * from public.profiles;` shows your row with your answers.
+
+**Your sign-up metric** lives in the queries at the bottom of `profiles.sql`.

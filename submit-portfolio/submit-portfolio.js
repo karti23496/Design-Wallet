@@ -2,7 +2,11 @@ document.addEventListener("DOMContentLoaded", function () {
     var form = document.getElementById("portfolio-submission-form");
     if (!form) return;
 
-    var PORTFOLIO_SUBMISSION_URL = window.DESIGN_WALLET_PORTFOLIO_SUBMISSION_URL || "";
+    // Supabase, through submit_portfolio() in supabase/submissions.sql (2026-11-01,
+    // replacing the Apps Script and its Google Sheet). The row lands 'pending'
+    // and reaches the Wall only once Karthik approves it.
+    var SUPABASE_URL = "https://ugjtyuikvdeymwsfsgfl.supabase.co";
+    var SUPABASE_KEY = "sb_publishable_IOdPnIa_tf6DjQShp_gTZA_i36nRCTe";
     var blockedDomains = [
         "behance.net",
         "dribbble.com",
@@ -148,16 +152,17 @@ document.addEventListener("DOMContentLoaded", function () {
         return isValid;
     }
 
-    function encodeFormData(formData) {
-        var params = new URLSearchParams();
-        formData.forEach(function (value, key) {
-            params.append(key, value);
-        });
-        return params.toString();
-    }
-
-    function isLocalPreview() {
-        return ["localhost", "127.0.0.1", ""].indexOf(window.location.hostname) !== -1;
+    function toPayload(formData) {
+        return {
+            fullName: String(formData.get("fullName") || ""),
+            email: String(formData.get("email") || ""),
+            portfolioUrl: String(formData.get("portfolioUrl") || ""),
+            designerRole: String(formData.get("designerRole") || ""),
+            location: String(formData.get("location") || ""),
+            primaryTools: formData.getAll("primaryTools").map(String),
+            portfolioDescription: String(formData.get("portfolioDescription") || ""),
+            permission: formData.get("permission") === "on"
+        };
     }
 
     function showSuccess(successMessage, submitButton, originalButtonText) {
@@ -217,32 +222,20 @@ document.addEventListener("DOMContentLoaded", function () {
             submitButton.textContent = "Submitting...";
         }
 
-        if (!PORTFOLIO_SUBMISSION_URL && isLocalPreview()) {
-            window.setTimeout(function () {
-                showSuccess(successMessage, submitButton, originalButtonText);
-            }, 250);
+        var formData = new FormData(form);
+
+        // Honeypot: a real person never sees this field. Look successful, store nothing.
+        if (String(formData.get("bot-field") || "").trim()) {
+            showSuccess(successMessage, submitButton, originalButtonText);
             return;
         }
 
-        if (!PORTFOLIO_SUBMISSION_URL) {
-            if (submitButton) {
-                submitButton.disabled = false;
-                submitButton.textContent = originalButtonText;
-            }
-
-            if (submitError) {
-                submitError.textContent = "Submission endpoint is not configured yet.";
-                submitError.hidden = false;
-            }
-            return;
-        }
-
-        fetch(PORTFOLIO_SUBMISSION_URL, {
+        fetch(SUPABASE_URL + "/rest/v1/rpc/submit_portfolio", {
             method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: encodeFormData(new FormData(form))
-        }).then(function () {
+            headers: { "apikey": SUPABASE_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({ p: toPayload(formData) })
+        }).then(function (response) {
+            if (!response.ok) throw new Error("Supabase responded " + response.status);
             showSuccess(successMessage, submitButton, originalButtonText);
         }).catch(function () {
             if (submitButton) {

@@ -35,49 +35,7 @@
 
     /* ── Loading ─────────────────────────────────────────────────────────── */
 
-    // Neither gviz nor Apps Script sends CORS headers, so fetch() is not an
-    // option for either — JSONP it is. They disagree on how the callback is
-    // named (gviz wants `tqx=...;responseHandler:x`, Apps Script wants
-    // `callback=x`), so the caller builds the URL from the generated name.
-    function requestJsonp(buildUrl, onSuccess, onError) {
-        var callbackName = "dwWall" + Date.now() + Math.floor(Math.random() * 1e6);
-        var script = document.createElement("script");
-        var timeoutId;
-        var done = false;
-
-        function cleanup() {
-            window.clearTimeout(timeoutId);
-            try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
-            if (script.parentNode) script.parentNode.removeChild(script);
-        }
-
-        window[callbackName] = function (payload) {
-            if (done) return;
-            done = true;
-            cleanup();
-            onSuccess(payload);
-        };
-
-        script.async = true;
-        script.src = buildUrl(callbackName);
-        script.onerror = function () {
-            if (done) return;
-            done = true;
-            cleanup();
-            onError();
-        };
-        timeoutId = window.setTimeout(function () {
-            if (done) return;
-            done = true;
-            cleanup();
-            onError();
-        }, REQUEST_TIMEOUT_MS);
-
-        document.body.appendChild(script);
-    }
-
-    // Plain fetch, because Supabase sends CORS headers. requestJsonp above is
-    // still needed for the Apps Script submissions feed, which does not.
+    // Plain fetch, because Supabase sends CORS headers.
     function fetchSupabase(path, onSuccess, onError) {
         var done = false;
         var timeoutId = window.setTimeout(function () {
@@ -231,6 +189,11 @@
                         '<span class="wop-name">' + escapeHtml(entry.name) + '</span>' +
                         (entry.host ? '<span class="wop-host">' + escapeHtml(entry.host) + '</span>' : "") +
                     '</span>' +
+                    // The heart, keyed by the link (portfolios' primary key).
+                    // tools/favourites.js paints it, and its click handler
+                    // stops the card's link from opening.
+                    '<button class="dw-fav" type="button" data-fav-kind="portfolio" data-fav="' + escapeHtml(entry.link) +
+                        '" data-fav-name="' + escapeHtml(entry.name) + '"></button>' +
                     ARROW +
                 '</span>' +
                 '<span class="wop-thumb' + (entry.thumbnail ? "" : " is-fallback") + '">' +
@@ -314,44 +277,25 @@
         });
     }
 
-    /* ── Approved submissions (private sheet, via Apps Script) ───────────── */
+    /* ── Approved submissions (supabase/submissions.sql) ─────────────────── */
 
+    // approved_portfolios holds only rows Karthik set to 'approved', and never
+    // the submitter's email. Moved off the Apps Script + private sheet 2026-11-01.
     function loadApproved(onDone) {
-        var endpoint = window.DESIGN_WALLET_PORTFOLIO_SUBMISSION_URL || "";
-        if (!endpoint) { onDone([]); return; }
-
-        requestJsonp(function (callbackName) {
-            // `type=portfolios` picks the portfolio branch of the shared
-            // script; without it the endpoint answers with salary figures.
-            return endpoint + (endpoint.indexOf("?") === -1 ? "?" : "&") +
-                "type=portfolios" +
-                "&callback=" + encodeURIComponent(callbackName) +
-                "&cachebust=" + Date.now();
-        }, function (payload) {
-            // A payload with no `items` is not an empty approved list — it means
-            // the URL is answering with something that isn't this script. That
-            // is exactly the 2026-09-16 fault, where it served the salary
-            // payload. Say so in the console; the page carries on regardless.
-            if (payload && !payload.items && window.console && console.warn) {
-                console.warn("[wall] the portfolio endpoint answered without `items` — " +
-                    "it is probably running a different Apps Script. Keys: " +
-                    Object.keys(payload).join(", "));
-            }
-
-            var items = payload && payload.ok && payload.items ? payload.items : [];
-            onDone(items.map(function (item) {
+        fetchSupabase("approved_portfolios?select=*&limit=2000", function (rows) {
+            onDone(rows.map(function (row) {
                 return normalizeEntry({
-                    name: item.fullName,
-                    subtitle: item.description,
-                    image: item.profileImage,
-                    thumbnail: item.thumbnail,
-                    link: item.portfolioUrl,
+                    name: row.full_name,
+                    subtitle: row.description,
+                    image: row.profile_image,
+                    thumbnail: row.thumbnail,
+                    link: row.portfolio_url,
                     slug: ""
                 });
             }).filter(Boolean));
         }, function () {
-            // The script may simply not be redeployed yet. The curated wall is
-            // the page either way, so this is never surfaced to the reader.
+            // The view may not exist yet (submissions.sql not run). The curated
+            // wall is the page either way, so this is never surfaced to the reader.
             onDone([]);
         });
     }

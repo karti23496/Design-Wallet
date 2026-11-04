@@ -11,10 +11,23 @@
 }
 
 /* ── Full-height shell: the page itself never scrolls; the two panels do. ──── */
-body.is-dashboard { overflow: hidden; }
+/* The body is the 100vh column and the shell takes what is left of it. The
+   shell used to be 100vh itself, so on the homepage the ticker bar above it
+   (41px) pushed the sidebar's footer — "List your tool" — below the screen,
+   where the non-scrolling page could never reach it (fixed 2026-10-20). */
+body.is-dashboard {
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* The ticker keeps its own height; only the shell flexes. */
+body.is-dashboard > .dw-ticker { flex: 0 0 auto; }
 
 body.is-dashboard .page-shell {
-    height: 100vh;
+    flex: 1 1 auto;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     padding: 0;
@@ -447,11 +460,12 @@ body.is-dashboard main {
     font-size: 0.9rem;
 }
 
-/* Asset grid (§6.2). */
+/* Asset grid (§6.2). Cards are at least 220px, and at least a quarter of the
+   row, so a laptop shows 3 across and wider screens stop at 4. */
 .dash-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(max(220px, calc((100% - 48px) / 4)), 1fr));
+    gap: 16px;
     padding: 16px 24px 40px;
 }
 
@@ -460,8 +474,8 @@ body.is-dashboard main {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 18px;
+    gap: 10px;
+    padding: 16px;
     border-radius: var(--radius-md);
     border: 1px solid var(--border);
     background: var(--panel);
@@ -491,8 +505,8 @@ body.is-dashboard main {
 }
 
 .dash-card-logo {
-    width: 52px;
-    height: 52px;
+    width: 40px;
+    height: 40px;
     flex: 0 0 auto;
     display: flex;
     align-items: center;
@@ -542,7 +556,7 @@ body.is-dashboard main {
 
 .dash-card-title {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 200;
     color: var(--text);
     white-space: nowrap;
@@ -616,19 +630,275 @@ body.is-dashboard main {
 
 .dash-card-visit:hover { background: var(--panel-soft); color: var(--pure); }
 
+/* ── Favourites view ──────────────────────────────────────────────────────
+   renderFavouritesGrid() in tools.js: filter chips, then one sideways row
+   (the All view's .dash-carousel) per section. The grid element holds them,
+   so it stops being a grid here. */
+.dash-grid.is-favourites {
+    display: block;
+    padding: 0 0 40px;
+}
+
+.dash-fav-filters {
+    display: flex;
+    gap: 8px;
+    padding: 12px 24px 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.dash-fav-filters::-webkit-scrollbar { display: none; }
+
+.dash-fav-chip {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--panel);
+    color: var(--muted-strong);
+    font: inherit;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.dash-fav-chip:hover { color: var(--pure); border-color: var(--border-strong); }
+.dash-fav-chip span { color: var(--muted); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+/* Selected: the white pill, as on the homepage tabs. */
+.dash-fav-chip[aria-pressed="true"] { background: var(--pure); border-color: var(--pure); color: #000; }
+.dash-fav-chip[aria-pressed="true"] span { color: rgba(0, 0, 0, 0.55); }
+
+.dash-section-title .dash-fav-count {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Book covers are tall, so a row of books gets narrower columns: about five
+   across a laptop, two and a bit on a phone. */
+.dash-carousel-track[data-kind="book"] { grid-auto-columns: clamp(150px, calc((100% - 64px) / 5.3), 230px); }
+.dash-carousel-track > .book-card-link { scroll-snap-align: start; }
+
+/* A book's cover in the logo slot: a small 3:4 cover, not a circle. */
+.dash-card-logo.dash-card-logo--book { width: 32px; height: 42px; border-radius: 4px; }
+
+/* ── All view: Featured + one carousel per category ───────────────────────
+   Built by renderDashSections() in tools.js. Replaces the flat grid only on
+   the All view with no search; a category or a search still uses .dash-grid. */
+.dash-sections {
+    padding: 8px 0 40px;
+}
+
+.dash-sections-heading {
+    margin: 0;
+    padding: 28px 24px 0;
+    font-family: "Geist", sans-serif;
+    font-weight: 500;
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    color: var(--text);
+}
+
+.dash-section { padding-top: 20px; }
+
+.dash-section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 0 24px;
+}
+
+.dash-section-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-family: "Geist", sans-serif;
+    font-weight: 400;
+    font-size: 1.25rem;
+    color: var(--text);
+}
+
+.dash-section--featured .dash-section-title {
+    font-weight: 500;
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+}
+
+.dash-section-icon {
+    display: inline-flex;
+    color: var(--muted-strong);
+}
+
+.dash-section-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.dash-section-link:hover { color: var(--pure); }
+.dash-section-link svg { transition: transform 0.15s ease; }
+.dash-section-link:hover svg { transform: translateX(2px); }
+
+/* The track lays cards out in columns, top to bottom then left to right, so
+   two rows scroll sideways together. A card is about a third of the row, so
+   the next one peeks in and says "there's more". The vertical padding leaves
+   room for the card's hover lift, which overflow-x would otherwise clip. */
+.dash-carousel-track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: auto;
+    grid-auto-columns: clamp(240px, calc((100% - 48px) / 3.3), 340px);
+    gap: 16px;
+    padding: 12px 24px 14px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 24px;
+    scrollbar-width: none;
+}
+
+.dash-carousel-track::-webkit-scrollbar { display: none; }
+.dash-carousel-track[data-rows="2"] { grid-template-rows: auto auto; }
+.dash-carousel-track > .dash-card { scroll-snap-align: start; }
+
+.dash-carousel-nav {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 2px 24px 0;
+}
+
+.dash-carousel.is-static .dash-carousel-nav { display: none; }
+
+.dash-carousel-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--muted-strong);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.dash-carousel-btn:hover:not(:disabled) {
+    background: var(--panel-strong);
+    border-color: var(--border-strong);
+    color: var(--pure);
+}
+
+.dash-carousel-btn:disabled { opacity: 0.35; cursor: default; }
+
 /* ── Responsive (basic; full mobile chip bar comes in increment 2) ────────── */
 @media (max-width: 1023px) {
     :root { --sidebar-width: 220px; }
 }
 
+/* ── Phones: one ordinary scrolling page (mobile version, 2026-10-20) ─────
+   The two independently scrolling panels make no sense on a phone, so the
+   shell lets go of its fixed height and the PAGE scrolls. The sidebar becomes
+   a single swipeable row of category chips (hot trends first), placed under
+   the hero: `.dash-main` is display:contents, which makes its children
+   siblings of the sidebar in .dashboard's column, so `order` can interleave
+   them. The header pins to the top while scrolling. */
 @media (max-width: 767px) {
-    .dashboard { grid-template-columns: 1fr; }
-    .dash-sidebar {
-        display: none;      /* replaced by a mobile chip bar in increment 2 */
+    body.is-dashboard {
+        overflow: visible;
+        height: auto;
+        display: block;
     }
-    .dash-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; padding: 12px 16px 32px; }
+
+    body.is-dashboard .page-shell,
+    body.is-dashboard main,
+    .dashboard {
+        height: auto;
+        overflow: visible;
+    }
+
+    body.is-dashboard .site-header,
+    body.is-dashboard .site-header.site-header--collection {
+        position: sticky;
+        top: 0;
+        background: var(--surface-2);   /* pinned over the cards as they scroll */
+    }
+
+    .dashboard {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dash-main { display: contents; }
+    .dash-main > * { order: 2; }
+    .dash-main > .dash-hero { order: 0; }
+
+    .dash-sidebar {
+        order: 1;
+        flex-direction: row;
+        gap: 8px;
+        padding: 4px 16px 6px;
+        border-right: none;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .dash-sidebar::-webkit-scrollbar { display: none; }
+
+    .dash-sidebar-label,
+    .dash-sidebar-foot { display: none; }
+
+    .dash-trends-section:not([hidden]),
+    .dash-trends,
+    .dash-nav {
+        display: contents;
+    }
+
+    .dash-nav-row {
+        flex: 0 0 auto;
+        width: auto;
+        gap: 8px;
+        padding: 8px 14px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        font-size: 0.85rem;
+    }
+
+    .dash-nav-label { overflow: visible; }
+
+    .dash-search { position: static; }
+    /* In a ~150px card, the logo and a "FREEMIUM" badge did not fit side by
+       side and the badge pushed out of the card. */
+    .dash-card-top { gap: 6px; }
+    .dash-card-logo { width: 44px; height: 44px; }
+    .dash-badge { padding: 4px 7px; font-size: 0.64rem; letter-spacing: 0; }
+
+    /* 150px, not 160: two cards still fit across a 360px phone. */
+    .dash-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; padding: 12px 16px 32px; }
     .dash-search { padding: 12px 16px; }
     .dash-context { padding: 18px 16px 4px; }
+
+    /* Phones swipe the carousels, so the arrows go. Cards match the 150px
+       grid, with a third peeking in from the right. */
+    .dash-sections-heading { padding: 22px 16px 0; }
+    .dash-section-head { padding: 0 16px; }
+    .dash-carousel-track {
+        grid-auto-columns: calc((100% - 24px) / 2.3);
+        gap: 12px;
+        padding: 10px 16px 12px;
+        scroll-padding-inline: 16px;
+    }
+    .dash-carousel-nav { display: none; }
+
+    /* -5px tracking is set for the desktop size; at 2rem the letters touch.
+       Doubled class: the base .dash-hero h1 rule comes later in this file. */
+    .dash-hero .dash-hero-content h1 { letter-spacing: -0.04em; }
 }
 
 
@@ -676,14 +946,80 @@ body.is-dashboard main {
 .dash-hero-badge a:hover { border-color: var(--border-strong); }
 
 .dash-hero h1 {
-    max-width: 16ch;
     margin: 0 auto 14px;
-    font-family: "Geist", sans-serif;
-    font-weight: 100;
-    font-size: clamp(2rem, 6vw, 14rem);
-    line-height: 1.08;
-    letter-spacing: -5px;
+    font-family: "Inter", sans-serif;
+    font-weight: 400;
+    font-size: clamp(2rem, 5.36vw, 14rem);
+    line-height: 1.19;
+    letter-spacing: -0.08em;
     color: var(--text);
+}
+
+/* Figma 854:4379: two lines, each carrying a brand tile set between the
+   words. Sized in em so the tiles track the headline at every width. */
+.dash-hero-line { display: block; }
+
+.dash-hero-mark {
+    position: relative;
+    display: inline-block;
+    width: 1.06em;                /* 76px tile on a 71.5px headline */
+    height: 1.06em;
+    margin: 0 0.12em;
+    vertical-align: -0.2em;
+}
+
+/* Every tile in a slot sits in the same square; hero-marks.js moves
+   .is-active between them in shuffled order (Figma 857:4471). Offsets are
+   the design's px over its 76px tile, so the crops hold at any size. */
+.dash-hero-tile {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 14.39%;        /* 10.935 / 76 */
+    background: #fff;
+    opacity: 0;
+    transform: scale(0.82) rotate(-8deg);
+    transition: opacity 0.45s ease, transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dash-hero-tile.is-active {
+    opacity: 1;
+    transform: none;
+}
+
+.dash-hero-tile img {
+    position: absolute;
+    display: block;
+    max-width: none;
+    object-fit: cover;
+}
+
+/* The two SVG tiles carry their own white square and radius. */
+.tile-1a, .tile-2a { background: none; border-radius: 0; }
+.tile-1a img, .tile-2a img { inset: 0; width: 100%; height: 100%; }
+
+.tile-1b img, .tile-2d img { left: -7.89%; top: -7.89%; width: 115.79%; height: 115.79%; }
+.tile-1c img { left: -38.16%; top: -9.21%; width: 177.63%; height: 118.42%; }
+.tile-1d { background: #d77655; }
+.tile-1d img { left: 3.95%; top: 3.95%; width: 92.11%; height: 92.11%; }
+.tile-1e img { left: -2.63%; top: -3.95%; width: 105.26%; height: 105.26%; }
+
+.tile-2b img { left: -2.63%; top: -2.63%; width: 105.26%; height: 105.26%; }
+.tile-2c { background: #e41f28; }
+.tile-2c .dash-hero-tile-crop {
+    position: absolute;
+    left: 13.16%;
+    top: 14.47%;
+    width: 76.32%;
+    height: 72.37%;
+    overflow: hidden;
+    border-radius: 999px;
+}
+.tile-2c img { left: -32.98%; top: -21.82%; width: 162.52%; height: 140%; }
+.tile-2e img { left: 27.63%; top: 15.79%; width: 44.74%; height: 67.11%; }
+
+@media (prefers-reduced-motion: reduce) {
+    .dash-hero-tile { transition: none; transform: none; }
 }
 
 .dash-hero-copy {

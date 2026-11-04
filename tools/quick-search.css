@@ -1,0 +1,294 @@
+/* Quick search pop-up — Figma 1135:1959. Opens from the dashboard search bar.
+   Built by tools/quick-search.js. Loaded after dashboard.css on the catalogue
+   shells, which supplies .dash-icon-mask for the category icons. */
+
+.dash-search-field.has-quick-search,
+.dash-search-field.has-quick-search .dash-search-input { cursor: pointer; }
+
+body.qs-open { overflow: hidden; }
+
+.qs-backdrop {
+    --qs-top: clamp(16px, 9.3vh, 84px);
+    position: fixed;
+    inset: 0;
+    z-index: 1300;              /* over the site header (style.css tops out at 1200) */
+    background: rgba(0, 0, 0, 0.66);
+    overscroll-behavior: contain;
+}
+
+.qs-backdrop[hidden] { display: none; }
+
+.qs-dialog {
+    position: absolute;
+    top: var(--qs-top);
+    left: 50%;
+    width: min(720px, calc(100vw - 32px));
+    max-height: calc(100vh - var(--qs-top) * 2);
+    max-height: calc(100dvh - var(--qs-top) * 2);
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    border: 1px solid rgba(var(--fg-rgb), 0.14);
+    background: #0a0a0a;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    font-family: "Inter", sans-serif;
+    animation: qs-in 0.14s ease-out;
+}
+
+@keyframes qs-in {
+    from { opacity: 0; transform: translate(-50%, 6px); }
+}
+
+/* Search field */
+.qs-field {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.qs-field-icon { flex: 0 0 auto; color: #dcdcdc; }
+
+.qs-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: none;
+    color: var(--text);
+    caret-color: var(--text);
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 24px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Outranks the global input:focus-visible ring; the open dialog is the signal. */
+.qs-input:focus-visible { outline: none; }
+.qs-input::placeholder { color: #8a8a8a; opacity: 1; }
+.qs-input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+
+.qs-key {
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(var(--fg-rgb), 0.12);
+    background: rgba(var(--fg-rgb), 0.04);
+    color: #8a8a8a;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 13px;
+}
+
+button.qs-key { cursor: pointer; }
+button.qs-key:hover { color: var(--pure); border-color: var(--border-strong); }
+.qs-key-touch { display: none; }
+
+/* Body: suggestions (01) and results (02) */
+.qs-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px 32px 32px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.qs-body.is-results {
+    gap: 20px;
+    padding: 20px 22px 12px;
+}
+
+.qs-results { display: flex; flex-direction: column; gap: 20px; }
+
+.qs-group { display: flex; flex-direction: column; gap: 12px; }
+
+.qs-label {
+    margin: 0;
+    color: #7a7a7a;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.is-results .qs-label { padding-left: 10px; }
+
+.qs-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.qs-chip {
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(var(--fg-rgb), 0.04);
+    color: #dcdcdc;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 16px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.qs-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.qs-tile {
+    min-height: 88px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 15px 6px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(var(--fg-rgb), 0.03);
+    color: #dcdcdc;
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 15px;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.qs-tile .dash-icon-mask { flex: 0 0 auto; }
+
+.qs-chip:hover,
+.qs-tile:hover {
+    border-color: var(--border-strong);
+    background: rgba(var(--fg-rgb), 0.08);
+    color: var(--pure);
+}
+
+.qs-chip:focus-visible,
+.qs-tile:focus-visible,
+.qs-key:focus-visible,
+.qs-row:focus-visible,
+.qs-all:focus-visible {
+    outline: 2px solid rgba(var(--fg-rgb), 0.6);
+    outline-offset: 2px;
+}
+
+/* Results */
+.qs-list { display: flex; flex-direction: column; gap: 2px; }
+
+.qs-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.qs-row:hover,
+.qs-row.is-active { background: rgba(var(--fg-rgb), 0.07); }
+
+/* The pointer outranks the keyboard highlight, so two rows never look selected. */
+.qs-results:hover .qs-row.is-active:not(:hover) { background: none; }
+
+.qs-row-logo,
+.qs-row-icon {
+    position: relative;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.qs-row-logo { background: #f5f5f5; color: #101010; font-size: 15px; font-weight: 500; }
+.qs-row-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.qs-row-icon { background: rgba(var(--fg-rgb), 0.06); color: #dcdcdc; }
+
+.qs-row-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.qs-row-name { color: var(--text); font-size: 14px; font-weight: 500; line-height: 17px; }
+
+.qs-row-desc {
+    overflow: hidden;
+    color: #8a8a8a;
+    font-size: 12px;
+    line-height: 15px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.qs-row-meta { flex: 0 0 auto; color: #8a8a8a; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; }
+.qs-row-count { flex: 0 0 auto; color: #8a8a8a; font-size: 12px; }
+
+.qs-empty { margin: 0; padding: 28px 10px 32px; color: #8a8a8a; font-size: 14px; text-align: center; }
+
+.qs-all {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    padding: 16px 32px;
+    border: none;
+    border-top: 1px solid var(--border);
+    background: none;
+    color: #dcdcdc;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 16px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.qs-all:hover { background: rgba(var(--fg-rgb), 0.04); color: var(--pure); }
+.qs-all-text { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.qs-all.is-row-active .qs-key { visibility: hidden; }
+
+.qs-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* Touch has no esc or enter key. */
+@media (hover: none) {
+    .qs-key-desk { display: none; }
+    .qs-key-touch { display: inline; }
+    .qs-all .qs-key { display: none; }
+}
+
+/* Not in the Figma (desktop only): keeps the same parts, in fewer columns. */
+@media (max-width: 767px) {
+    .qs-backdrop { --qs-top: 12px; }
+    .qs-dialog { width: calc(100vw - 24px); }
+    .qs-field { padding: 14px 16px; }
+    .qs-body { padding: 20px 16px 24px; }
+    .qs-body.is-results { padding: 16px 8px 8px; }
+    .qs-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .qs-all { padding: 14px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .qs-dialog { animation: none; }
+    .qs-chip, .qs-tile { transition: none; }
+}

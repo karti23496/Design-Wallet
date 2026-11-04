@@ -59,6 +59,14 @@ create table if not exists public.portfolios (
     updated_at  timestamptz not null default now()
 );
 
+-- Enrichment for the Design Wallet MCP connector's search (DECISIONS "MCP
+-- connector"). Sheet columns of the same names; all optional, comma-joined text
+-- like `categories`. `alter … add column if not exists` keeps this file
+-- re-runnable on a database created before these existed.
+alter table public.tools add column if not exists use_cases text;  -- e.g. "background removal, mockups"
+alter table public.tools add column if not exists platforms text;  -- web, mac, windows, ios, android, figma-plugin…
+alter table public.tools add column if not exists free_tier text;  -- yes / no
+
 create index if not exists tools_batch_idx      on public.tools (sync_batch);
 create index if not exists books_batch_idx      on public.books (sync_batch);
 create index if not exists portfolios_batch_idx on public.portfolios (sync_batch);
@@ -99,9 +107,12 @@ create policy "anon reads portfolios" on public.portfolios
 -- it is the point: the view IS the public surface, and the tables are not
 -- reachable with the anon key at all. Do not add `security_invoker = true`
 -- without also granting `anon` SELECT on the tables, or the site goes blank.
+-- New columns go at the END: `create or replace view` may add columns but not
+-- reorder or rename existing ones.
 create or replace view public.public_tools as
     select slug, title, subtitle, description, image, link,
-           pricing, categories, thumbnails
+           pricing, categories, thumbnails,
+           use_cases, platforms, free_tier
     from public.tools;
 
 create or replace view public.public_books as
@@ -139,3 +150,52 @@ grant select on public.public_portfolios to anon;
 revoke all on public.tools      from anon, authenticated;
 revoke all on public.books      from anon, authenticated;
 revoke all on public.portfolios from anon, authenticated;
+
+-- ── MCP connector analytics ──────────────────────────────────────────────
+-- One row per tool call made through supabase/functions/design-wallet-mcp.
+-- ANONYMOUS by design: what was asked and what came back, never who asked —
+-- no IP, no account, no identifier. `client` is the coarse app name from the
+-- User-Agent ("claude-user", "openai-mcp"…), nothing finer.
+--
+-- Written only by the function with the service_role key. Not readable or
+-- writable with the anon key at all: no policy, privileges revoked.
+create table if not exists public.mcp_queries (
+    id           bigint generated always as identity primary key,
+    created_at   timestamptz not null default now(),
+    tool_name    text not null,
+    query        text,
+    filters      jsonb,
+    result_count integer not null default 0,
+    top_slugs    text[],
+    client       text
+);
+
+create index if not exists mcp_queries_created_idx on public.mcp_queries (created_at desc);
+
+alter table public.mcp_queries enable row level security;
+revoke all on public.mcp_queries from anon, authenticated;
+
+-- Catalogue gaps: what designers searched for that Design Wallet does not list.
+-- This is the "tools to add" list. Read it in the Supabase dashboard.
+create or replace view public.mcp_gaps as
+    select lower(trim(query))  as query,
+           count(*)            as times_asked,
+           max(created_at)     as last_asked
+    from public.mcp_queries
+    where tool_name = 'search_tools' and result_count = 0 and coalesce(query, '') <> ''
+    group by lower(trim(query))
+    order by times_asked desc, last_asked desc;
+
+-- What designers search for most, matched or not.
+create or replace view public.mcp_top_queries as
+    select lower(trim(query))  as query,
+           count(*)            as times_asked,
+           round(avg(result_count), 1) as avg_results
+    from public.mcp_queries
+    where tool_name = 'search_tools' and coalesce(query, '') <> ''
+    group by lower(trim(query))
+    order by times_asked desc;
+
+-- Internal views: nobody outside the dashboard reads these.
+revoke all on public.mcp_gaps        from anon, authenticated;
+revoke all on public.mcp_top_queries from anon, authenticated;

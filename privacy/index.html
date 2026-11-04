@@ -25,8 +25,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/style.css?v=20261015-3">
-    <link rel="stylesheet" href="/mobile-gate.css?v=20260920-1">
+    <link rel="stylesheet" href="/style.css?v=20261101-1">
 </head>
 <body>
     <div class="page-shell">
@@ -35,7 +34,7 @@
         <main>
             <section class="privacy-section">
                 <h1>Privacy Policy</h1>
-                <span class="privacy-updated">Last updated: April 7, 2026</span>
+                <span class="privacy-updated">Last updated: October 29, 2026</span>
 
                 <div class="privacy-toc">
                     <p>Table of Contents</p>
@@ -155,9 +154,28 @@
                     If you contact us via email or a contact form, the information you provide (including your email address and message content) will be stored to process your inquiry. We will not share this data without your consent. Data submitted through contact forms is retained until you request deletion or the purpose for storage no longer applies.
                 </p>
 
-                <h3>Google Sign-In</h3>
+                <h3>Design Wallet MCP</h3>
                 <p>
-                    We use Google Sign-In to allow users to save favourites. When you sign in with Google, we receive your name, email address, and profile picture from your Google account. This data is used solely to identify you within our platform and enable your saved preferences. We do not access or store your Google password.
+                    If you connect Design Wallet to an AI assistant such as Claude, ChatGPT or Cursor, we record the searches it makes on your behalf (the question, any filters, and which tools were returned) along with the name of the app that sent it. We do not record your IP address, account, name or any other information that identifies you, and we cannot link a search to a person. We use these records only to see what designers look for and which tools to add to Design Wallet. Your conversation with the AI assistant itself is governed by that assistant's own privacy policy; we never see it.
+                </p>
+
+                <h3>Your Design Wallet Account</h3>
+                <p>
+                    You don't need an account to browse Design Wallet. If you create one, we store:
+                </p>
+                <ul>
+                    <li><strong>Sign-up details</strong> — your name and email address. If you sign up with a password, it is stored only as a one-way hash; nobody, including us, can read it.</li>
+                    <li><strong>From Google, if you use Google Sign-In</strong> — your name, email address and profile picture. We never see or store your Google password.</li>
+                    <li><strong>Onboarding answers, all optional</strong> — your role, experience level, what you're here for, your city and country, and whether you want the newsletter.</li>
+                </ul>
+                <p>
+                    We use this to run your account, to tailor what we show you, and, counted together rather than person by person, to understand who uses Design Wallet and what to build next. Only you can see your own profile on the site. We don't sell it or share it with anyone else.
+                </p>
+                <p>
+                    Your browser also keeps your sign-in session, your first name and the page you were on, so you stay signed in and come back to where you left off. Signing out clears the session.
+                </p>
+                <p>
+                    We keep your account until you delete it. You can see and change everything in your profile, or delete your account and everything stored with it, at any time: sign in, open your account menu, choose <strong>Profile &amp; preferences</strong>, then <strong>Delete my account</strong>. Deleting also removes you from the newsletter.
                 </p>
 
                 <!-- 5. Analytics -->
@@ -177,7 +195,7 @@
                 <!-- 6. Newsletter -->
                 <h2 id="newsletter">6. Newsletter</h2>
                 <p>
-                    If you subscribe to our newsletter, your email address will be stored and used to send you regular updates about design resources, tools, and exclusive content. You can unsubscribe at any time by clicking the "unsubscribe" link in any newsletter email or by contacting us directly.
+                    If you subscribe to our newsletter, or tick the newsletter box when setting up your account, your email address will be stored and used to send you regular updates about design resources, tools, and exclusive content. You can unsubscribe at any time by clicking the "unsubscribe" link in any newsletter email or by contacting us directly.
                 </p>
                 <p>
                     We may use a third-party email service provider to manage our newsletter. Your email address may be stored on their servers. We ensure that any such provider complies with applicable data protection standards.
@@ -190,8 +208,9 @@
                 </p>
                 <ul>
                     <li><strong>Google Fonts</strong> — For consistent typography. Your IP address may be transmitted to Google when fonts are loaded.</li>
-                    <li><strong>Google Sheets API</strong> — We use Google Sheets as a lightweight backend to serve our resource catalog.</li>
-                    <li><strong>Google Sign-In</strong> — To enable user authentication for saving favourites.</li>
+                    <li><strong>Supabase</strong> — Hosts our resource catalogue, newsletter list and user accounts, including your account details and onboarding answers.</li>
+                    <li><strong>Google Sign-In</strong> — An optional way to sign in to your Design Wallet account.</li>
+                    <li><strong>Resend</strong> — Sends account emails, such as confirming your email address and resetting your password.</li>
                 </ul>
                 <p>
                     These services may collect data independently. We recommend reviewing the privacy policies of these providers for more information.
@@ -211,8 +230,7 @@
     </div>
 
     <script src="/content.js?v=20260508-6"></script>
-    <script src="/header.js?v=20261019-1"></script>
+    <script src="/header.js?v=20261101-1"></script>
     <script src="/newsletter.js?v=20261015-3"></script>
-    <script src="/mobile-gate.js?v=20260920-1"></script>
 </body>
 </html>

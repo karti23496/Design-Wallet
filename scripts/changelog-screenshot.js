@@ -54,6 +54,10 @@ try {
     const browser = await puppeteer.launch({ headless: "new" });
     const page = await browser.newPage();
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+    // Pages that animate (the /mcp/ typewriter, tickers, loaders) settle on
+    // their resting state under reduced motion, so the still never catches
+    // a half-typed word.
+    await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
     await page.goto(base + route, { waitUntil: "networkidle2", timeout: 45000 }).catch(() => {
         /* Analytics can keep the network busy; the settle delay below covers it. */
     });

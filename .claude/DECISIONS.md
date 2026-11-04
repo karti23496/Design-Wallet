@@ -15,14 +15,14 @@
    the headline, so done and not-done stay visible at a glance.
 
 - **Status key:** `✅ DONE` = shipped · `DECIDED` = agreed, not built yet · `PENDING` = needs Karthik's call · `SUPERSEDED` = no longer true, kept for history
-- Last updated: **2026-09-20**
+- Last updated: **2026-11-01**
 
 ---
 
 ## 1. Direction & Business Model
 
 - **`✅ DONE`** ~~The website becomes free for everyone.~~ No subscriber paywall, no user accounts required to browse. **LIVE on `designwallet.in` since 2026-09-01** (`main` at `b3a466b`). Verified in production: `/pricing/` and `/account/` return 404, and the homepage carries zero `dw-gate-pending` / `DWAuth` / `supabase` / `join-waitlist` references.
-- **`DECIDED` Revenue comes from paid tool listings, not user subscriptions.** `list-your-tool/` is the business model: free for designers, paid for tools that want placement. *(Standing direction, not a build task.)*
+- **`DECIDED` Revenue comes from paid tool listings, not user subscriptions.** `list-your-tool/` is the business model: free for designers, paid for tools that want placement. *(Standing direction, not a build task.)* **Amended 2026-11-01: paid agents are now a second revenue stream; the directory stays free. See "Paid agents: plan approved" at the end of this file.**
 - **`DECIDED` The repository will be open sourced.** "Free" and "open source" are two separate decisions and we're doing both. **Not yet done — blocked on a `LICENSE` file, see §8.**
 - **`⚠️ HELD` `list-your-tool/` is temporarily off the live site.** Karthik's call on 2026-09-01 — *"we have to work on the list your tool page"*. **This is a hold while it is reworked, not a reversal of the business-model decision above**, which still stands. The page is intact on `remove-paywall`; only `main` is missing it. Restore by reverting the hold-back commit (see the implementation log). **The rework landed 2026-09-11**: the page is now a book-a-call page (§13). It is still held off `main` until Karthik says to ship it.
 - **`PENDING` Listing prices are on hold.** As of 2026-09-11 **no listing price appears anywhere on the site.** The ₹1,499 card went with the pricing page when `/list-your-tool/` became a book-a-call page (§13), at Karthik's request, and pricing is now discussed on the call. Karthik will still set the figures. Do not publish listing prices without being asked.
@@ -170,6 +170,7 @@ Established while fixing a real incident — the homepage was shipping **127 MB*
 - **`SUPERSEDED` The homepage first fold carries an inline signup.** Removed 2026-08-26 — the fold is headline + sub-copy only; signup lives in the nav modal.
 - **`DECIDED` Newsletter posts to the original Google Apps Script endpoint** recovered from the deleted waitlist code, so existing subscribers keep landing in the same sheet. *(That endpoint is now only recorded in `newsletter.js` and commit `ba59688`.)*
 - **`DECIDED` The site is dark-only.** Light mode was removed 2026-09-01 — it was never wanted yet and had never been seen rendered in a browser. Removed: `theme.js` (deleted), its `<script>` on all 10 pages, the nav toggle (`THEME_ICONS` / `themeToggleMarkup` / `wireThemeToggle` in `header.js`, `.nav-theme-toggle` in `style.css`), the `:root[data-theme="light"]` token block, and the `filter: invert(1)` logo rule. Nothing now reads `data-theme`, `DWTheme` or `prefers-color-scheme`.
+- **`DECIDED` The blacks are darker (2026-10-24).** Karthik: *"Make the overall website in more darker black."* Every surface token in `style.css` moved down, keeping the same order so panels still sit above the page: page ground `--surface-2` `#101010` → `#050505`; `--surface-0` `#070707` → `#000000`, `-1` `#0d0d0d` → `#030303`, `-3` `#111111` → `#070707`, `-4` `#1a1a1a` → `#101010`; `--bg` `#0a0a0a` → `#030303`; `--panel` `#121212` → `#0a0a0a`; `--panel-strong` `#171717` → `#0f0f0f`. The nav resources panel, its icon tiles and the `#101010` modal now use tokens instead of raw hex, and the preloader ground (`--dw-lo-ground` in `loader.css`) went `#080808` → `#030303` so it does not flash lighter than the page. Borders and text are unchanged. **The salary ramp was validated against `#121212`**; it is alpha over `--panel`, so its dark end is now darker — re-check the ramp if it reads too faint.
 - **`DECIDED` Theming stays token-only even though there is only one theme.** ~480 hardcoded colours are still tokens, and **that layer is deliberately kept** — it is the entire cost of bringing a second theme back, so a rebuild is a token block plus a toggle, not another 480-substitution pass. Never reintroduce a raw hex or `rgba(255,255,255,…)` — use `var(--fg-rgb)`, `var(--pure)` or a `--surface-*` token.
 - **How to bring light mode back:** re-add a `:root[data-theme="light"]` block redefining the tokens, plus a toggle that sets the attribute. The removed versions of both are in git as of commit `93d6b43`. The `filter: invert(1)` logo rule must come back with it, **and the footer mark needs its own selector** (`footer.js` emits a bare `<img>` with no `.brand-logo` class, so `.footer-brand img` must be listed separately or the footer logo stays white and vanishes).
 - **`DECIDED` If a theme toggle returns, its script loads synchronously before every `<link>`.** A sync script placed *after* a stylesheet is blocked until that CSS downloads, which reintroduces the flash of wrong theme. This is why `theme.js` sat where it did.
@@ -213,6 +214,18 @@ New files: `theme.js`, `newsletter.js`. Reference: Good Design Tools.
 - **`✅ DONE`** ~~The orbiting starfield is back, behind the hero title.~~ Lost when the marketing homepage was replaced; restored inside `.dash-hero`. 100 orbits, 133–1020px, 20–90s, both directions.
 - **`DECIDED` `stars.js` is shared by every hero that carries a `#stars-field`** — the three catalogue shells, `/list-your-tool/` and, since 2026-09-01, `/good-deals/`. **Do not tune its constants for one page; add a per-element option instead.** The pressure to do so grows with each page that adopts it.
 - **Note:** the original hero was full-viewport; the new one is ~400px tall with `overflow: hidden`, so the larger orbits are clipped and the field reads sparser than before. Tunable if it looks wrong in a browser.
+- **`DECIDED` The site's type scale is set once, on `html { font-size: 85% }` in `style.css`.** Karthik, 2026-10-23: *"at 100% it feels big enough … reduce the font size in the entire product."* First pass was 90%; the same day he asked for *"even more smaller"*, so it went to 85%. ~800 of the site's font sizes are `rem`, so they all follow this one value, and so does `rem` spacing. Because it is a percentage, a visitor's own browser font setting is still honoured. To change the scale again, change this one line rather than editing individual rules.
+- **`DECIDED` Hard-coded `px` font sizes above 14px were scaled by the same 0.85** (blog index headings, mobile nav links, `.nav-res-title`, two in `wall.css`), so nothing stays at the old size. **Sizes of 14px and below were left alone** so small labels stay readable. New font sizes should use `rem` so they follow the root. The admin page doesn't load `style.css` and was not changed. Cache-busters: `style.css`/`wall.css` at `20261023-2` (including `assetVersion` in `scripts/build-blog.js`), `dashboard.css` at `20261023-1`.
+- **`DECIDED` The tool grid shows 3 cards across on a laptop and stops at 4.** Karthik, 2026-10-23: *"only two cards are visible at 100% … we can show 3 or 4 cards in a row."* `.dash-grid` is `minmax(max(220px, calc((100% - 48px) / 4)), 1fr)`: a 220px floor, and never narrower than a quarter of the row, so a wide monitor never gets 5+. The `48px` is three 16px gaps, **so change it if the gap changes.** Cards were tightened to match: logo 52→40px, padding 18→16px, title 1.25→1.1rem. The mobile 150px grid is unchanged.
+- **`DECIDED` The All view is grouped: a Featured row, then one carousel per category.** Karthik, 2026-10-23, against a reference screenshot ("Popular Categories" with a row per category, a "View Category ›" link and ← → arrows): *"Categorise the tools in the All section … we also need a featured section at the top."* Built in `renderDashSections()` in `tools/tools.js`. It applies **only to the All view with no search**. A category or a search still shows the flat `.dash-grid`, and the "All Tools / N tools" header is hidden while the sections are up. The container `#dash-sections` is created by `tools.js`, not written into the three catalogue shells, so all three get it without three copies of the markup.
+- **`DECIDED` Featured is the hand-edited `DW_FEATURED` slug list in `tools.js`**, following the `DW_TRENDS` pattern, because the catalogue has no featured column. It currently holds Claude, ChatGPT, Midjourney, Lovable, Figma Make, Cursor, Mobbin and Framer. A slug that isn't in the live data is skipped, and the section hides if none are left. **If featured placement becomes something sold or edited by non-developers, move it to a Sheet column** (needs `sheet-sync.gs` + `public_tools` changes).
+- **`DECIDED` Category carousels: most tools first, at least 4 tools, at most 12 cards, two rows.** `CATEGORY_ROW_MIN = 4` leaves the 1–3-tool categories to the sidebar, because a carousel with one card in it looks broken. That gives 27 carousels at the moment. `CATEGORY_ROW_LIMIT = 12`: "View category" opens the rest. Cards inside a carousel are A–Z. Featured is one row. Cards are ~a third of the row (`clamp(240px, (100% − 48px)/3.3, 340px)`) so the next one peeks in. Arrows are disabled at each end and hidden when everything fits. On phones there are no arrows; you swipe, with ~2.3 cards across. Cache-busters: `tools.js` `20261023-1`, `dashboard.css` `20261023-4`. Verified in headless Chrome at 1440 and 390: no JS errors and no horizontal page overflow, and the category and search views are unchanged (45 and 14 grid cards).
+- **`DECIDED` The hero headline carries two brand tiles between its words** — Figma `854:4379`, Karthik, 2026-10-23. Line 1 *"All-in-one [tile] design library"*, line 2 *"for [Behance tile] curious designers."*, each a `.dash-hero-line` block so the break is fixed. The tiles are `public/hero/logomark-1.svg` and `logomark-2.svg`, exported from the frame as-is, and are decorative (`alt=""`). They are sized in `em` (`1.06em`, the 76px tile on the 71.5px headline), so they scale with the text.
+- **`DECIDED` The hero headline is Inter 400, not Geist 100**, per the design: `clamp(2rem, 5.36vw, 14rem)` (71.5px on the 1335px frame), line-height 1.19, tracking `-0.08em`. **It is the one place the site uses Inter on screen.** Inter 400 was already requested by `index.html` and `tools/index.html`, so nothing new loads. Both pages carry the hero and both were changed. `dashboard.css` cache-buster is at `20261023-2`. Checked at 1335px against the frame and at 390px with phone emulation: no horizontal scroll.
+- **`DECIDED` Each hero tile slot shuffles through its own set of five** — Figma `857:4471`, Karthik, 2026-10-23: *"each icon set should be changing in the same place. It has to be shuffled."* Slot 1 (after "All-in-one") cycles the top row, slot 2 (after "for") the bottom row. `hero-marks.js` moves `.is-active` every **2.4s**. Each round plays the whole set in random order and never shows the same tile twice in a row. The second slot runs half a beat behind, so the two never change together. Tiles fade and spring in (`scale .82, rotate -8deg` → rest).
+- **`DECIDED` Tiles are rebuilt in CSS, not flattened to images:** a coloured square plus the design's own cropped image, with every offset written as a percentage of the 76px tile (`.tile-1a`…`.tile-2e` in `dashboard.css`), so the crops hold at every headline size. Assets are `public/hero/slot1-2…5.png` and `slot2-2…5.png`, downscaled to at most 320px (the Pinterest source was 250 KB at 1600px). The first tile of each row is the existing `logomark-1/2.svg`. **Without JS, or with reduced motion, nothing cycles:** the first tile stays, which is the design's still frame.
+- **`⚠️ GOTCHA` Headless Chrome won't size a window below about 500px.** A `--window-size=390,…` screenshot is really a wider page cropped, and looks like the content is overflowing. Use Playwright with a `viewport` and `isMobile` for phone checks.
+
 - **`✅ DONE`** ~~The email signup is removed from the first fold on every catalogue view.~~ The newsletter is reached through `SUBSCRIBE` in the nav, which opens the injected modal. Supersedes the earlier "first fold carries an inline signup" decision — the fold is now just headline + sub-copy.
 - **`✅ DONE`** ~~A "Loved by" avatar row sits in the first fold.~~ Ten overlapping 36px avatars under the sub-copy, identical on all three shells. Reuses the optimised `/public/avatars/` set (23 KB total) that had been orphaned since the marketing hero was removed — no new image weight. Ring uses `var(--pure)` so it reads in both themes; caps at six avatars below 700px.
 - **Note:** those avatars are the **stock portraits from the old testimonials section**, not real users. Fine as placeholder social proof, but worth swapping for real faces (or real logos) before making a stronger claim than "Loved by".
@@ -1046,6 +1059,32 @@ proposed migrating to Supabase. **Full review and phased plan in `.claude/DATA-S
   request to its gviz endpoint: **HTTP 200 with rows**. **The fix is a sharing setting** — Share →
   Restricted, plus File → Share → *Stop publishing* — and it **breaks nothing**, because the Apps
   Script runs `Execute as: Me` and no client file references that spreadsheet.
+- **`🔴 STILL OPEN — re-verified 2026-10-31`** An anonymous gviz request to the submissions
+  spreadsheet (`1aKs9…`) still returns **HTTP 200, `status: "ok"`**. Four weeks after it was flagged,
+  the sheet is not Restricted. Re-raised with Karthik alongside a full security review (Supabase
+  RLS is sound; the gaps are this sheet, missing auth CAPTCHA/leaked-password checks to confirm in
+  the dashboard, no MX for hello@, and DPDP/GDPR basics).
+- **`🔴 WORSE THAN RECORDED — checked 2026-11-01 via the Drive API`** The submissions spreadsheet's
+  permissions are `{type: anyone, role: writer}`: **anyone with the link can EDIT it**, not just read
+  it (delete rows, plant data, change the tabs the Apps Script writes to). The Drive connector can
+  only add access, not remove it, so Karthik must set General access → Restricted by hand.
+  **Restricting does not break the forms:** salary and portfolio both post to the one Apps Script
+  deployment (`salary/endpoint.js`, `submit-portfolio/endpoint.js`), which runs `Execute as: Me`;
+  the newsletter already writes to Supabase `subscribe()`, not this sheet.
+- **`✅ DONE` 2026-11-01 — the submissions spreadsheet is Restricted.** Karthik changed General access;
+  the Drive API now lists only the owner, and an anonymous gviz request returns **401** (was 200).
+  "Publish to web" was confirmed off. **Still `PENDING`:** rotate the spreadsheet (its ID stays in
+  git history), test one real salary submission still lands, and legal advice on DPDP/GDPR disclosure.
+- **`DECIDED` 2026-11-01 (Karthik): submissions go to Supabase, not a Google Sheet.** Built in
+  `supabase/submissions.sql`: private `salary_submissions` and `portfolio_submissions`, `submit_salary()`,
+  `submit_portfolio()`, `salary_community()` and the email-free `approved_portfolios` view. Approve by
+  setting `status` in the Table Editor. Tested on a throwaway Postgres (PGlite), not on the live database.
+  **`PENDING` Order:** Karthik runs `submissions.sql`, then the gitignored `.import-submissions.local.sql`
+  (1 portfolio, 3 salary rows), and only then the client changes deploy. Afterwards: archive the Apps Script
+  deployment, confirm the 381 subscribers and the "Affiliate Partners" tab are safe elsewhere, delete the sheet.
+  Deleting replaces the "rotate" step. The Affiliate Partners tab was exposed along with everything else.
+- **`🔴 BUG` `favourites.sql` line 50 uses `\\S{1,500}`.** Postgres caps regex repetition at 255, so the check
+  errors whenever `kind = portfolio`. Reproduced on PGlite: hearting a portfolio fails if the live table has it.
 - **`⚠️ Why it is worse than it looks` The spreadsheet's ID is committed and pushed** —
   `salary/submit/google-apps-script.js` line 53, on `origin/main`. §1 commits this repo to going
   open source. **On the day it does, those addresses are a one-line `curl` for any reader.** The
@@ -2089,3 +2128,813 @@ Karthik: *"Add all the changes in the version log 2.4 — we missed preloader an
 Karthik: *"Take it live."* Committed `68211e5` (8 files: the wall's index/css/js and `search.svg`, `changelog/index.html` and `changelog.css`, `v2-4-preloader.webp`, this log) and pushed to `main` and `remove-paywall`. Still NOT shipped: `public/reference/`, `deno.lock`, `supabase/.temp/`, the two `.claude` plans, the `(1)` duplicates. Version stays **v2.4** (these are in its entry).
 
 - **Verified in production, in a browser on designwallet.in** (Pages deployed in ~50s): the wall shows **145 portfolios** under All; Product 44 · Visual 17 · UI/UX 25 · Motion 1; searching "framer" leaves 21. The changelog's v2.4 has the three sections (Brandkit Generator, Pre-loader added, Filters on the Wall of Portfolios), the pre-loader still loads uncropped (1.76:1), and the capsule reads v2.4. No page errors. `search.svg` and the new image 200; `/public/reference/`, `/deno.lock` and `/.claude/DATA-SECURITY-PLAN.md` 404.
+
+## Pre-loader shortened to ~2.8s (2026-10-20)
+
+Karthik: *"Reduce the pre loader animation to 2-3 sec."*
+
+- **`✅ DONE`** Was 5.2s (count 3s + hold 1s + open 0.9s + fade 0.3s); now **2.8s** (count **1.7s** + hold **0.3s** + open **0.6s** + fade **0.2s**). The CSS half was compressed to match: corners 1.35→0.8s · frame draw 0.9s@0.95s → 0.5s@0.55s · stripes 0.5s @1.5s+i·65ms → 0.3s @0.85s+i·35ms · solid fill at 3s → 1.68s · counter fade-in 0.5s@0.15s · glow 0.3s · `--dw-lo-open` 0.6s, `--dw-lo-fade` 0.2s · no-script fallback 6.5s → 4s. Nothing removed from the choreography. Cache-busters `loader.css?v=20261022-4`, `loader.js?v=20261022-2`.
+- **Verified locally in headless Chrome at 1440px:** gone **2.9–3.2s** after navigation (3 runs; the slowest one was taking screenshots), no page errors; frames at 0.3–2.5s show every stage in order. Cold loads in production run a little longer, as before. **Not live yet.**
+
+## Resources dropdown redesigned as cards (2026-10-20)
+
+Karthik: *"This is how the resource dropdown nav bar should be. Take it from this file."* (Figma 847:4287)
+
+- **`✅ DONE` Supersedes the plain text list of 2026-10-03.** The Resources panel is now a 349px card (`#101010`, `#282828` border, 30px radius) holding one row per resource: a 38px icon tile (4px radius, same border) with the Figma icons — book-bookmark for **Wallet Reads**, briefcase for **Wall of portfolios** — saved as `public/icons/nav/*.svg`; a white 15.17px title; a 40%-white 13.17px description. Hovered row gets the design's `rgba(217,217,217,0.02)` 10px-radius highlight. The "Browse" heading is gone (not in the design). Copy is the design's: *"Design books worth buying, curated so your wallet doesn't cry."* / *"Handpicked designer portfolios to spark ideas for your own."*; the label is now "Wall of portfolios" (lower-case p) as designed.
+- **Code:** `DW_RESOURCES` in `header.js` carries the new copy and icon paths; `resourceItems()` replaces `listItems()`; classes `nav-dropdown--res` / `nav-res*` replace `nav-dropdown--list` / `nav-list*` in `style.css`. At ≤980px the panel takes the sheet's width. Cache-busters bumped on all pages: `style.css?v=20261020-1` (21 pages), `header.js?v=20261020-1` (20), and `assetVersion` in `scripts/build-blog.js`.
+- **Verified locally in headless Chrome:** panel 349×212 (design 214), rows 320×82 (design 83); title white and description grey on `/books/` and on `/blog/` (the colour-override trap); icons load; stacked sheet at 900px fine; no page errors; `check-layout.js` passes. **Not live yet.**
+
+## Mobile version of the whole site — the gate comes down (2026-10-20)
+
+Karthik: *"We haven't worked on the mobile version of the entire website. Most of the designers are asking for the mobile version… Can you make it?"* **Supersedes §17 (Mobile gate — desktop only, 2026-09-20).**
+
+- **`✅ DONE` The gate is removed.** `mobile-gate.css` / `mobile-gate.js` deleted (`git rm`; recoverable from history) and their `<link>`/`<script>` taken out of all 21 pages, `favourites.html`, `submit-portfolio.html` and both templates in `scripts/build-blog.js`. Phones now get the real site, the homepage pre-loader included (gone in ~3.0s at 390px).
+- **Method:** every route (22) audited in headless Chrome at **390 and 360px** with touch, gate bypassed, full-page screenshots looked at; then fixed; then re-audited with the gate gone at 390, 360, 320 and **1440px (desktop regression)**. Result: no horizontal overflow on any route at any width (only the two honeypot fields sit off-screen, by design); no page errors.
+- **Catalogue (home, /tools/, /category/, tools/dashboard.css ≤767px):** the two self-scrolling panels become one normally scrolling page (`.dash-main { display: contents }` + `order`), header sticky and opaque; the sidebar — hidden on phones since 2026-09 with a "chip bar in increment 2" that was never built — is now a **swipeable row of chips** (hot trends, then All and every category) under the hero; `revealActiveChip()` in tools.js scrolls the selected category's chip into view. Hero h1 tracking −5px → −0.04em (letters touched). Grid min 150px so two cards fit at 360px; card logo 44px and smaller price badge (a "FREEMIUM" badge pushed out of the card at 360px).
+- **Shared (style.css):** phone gutter **16px** (was 10px; most pages' text sat against the edge); pages whose own wrappers added a second side padding (books, changelog, good deals, privacy, terms, wall, salary form, tool detail, blog article) drop it under 560px. Mobile nav sheet now **opaque** (`--surface-1`, was 95%) and scrolls itself (`max-height: 100dvh − 110px`). Newsletter modal's form stacks under 560px (the global full-width `.primary-button` rule crushed its email field).
+- **Know your money (salary.css ≤760px):** card heads stack (legend ran off-screen); filters two-across full width; headline 2.5rem nowrap (a foreign figure broke in two); map copy now **"Hover or tap"** — tapping a state/country shows its tooltip (verified: Rajasthan, Canada).
+- **`🐞 FIXED — was broken on desktop in production since v2.4`:** the Figma 829:179 filter-pill rules (`.sal-field label` absolutely positioned; `select:not(.is-set) { color: transparent }`) were unscoped and also hit **/salary/submit/**, which shares salary.css: labels sat on top of the inputs and **a chosen dropdown value was invisible**. Confirmed on designwallet.in (computed colour `rgba(0,0,0,0)`), now scoped to `.sal-filter-grid`.
+- **Smaller:** Brandkit "Download brandkit" no longer wraps (nowrap; section title 1.6rem on phones); changelog `cl-subhead` line-height 1.15 (inherited 1.7 split wrapped titles).
+- **Cache-busters:** `style.css` / `header.js` `20261020-1` (all pages), `tools/dashboard.css` and `tools/tools.js` `20261020-1`, `salary.css` `20261021-2`, `brandkit.css` `20261020-1`, `changelog.css` `20261020-1`.
+- **`⚠️ Not verified`:** real phones (all testing is Chrome's mobile emulation), iOS Safari in particular (sticky header, `100dvh`, map taps); the Background Remover on a phone (it downloads a ~110 MB model on first use — heavy on mobile data); the Brandkit run end-to-end on a phone. **Not live yet** — ships together with the 2.8s pre-loader and the Resources card nav, both also local.
+- **`🐞 FIXED` "List your tool" cut off on the desktop homepage (live since GO LIVE #6, the ticker).** Karthik: *"The bottom list your tool is not visible in desktop."* The dashboard shell was `height: 100vh`, and on `/` the ticker bar (41px) sits above it, so the sidebar footer (© Design Wallet · List your tool) landed 25px below the screen on a page that does not scroll. Other catalogue routes have no ticker and were fine. Now `body.is-dashboard` is the 100vh flex column, the ticker keeps its height and the shell takes the rest (`flex: 1; min-height: 0`); reset to normal flow on phones. Verified at 1440×900, 1280×720 and 1024×640: footer bottom 16px above the screen edge on `/` exactly as on `/category/`; the category list still scrolls; the drop-up opens; phone layout unchanged. `tools/dashboard.css?v=20261020-2`.
+
+## Mobile nav becomes a pop-up menu (2026-10-20)
+
+Karthik: *"In mobile version, 1. the nav bar needs to be a pop up like this Figma screen (851:4332). 2. The resource and mini tool drop down should be a secondary list in the pop-up mobile nav bar. 3. The mini tools link should be linked to the index page of mini tools… only in mobile page nav bar."*
+
+- **`✅ DONE`** At ≤980px (where the hamburger shows) the hamburger now opens a **pop-up card over a 70%-black backdrop**: Design Wallet logo, **Resources ⌄ · Know your money · Good Deals · Mini Tools · Blog**, and a **Subscribe** pill. The Figma frame is drawn at 218px; every size is ×1.82 (its 197px card → a 358px card on a 390px phone): card `#101010`, `#282828` border, 54px radius, links 20px, Subscribe 24px in a `#191919` pill. Logo is the site's own `Website-logo.svg` (identical to the frame's); chevron saved as `public/icons/nav/chevron-down.svg`.
+- **Behaviour:** **Resources** expands a plain secondary list (Wallet Reads, Wall of portfolios — indented, dimmer, no cards) and its chevron flips; **Mini Tools** links straight to **`/dw-tools/`** (no dropdown) — mobile only, desktop keeps its mega panel. Closes on the backdrop, any link, Escape, or resizing past 980px; Subscribe closes it and opens the newsletter modal; page scroll is locked while open; focus moves in and back to the hamburger.
+- **Code:** `buildMobileMenu()` / `openMobileMenu()` / `closeMobileMenu()` in `header.js`, appended to `<body>` (inside the header its `backdrop-filter` would trap `position: fixed`); `bindNavToggle()` now opens it instead of toggling `.site-header.is-open`, so the old stacked sheet (`.site-nav` at ≤980px in style.css, made opaque earlier today) is no longer reachable — left in place, unused. Styles: the `.mnav*` block at the end of `style.css`, hidden above 980px.
+- **Verified in headless Chrome at 390px with touch:** card 358×599 (design scaled: 358×593); expand/collapse; backdrop closes; Mini Tools → `/dw-tools/`; Subscribe → newsletter open, menu closed; **opens on all 20 routes with the shared header, no page errors**; at 1440px the pop-up and hamburger are `display: none`. `/salary/` has no shared header (§12), so no hamburger there — unchanged. **Not live yet.**
+
+## Wall of Portfolios: four across on laptops (2026-10-23)
+
+Karthik: *"Make the cards in 4 in a row."* Four was already the rule, but only above 1400px, so 1280-1400px laptops got three. **`✅ DONE`** Breakpoints now: **4 above 1080px**, 3 at 901-1080px, 2 at 761-900px, 1 on phones (≤760px, unchanged). Measured on localhost:8001: 4 per row at 1920 / 1440 / 1366 / 1280 / 1100px (cards 393-236px wide), 3 at 1024, 2 at 820, 1 at 390; no horizontal overflow. Karthik's own tab/search font-size edits (12.04px / 12.71px) left as he made them. `wall.css?v=20261023-3`. **Not live yet.**
+
+## Good deals removed for now (2026-10-23)
+
+Karthik: *"Let's remove the good deals for now. We haven't figured out a feature for it. We will plan it separately."*
+
+- **`✅ DONE`** `/good-deals/index.html` and `good-deals.css` moved with `git mv` to `.claude/archive/good-deals-2026-10-23/` (unpublished; README there says how to restore). Links removed from the desktop nav and the mobile pop-up menu (`header.js`) and from `sitemap.xml`. `header.js?v=20261023-1` on all 19 pages; `assetVersion` in `scripts/build-blog.js` bumped to match. Verified locally: desktop nav = Resources · Know your money · Mini Tools · Blog · Subscribe; mobile menu = Resources · Know your money · Mini Tools · Blog; `/good-deals/` 404; no page errors.
+- **Left alone on purpose:** the v2.0 changelog line that announced Good deals (history), CSS comments that say "as on Good deals", and the legacy `favourites.html` (unlinked, not in the sitemap). **Not live yet.**
+
+## Sign-in portal — decided to build; planning started (2026-10-23)
+
+Karthik: *"I feel sign in portal will be better than people who subscribe for newsletters. I can know who are all interested in onboarding the product. That is a higher metric than newsletter emails… Let's plan how we can get started on it."* Earlier the same day the agent argued against gating the **collections** behind sign-in (search traffic, first impressions); Karthik's stated goal is a signed-up-user metric and a base for a future portfolio builder and job boards. **`PENDING`** Karthik's answers to the planning questions (see the conversation); nothing built yet.
+
+- **2026-10-28 — `DECIDED` The flow is Home page → Sign in / sign up (a pop-up modal on the homepage) → product onboarding.** Karthik's sketch. After signing in, users reach "the product inside".   - **`DECIDED` Scope is extras only.** The catalogue (homepage, `/category/*`, tool pages), blog, salary, books and Mini Tools all **stay public**, so "no user accounts required to browse" still holds. Sign-in unlocks the extras: favourites, Wall of Portfolios submissions, and later the portfolio builder and job boards. Reasons: search traffic, and the open MCP connector already serves the catalogue.
+  - **`DECIDED` Sign-in method: Google plus an email magic link,** both through Supabase Auth.
+  - **`DECIDED` Onboarding asks** for role and level, what they're here for (tools / portfolio / jobs / salary), city and country, and offers a newsletter opt-in checkbox.
+  - **`DECIDED` "Sign in" replaces "Subscribe" in the nav.** The newsletter is now reached through the onboarding opt-in.
+  - **`DECIDED` The pop-up opens on click only:** from "Sign in", or from a locked feature such as the favourite heart. It never opens on its own.
+  - **`DECIDED` Design it in Figma before touching any code** (Karthik, 2026-10-28), in the existing Design Wallet file.
+  - **`DECIDED` Onboarding uses the salary dashboard's own role and level lists** (`salary/data/salaries.json`), plus "Student" and "Other" roles, so profile answers line up with the salary data.
+  - **`DECIDED` Buttons are capsules** (fully rounded), Karthik, 2026-10-28.
+  - **Figma, 2026-10-28:** the section "Sign-in portal (2026-10-28)" (`932:797`) in the Design Wallet file (`ZQtGEp7Co9lyVelVcWiM4r`), on the Website Development page, to the right of the MCP section. Components (`932:798`): Auth / Nav (signed out / signed in), Auth / Button / Primary (`932:800`) and Line (`932:802`), Auth / Input, Auth / Chip, and Auth / Page backdrop (`933:798`). Screens: 01 Homepage signed out · 02 Sign-in modal · 03 Check your email · 04 Sign-in from the favourite heart · 05–07 Onboarding (role & level · what brings you here · location & newsletter opt-in) · 08 You're in · 09 Signed in, account menu. All nine screens were checked visually. The buttons and icon badges are capsules or circles (radius 999).
+  - **`⚠️ GOTCHA` Figma MCP limits follow the team that owns the file.** Starter or a View seat gets about 20 calls a month, resetting on the billing cycle. Upgrading a *different* team changed nothing. The fix, 2026-10-28: Karthik upgraded "Karthik's Starter team" to Professional (Full seat) and **moved the Design Wallet file into it**. The file key is unchanged. If calls get blocked again, run `whoami` (it doesn't count against the limit) and check which team the file is in.
+  - **`DECIDED` Sign in and Sign up also get their own standalone pages** (Karthik, 2026-10-28, from a reference shot: a full-bleed illustrated panel with the headline bottom-left and a floating white form card on the right). Figma screens **10 · Sign in page (`/sign-in/`)** (`942:1321`) and **11 · Sign up page (`/sign-up/`)** (`942:1358`). The headline uses Inter Light with an Instrument Serif Italic accent word. Sign up asks only for name and email; the profile questions stay in onboarding. Light components were added: Auth / Light / Button / Primary, Google, Input. The artwork was generated with Figma AI (Gemini 3.1 Flash Image). The source image node `941:1309` is hidden on the page.
+  - **`DECIDED` The form card on both pages is dark** (Karthik, 2026-10-28): `#0a0a0a` at 92%, a 10% white border, a 24px background blur, and the **dark** Auth button and input components, not the light ones. The light components remain in the Components frame but are unused. Karthik has since replaced the artwork with a dark abstract one and given the sign-up page the sign-in headline. Those are his edits; keep them.
+  - **`DECIDED` The page layout is Karthik's own Sign up redesign, copied onto Sign in** (2026-10-28):
+    - Full-bleed dark artwork as the frame fill, with no inset or nav pill, just the logo top-left (72,58).
+    - The headline sits bottom-left (72,695).
+    - A tall right-hand panel (706×931, bleeding off the top and bottom) with a centred 414px column.
+    - The column has a 32px Inter Regular title, the email form first, then "or", then Google.
+    - The "What you get" box is removed.
+  - **`DECIDED` Mobile (390×844):** "10m · Sign in — mobile" (`949:817`) and "11m · Sign up — mobile" (`949:847`), to the right of the desktop pages.
+    - Same artwork, with the logo at 70% and the headline at 60% of the desktop size.
+    - The form is a bottom sheet: 24px top radius, a grabber, 16px gutters, and the title capped at 26px.
+    - The form column is cloned from the desktop page, so the copy matches it.
+  - **`⚠️ OPEN` Karthik's Sign up has a Password field** (Your name · Email · Password). That conflicts with the passwordless decision above (Google plus an email magic link). Sign in was left passwordless ("Email me a sign-in link") until he decides.
+  - **`DECIDED` (2026-10-28, Karthik):** **email + password, plus Google**. This supersedes "Google plus an email magic link". v1 scope is the pages, the auth and the onboarding; favourites come later. **"Sign in" in the nav goes to `/sign-in/`** (with `?next=` set to the current page); there is no modal in v1.
+  - **`✅ BUILT, not deployed, not committed` (2026-10-28), on `remove-paywall`:**
+    - **Pages:** `sign-in/`, `sign-up/`, `reset-password/` and `welcome/` (`index.html` each). They share `auth/auth.css` and `auth/auth.js`, which loads supabase-js 2.45.4 from jsdelivr. The images are `public/auth/waves.webp` (25 KB) and `safe.webp` (354 KB), exported from the Figma frames.
+    - **Database:** `supabase/profiles.sql` (RLS: own row only; rows are created by a trigger on `auth.users`). The setup runbook is at the end of `supabase/README.md`, steps A–F.
+    - **`header.js`:** Subscribe → "Sign in". Signed in, it shows an avatar pill and a menu with Profile & preferences (`/welcome/?edit=1`) and Sign out (`/sign-in/?signout=1`). It reads the Supabase session straight from localStorage (`sb-ugjtyuikvdeymwsfsgfl-auth-token`), so other pages never load supabase-js.
+    - **Cache-busters:** `header.js` and `style.css` are at `20261028-3` on all pages, matching `assetVersion`.
+    - **Behaviour:** the newsletter opt-in at the end of onboarding calls the existing `subscribe` RPC. Sign-up, the reset request and resend give the same answer whether or not the account exists, so the forms can't be used to look up who has an account. gtag events: `sign_up`, `login`, `login_start`, `onboarding_complete`.
+    - **Verified in headless Chrome:** at 1440 and 390, sign-in, sign-up, reset, all four welcome views, the header signed out and in, and the mobile menu. No page errors, no horizontal overflow. `/welcome/` without a session bounces to `/sign-in/?next=/welcome/`.
+    - **Not verified:** any real sign-up, sign-in, email or Google round-trip. Those need runbook steps A–E first.
+  - **`DECIDED` The redirect allow-list holds exact URLs, with no wildcards** (Karthik, 2026-10-28: "adjust the code to fit"). Supabase gets only `origin + /welcome/` or `origin + /reset-password/`. The page to return to (`?next=`) is kept in localStorage `dw_auth_next` for 24 h and cleared on arrival. Verified: clicking Google on `/sign-in/?next=/blog/` sends `redirect_to=…/welcome/` and stores `/blog/`. The allow-list is `https://designwallet.in/welcome/`, `https://designwallet.in/reset-password/`, plus `http://localhost:8000/welcome/` and `/reset-password/` for local testing. Google OAuth is set up: Google Cloud project `design-wallet-502216`, consent screen in production, client "Design Wallet web". Its first secret was exposed in a chat screenshot, so it was rotated and the old one disabled.
+  - **`✅ DONE` `profiles.sql` ran in production** (Karthik, 2026-10-29: "Success. No rows returned"). Verified from outside: the publishable key gets `401 permission denied for table profiles`.
+  - **`✅ DONE` Email sender** (2026-10-29): Resend free plan (100/day, 3,000/month). `designwallet.in` is verified, auto-configured on GoDaddy DNS (the name servers are `domaincontrol.com`), region Tokyo. Supabase custom SMTP: `smtp.resend.com:465`, user `resend`, a sending-only API key "Supabase auth". Sender **Design Wallet <no-reply@designwallet.in>**; `no-reply` because the domain has no inbox (no MX). Tested with a Supabase invite: it landed in the Gmail **inbox**, not spam.
+  - **`DECIDED` Branded auth emails**: `supabase/email-templates/confirm-signup.html` and `reset-password.html`. They're dark, use the site logo PNG and a white capsule button, with inline styles and tables because email clients need them. Karthik pastes them into Supabase → Emails → Templates. Subjects: "Confirm your Design Wallet account" / "Reset your Design Wallet password".
+  - **`⚠️ GOTCHA` Supabase's built-in email only sends to the project's team members.** A custom SMTP sender (runbook step D) is required before launch, or nobody can confirm an account.
+  - **`✅ DONE` Privacy and terms rewritten for accounts** (2026-10-29), both dated October 29, 2026.
+    - **Privacy:** §4 "Google Sign-In" is now "Your Design Wallet Account": what's stored (sign-up details, the password as a hash only, Google name/email/photo, the optional onboarding answers), why, that it isn't sold, what the browser keeps, and that it's kept until the user asks for deletion or a copy via hello@. §6 Newsletter covers the onboarding opt-in. §7 drops the outdated "Google Sheets API" and adds Supabase and Resend.
+    - **Terms §3:** accounts are optional, email+password or Google, deletion on request, and a link to the policy.
+  - **`⚠️ GOTCHA` `hello@designwallet.in` cannot receive mail:** the domain has no MX records (checked 2026-10-29). The privacy policy, the terms and every page footer name it as the contact for data requests, so those emails bounce today. **`PENDING` Karthik's call:** set up receiving (Resend Inboxes, Zoho Mail free, or Google Workspace) or a forwarder, or change the address.
+  - **`DECIDED` 2026-10-29, REVERSES "Scope is extras only" above.** Karthik: *"The user is going to access the product only after login."* **Only the homepage, `/privacy/`, `/terms/` and the portal pages are public.** Every other page (20 of them: `404.html`, so all of `/category/*`; `/tools/`, the blog, salary, books, the Mini Tools, the MCP page, Wall of Portfolios, list-your-tool, the changelog, and the legacy `favourites.html` / `submit-portfolio.html`) loads `auth/gate.js` first in `<head>`. Signed out, it redirects to `/sign-in/?next=<page>`.
+    - **Lock level: a page redirect only** (Karthik's pick). The catalogue still loads with the publishable key and the MCP connector stays open, so the data is reachable for someone technical. Locking the data is a separate, larger change.
+    - **Privacy and terms stay public** because Google's sign-in screen links to them.
+    - The gate is also in `scripts/build-blog.js`, both `<head>` templates, so rebuilt posts keep it.
+    - **Trade-offs Karthik accepted:** search engines can't index gated pages, so category, tool, blog and salary search traffic stops.
+    - Verified in headless Chrome: 13 routes signed out and signed in behave as expected.
+  - **`⚠️ OPEN` The homepage still renders the full catalogue grid and search.** Only clicking through to a tool or category page hits the gate. **`DECIDED` (Karthik, 2026-10-30): keep showing the tools on the homepage** (*"they have to know what is there inside the product"*), as a teaser. **`⏸ ON HOLD` The homepage is being redesigned in Figma.** Wait for Karthik's final frame before changing the homepage at all.
+  - **`DECIDED` No contact email; self-serve deletion instead** (Karthik: *"No need of email ids"*). `supabase/delete-account.sql` holds `delete_my_account()`: security definer, deletes only `auth.uid()`'s own `auth.users` row (the profile cascades) plus their `subscribers` row. Execute is granted to `authenticated` only. The "Delete my account" link appears on `/welcome/?edit=1` (Profile & preferences) and opens a confirm view. Privacy and terms now point to it. **`✅ DONE`** `delete-account.sql` is live: probed 2026-10-30, it refuses the publishable key with `42501 permission denied for function delete_my_account`. **`⚠️ OPEN`** the general contact lines in privacy (rights, data controller, right to object) and the terms' Contact section still say hello@designwallet.in, which has no inbox. **`DECIDED` (Karthik, 2026-10-30): leave those contact lines as they are for now.** Test locally before deploying.
+  - **`✅ TESTED locally` 2026-10-30:** an email sign-up was confirmed and onboarding saved a full `profiles` row (Karthik saw the name, role, level and goals in the Table Editor).
+  - **`DECIDED` `profiles.email`** (Karthik wanted to see who each row is): a copy of `auth.users.email`, filled by `handle_new_user`, kept in step by the `on_auth_user_email_changed` trigger, and backfilled. It is not in the update grant, so users can read their own but never change it. **`PENDING` Karthik re-runs the whole `profiles.sql`** (idempotent).
+  - **`✅ BUILT` Favourites** (Karthik, 2026-10-30: a heart on every tool, plus how many people have favourited it, *"so that that number is going increase more value for that tool"*).
+    - **Database:** `supabase/favourites.sql` creates `public.favourites (user_id default auth.uid(), tool_slug)` with RLS (own rows only), a slug-shape check, a 500-per-user cap, and deliberately **no FK to tools** (the Sheet sync's deletes would cascade away people's favourites). `favourite_counts()` is security definer, returns totals only, and is executable by `authenticated` only. **`PENDING` Karthik runs it.**
+    - **Client:** `tools/favourites.js`, loaded before `tools.js` on `/`, `404.html` and `/tools/`. `tools.js` only draws `<button class="dw-fav" data-fav>`; a MutationObserver paints it. It uses the localStorage session with a manual refresh-token renewal (no supabase-js on these pages), optimistic toggles with rollback, and gtag `favourite_add` / `favourite_remove`.
+    - **`DECIDED` (Karthik):** counts are shown to signed-in users only and hidden at 0. Signed out, the heart sends you to `/sign-in/`. Unsaved: a white outline. Saved: filled red (`#ff4d6d`), the one red on the site, **with no number**; the count shows only on unsaved hearts (Karthik, 2026-10-30). **No ring and no background fill in either state**: just the heart (Karthik, 2026-10-30). `favourites.sql` is live: the table and `favourite_counts()` refuse the publishable key with 42501. Saving is verified by Karthik (a saved heart showed 1).
+    - **The Favourites view** is the pseudo-category `/category/favourites/`: a sidebar row under All (signed in only), with its own empty state. The account menu reads **Favourites · Profile & preferences · Sign out**, and the mobile menu matches. The tool page has a large heart beside Visit Website.
+    - **Cache-busters:** `style.css` and `header.js` at `20261030-1`; `tools.js` and `favourites.js` at `20261030-1`.
+    - **Verified headless:** 278 hearts painted on the homepage; signed-out click goes to `/sign-in/?next=/`; signed-in shows the sidebar row and the empty view; the tool-page heart renders; no page errors. **Not verified:** real saving and counts, which need the SQL plus a real account.
+    - The legacy `favourites.html` (the old Google Sign-In version, gated, unlinked) is untouched.
+    - **`✅ BUILT` 2026-10-31: books and portfolios can be favourited too, and the Favourites view is split into sections** (Karthik: segregate the favourites by what was bookmarked; books, Wall of Portfolios "or any other resources" show in Favourites).
+      - **Database:** `favourites` now has `kind` (`tool` / `book` / `portfolio`) and `item_key` (was `tool_slug`). The primary key is `(user_id, kind, item_key)`. Books are keyed by `books.slug` and portfolios by `portfolios.link` (their primary key; many portfolio rows have no slug). The shape check is per kind: slugs for tools and books, an http(s) URL up to 500 characters for portfolios. The cap is 500 **per kind**. `favourite_counts()` now returns `(kind, item_key, favourites)`. `favourites.sql` upgrades the live table in place (renames the column, defaults existing rows to `tool`), so saved hearts survive. **`✅ DONE` Karthik re-ran `favourites.sql` (2026-10-31).** Probed with the publishable key: `tool_slug` is gone (42703), the `kind, item_key` select and `favourite_counts()` both refuse with 42501. **`PENDING`** a real signed-in save of each kind, then deploy.
+      - **Client:** `tools/favourites.js` reads `data-fav-kind` (default `tool`). Its caches are now `dw_favourites_v2` / `dw_favourite_counts_v2`, and gtag sends `{ kind, item }`. It is now also loaded on `/books/` and `/wall-of-portfolios/`. Book hearts sit top right of the cover (the Best Seller tag has the left), with a drop shadow, not a fill, so they read on light covers. Wall hearts sit before the arrow. `script.js`'s books cache is now `dw_books_cache_v2`, because it keeps the slug.
+      - **The Favourites view** (`/category/favourites/`): one section per category of saved tools (each tool's **first** category, so a tool appears once, A–Z), then **Books**, then **Portfolios**. Each heading shows its count. Books and portfolios are drawn as dash cards (book cover as a small 3:4 logo; portfolio avatar), with a Book / Portfolio tag linking to their page, and open their own link. Their data is fetched from `public_books` / `public_portfolios` on first need. Search covers all three. The sidebar count and "N saved" count everything.
+      - **`DECIDED` (Karthik, 2026-10-31): saved books use the same card as `/books/`** (cover, Best Seller tag, title, author, stars), not a dash card. The markup now lives once in `books/book-card.js` (`window.DWBookCard(book, index)`), used by `script.js`'s books grid and the Favourites view. The Best Seller tag follows the same rule as on `/books/` (first five in the books list). Titles and authors are now escaped (the old card inserted them raw). Saved portfolios stay as dash cards. `book-card.js`, `tools.js` and `script.js` are at `20261031-2`.
+      - **`DECIDED` (Karthik, 2026-10-31): each Favourites section is one sideways-scrolling row, and filter chips sit under the "Your favourites" heading.** The rows reuse the All view's `.dash-carousel` (arrows on desktop, swipe on phones). `carouselMarkup()` now takes card markup, so books and portfolios ride in it too. Book rows have narrower columns (`data-kind="book"`, about 5 across a laptop). Chips: **All**, then one per section (each tool category, Books, Portfolios), with counts. The selected chip is the white pill, and it shows only that section. A filter whose section disappears (un-hearted or searched away) falls back to All. `tools.js` and `dashboard.css` are at `20261031-2`. Verified headless: 8 saved books overflow the row and the arrow scrolls it, the Books chip shows only Books ("8 saved"), and there's no sideways page scroll at 390px.
+      - **Known gap:** a portfolio approved on the Wall but not yet synced to Supabase can be hearted, but shows in Favourites only after the sync.
+      - **Cache-busters `20261031-1`:** `style.css` (on `404.html`, `/tools/`, books and the Wall only), `dashboard.css`, `tools.js`, `favourites.js`, `script.js` (books), `wall.css`, `wall.js`.
+      - **Verified headless** with a fake session and a mocked `favourites` endpoint (real catalogue, books and portfolio data): sections render, search narrows across kinds, un-hearting removes the card, 20 book hearts and 145 Wall hearts paint, a heart click doesn't open the card's link, and there's no sideways scroll at 390px. **Not verified:** against the real table, which needs the SQL re-run.
+  - **`✅ DONE` The sign-in/up artwork now follows Figma `979:2146`** (Karthik, 2026-10-30). The safe photo is unchanged (same image hash). The new part is two `#040404` blocks behind it, Rectangle 19 behind the body and Rectangle 18 behind the pedestal, built as `.auth-art::before` / `::after` in percentages of the 732×549 box. The old bottom fade (mask) is removed, so the pedestal runs to the edge as in Figma. The name-tag positions are unchanged. `auth.css` is at `20261030-2`.
+  - **`PENDING`:** deploy (decide whole branch vs portal only), then the live end-to-end test (runbook F).
+  - ~~**`DECIDED` on the welcome screen, Favourites is marked "SOON"** because it isn't built yet.~~ **Updated 2026-10-30:** Favourites is built, so the row reads "Tap the heart on any tool to save it, on every device." with an **ON** tag.
+  - ~~**`PENDING`** whether "Sign in" in the nav now goes to `/sign-in/` instead of opening the modal, and whether the modal stays for in-context triggers like the heart.~~ Resolved above: it goes to `/sign-in/`.
+  - **`PENDING`:** Karthik's review of the designs, then a build plan. Nothing is built in code.
+
+- **`DECIDED` (Karthik, 2026-10-30): Mini Tools and the Blog are public**, with no sign-up (*"Mini tools and blogs can be open. It doesn't need sign up"*). `auth/gate.js` was removed from `dw-tools/` (the index plus 4 tools), `blog/` (the index plus 2 posts) and both `<head>` templates in `scripts/build-blog.js`. **Still gated:** the catalogue (`404.html`, `/tools/`), salary, books, the MCP page, Wall of Portfolios, list-your-tool, the changelog, and the legacy `favourites.html` / `submit-portfolio*`.
+
+## Homepage "What's inside": bento redesigned as 5 tabs, in Figma only (2026-10-30)
+
+Karthik: *"We dont need to have this big section. this section can be a tab section… 5 tabs with a content on left panel and illustration on the right panel. Each tab will have CTA called 'Explore'."*
+
+- **`DECIDED` The six-card bento plus MCP strip in `955:1005` becomes one tabbed panel.**
+  - **Tabs:** 500+ tools · 40 categories / Know your money / Wall of Portfolios / Wallet Reads / Design Wallet MCP.
+  - **The "Problem" cards above it and the "What's inside" heading are unchanged.** The free mini tools card is dropped from this section (not one of the 5).
+- **Figma:** new frames to the right of everything on the page (x 18524).
+  - **Component set:** `Home / Tab` (`988:1244`), with variants State=Default/Active (Active is the white pill), a `Label` text prop, and a nested `Icon` instance swapped per tab.
+  - **Five frames, one per active tab:** `988:1245`, `988:1313`, `988:1380`, `988:1447`, `988:1512`. Each has the heading clone, the tab bar (a 999px pill), and a 1200×520 panel: on the left an icon badge, eyebrow, Light 40 title, body and an **EXPLORE →** primary capsule; on the right a 598×424 illustration.
+- **The illustrations use real data:**
+  1. **Catalogue:** category chips with live counts, plus two `Home / Catalogue card` instances (Claude, ChatGPT).
+  2. **Salary:** Product Designer · Bangalore from `salary/data/salaries.json`, Senior median ₹28.3L (₹22.4–35.4L), with a bar chart Junior→Director.
+  3. **Portfolios:** six real Wall names, with **placeholder gradient thumbnails** (real screenshots exist in `public_portfolios.thumbnail` if wanted).
+  4. **Books:** four real Wallet Reads titles as covers.
+  5. **MCP:** a chat with client logos and two catalogue answers.
+- **`DECIDED` Karthik's tab 1 panel edits, copied to tabs 2–5** (2026-10-30, from `988:1297`):
+  - **Panel:** padding on the left only (48).
+  - **Illustration:** runs edge to edge at 646×518, with a **pattern fill**, no radius of its own, and a 1px border at 8%.
+  - **Chips:** radius 30, with an 8px background blur.
+  - **How:** the Plugin API can't write pattern fills, so tabs 2–5 got clones of tab 1's illustration frame with their contents moved in (new ids `992:1407`, `992:1445`, `992:1483`, `992:1521`). Contents were re-fitted to the larger area: salary and chat columns widened, the portfolio grid re-flowed to 3×191px, and the books re-centred.
+- **`DECIDED` The Wall of Portfolios illustration is reworked as a fanned card stack** (Karthik's reference: a front card with title, image and pill, rotated cards behind, a warm glow), in `992:1445`, 2026-10-30.
+  - **Front:** Gina Chee (her real thumbnail, chosen for contrast over Ben Shih's pale one).
+  - **Behind:** Ben Shih (−8°, 50% opacity) and Sanskriti Negi (+9°, 35% opacity), each with a 2px blur.
+  - **Card:** 272×352, radius 24, with a "WALL OF PORTFOLIOS" eyebrow, an ↗ button, the name in Inter Light 30, the screenshot, a role pill (radius 30, background blur) and "One of 145 portfolios on the Wall. Study it, then submit yours."
+  - **Thumbnails:** the real ones from `public_portfolios.thumbnail` (ImageKit, `tr=w-900`), uploaded into Figma.
+  - **Glow:** a warm radial (#FFE6C7 at 28%), 60px layer blur.
+- **`DECIDED` The Wallet Reads illustration is a bookshelf of spines** (Karthik's reference: Colophon × Monotype spines), in `992:1483`, 2026-10-30.
+  - **13 real titles from `public_books`:** Dieter Rams, The Design of Everyday Things, Steal Like an Artist, Laws of UX, Why Fonts Matter, Hooked, Logotype, Grids, Logos That Last, The Typography Idea Book, Know Your Onions, Pyjama Profit, Design Your Thinking.
+  - **Each spine:** its own width (34–54), height (262–352), colour and type (Inter Light, Semi Bold, Black; Instrument Serif), with the title running top to bottom (auto-shrunk to fit), the author at the foot, and a publisher band. A side-light gradient gives it depth.
+  - **HOOKED** leans at −6° onto Logotype, the way MIDNIGHT does in the reference.
+  - **Shelf:** a dark plank with a shadow, captioned "21 books · from craft to career".
+- **Titles Karthik may want to tweak:** "What your role really pays", "145 portfolios worth studying", "21 books designers recommend", "Ask for tools inside your AI app".
+- **`✅ BUILT` In code, below the stats strip on `/`** (Karthik, 2026-10-30, from section `995:2878`):
+  - **Markup:** `<section class="wi">` in `index.html`, styled with `.wi-*` in `home.css`.
+  - **`home.js`:** WAI-ARIA tabs (click, ←/→, Home/End), the 13 spines built from a `BOOKS` array at the frame's positions, and `--wi-zoom` to fit the 646×518 illustrations when the panel stacks at ≤1240px.
+  - **Assets in `public/home/`:** `tab-*.svg` (the tab icons, painted with `currentColor` through a CSS mask), `pf-*` (three real portfolio screenshots, glow, arrow), `app-*.svg` (MCP client logos). The Claude and OpenAI tiles reuse `logo-claude.png` / `logo-openai.png` (byte-identical).
+  - **Pattern fill:** the Figma dotted pattern doesn't export, so it's recreated as a CSS radial-gradient dot grid (1px dots, 21px pitch, 13% white).
+  - **Instrument Serif** is loaded on `/` for "one wallet." and the serif spines.
+  - **EXPLORE links:** `/category/`, `/salary/`, `/wall-of-portfolios/`, `/books/`, `/mcp/`. All are gated, so signed-out visitors go to sign-in and come back.
+  - **Copy as designed,** including Karthik's edits: "“KNOW YOUR MONEY” DASHBOARD", and **"Books designers wants to read" (grammar flagged: "want")**.
+  - **Verified headless:** all five tabs at 1440 against the frames, 13 spines, no broken images, no overflow at 1440 or 390, and the keyboard moves 5→1 with wrap.
+  - **Not built:** the "Problem" cards above it in `955:1005` (not in this section).
+  - **`DECIDED` (Karthik, 2026-10-30) Tab 1 is renamed "Premium collections"**, and its eyebrow reads PREMIUM COLLECTIONS (was THE CATALOGUE). Tab 2's eyebrow reads KNOW YOUR MONEY (was "“KNOW YOUR MONEY” DASHBOARD").
+  - **`DECIDED` The category chips in tab 1 filter in place** (Karthik: *"Two card UI should change to that category listing"*). They are buttons (`aria-pressed`) with `data-cat` slugs (note `color-palatte`).
+    - **Behaviour:** pressing one fetches `public_tools` once with the publishable key (or reuses tools.js's `dw_tool_detail_cache_v4`), then shows the first two tools in that category, preferring ones with their own logo. Prices are coloured as on the catalogue cards. Explore re-points to `/category/<slug>/`. "All" restores the designed Claude/ChatGPT pair.
+    - **History:** an earlier version (same day) made the chips plain links to category pages. That was replaced by this.
+    - **Verified:** AI Tools → Kodo/Flixier, Color Palette → Color Schemer/Color Selector, MCP → Higgsfield/OpenArt, 3D → Maxon/Craftwork. No broken logos; the URL stays `/`.
+  - **`DECIDED` The chip cards use curated picks with crisp local logos** (Karthik, 2026-10-30: *"Upload high quality images… Images are blurred"*).
+    - **Cause:** many catalogue favicons are tiny: Madrasters 16px, OpenArt 32px, VideoVault 32px, Who Can Use 64px, Color Schemer 96px, Maxon and Craftwork are 16px `.ico` files, Velocity has none, and IxDF's SVG draws white, so it is invisible on the white tile.
+    - **Fix:** `PICKS` in `home.js` names two tools per category, and their logos are stored as 160px PNGs in `public/home/logos/<slug>.png` (18 files, 268 KB, loaded only on a chip click). Most are the catalogue's own images where they are ≥160px. IxDF, CreativeMornings and Maxon came from the brands' own sites (apple-touch / app icons). All 18 were eyeballed in a contact sheet.
+    - **The picks:** Kodo, Gamma · IxDF, CreativeMornings · Coolors, Color Hunt · Higgsfield AI, Invideo AI · Use Contrast, Understanding Accessibility · Leonardo.ai MCP, Notion MCP · Lovable, Replit · Logo System, Rebrand Gallery · Blender, Maxon.
+    - **Fallback:** if a pick disappears, the old automatic choice applies.
+    - **Descriptions:** scraped markup is trimmed at display (`cleanDesc`).
+    - **Verified at 2× DPR:** all 18 load the local 160px files.
+    - **`⚠️ PENDING` catalogue data (the Sheet), affecting the whole site:** low-res logos for the tools listed above, and CreativeMornings' description containing `property='og:title'> <meta…`. Higher-res icons were found for IxDF, Maxon, Craftwork, OpenArt, CreativeMornings, Design Buddies and Dezeen if Karthik wants them uploaded to ImageKit.
+  - **`DECIDED` The portfolio cards are interactive** (Karthik, 2026-10-30: *"These cards should be interactive"*). The deck is `.wi-deck`, a `role=group` (no longer `aria-hidden`).
+    - **Slots:** `is-front`, `is-left`, `is-right`, the frame's positions, with 0.6s eased transitions.
+    - **Interaction:** click, or Enter/Space on a focused back card, swaps it with the front. Hover fans the back cards out (±26px, ±11–12°), clears their blur and lifts the front. The front card's ↗ links to the real portfolio (`?ref=designwallet`, new tab); back cards' links are inert and unfocusable.
+    - **Auto-turn:** every 3.5s, a three-way rotation (verified Gina → Ben → Sanskriti → Gina). It pauses on hover or focus, while the tab is hidden or the page is backgrounded, and is off entirely with reduced motion.
+
+## Homepage becomes a landing page: first fold built (2026-10-30)
+
+Karthik: *"Let's build the homepage. This is the first fold"* (Figma `982:2179`). Lifts the hold on homepage changes recorded under the sign-in portal.
+
+- **`DECIDED` `/` is a landing page for signed-out visitors; the catalogue lives at `/category/`** (served by `404.html`, gated). `auth/landing.js` runs first in the homepage `<head>` and sends anyone signed in to `/category/`. It is the mirror of `auth/gate.js`. **This supersedes "keep showing the tools on the homepage as a teaser"**: the product preview in the fold does that job now.
+- **`DECIDED` The copy is exactly as designed** (Karthik, against the agent's flag): "TRUSTED BY 5000+ DESIGNERS" and "500+ real use case tools", even though the catalogue has 433 tools and the stats strip says 430+. The stats strip is static: 430+, 40, 145, 13, 4. **`⚠️` Both claims are unverified**, and the Figma component note says "Use only verified counts". Revisit before launch.
+- **Built:**
+  - **`index.html`** (rewritten). The old catalogue homepage is backed up only in the session scratchpad and in git (`HEAD`). It keeps the preloader; the ticker, `hero-marks.js`, `stars.js`, `tools.js` and `dashboard.css` are no longer loaded on `/`.
+  - **`home.css`, `home.js`:** the star field, plus scaling the preview to fit at ≤1180px.
+  - **`public/home/`:** 28 assets from the frame (logo tiles, sidebar icons, stars, avatars).
+  - **The preview** is built as HTML at the frame's own px (the site at 0.764×). It's decorative (`aria-hidden`), bleeds off the right edge (`overflow-x: clip` on `.home-shell`), and at ≤1180px moves under the copy, scaled by `home.js`.
+- **`DECIDED` The signed-out nav** (all public pages) shows **CREATE ACCOUNT FOR FREE** (white, 240px) and **SIGN IN** (outlined, 140px) from Figma `982:2557`. The pill tightens to the frame's 62px with `:has(.nav-ctas)`. Below 1280px the label becomes **SIGN UP FREE**; below 1180px the version capsule hides. The mobile menu gets "Sign in" plus a "Create account for free" button. The design's nav shows v2.4 and no MCP link; the live nav (v3.0, with MCP) was kept on purpose.
+- **Meta description** rewritten: the old one said "no account needed", which is no longer true.
+- **`DECIDED` (Karthik, 2026-10-30): the preloader is off the homepage**, to come back *"after they onboarded on the platform"*. The `dw-loader` markup, `loader.css` and `loader.js` are removed from `index.html`; the two files stay in the repo for that later use.
+- **Verified headless:** at 1440, every block is within 2–3px of the frame's y positions (eyebrow 171/169, title 228/225, CTAs 627/624, preview 172/170, stats 783/781). There are no broken images, no horizontal overflow at 1440, 1024 or 390, and no nav overlap from 1000 to 1366. Signed-in `/` goes to `/category/`.
+- **`DECIDED` (Figma only, 2026-10-30): the dashboard preview `960:1486` gets a "Design Inspirations" category row under Featured** (Karthik: *"Add more category section"*).
+  - **Content:** a heading (a copy of Featured with the sparkles sidebar icon) and four real catalogue cards: Dribbble (Free), Mobbin (Paid, purple badge), Design Vault and Layers.to (Free, letter tiles), with copy from `public_tools`.
+  - **Tidy-up:** the leftover "Search band" rect was removed (the search had moved up). Sidebar rows AI Voiceover and Branding were resized from 334px to 192px, because their counts sat mid-preview.
+  - **Not in code yet:** the coded first fold follows the earlier frame `982:2179`, which has a different preview layout (headline inside the preview).
+- **`✅ BUILT` The MCP hero and "how to connect" tabs are a homepage section** (Karthik, 2026-10-30), placed after Premium collections.
+  - **Copied from `/mcp/`:** the markup (the `mcp-hero` and `mcp-connect` blocks, h1 → h2), the SVG logo sprite, and the `.mcp-toast`. It reuses `mcp/mcp.css` and `mcp/mcp.js` unchanged.
+  - **Wrapper:** `<section class="mcp-page mcp-main home-mcp" data-mcp-url=…>`, so the page's body-level tokens and the main-level font and URL apply. The pixel band and ticker were left out (not in Karthik's screenshot).
+  - **`⚠️` The two copies must be edited together.**
+  - **`home.css`:** `.home p { margin: 0 }` was narrowed to `.home-fold p, .home-stats p`, because it would have stripped the MCP paragraph spacing.
+  - **Verified:** the app tabs switch (Cursor), the typewriter runs, no broken images, no overflow at 1440 or 390, and the earlier sections' spacing is unchanged.
+- **`✅ BUILT` Homepage footer** (Figma `956:1188`, 2026-10-30), at the end of `index.html`, styled with `.home-footer` / `.hf-*` in `home.css`.
+  - **Layout:** 803px tall and full bleed. Brand (logo, tagline, © 2026) on the left; Product, Resources and Company link columns on the right.
+  - **Links:** Catalogue `/category/`, Know your money, Mini Tools, MCP, Wall of Portfolios, Wallet Reads, Blog, Changelog, List your tool, Privacy, Terms.
+  - **Wordmark:** a 173px Inter SemiBold Italic "Design Wallet" in a white gradient. It is approximated as rgba(255,255,255,.42) → .16 because the Figma gradient stops export outside 0–100%. It has padding so the italic overhang isn't clipped.
+  - **Dunes:** `public/home/footer-dunes.webp` (converted from a 1.6 MB PNG to 153 KB at the same 1596×985) at top −88px. The Figma mask SVG (alpha 0 at y 409 → 1 at y 511) is reproduced as a CSS `mask-image` gradient, so the SVG isn't shipped.
+  - **Verified:** 1440 against the frame, 390 with no overflow, 11 links.
+  - **This is the homepage only.** The rest of the site has no footer; it was removed site-wide earlier. Whether to add it everywhere is Karthik's call.
+- **`PENDING`:** the next folds, when Karthik sends them.
+
+### First fold redesign, centred with a light beam and horizon: in Figma for review (2026-10-31)
+
+Karthik shared a reference (Visuo, a dark SaaS template: a centred pill, headline and CTA under a vertical violet beam of light, with the product dashboard rising out of a glowing planet-horizon arc) and asked to redesign the first fold like it.
+
+- **`⚠️` Process: homepage design changes go to Figma first, and code waits for Karthik's review.** The agent built this in code first. Karthik: *"I told you to redesign in figma"*, then *"Undo the code and redesign it in figma first to review it."* The code edits (`index.html`, `home.css`, `home.js`) were reverted to exactly how they were before. **The live first fold is unchanged.**
+- **Figma:** frame "01 Hero — centred, light beam + horizon (2026-10-31)" (`1006:1269`), 1440 × 1288, on the Website Development page at x 14764, y 11446, just to the right of the "Marketing homepage — AIDA" section.
+  - **Copy:** the live site's copy, unchanged (TRUSTED BY 5000+ DESIGNERS, "Repository for your next design project.", the sub-copy, CREATE ACCOUNT FOR FREE / SIGN IN, "Create free account. No card details required.").
+  - **Layout:** all centred. The headline is Inter Medium 78 on two lines (the live one is Light 86, left-aligned). The eyebrow pill is tinted violet.
+  - **Light:** violet `#7C5CFF`. The beam is two blurred radial ellipses. The horizon is a dark 3456px ellipse with a light rim and violet outer glows, its top 64px above the preview.
+  - **Preview:** the existing "Dashboard preview" (`960:1486`) at 0.965×, inside a 1180px device bezel (10px padding, 28px radius), fading into the page at the bottom.
+  - **Reused:** clones of the AIDA nav (`954:855`) and CTAs (`954:877`, the Auth button instances). **The cloned nav shows v2.4 and no MCP link**, unlike the live nav (v3.0, with MCP).
+- **`⚠️` `982:2179`** (the frame the live fold was built from) **is not in `ZQtGEp7Co9lyVelVcWiM4r`**: the ID does not resolve. It may be in another file or deleted.
+- **`DECIDED` (Karthik, 2026-10-31): the light is white, not violet** (*"Make the voilet gradient to white gradient"*). The beam, the horizon rim and glows, the eyebrow pill and the bezel tint are now white or neutral grey at the same strengths, a little softer. **This supersedes the violet `#7C5CFF` above.**
+- **`DECIDED` (Karthik, 2026-10-31): a star field in the hero background**, *"like we added stars in the dashboard screen"*. It's a `Stars` layer (`1030:1568`) in the artboard's hero (`1008:3834`, Karthik's own copy, whose headline is now "*Design Asset Repository* / for your next design project."). It sits above the beam and below the horizon and copy. **84 white dots in the dashboard preview's style:** most are 1.4–2.3px at 35–80% opacity, and about 12% are 2.6–3.4px at 90% with a 6px white glow. They are scattered at random (seeded) between y 96 and 600, so the horizon covers the lowest ones. The standalone frame `1006:1269` has been deleted.
+  - **In code**, this would reuse the preview's star approach in `home.js` (or `stars.js`), and not add hand-placed image dots.
+- **`PENDING`:** Karthik's review. If approved, build it in code (`index.html`, `home.css`, `home.js`).
+
+## Homepage "Use cases" accordion, after stewdio.ai: in Figma only (2026-10-31)
+
+Karthik: *"Check out the use case section in [stewdio.ai] and replicate that section in figma in this artboard"* (`954:854`, "Homepage — AIDA (signed out)").
+
+- **The reference:** stewdio.ai `#use-cases`, a light page. Its heading is a diamond and two outlined puzzle pieces ("Use" / "cases"). Below it is a row where one card is open (a full-bleed visual, a big title, one line of description, a play button) and the other two are collapsed into narrow strips joined by notches.
+- **Built:** frame "02b Use cases — accordion (after stewdio.ai, 2026-10-31)" (`1015:1269`), inserted into the artboard right after "02 What's inside — Tabs". It is 1440 × 976 with padding 120 / 64. **The artboard grew from 5736 to 6712px, and everything below the new section moved down.**
+  - **Adapted to the artboard's dark style:** a `#050505` ground, white outlines, a white diamond, and white light only (no violet, as on the hero).
+  - **Open card:** "UI/UX design", with the line *"Find the prototyping, research and handoff tools product teams actually ship with."* The visual uses instances of the existing `Logo tile / *` and `Home / Catalogue card` components: Mobbin (Paid) and Claude (Free).
+  - **Collapsed strips:** "Brand design" is a stack of colour swatches; "Motion & 3D" is soft white orbs and a ring. Each has a "+" at the top.
+  - **Sizes:** the open card is 1052px wide, the strips 106px, the gaps 24px, and the cards 576px tall.
+- **`⚠️` These three use cases are the agent's pick** (Stewdio's are Motion design / Brand design / Marketing). **Karthik to confirm the list, the copy, and whether there should be more cards.** It's static: the collapsed cards have no designed open state yet.
+- **`DECIDED` (Karthik, 2026-10-31): five use cases, not three:** *UI/UX designer, Motion Graphic Designer, Visual Designer, Video Editor, AI Designer.* **This supersedes the three-card version above** (`1015:1269`, now deleted).
+  - **Section "Homepage — Use cases, 5 states (2026-10-31)"** (`1016:1278`), on the Website Development page at x 16404, y 11266. It holds **one frame per use case, each with that card open:** `1016:1279` UI/UX designer · `1016:1448` Motion Graphic Designer · `1016:1617` Visual Designer · `1016:1786` Video Editor · `1016:1955` AI Designer.
+  - **The artboard (`954:854`) carries state 1** (`1016:2124`, UI/UX designer open), in the same slot after "02 What's inside".
+  - **Sizes:** the open card is 792px wide and the four strips 106px each, with 24px gaps, 576px tall. The title is Inter Medium 72 and wraps on two lines when needed ("Motion Graphic Designer").
+  - **Collapsed strips:** a "+" at the top and the name set vertically at the bottom. The strip shows a crop of the card's own visual, centred on its focal point.
+  - **Visuals** (each `Art / <name>`, 792 × 576, built as shapes and component instances):
+    - **UI/UX designer:** Mobbin and Claude catalogue cards with logo tiles.
+    - **Motion Graphic Designer:** a keyframe timeline, light streaks, orbs and a ring.
+    - **Visual Designer:** an "Aa" type specimen, eight swatches and a dot grid.
+    - **Video Editor:** a timecode, a ruler, four clip tracks and a playhead.
+    - **AI Designer:** a prompt bar with GENERATE, four generated tiles, and the OpenAI, Midjourney and Claude tiles.
+  - **Descriptions** are the agent's draft, one line each. Karthik to confirm.
+- **`DECIDED` (Karthik, 2026-10-31): each illustration is 3–4 related cards** (*"Make the illustrations with 3-4 related cards"*). **This replaces the shape illustrations** (the timeline, "Aa", clip tracks, prompt bar and so on).
+  - **Open card:** four `Home / Catalogue card` instances at 0.9×, in a staggered 2 × 2 with alternating ±2–3° tilt; the lower row slides under the title shade.
+  - **Collapsed strips:** a vertical stack of the four tools' logo tiles (56px), replacing the crop of the visual. The `Art /` frame is still inside each strip, hidden.
+  - **The tools, all real catalogue listings, with their real price** (descriptions trimmed from `public_tools.subtitle`):
+    - **UI/UX designer:** Figma (Free), Mobbin (Paid), Laws of UX (Free), Magic Patterns (Free).
+    - **Motion Graphic Designer:** Spline, Blender, Maxon (Cinema 4D), Morflax (all Free).
+    - **Visual Designer:** Coolors (Free), Fontshare (Free), Kittl AI (Paid), LiveSurface (Free).
+    - **Video Editor:** Descript, Runway, Invideo AI, Fliki AI (all Free).
+    - **AI Designer:** Midjourney (Paid), Krea AI (Free), Adobe Firefly (Paid), Higgsfield AI (Free).
+  - **Price badges are coloured as on the site** (`tools/dashboard.css`): Free stays blue, Paid gets the purple tint (`rgba(160,110,255,.14)` with ink `#c39cff`), and Freemium the amber one. The colour is an instance override, because the card component has no price variant.
+  - **New components:** 19 `Logo tile / <tool>` tiles (76px, radius 14), in "Logo tiles — use cases" (`1020:1400`) inside the states section. Their images are the catalogue favicons (`public_tools.image`, 128px PNG via ImageKit). **Laws of UX** would not upload (the upload timed out twice), so its mark is **redrawn as a vector** (circle, square and triangle on `#141414`).
+- **`DECIDED` (Karthik, 2026-10-31): his edits to `1016:1279` are the template, applied to all five states and to the artboard copy (`1016:2124`).**
+  - **Heading:** the puzzle "Use / cases" heading is replaced by a left-aligned H2, 900px wide, in the same style as "What's inside": Inter Light 56 / −3%, with the last words in Instrument Serif Italic 62 / −1%, line height 110%.
+  - **Heading copy:** **"Every designer works with / their *own kit*."** Karthik picked it from four options written to match the placeholder's line lengths (25 / 14 characters). The placeholder had been a copy of the "What's inside" H2.
+  - **Open card:** the title is Inter **Light** 72 / −8% (it was Medium), and **the play button is removed.**
+  - **Collapsed strips:** **the "+" is removed.** The logos are 36px with 9px gaps, sitting 36px from the top. The vertical label is Inter Regular **25** / −5% at 90% white.
+  - **"Motion Graphic Designer" is renamed "Motion Designer"** everywhere (titles and labels). This settles the mismatch flagged below.
+  - Each state frame is now 997px tall.
+- **`DECIDED` (Karthik, 2026-10-31): the H2 is now "Every *designer* works / with their own kit."** This is his own rewrite: the serif italic moved to "designer". **A "USE CASES" pre-title sits above it**, cloned from the "WHAT'S INSIDE" eyebrow (Inter Medium 11, grey), 18px above the H2. The two are grouped in a `Heading` auto-layout. Applied to all five state frames and to the artboard copy.
+  - **The artboard copy is now `1023:5392`**: Karthik replaced `1016:2124` with his own copy. Frames are 1023px tall.
+- **`⚠️` In the Motion frame, the open title reads "Motion Designer"** (Karthik's own edit), but the strip labels in the other four frames still say "Motion Graphic Designer". Make them match once the name is settled.
+- **`⚠️` "03 Desire — What an account unlocks" (`956:1049`) is no longer in the file**, so the artboard now reads Nav → Hero → What's inside → Use cases → Action → Footer (5497px). The agent's scripts did not touch it; it went in the same edit that swapped the redesigned hero (`1008:3834`) into the artboard. Restore it if that wasn't intended.
+- **`PENDING`:** review. Not in code.
+
+## Homepage testimonials "Voices that shape our wallet", after gladia.io: in Figma only (2026-10-31)
+
+Karthik: *"In gladia, we have a section called 'voices that shape our story.' we will replicate that section for the homepage."*
+
+- **The reference:** gladia.io's testimonials section. It has a centred eyebrow, H2 and sub, then a two-band bento of **photo cards** (a big B&W portrait, company logo at the top, name at the bottom) and **quote cards** (a logo and mono tag pill, the quote, a divider, then avatar, name and role).
+- **Built:** "03 Proof — Voices that shape our wallet (after gladia.io, 2026-10-31)" (`1035:1599`) in the artboard (`954:854`), **right after Use cases**. Its padding is 120 / 120, and the bento is 1200 × 1382. The artboard is now 7353px tall.
+  - **Heading:** a "TESTIMONIALS" eyebrow (a clone of "WHAT'S INSIDE"); the H2 "Voices that shape *our wallet.*" in Inter Light 56 with Instrument Serif Italic 62, like the other H2s; and the sub "Designers who found Design Wallet on LinkedIn and Product Hunt, in their own words." There is a soft white top glow, not Gladia's purple.
+  - **Components** (beside "Homepage components"):
+    - `Testimonial / Quote card` (`1035:1570`): an auto-layout card with text props Quote, Name, Role and Tag, a LinkedIn source mark, and a Geist Mono tag pill. The person row stays pinned to the bottom, so it resizes freely.
+    - `Testimonial / Portrait card` (`1035:1586`): props Quote, Name, Role and Monogram.
+- **`DECIDED` (agent) The content is only the six real LinkedIn comments** on the Figma "Testimonials" page (`796:17`): Anima Agrawal, Pawan Gupta, Mohammed Shamil, Joyal, Anish G and Nikhil Raj. **The quotes are as written**, with only the greeting ("Hey Karthik," / "Hi Karthik,") trimmed. **No quotes were invented.** The avatars are cropped from those screenshots (an image fill with a CROP transform). Each tag names what the person praised: PRODUCT HUNT, THE WEBSITE, FIRST LOOK, KNOW YOUR MONEY (Nikhil, on the growth chart).
+- **`DECIDED` (Karthik, 2026-10-31): Chirobhi Chakraborty replaces Pawan Gupta.** Karthik shared a seventh comment, and the agent judged it the strongest besides Nikhil's. Pawan's ("It will be very helpful") was the weakest, being a prediction rather than a review.
+  - **The card uses an excerpt, word for word:** "Love the idea of having all these design resources in one place. As a designer, I know how helpful it is to have good-quality assets easily accessible while working on different projects." It is tagged THE CATALOGUE.
+  - **Source:** the screenshot was added to the Testimonials page (`1037:1654`), and the avatar is cropped from it.
+  - **Layout:** the card grew from 260 to 330px, and the Product Hunt card below it shrank from 400 to 330px, so the bento's height is unchanged.
+  - **`DECIDED` (Karthik, 2026-10-31): Chirobhi takes the first (large portrait) card**, with monogram "CC" and the same excerpt in quotes. **Anima moves to the wide quote card in band 2**, keeping her own avatar and THE CATALOGUE tag. That card is back to 260px and the Product Hunt card back to 400px, since Anima's quote is short.
+  - **`DECIDED` (Karthik, 2026-10-31): portrait cards show the person's photo too.** `Testimonial / Portrait card` gained a `Person` row: a 44px `Avatar` beside Name/Role, the same as the quote cards. Chirobhi's and Anish's avatars are cropped from their LinkedIn screenshots. **Every card in the section now carries the person's picture.**
+  - **`DECIDED` (Karthik, 2026-10-31): testimonials say only what people feel about the product. No upvote talk.** Mohammed Shamil's quote is now "Thanks for sharing this goldmine resource… Keep doing the great work and all the best." The ellipsis marks the cut "will check this out and upvote on product hunt". His tag changed from PRODUCT HUNT to THE CATALOGUE. Anish G's is now "Good initiative 🙌", trimmed from the end. **Rule for future quotes: cut calls to action (upvote, share, check it out), and mark cuts from the middle of a quote with "…".**
+  - **`⚠️` Open:** Anish's card is now thin, at just two words. The Product Hunt card ("Upvoted by designers on Product Hunt.") is a promo, not a testimonial, and still talks about upvotes. The sub-line still says "on LinkedIn and Product Hunt", though every quote is from LinkedIn.
+  - **`REVERTED` (Karthik, 2026-10-31: *"nah revert back"*). Struck through below for history; his own arrangement is back.** Left column: Chirobhi 592×690, Anima 592×260, Product Hunt 592×400. Right column: Mohammed 592×290, Nikhil 592×528, then Anish and Joyal at 288×384 each. The bento is 1200 × 1382. Nikhil's and Chirobhi's quotes are back to 26px, and Anish's monogram to 220px.
+  - ~~**`DECIDED` (Karthik, 2026-10-31): the bento is now two rows of three, with Product Hunt below.** **This replaces the Gladia two-band layout.**
+    - **Row 1 (600px):** Chirobhi (Karthik's detached card with her photo, `1036:5648`), Mohammed Shamil, Nikhil Raj.
+    - **Row 2 (300px):** Anima Agrawal, Anish G, Joyal.
+    - **Row 3:** the Product Hunt card as a full-width 1200 × 220 strip: the mark and title on the left, the button on the right.
+    - **Sizes:** columns are 389px with 16px gaps. The bento is 1200 × 1152, and the section 1627px.
+    - **Type adjustments:** Nikhil's quote is 20px (it was 26) to fit the narrower column. Chirobhi's quote is 20px (Karthik had it at 26), so it sits below her face. Anish's monogram is 160px.~~
+  - **`⚠️ DRAFT` (Karthik, 2026-10-31): Anish's card carries words he did not write.** Karthik asked for more content and supplied a line. Grammar-fixed, the card reads: "Good initiative 🙌 This is definitely going to be a go-to platform for designers." Anish's real comment was only "Good initiative🙌 Will upvote and share with my designer friends." The layer is named "Quote — DRAFT, needs Anish's approval before launch" (card `1042:5674`, Karthik's detached copy). **Do not ship this quote unless Anish confirms it; otherwise revert to "Good initiative 🙌".** The quote is 18px. The text block is pinned between the LinkedIn mark and the bottom edge with space-between, so it fits the 288 × 281 card.
+  - **`DECIDED` (Karthik, 2026-10-31): the Product Hunt callout's empty right side gets a mock Product Hunt listing.** The callout is now `1050:5696`, 1200 × 400; Karthik moved it out of the bento.
+    - **The listing** (`PH listing`, `1052:1630`): a "Design Wallet" row. It has the nav's logo mark on a black tile, the meta tagline "A curated library of design tools & resources", and Design Tools / Free chips. There is an UPVOTE box in Product Hunt orange `#FF6154` with a pointer cursor resting on it.
+    - **Behind it:** two faded skeleton listings, above and below. The red glow moved right, behind the listing.
+    - **No vote count or rank is shown**, because neither is verified.
+    - **`DECIDED` (Karthik, 2026-10-31): the official Product Hunt logo replaces the drawn "P" circle.** It is an image rect "Product Hunt logo" (`1056:1630`), 64px at (32, 32). The source is freebiesupply's 2400px transparent PNG, downscaled to 256px before upload. **`⚠️` The logo's orange is about `#DA552F`**, deeper than the `#FF6154` used by the upvote box and cursor. Align them if the mismatch shows.
+    - **`DECIDED` (Karthik, 2026-10-31): the cursor is Product Hunt orange.** "Cursor — Product Hunt" (`1055:1630`) is a `#FF6154` arrow with a 2px white outline, plus a multiplayer-style orange "You" name tag with a white rim. It rests on the UPVOTE box.
+  - **`DECIDED` (Karthik, 2026-10-31): the official LinkedIn logo replaces the drawn "in" tile.** It is a vector `LinkedIn logo`: the Simple Icons LinkedIn path in `#0A66C2`, over a white square so "in" reads white on the dark cards. It replaced the mark in both components (`1035:1573` in Quote card, `1035:1591` in Portrait card), so every instance inherits it, and in Karthik's two detached cards (Chirobhi `1036:5653`, Anish `1042:5679`).
+  - **The agent's ranking of the quotes, for later swaps:** Nikhil > Chirobhi > Anima > Joyal > Mohammed Shamil and Anish G (both written before using the site: "will check this out", "will upvote") > Pawan.
+- **`⚠️` No portraits exist**, so Gladia's photo cards are **B&W monogram cards** (Anima "AA", Anish "AG"). Swapping in real photos needs each person's permission.
+- **Gladia's 7th card** (the photo + quote pair under Livestorm) is a **Product Hunt card**: "Upvoted by designers on Product Hunt." with a SEE US ON PRODUCT HUNT button. Two of the comments mention upvoting there. **It shows no vote count**, because the number isn't verified.
+- **`⚠️` Before this goes live:** check with the six people that their names and words can appear on the homepage. Linking each card to the original comment would make the cards verifiable.
+- **`PENDING`:** review. Not in code.
+
+## Homepage CTA becomes a boxed sign-up panel: in Figma only (2026-10-31)
+
+- **`DECIDED` (Karthik, 2026-10-31): the homepage CTA (in "04 Action — Sign up" `956:1138`, under the FAQ) sits in a box with the same left and right panels as the sign-up page** (`942:1358`).
+- The new frame is "CTA box — sign up" (`1072:1621`), cloned from the sign-up page. It is 1200 × 760 with a 28px radius, a 1px white @ 8% inside stroke, and clipped content. It keeps the page's dark fill and the 20% curved-lines image.
+  - **Left panel (0–620):** "*Your wallet,* your tools" headline, centred at y 104. The safe and the six role cursors are grouped as "Safe + roles" (`1072:1706`), scaled to 82%, and bleed off the bottom edge. The arrows were re-attached to their labels after scaling.
+  - **Right panel (620–1200):** the sign-up "Form card" (`1072:1623`), with the form centred. Its left border is the divider between the panels.
+  - **Dropped:** the Design Wallet logo, because the homepage nav already carries it.
+- **The old CTA frame** (`1023:5549`, safe beside a bare form) is **hidden, not deleted**: "Frame 2147258800 (old CTA, hidden)".
+- **`⚠️`** The headline uses "Inter Display", which isn't installed for the plugin. It was left untouched, but editing that text needs the font.
+- **`PENDING`:** review. Not in code.
+
+## Homepage footer wordmark sinks behind the sand: in Figma only (2026-10-31)
+
+- **`DECIDED` (Karthik, 2026-10-31): the big "Design Wallet" wordmark in the Footer (`956:1188`) sits behind the sand dunes, with the crest cutting the lower part of the letters.** Before, it floated above the dunes and only the "g" descender was hidden.
+- **Wordmark** (`1001:3035`, Inter Semi Bold Italic, gradient fill):
+  - The font size went from 173 to 196, so it spans the 1200 content width (about 1206px).
+  - It is centred in the 1440 footer, with its top at y 260 in the footer.
+- **Layer order:** it stays the bottom child of "Group 2147225335" (`1001:3034`), under the sand "Mask group" (`1001:3036`). The sand image has a transparent sky, which is why the letters show above the dunes.
+- **In code, the same effect needs:** the wordmark under a transparent-sky sand PNG, positioned with the dune crest at roughly 60% of the cap height.
+- **`PENDING`:** review. Not in code.
+
+## Homepage mobile (390) design: in Figma only (2026-10-31)
+
+- **`DECIDED` (Karthik asked, 2026-10-31): a mobile version of the new homepage.**
+  - The frame is "Homepage — AIDA (signed out) / Mobile 390" (`1081:1621`), placed in the same section at x 6300, beside the Use cases states.
+  - It is 390 × 8428 and built from clones of the desktop sections. Card text and assets are the same as desktop; the desktop artboard (`954:854`) is unchanged.
+- **Page rhythm:** 16px side gutters, and sections are padded 72px top and bottom. H2s are about 55% of the desktop size, and sub-copy is 15/22.
+- **Section by section:**
+  - **Nav** (`1081:1622`): a clone of the MCP mobile header (logo, v2.4 pill, menu button).
+  - **01 Hero** (`1081:1633`, 880 tall):
+    - Copy and buttons: the headline is 38/26 (serif line / Inter line). The two CTAs stack full width.
+    - Background: beams, stars and horizon are scaled down to 390.
+    - **Karthik re-laid the mobile first fold himself (2026-10-31). Keep his layout as it is:**
+      - The eyebrow sits at the top (y 40).
+      - The serif headline breaks over two lines ("Design Asset / Repository"), with the smaller "for your next design project." under it.
+      - The sub-copy is narrower, and the buttons and note sit lower.
+      - He kept ChatGPT and Claude beside the sub-copy (y 350).
+    - **`DECIDED` (Karthik, 2026-10-31): the other four desktop tiles flank the copy, in three tiers per side.** They are fresh 36px copies from the desktop hero:
+      - Beside the headline: Mobbin (16, 92) and Pinterest (338, 98).
+      - Beside "for your next design project.": Behance (14, 206) and Dribbble (340, 210).
+      - Beside the sub-copy: ChatGPT and Claude, in Karthik's positions.
+      - All of them are clear of the text.
+    - Dashboard: the dashboard device is shown at 50%, starting at the left gutter and bleeding off the right edge.
+  - **02 What's inside** (`1081:2035`):
+    - The tab pill is a row clipped at 358 (read as horizontally scrollable).
+    - The panel stacks the copy over the catalogue illustration. Its card row is clipped so the second card peeks.
+  - **03 Use cases** (`1083:1809`):
+    - The horizontal accordion becomes vertical. The open UI/UX card is 358 × 430, with its card art at 45% and a 36px title.
+    - The four collapsed roles are 72px rows: the label on the left, four logo tiles in a row on the right. The joints are hidden.
+  - **04 Proof** (`1083:2174`):
+    - The bento becomes one column ("Stack" `1083:2411`, 12px gap), ordered Chirobhi, Shamil, Nikhil, Anima, Anish, Joyal, then Product Hunt.
+    - Quote text is 16/24 on every card. Chirobhi's portrait card is 358 × 500.
+    - The Product Hunt card is 358 × 500, with its copy on top and the PH listing illustration below.
+    - The sub-line's hard line breaks were removed.
+  - **05 Action** (`1084:1929`):
+    - FAQ: the heading sits above the questions.
+    - The sign-up box stacks the art panel (400 tall) over the form card. The divider is a top border instead of a left border.
+    - **`DECIDED` (Karthik, 2026-10-31): the six role cursors sit beside their arrows, three on each side of the safe, inside the box.**
+      - Scaling had left the labels about 240px below their arrows, hidden under the form card.
+      - Each label was snapped back to its arrow using the sign-up page's offsets. It was scaled up to stay legible, and each cursor was nudged inward to stay within 14px of the box edge.
+    - **`⚠️` The mobile headline was switched from the missing "Inter Display" to Inter (Bold Italic + Light) at 30px** so it could be resized. The desktop box still uses Inter Display.
+  - **Footer** (`1084:2073`, 660 tall):
+    - The brand sits above the three link columns.
+    - The sand is shown at 50%, and the "Design Wallet" wordmark is 60px, centred and behind the dune crest, as on desktop.
+- **`✅ BUILT`** (2026-10-31): see "Homepage built from the approved Figma" below.
+
+## Homepage built from the approved Figma (2026-10-31)
+
+Karthik: *"Here is the homepage final design that is approved. Can you code this homepage for me?"* (section `954:834`: desktop `954:854`, mobile `1081:1621`).
+
+- **`✅ BUILT`** in `index.html`, `home.css` and `home.js`. The order is Nav → Hero → What's inside → Use cases → Testimonials → FAQ + sign-up box → Footer. **Not deployed or committed.**
+- **`DECIDED` (Karthik): match Figma exactly.** The stats strip (430+ / 40 / 145 / 13 / 4) and the Design Wallet MCP section are **removed from `/`**, and `mcp/mcp.css` / `mcp/mcp.js` are no longer loaded there. `/mcp/` is unchanged. **This supersedes "the MCP hero and how to connect tabs are a homepage section" (2026-10-30).**
+- **Kept as already coded:** the "What's inside" tabs, including the later code-only decisions (tab 1 "Premium collections", the chip filters, the interactive portfolio deck). Its phone layout is the earlier one, not the 390 frame's.
+- **Hero** (`.hx`):
+  - **Assets:** the beam and horizon are the exported SVGs (`public/home/hero/`). The 84 stars are drawn by `home.js` from the frame's positions, size and opacity; x is a share of the stage, so the 390 stage keeps the scatter. The six logo tiles keep the frame's crops.
+  - **Dashboard:** the old `.hp` preview, re-laid to `1008:3840` (no headline or Product Hunt badge, search moved up, a "Design Inspirations" row added) and shown at 0.965× in a 1180 bezel. `home.js` scales the bezel to its wrapper (`--hx-s`).
+  - **Phone:** Karthik's own mobile layout (eyebrow at 40, a two-line serif headline, 268px stacked buttons, 36px tiles, and the bezel at half size running off the right).
+  - **SIGN IN** is a Figma glass button; CSS approximates it with a faint gradient, a lit rim and a backdrop blur.
+- **Use cases** (`.uc`): a real accordion. Each strip is a button; pressing it opens that role (flex-grow animates 106 → 792). Below 1100px it stacks into rows that open downwards. **Assets:** the 19 tool favicons are in `public/home/uc/`; Mobbin reuses `logo-mobbin.svg`.
+- **Testimonials** (`.tm`): the 967px bento at the frame's 0.806 scale, as a CSS grid. Below 1060px it is one column at the component's own sizes.
+  - **Assets** are in `public/home/voices/`: avatars, Chirobhi's photo (webp, 82 KB), the Product Hunt logo, the cat (webp, 18 KB) and the LinkedIn logo.
+  - "See us on Product Hunt" links to `producthunt.com/products/design-wallet`.
+  - **`⚠️` Anish's quote ships with the DRAFT second sentence**, Karthik's wording (his call, 2026-10-31). A comment in `index.html` marks it. Permission from all six people is still open.
+- **FAQ:** `<details>` items; the first one is open; the plus turns into a cross when open.
+  - **The Figma file only had the first answer.** The other three are written from the privacy page and the real sign-up flow.
+  - **`⚠️` "Why is there no password?" is replaced by "Can I sign up with Google?"**, because sign-up does ask for a password. Karthik to confirm the copy.
+- **Sign-up box** (`.cta-box`): **the real form.** It is the `/sign-up/` markup, run by `auth/auth.js` (the body carries `data-auth-page="sign-up"`; Supabase JS and `auth/auth.css` now load on `/`).
+  - **`auth.js` change:** `showView()` keeps `.cta-box` in view instead of jumping to the top, so "Check your inbox" appears in place. Other pages behave as before.
+  - **Overrides in `home.css`:** `auth.css`'s phone rules (bottom sheet, hidden safe) are undone inside the box. `style.css`'s `[data-reveal]` rise-in animation is switched off on the password Show button, which shares that attribute.
+- **Footer:** the 196px wordmark sits behind the dunes (top 260). On phones, the dunes are at half size and the wordmark is 60px.
+- **Verified headless** at 1440, 1280, 1024, 820 and 390:
+  - No horizontal overflow, no broken images, no console errors.
+  - The Use cases accordion opens Video Editor with the right ARIA. The FAQ toggles.
+  - Empty submit shows "Fill in your name, a valid email and a password." with every field flagged. Show password works.
+  - No real sign-up was sent.
+- **Not done:** the testimonials' star field reuses the hero's positions rather than its own (`1061:5772`). `public/home/avatars.png` and `icon-ph-upvote.svg` (the old preview's) may now be unused.
+
+### Karthik's feedback round on the coded homepage (2026-10-31), all `✅ BUILT`
+
+1. **Hero stars drift downwards** ("like a space"). `home.js` writes the field twice, one copy 600px above the other, and `.home-sky` slides down 600px every 70s on a loop. The edges are masked so stars fade in and out, and the bright stars twinkle. The testimonial stars stay still.
+2. **The six hero icons move against the cursor.** Pointer left → icons right, and so on, by 10–20px each at different depths. It uses `translate` (`--px`/`--py`), so the phone `scale()` is untouched. Mouse only; off with reduced motion and once scrolled past the hero.
+3. **SIGN IN is frosted glass:** a translucent split-gradient fill, `backdrop-filter: blur(18px) saturate(160%) brightness(1.15)`, a lit top rim and a soft drop shadow.
+4. **A shimmer runs round the dashboard bezel:** a conic-gradient light on a 1.5px masked ring, one lap every 6s (`@property --hx-shine`).
+5. **What's inside illustrations:**
+   - **Premium collections:** the chips autoplay every 3.2s while the panel is on screen and not hovered. They stop for good once the visitor picks a chip.
+   - **Know your money:** the bars rise in turn and ₹28.3L counts up from 0 each time the tab shows (and on first scroll into view).
+   - **Wall of Portfolios:** the ↗ link is removed from the cards; they no longer open the portfolio. The deck still swaps and auto-turns.
+   - **Wallet Reads:** a book lifts 18px with a shadow on hover; HOOKED keeps its lean.
+   - **MCP:** the chat plays out (app icons pop in, the question, a typing indicator, then the answer and its two results). The question bubble is frosted (`backdrop-filter: blur(10px)`), so the dot grid no longer shows through.
+6. **Use cases:**
+   - The joints between cards use the cards' own fill (`#131313`) with top and bottom borders, so neighbouring cards read as one joined shape.
+   - The pre-title is **"WHO IS THIS FOR?"**.
+   - **`DECIDED` (Karthik, 2026-10-31): the joints have rounded corners** (6px, the cards' radius).
+7. **Testimonials:**
+   - The "LinkedIn" word is gone. Each card shows only the logo (alt text "LinkedIn").
+   - The "On LinkedIn" lines under names are removed (Nikhil keeps his role).
+   - The sub-line is now **"Designers who found Design Wallet, in their own words."**
+8. **Headings looked heavier than in Figma.**
+   - **Cause:** they were already Light 300, but macOS subpixel smoothing thickens light type. `.home` and the footer now use `-webkit-font-smoothing: antialiased`.
+   - **Also fixed:** the use-case titles and the FAQ H2 had been falling back to Geist (style.css's h2/h3); they are set back to Inter.
+9. **FAQ:**
+   - **Motion and clicks:** the whole item is clickable (links inside answers still work). Answers slide open and shut (380ms, Web Animations on `.faq-a`), and the plus turns to a cross as it starts.
+   - **Copy:** the pre-title is **"FREQUENTLY ASKED QUESTIONS"** and the heading **"Any questions? / *We got you covered.*"**.
+   - **New question:** **"How can I get listed in Design Wallet?"**.
+     - **`DECIDED` (Karthik, 2026-10-31) answer:** "Book a call with us on the List your tool page, and we'll help you find the right way to get your tool listed." It names no one (Karthik: not by name).
+- **`DECIDED` (Karthik, Figma `1008:3834`): the beam's core changed colour** from white at 45% to `#676C74` at 100% (still 30% layer opacity and a 30px blur). `public/home/hero/beam-core.svg` is updated to match, cache-busted `?v=20261031-2`. The glow layer was unchanged.
+- **Verified headless at 1440:**
+  - **Hero:** the stars move, and the icons shift right and down for a pointer at the top left.
+  - **What's inside:** the chips autoplay. The salary counts ₹16.4L mid-way to ₹28.3L, and the portfolio cards have no links. A book lifts by 18px; the chat sequence plays.
+  - **FAQ:** the answer animates open, and clicking an open answer closes it.
+  - No console errors.
+- **`DECIDED` (Karthik, 2026-10-31): `/list-your-tool/` is public.**
+  - **Change:** `auth/gate.js` is no longer loaded on that page, so signed-out visitors (e.g. makers following the homepage FAQ answer) reach it without the sign-in portal. `gate.js`'s header comment lists it with the other public pages.
+  - **Verified signed out:** `/list-your-tool/` stays; `/salary/` still goes to `/sign-in/`.
+  - **Not changed:** the stray `list-your-tool/index (1).html` copy (untracked).
+- **`DECIDED` (Karthik, 2026-10-31): the homepage nav drops Design Wallet MCP, Resources, Know your money and Mini Tools, and gains "List your tool".**
+  - **Homepage nav now:** List your tool · Blog · CREATE ACCOUNT FOR FREE · SIGN IN. The phone menu shows List your tool · Blog · Sign in.
+  - **How:** `header.js` checks `body.home-page` (`isLanding`) and keeps the full nav (`fullNav`) for every other page. The mobile menu's Resources toggle is skipped when it isn't there. The homepage loads `header.js?v=20261031-1`.
+  - **Scope:** homepage only, as the signed-out landing page; the four removed links mostly lead to sign-in-only pages. Apply it site-wide only if Karthik asks.
+  - **Verified:** at 1440 on `/` and on `/blog/` (full nav unchanged), and the 390 menu on `/`. No errors.
+- **`DECIDED` (Karthik, 2026-10-31): a shooting star crosses the hero every 5s.**
+  - **How:** `home.js` adds a `.hx-shoot` streak to the hero stage (behind the logo tiles, in front of the stars) at a random spot in the upper sky (y 30–250). It heads down-right or down-left at 18–38° and travels 300–460px (160px on phones) in 1.2s, its bright head leading with a small glow. It's removed when it finishes.
+  - **Skipped** while the tab is hidden, once scrolled past the hero, and with reduced motion.
+  - **Versions:** `home.css?v=20261031-4`, `home.js?v=20261031-3`.
+  - **Verified:** at 1440, a star mid-flight, and cleaned up after. No errors.
+- **`DECIDED` (Karthik, 2026-10-31): SIGN IN is more see-through and blurrier.**
+  - **Fill:** the tint is roughly halved (a 7% → 1% → 3.5% white split gradient). The rims are softer, and the backdrop is `blur(28px) saturate(140%)`, without the brightness boost.
+  - **Fix:** the blur had never worked. The hero's `clip-path` (which trimmed the bezel on phones) made `.hx` a backdrop root. It is removed: `.home-shell` already trims the sides, and `.wi` now has `position: relative; z-index: 2`, so it paints over the bezel's overflow on phones.
+  - **Verified:** stars behind the button are blurred at 1440 and 390. No horizontal overflow; the phone seam is unchanged. `home.css?v=20261031-6`.
+- **`DECIDED` (Karthik, 2026-11-01): mobile pass on the homepage ("check the mobile version and fix all the fixes").** Checked at 390, 360 and 320:
+  - **Hero leaking into the gutters:** with the hero's `clip-path` gone, the bezel and horizon showed in the 16px side gutters beside "What's inside". Fix: `.wi::before` paints the section's `#050505` full-bleed (`inset: 0 -100vw`; `.home-shell` clips it).
+  - **Headings:** "Everything you reach for," left "for," alone on a line; "wallet." and "words." were orphaned in testimonials. Fix: `text-wrap: balance` on the section headings and subs. The `.wi-title` line break is hidden on phones, so it reads "Everything you reach / for, in *one wallet.*"
+  - **CTA box:** the waves showed as white slivers along the form's right edge, and "Visual Designer" touched the border. Fix: on phones the waves sit behind the art panel only, with the same crop as before (`auto 1050px`). The safe is 256px, shifted 14px left so the right-hand tags clear the edge (down to 360).
+  - **Footer:** the wordmark's "t" was clipped at 360 (`font-size: min(60px, 14.6vw)`). Below 375px the link columns get a 12px gap and 12px links.
+  - **Verified:** no horizontal overflow and no broken images at 390/360/320 or 1440. `home.css?v=20261101-6`.
+- **`DECIDED` (Karthik, 2026-11-01): second mobile round.**
+  - **Hero dashboard centred** ("The dashboard UI should be centered"). It used to be a 590px bezel running off the right edge; it is now the full bezel at `calc(100% - 32px)`, centred, with the horizon centred on it. The hero hugs it (`height: auto`) and only the bottom 40% fades.
+  - **Use-case art** looked misplaced on wider phones: it was a fixed `scale(0.452)` pinned left, so its box edge showed. The dotted backdrop moved from `.uc-art` to `.uc-panel`. The art is centred and scaled to the row (`--uc-fit` = row width / 792, set by `home.js`): capped at 1 below 1100px and at 0.5 on phones, so the cards stay above the title.
+  - **FAQ full width** once stacked (below 1100px): `.faq { align-items: stretch }`. The list had shrunk to its longest question.
+  - **Sign-up box art** ("not properly composed"): the safe is `min(400px, 100% - 84px)` wide instead of a fixed 256, so it fills the panel on wider phones; the tags stay inside from 360 to 600.
+  - `home.css?v=20261101-10`, `home.js?v=20261101-1`.
+- **`DECIDED` (Karthik, 2026-11-01): Favourites moves out of the account menu to a heart beside the account pill (site-wide).**
+  - **Look:** `header.js` `dwAccountNav()` renders `.nav-favs` (a link to `/category/favourites/`, `aria-label="Favourites"`) before the pill, inside `.nav-account-row`. It is the bare heart (same path as the tool-card heart, 20px) with no ring or fill: Karthik had the circle removed. It is white, turns red on hover, and is filled red with `aria-current="page"` on the favourites page.
+  - **Menu:** the dropdown is now name/email, Profile & preferences, and Sign out. The mobile menu keeps its Favourites link, since it has no pill.
+  - **Cache:** `header.js` and `style.css` are bumped to `?v=20261101-1` on every page.
+- **`✅ DONE` (2026-11-01): the v3.0 changelog entry was rewritten before release; awaiting Karthik's review.**
+  - **Dates:** v3.0 is still unreleased, so its entry was rewritten rather than adding v3.1. It is now dated Nov 1, 2026 (`data-through="2026-11-01"`) and covers everything since v2.4 (Oct 20 – Nov 1).
+  - **Title:** "Your own Design Wallet: accounts, favourites and a new homepage". Subheads: A new homepage, Design Wallet MCP, Design Wallet on your phone, Smaller updates.
+  - **Dropped:** "A quicker intro", because the new homepage has no intro animation.
+  - **Screenshot:** `public/changelog/v3-0.webp` is now the homepage's first fold (the screenshot links to `/`). The old MCP-page shot is in the session scratchpad.
+- **`✅ BUILT` (Karthik, 2026-11-01): the changelog is now written in Notion.** He picked Notion over Markdown, JSON, a Sheet or Supabase because the blog already works this way.
+  - **Where it lives:** the **Changelog** database (`40acf5f5-da8f-8131-8859-f62790d8c14c`) sits inside the "Versions-log" page (`40acf5f5da8f80aeb678ce3cc5c25265`), shared with the "Design Wallet Blog" integration. Each version is one row.
+  - **Columns:** Title, Version, Major name, Date, Covers through, Status (Draft/Published), Screenshot, Screenshot link, Screenshot alt, Screenshot label. The body holds paragraphs, bullets, H3 subheads (rendered as `cl-subhead`) and images, whose caption is the alt text and whose caption link is the target.
+  - **Building the page:** `npm run build-changelog` (`scripts/build-changelog.js`) regenerates `changelog/index.html` between `<!-- changelog:start -->` and `<!-- changelog:end -->`. **Only Published rows appear**; `-- --drafts` previews drafts locally. Never edit the versions on the page by hand. Images uploaded to Notion are downloaded to `public/changelog/notion/`, because Notion's links expire after an hour.
+  - **Adding a version:** `scripts/changelog-add.js` adds a new version as a Draft. `/update-change-log` now uses it and hands Karthik the Notion link to review.
+  - **Publishing from GitHub:** `.github/workflows/build-changelog.yml` runs on "Run workflow" or a `notion_changelog_update` repository_dispatch, and commits `changelog/` and `public/changelog/` to `main`. It needs the repo secret `NOTION_CHANGELOG_DATABASE_ID` and only exists on GitHub after this branch merges.
+  - **Imported once:** `scripts/changelog-import.js` copied all 9 versions. v3.0 went in as **Draft**, the rest as Published. A round-trip check confirmed that rebuilding from Notion reproduces the page. The only change: body-image links (the v2.4 pre-loader) dropped their aria-label, so the alt text names them.
+  - ~~The working tree holds a drafts build.~~ Karthik published v3.0 in Notion and retitled it "Design Wallet Homepage"; the page was rebuilt published-only.
+- **`✅ BUILT, function DEPLOYED (page not yet merged)` (Karthik, 2026-11-01): the changelog updates in real time** (*"It has to update when i make changes in notion"*).
+  - **How it works:** the Supabase Edge Function `changelog-feed` reads the Published rows from Notion. It keeps the key as a secret, caches for 30s, serves the last good copy if Notion fails, and is public and GET-only. `changelog/changelog-live.js` fetches the function on every visit and on returning to the tab, and swaps in the versions if they differ. **An edit in Notion shows within about 30 seconds, with no build or deploy.**
+  - **Shared drawing code:** the markup comes from one renderer, `changelog/changelog-render.js`, used by both the browser and `scripts/build-changelog.js`.
+  - **The built HTML stays** for search engines and for visitors without scripts. `.github/workflows/build-changelog.yml` now also runs daily at 06:00 IST.
+  - **Tested locally:** the function on port 8788 returned Karthik's live edits, and the page redrew from them (the file said "T"; the browser showed "Design Wallet Homepage"). No overflow at 1440/390.
+  - **Function deployed by Karthik, 2026-11-01.** Verified: it returns 9 versions, and the local page swaps the built title for the Notion one. `changelog-live.js` now always uses the deployed function, locally too, so nothing needs running on the Mac. **designwallet.in picks it up once this branch merges.** Commands used: `npx supabase secrets set NOTION_API_KEY=… NOTION_CHANGELOG_DATABASE_ID=40acf5f5-da8f-8131-8859-f62790d8c14c --project-ref ugjtyuikvdeymwsfsgfl`, then `npx supabase functions deploy changelog-feed --no-verify-jwt --project-ref ugjtyuikvdeymwsfsgfl`. Until then, the page shows the built versions.
+- **`✅ DONE` (Karthik, 2026-11-01): v3.0 has an image under every heading, plus a new "Sign up and sign in" section.** All changes were made in Notion, through the API.
+  - **Where the images live:** they were uploaded into Notion (file uploads, WebP at 1440×900), so Karthik can swap them there. The live feed serves Notion's own image links; `build-changelog` saves copies to `public/changelog/notion/<block id>.webp` for the built page.
+  - **Which image goes where:**
+    - Sign up and sign in: the `/sign-up/` page.
+    - A fresh look of homepage: the "What's inside" section.
+    - Design Wallet MCP: `/mcp/`, captured with reduced motion so the headline reads "design tools" in full.
+    - Design Wallet: Mobile Version: three phones (the catalogue's chips, the mobile menu, the salary world map).
+    - Smaller updates: the Resources menu open as cards.
+  - **The new section** (after the opening list): a heading, the image, one sentence, and four bullets (Two ways in, Forgot your password?, A short welcome, Emails that look like us). It overlaps a little with the opening "Free accounts" and "A quick welcome" bullets; Karthik to trim in Notion if he wants.
+- **`DECIDED` (Karthik, 2026-11-01): `/changelog/` is public.** `auth/gate.js` was removed from `changelog/index.html`, and the gate's header comment lists it. Verified signed out: the page loads without redirecting.
+
+## MCP connector — planned, not built (2026-10-27)
+
+Karthik: *"Build a MCP server for design wallet website so that the user can connect designwallet with Claude and use Claude as an AI search to know which tool is available."* Planned through an 11-question interview; full plan at `~/.claude/plans/let-s-plan-a-feature-reactive-dahl.md`. **Nothing built yet. Discussion only.**
+
+- **`DECIDED`** Audience: **working designers**. v1 does **search by need, browse categories, compare tools**, plus **blog / salary / books**.
+- **`DECIDED`** **Catalogue only.** The server returns Design Wallet tools and nothing else. When nothing matches, the answer says so and links `/list-your-tool/`.
+- **`DECIDED`** **Fully open**: no signup, no key, rate-limited per hashed IP. (Matches "the site is free". Note: the sign-in portal planned on 2026-10-23 is a separate decision, and the connector does not depend on it.)
+- **`DECIDED`** Clients: Claude (web/desktop/mobile), Claude Code / Cursor / IDEs, ChatGPT and other remote-MCP clients. **No Anthropic directory submission in v1.**
+- **`DECIDED`** **Keyword search on the server; Claude reasons over the results.** No embeddings at ~430 tools.
+- **`DECIDED`** Output is **text + links**, and links point to the **Design Wallet tool page** (`/category/<cat>/<slug>/`), not the tool's own site.
+- **`DECIDED`** **Enrich the Sheet** with `use_cases`, `platforms`, `free_tier`. They must be added to `sheet-sync.gs`, the `tools` table **and the `public_tools` view** (a column is not public until a view lists it).
+- **`DECIDED`** Success = **launch moment** (`/mcp/` page with connect instructions), **zero maintenance** (reads `public_tools`, so a Sheet edit is enough), **usage analytics** (`mcp_queries` table, no IP or personal data) and **catalogue-gap insights** (`mcp_gaps` view of zero-result queries).
+- **Recommended, `PENDING` Karthik's OK:** the business goal is **traffic + catalogue intelligence**.
+- **Proposed architecture:** a Supabase Edge Function `design-wallet-mcp` (Deno, MCP Streamable HTTP, stateless) next to `brandkit-fetch`.
+- **`PENDING`** Custom domain (`mcp.designwallet.in`) now or later · name ("Design Wallet MCP" vs "Design Wallet for Claude") · whether blog/salary/books ship in v1 or a v1.1 fast-follow.
+
+## MCP connector v1 — built, not deployed (2026-10-28)
+
+Karthik's answers to the open questions: name **"Design Wallet MCP"**; **everything in v1** (tools + blog + salary + books); **yes to Sheet enrichment**, drafted by the agent for review; page reference is **higgsfield.ai/mcp only** (magnific.com/mcp blocks automated fetches with a 403).
+
+- **`✅ BUILT`** `supabase/functions/design-wallet-mcp/index.ts`. Speaks MCP **directly** (stateless Streamable HTTP, single JSON replies, protocol versions 2024-11-05 → 2025-11-25), **no SDK dependency**, same shape as `brandkit-fetch`. Eight read-only tools: `search_tools`, `list_categories`, `get_category`, `get_tool`, `compare_tools`, `search_blog`, `get_salary_benchmarks`, `list_books`. Server instructions forbid recommending tools from outside Design Wallet; a no-match answer points to `/list-your-tool/`. Reads `public_tools` / `public_books` with the publishable key (`select=*`, so the new columns are picked up the moment the view publishes them); reads blog and salary JSON from designwallet.in; 5-minute in-memory cache that keeps serving the last good copy if a refresh fails; 60 req/min per client address. Tool links follow `toolHref()`: `/category/<first category>/<slug>/`.
+- **`✅ VERIFIED locally`** (`deno check` clean; every tool exercised): initialize/notifications (202)/tools/list; searches; the no-match path; categories (433 tools, 40 categories); compare with a tool not on DW ("photoshop" → flagged, not invented); salary for India national, Indian city, a researched country (Germany) and a modelled one (Norway), matching `worldCell()` in `salary.js`; books; blog. Book links are shortened to `amazon.in/dp/<ASIN>?tag=designwallet-21`; **the affiliate tag is kept**.
+- **`DECIDED`** The `free_tier` column **overrides** `pricing` in answers. **Why:** `pricing` reads FREE on 399 of 433 tools, including Figma, Webflow, Squarespace and Midjourney; it is a default, not data.
+- **`✅ BUILT`** `supabase/schema.sql`: `use_cases`, `platforms`, `free_tier` on `tools` (`add column if not exists`), appended to the **end** of `public_tools`; new `mcp_queries` table (RLS on, anon/authenticated revoked; **no IP, no identifier**, only the coarse client name from the User-Agent); internal views `mcp_gaps` (zero-result searches, the "tools to add" list) and `mcp_top_queries`.
+- **`✅ BUILT`** `supabase/sheet-sync.gs` syncs the three columns (aliases `use_case`, `platform`; merged like `categories`) and has a one-off **`applyMcpEnrichment()`**: it reads an imported tab named `MCP enrichment`, adds missing headers, matches **by slug**, and **fills only empty cells**, then runs `syncAll()`.
+- **`✅ DRAFTED`** `supabase/mcp-enrichment.csv`: all 433 tools; 304 written per tool, the rest category defaults; **13 `free_tier` left blank on purpose** (unsure). Locally, enrichment visibly improved ranking: "figma plugin for accessibility" → Stark first; "font pairing" → Fontjoy; "3d for websites" → Spline in the top 3; the platform filter works.
+- **`✅ BUILT`** `scripts/build-blog.js` also writes `blog/posts.json`; seeded by hand from the two published posts.
+- **`✅ BUILT`** `/mcp/` (`index.html` + `mcp.css` + `mcp.js`, no inline scripts beyond the site-wide gtag snippet): hero with "Connect to Claude" (copies the URL, then opens claude.ai connector settings) and the URL with Copy; tabs for Claude / Claude Code / ChatGPT / Cursor / Other; 8 prompt cards with Copy and "Try in Claude" (`claude.ai/new?q=`); what's inside; fine print on the anonymous log. GA events: `mcp_copy`, `mcp_connect_click`, `mcp_try_prompt`, `mcp_tab`. Verified with Puppeteer at 1440 and 390: no errors, no overflow, tabs switch. Added to Resources (desktop + mobile) as "Design Wallet MCP" with `public/icons/nav/design-wallet-mcp.svg`; `sitemap.xml`; `header.js?v=20261028-1` on 20 pages, `assetVersion` matched.
+- **Plan facts checked 2026-10-28** (and used on the page): Claude, Customize → Connectors → Add custom connector, and **Free plans get one custom connector**. ChatGPT: custom MCP servers are documented for **Business, Enterprise and Edu**; Pro is unclear.
+- **`DECIDED` for v1** The connector URL is the Supabase function URL. `mcp.designwallet.in` is deferred, because GitHub Pages cannot run a server. Swap the URL in `mcp/index.html` (5 places) when a domain exists.
+- **`⚠️ GO-LIVE ORDER, do not reorder`**:
+  1. Run `schema.sql` in the Supabase SQL editor. It must come before step 2, or the sync pushes columns the table lacks and fails.
+  2. Paste the new `sheet-sync.gs` into Apps Script. Import `mcp-enrichment.csv` as a tab named `MCP enrichment`, run `applyMcpEnrichment()`, review, then delete the tab.
+  3. `npx supabase functions deploy design-wallet-mcp --no-verify-jwt --project-ref ugjtyuikvdeymwsfsgfl`
+  4. Verify the deployed URL (initialize + `tools/list` + one search; a row appears in `mcp_queries`).
+  5. Only then ship `/mcp/`, the nav entry, the sitemap and `blog/posts.json`. **Hold them back until then, as Brandkit was:** the page would hand out a dead URL.
+  6. Add it in Claude yourself and run the eight page prompts. Then add a changelog version with `/update-change-log`.
+- **`PENDING` Sheet hygiene found while drafting** (no code change; Sheet edits only):
+  - Three different tools are titled just "Icons" (`getbootstrap`, `icons-download`, `theforgesmith`).
+  - Poor titles: "Home | Laws of UX", "Vispero" (the product is Colour Contrast Analyser), "I Love Typography | Shop & Download…".
+  - Slugs from bot-check pages: `just-a-moment` (Colorkit), `vercel-security-checkpoint` (Instant Gradient).
+  - `doodlicons` has a Notion description.
+  - Likely duplicates: fontshare ×2, Krea ×2, Kittl ×2, Claude Code ×2, Laws of UX ×2, Logggos ×2, Logo System ×2, CSS Design Awards ×2, Fonts in Use ×2, Ultima ×2, OpenArt ×2, Veeso ×2.
+  - Scrolltide has no category; "Ramblings of a Designer" (a podcast) sits in Accessibility; Dribbble Jobs is in Communities; v0 is in Design Inspirations.
+- **`PENDING` Privacy page**: `/privacy/` should mention the anonymous MCP query log before launch. Karthik to approve the wording.
+- **v2 candidate (from testing):** "remove image background" finds nothing relevant, because the catalogue has no background remover, but **Design Wallet's own Mini Tools does**. This supports exposing the Mini Tools through the connector in v2.
+
+## MCP connector ships as v3, not committed yet (2026-10-28)
+
+Karthik: *"Don't commit anything yet. We will plan for it, because the changes that we are doing is going to be v3."* **`DECIDED`** The MCP work (server, schema, sync, enrichment, `/mcp/` page, nav entry, privacy line) is **v3**. It stays **uncommitted** in the working tree until the v3 release is planned. The privacy paragraph (drafted in the conversation) is **not yet applied** to `/privacy/`.
+- **Already live on Supabase** (Karthik ran it, 2026-10-28): `design-wallet-mcp` deployed and verified against the live URL. All 8 tools answer; `search_blog` politely reports the index as unavailable until `blog/posts.json` ships with v3. Karthik tested in Claude ("find design jobs") and was happy with the answer. The Sheet enrichment is already reaching Supabase.
+- **Next:** iterate on the `/mcp/` page design before v3.
+
+## MCP connector — custom link `mcp.designwallet.in` (2026-10-28)
+
+Karthik wanted a branded link instead of the Supabase URL. **`DECIDED` `https://mcp.designwallet.in`** (option B), not `designwallet.in/mcp` (option A). **Why:** A meant moving the whole domain's DNS from GoDaddy to Cloudflare; B is one CNAME and the main site is untouched. No email runs on the domain, so A was possible, but B was chosen.
+- **`✅ BUILT`** `mcp-proxy/`: a separate **Netlify** site, an Edge Function that forwards every request unchanged to the Supabase function. A browser visit (`GET` + `Accept: text/html`) gets a 302 to `https://designwallet.in/mcp/`. Answers on `/` and `/mcp`. **Why Netlify:** Cloudflare Workers custom domains need the zone on Cloudflare (option A again), and Vercel's free plan is non-commercial (DW earns affiliate money). Free plan.
+- **Fix found in testing:** the proxy must drop `content-encoding` and `content-length` from the upstream reply. `fetch()` has already decompressed the body, and the stale compressed length truncated `tools/list`. Verified through a local run against the live server: `tools/list` (8 tools), `list_categories` (3,838 chars, intact), search, notification 202, preflight 204.
+- **`✅ CHANGED`** The server's rate limit reads `x-dw-client-ip` (set by the proxy from the caller's address; used only for the limit, never stored) before `cf-connecting-ip`. Without it every proxied user would share Netlify's address, and one 60/min bucket. **Needs a redeploy of `design-wallet-mcp`.**
+- **`✅ CHANGED`** `/mcp/` page shows `https://mcp.designwallet.in` (URL pill, Claude Code command, Cursor JSON).
+- **Note:** `mcp-proxy/` sits inside the website repo, so once committed, GitHub Pages also publishes its source at `designwallet.in/mcp-proxy/…`. Harmless (no secrets), but worth knowing.
+
+## MCP connector — keep the Supabase link (2026-10-28, supersedes the custom-link entry above)
+
+Karthik rejected the Netlify proxy as too complicated (*"I don't want to deploy in Netlify… That is so complicated."*). He was shown three options without it: (1) keep the Supabase URL, (2) Supabase custom domain (needs Pro, $25/mo + $10/mo add-on, and the path stays long), (3) move DNS to Cloudflare plus a Worker for `designwallet.in/mcp` (~45 min, touches the whole site's DNS, reversible). **`DECIDED` Option 1.** The connector URL stays `https://ugjtyuikvdeymwsfsgfl.supabase.co/functions/v1/design-wallet-mcp`.
+- **Why it's acceptable:** users copy it once from `/mcp/`; the link shared publicly is `designwallet.in/mcp`; a directory listing would remove pasting entirely.
+- **Reverted:** `/mcp/` shows the Supabase URL again; `mcp-proxy/` deleted; the `x-dw-client-ip` rate-limit change undone. It was never deployed, so the source matches the live function again.
+- **Revisit later:** option 3 (Cloudflare + Worker) is the route to `designwallet.in/mcp` if the branded link becomes worth a DNS move. Lessons kept from the proxy test: drop `content-encoding`/`content-length` from upstream replies, and forward the caller's address for the rate limit.
+
+## MCP connector icon (2026-10-28)
+
+Karthik asked to change the connector's icon in Claude (it shows a green bolt). **Finding:** the bolt is **Supabase's** favicon. For custom connectors Claude appears to show the favicon of the connector URL's domain, and (per user reports, not Anthropic docs) ignores the MCP `serverInfo.icons` field. There is no Claude setting to change it.
+- **`✅ ADDED`** `serverInfo.icons` (MCP spec 2025-11-25) pointing at `/public/Logo/favicon-img/icon128|48|32.png`, with their **real** sizes (256/96/64 px; the filenames are 1x labels). Mostly for other clients and future Claude. Verified locally in the `initialize` reply. **Needs a redeploy of `design-wallet-mcp`.**
+- **Routes to the real logo in Claude:** the connector on designwallet.in (option 3, Cloudflare + Worker), or a listing in Claude's connector directory (logo uploaded with the listing). Weigh both for v3.
+
+## Design Wallet MCP moves to the main nav; the NEW pill moves with it (2026-10-28)
+
+Karthik: *"Remove the Design Wallet MCP from the resources tab and have the link in the main nav bar itself, left of Resources, with the same 'new' capsule… Remove the 'new' from Know your money."*
+- **`✅ DONE`** `header.js`: the Resources card is removed (Resources is back to Wallet Reads + Wall of portfolios). A top-level **`Design Wallet MCP` + `NEW` pill** (`.nav-new`, unchanged styles) is now the **first** nav link, left of Resources. Know your money loses its pill. The mobile pop-up menu gets `Design Wallet MCP` as its first link, without a pill, matching how Know your money was shown there. `public/icons/nav/design-wallet-mcp.svg` deleted (unused now).
+- **Verified** with Puppeteer at 1440, 1280, 1100 and 1024 (desktop nav fits on one line, nothing wraps, no overflow, no errors), at 900 (the site's existing switch to the menu button) and at 390 (the mobile menu lists MCP first).
+- Karthik is setting aside the connector icon and the website AI search to think about them; neither is on the roadmap yet. Still uncommitted, part of v3.
+
+## /mcp/ first fold, redesigned in Figma (2026-10-28)
+
+Karthik shared a reference (a light "Aeye" AI-product landing: pixel-grid hero band, mono ticker, a headline with a bracketed mono word and a block cursor, a logo strip, a dotted panel) and asked for the **same style for the first fold**. The target frame was **Figma `Design-Wallet` file, frame "Desktop - 3" (`885:70`)**, which he had started in the site's **dark** style: a nav screenshot and one row of 30px outlined cells.
+- **`✅ DESIGNED`**, built on his start, nothing of his changed. Five more rows of cells with white fills at 14/32/60/100% (monochrome, in place of the reference's blue), clustered centre-right. Band labels "+ Design Wallet MCP [V1.0]" and "SCROLL FOR MORE +". A mono ticker "INTRODUCING: DESIGN WALLET MCP — FIND DESIGN TOOLS INSIDE CLAUDE". Headline in Geist Light 68 "Find the right / [ design tool█ ] / without leaving Claude." (line 2 in Geist Mono with muted brackets and a white block cursor). Right column: a stats line (430+ hand-picked tools | + 40 /categories), the pitch, and **CONNECT TO CLAUDE** (white) / **HOW TO CONNECT** (underlined) buttons. A "works with" strip: Claude · ChatGPT · Cursor · Claude Code · VS Code · Any MCP app. A dotted panel with "> CONNECTOR URL → …supabase.co/functions/v1/design-wallet-mcp [COPY] <".
+- Local components created below the frame for reuse: `MCP / Button / Primary`, `MCP / Button / Line`, `MCP / Client cell` (each with a text property). Fonts: Geist, Geist Mono, Inter, as on the site.
+- **Open points for Karthik:** his first cell row has 100% white strokes and the new rows use 12%. Pick one. The nav at the top is a screenshot of the **old** nav (NEW on Know your money, no MCP link), so it needs a fresh capture.
+- **2026-10-28 follow-up:** Karthik asked to switch the Geist Mono text to Inter. **`✅ DONE`**: all 14 mono texts, including the button labels in their main components (Light/Regular/Medium mapped across); headline line 2 is now Inter Light 68 like lines 1 and 3, and its cursor is a 16×52 white block with space on both sides (a thin bar read as "tooll"). He asked for the real logos, white for the black background. **`✅ DONE`**: `Logo / Claude`, `ChatGPT` (OpenAI mark), `Cursor`, `Claude Code`, `VS Code`, `Any MCP app` (the official Model Context Protocol mark), from **Simple Icons** (the open brand-icon set, via jsDelivr), each a 24px white component. `MCP / Client cell` now has an **INSTANCE_SWAP `Logo` property** in place of the square mark. Karthik's own edits in the frame (band logo, ✦ ticker, favicon stack, the Claude mark on the primary button) were left untouched.
+- **2026-10-28, sections 2 and 3 on the same artboard (`885:70`, now 1440×4962):**
+  - **Strip** → Karthik's eight apps in his order: Claude · Claude Code · ChatGPT · Cursor · Codex · VS Code · Gemini · Hermes. 150px cells. Claude Code uses the Claude mark, as in his reference; Codex uses the OpenAI mark (`Logo / OpenAI`, renamed from ChatGPT); `Logo / Gemini` comes from Simple Icons.
+  - **`PENDING` Hermes logo:** `Logo / Hermes (placeholder - paste the real mark)` is a dashed "H". Simple Icons' "Hermes" is the fashion brand, and hermes-agent.nousresearch.com only serves a 48px PNG illustration that is not the statue mark in his reference. Karthik to paste the real mark into that component; every use updates.
+  - **Section "All of Design Wallet inside the chat"** (layout from the Magnific reference): a 3×2 grid of `MCP / Feature item` (Title/Body text properties plus an INSTANCE_SWAP Icon from `Icon / *`): Tool search · Categories · Compare · Know your money · Blog · Wallet Reads. These match the connector's 8 tools.
+  - **Section "How to connect"**: one block per app, "How to connect in <app>" with a logo tile and a requirement note on the left, numbered `MCP / Step` instances and `MCP / Code` snippets (with COPY) on the right. **Sources for the steps:** Claude (support.claude.com: Customize → Connectors → Add custom connector; Free = 1); Claude Code (`claude mcp add --transport http …`); ChatGPT (help.openai.com: Plugins → custom MCP server, no auth; Business/Enterprise/Edu); Codex (OpenAI's docs: app Settings → MCP servers → Add server → Streamable HTTP → Restart; `codex mcp add design-wallet --url …`); VS Code (`MCP: Add Server` → HTTP; `.vscode/mcp.json` under `servers` with `type: "http"`); Gemini CLI (`gemini mcp add --transport http …`, `settings.json` `httpUrl`, `/mcp`; **from third-party guides, not Google's docs**); Hermes Agent (hermes-agent.nousresearch.com: `~/.hermes/config.yaml` `mcp_servers.<name>.url`, `/reload-mcp`, `hermes mcp test`); Cursor (`mcp.json` `mcpServers.<name>.url`; **the Settings menu label is not verified**).
+- **2026-10-28 — `DECIDED` Every example prompt says "in Design Wallet".** Karthik found that in Claude, unless the prompt says "in Design Wallet", Claude doesn't use the connector. Applied: (a) Figma, where `MCP / Feature item` gained a **"TRY" prompt pill** (text property `Prompt`) and each of the six items has one, e.g. "Find me free icon sets for Figma in Design Wallet." The How-to-connect steps for Claude Code, Cursor and Hermes now end with an "in Design Wallet" prompt; "How to connect" moved down 152px and the artboard is 1440×5166. (b) The coded `/mcp/` page: all 8 prompt cards plus the Claude and Claude Code tab copy were rewritten the same way. Saved as a standing rule in memory.
+- **Possible later fix (not done):** strengthen the server's tool descriptions and instructions so Claude picks Design Wallet for design-tool questions even without the phrase. Claude still decides on its own, so the phrase stays in the examples either way.
+- **2026-10-28 — Pixel bands are fill-only.** Karthik: *"Remove all the stroke boxes, have only the fill boxes."* **`✅ DONE`** on the artboard (now named "Design wallet MCp", `885:70`): 392 outline-only 30px cells deleted and outlines removed from 98 filled cells. That covers **both** pixel bands: the top one (`885:366`) and the copy Karthik placed by the "How to connect" heading. Only the filled blocks remain.
+- **2026-10-28 — Correction.** The fill-only change was meant **only for the band Karthik linked (`885:366`, his copy by "How to connect")**. The agent wrongly applied it to the first-fold band too. **`✅ RESTORED`** the first-fold band (`887:67`): 196 outline cells re-created at their grid positions and 12% white outlines back on its 49 filled cells, in the original layer order, so all 245 cells are back. `885:366` stays fill-only. **Lesson:** when Karthik links a node, change only that node.
+- **2026-10-28 — How to connect lives in the tab strip, not a separate section.** Karthik: *"Add how to connect section in this tab itself… We don't need to make a new section."*
+  - **`✅ DONE`** The logo strip is the tab row (his order: Claude · ChatGPT · Cursor · Claude Code · Codex · VS Code · Gemini · Hermes). Claude's cell is overridden to the selected look: white fill, dark label.
+  - The dotted panel under it is now **"How to connect (tab panel)"**, an auto-layout frame with the dot pattern as an absolute background. It holds **8 `Tab content / <app>` frames; only Claude is visible.** Left: "How to connect in <app>", the requirement note, CONNECTOR URL with a COPY chip. Right: numbered `MCP / Step` instances with `MCP / Code` snippets. Every final prompt says "in Design Wallet".
+  - Karthik said "link at the right side and the setup points in the right". The agent put **the link on the left and the steps on the right** and told him; to be confirmed.
+  - `Section / How to connect` (`894:152`) deleted. "All of Design Wallet inside the chat" moved down 208px. Karthik's fill-only band (`885:366`) now sits 120px below it. Artboard is 1440×2210.
+  - Karthik changed headline line 3 himself to "using any LLM tools."
+- **2026-10-28 — "All of Design Wallet inside the chat" rebuilt in the Magnific "Prompts that made the cut" layout** (Karthik's reference). New section `902:191` replaces the 3×2 grid.
+  - **Header:** title (Inter Light 52) and subtitle "Real prompts that work. Copy one, paste it into Claude, and make it yours." on the left; an outlined **Connect MCP →** button on the right.
+  - **Left:** a 480×640 clipped list with a scrollbar, made of `MCP / Prompt card` instances (Title/Prompt text properties, "Copy" plus icon) for Tool search, Categories, Compare, Know your money, Blog and Wallet Reads. Every prompt says "in Design Wallet". The first card is overridden to selected.
+  - **Right:** three checked stages, **1. Ask ✓ · 2. Design Wallet searches ✓ · 3. Claude answers ✓**, then a card flow: the YOU prompt → a `search_tools` call (query, platform: figma, free_only, "4 matches") → Claude's answer listing **Phosphoricons, Icons8, StreamlineHQ, Flagpack**. Those are the real results the server returns for that query with the enrichment applied.
+  - The old `MCP / Feature item` and `Icon / *` components are no longer used on the artboard but are kept. Karthik's band sits 120px below the section; the artboard is 1440×2398.
+- **2026-10-28 — Every tab and every prompt now has its own visible state.**
+  - **Seven `How to connect / <app>` frames** (1440 wide, beside the artboard at x≈4047): ChatGPT, Cursor, Claude Code, Codex, VS Code, Gemini, Hermes. Each clones the strip and the panel, selects that app's tab, shows its `Tab content / <app>`, and regenerates the dot background at its own height. White logos (OpenAI, Cursor, Hermes) are darkened on the selected white tab, otherwise they vanish. Claude stays on the main artboard.
+  - **Five `Prompts showcase / <prompt>` frames** (x≈5647): Categories, Compare, Know your money, Blog, Wallet Reads. Each has its card selected, the left list scrolled to it, and the right flow rewritten with **real connector output from the live server**:
+    - `get_category` Typography: 19 tools.
+    - `compare_tools` Figma/Framer/Webflow.
+    - `get_salary_benchmarks`, senior product designer, Bangalore: median ₹28.3L, range ₹22.4L–₹35.4L.
+    - `search_blog` freelancing: the 10-steps article. Taken from `blog/posts.json`, which the live server can't read until v3 ships it.
+    - `list_books` branding: *Logos That Last*, Allan Peters, 4.2.
+  - Tool Search stays on the main artboard. The test calls were logged with `client = 'curl'`; delete them before launch.
+- **2026-10-28 — Tab headings follow Karthik's edit.** He restyled the Claude heading (`901:279`) to **Inter Regular 30, line height 60, letter spacing −5%, ending in "?"** ("How to connect in Claude?"). **`✅ DONE`** The same style and the trailing "?" were applied to all 63 "How to connect in …" headings: the 7 hidden tab layers in the main panel (`887:390`) and all 8 tab layers inside each of the 7 tab frames. Nothing else changed. Note: Figma comments can't be read through the MCP connection, so Karthik pastes the comment text or links the layer instead.
+- **2026-10-28 — Showcase illustrations stack vertically.** Karthik: *"All the illustration should not be horizontally stacked. It should be vertically stacked in all the sections."* **`✅ DONE`** in all 6 showcase versions (`902:191` and frames `904:429/562/691/809/927`): the Flow is vertical (YOU → down arrow → DESIGN WALLET MCP call → down arrow → Claude's answer), the cards span the full width of the panel, and the Flow hugs its content. **Gotcha:** switching `layoutMode` kept the Flow's old fixed height (396px), and it silently clipped the answer card; it has to be set to `primaryAxisSizingMode = "AUTO"`. Each showcase box is sized to its flow (minimum 640): Tool search 800, Categories 776, Compare 759, Know your money 776, Blog 640, Wallet Reads 667. The left list fills the same height. The artboard is now 1440×2556.
+- **2026-10-28 — FAQ section** (layout from Magnific's FAQs, Karthik's reference). `Section / FAQs` (`907:650`) sits 140px below Karthik's band: "FAQs" (Inter Light 52) on the left, 10 `MCP / FAQ item` instances on the right (Question/Answer text properties plus an `Open` boolean that shows the answer; all closed). The artboard is 1440×3332. **Questions, and the facts behind each answer:**
+  1. Where it works: Claude web/desktop/mobile, Claude Code, ChatGPT Business/Enterprise/Edu, Cursor, Codex, VS Code, Gemini CLI, Hermes Agent, any remote-MCP-over-HTTP app.
+  2. Is it free: yes, no signup or key; the app's own plan limits apply.
+  3. Paid Claude plan needed: no, Free allows one custom connector.
+  4. Why say "in Design Wallet": Claude picks the connector.
+  5. What can I ask: the 8 tools.
+  6. Tools outside DW: no; it says so and points to List your tool.
+  7. Freshness: live, minutes, because of the Sheet→Supabase sync plus the 5-minute server cache.
+  8. Data: anonymous log, never who asked, never the chat.
+  9. Claude directory: not yet.
+  10. My tool isn't listed: List your tool.
+
+  Answers 7 and 8 depend on the sync and on `mcp_queries` staying as built. Answer 9 must change if a directory listing happens.
+- **2026-10-28 — "FAQs / All answers" artboard** (`909:824`, 1440×1547, right of all other frames). A copy of the FAQ section with all 10 items open and their answers showing, and a − icon instead of +. It is a **reference board**: its items are detached from `MCP / FAQ item`, because Figma blocks changing an instance's icon shape or rotation. The FAQ section on the main artboard stays component-linked and collapsed. Edit answers in the main section's component properties; this board does not update with them.
+- **2026-10-28 — Mobile artboard** `Design wallet MCP / Mobile` (`917:694`, 390×3938, right of all frames), with 16px gutters as on the site. Sections:
+  1. Pill header: the real `/public/Logo/Website-logo.svg` as vectors, the v2.4 chip and a menu button, matching the site's mobile nav.
+  2. The desktop pixel band cropped to its dense middle, then the "Design Wallet MCP" label and the ticker.
+  3. Hero: headline at 40px, the stats, and the two buttons full width and stacked.
+  4. App tabs as a sideways-scrolling row (Claude selected), then the panel with link and steps stacked.
+  5. "All of Design Wallet inside the chat": the prompt cards in a sideways-scrolling row (262px cards), then the stages and the vertical Ask → Search → Answer flow.
+  6. Karthik's fill-only band.
+  7. FAQs: the title above the 10 questions.
+
+  The pieces are clones of the desktop sections, so the text matches his latest edits, including the headline "using any LLM tools." **Gotchas:** switching `layoutMode` on a clone keeps old fixed sizes or "fill" settings, which collapsed the steps column to 1px, overflowed the section header, hid the 10th FAQ and left the flow cards fixed-width. Each was set to hug or fill explicitly. **Note:** the desktop "All of Design Wallet" header no longer has the Connect MCP button (Karthik's change?), so the mobile version doesn't either.
+- **2026-10-28 — Mobile prompt picker = capsules plus one fixed prompt box.** Karthik: *"Have the title in separate capsules and horizontal scroll. Then have the text box as fixed; when the tab changes, the prompt changes in that text box where they can copy."* **`✅ DONE`** on the mobile artboard (`918:748` "Left / prompt picker"):
+  - A clipped "Capsules (scroll)" viewport holding a 693px row of pill capsules: Tool search (selected, white) · Categories · Compare · Know your money · Blog · Wallet Reads.
+  - Below it one fixed "Prompt box": a `MCP / Prompt card` instance with its title hidden, showing the selected prompt and Copy.
+  - **Build note:** selecting a capsule swaps the box's `Prompt` text to that capsule's prompt; Ask → Search → Answer below follows the same selection. Desktop keeps the card list.
+- **2026-10-28 — Mobile headline bigger; real logos in the answer cards.**
+  - Mobile hero headline 40 → **48px** (line height 54). Lines wrap within the 358px column, so "using any LLM tools." takes two lines; the caret is 12×40.
+  - **All 17 answer-card placeholders now show real images**, uploaded with `upload_assets` as image fills on the existing rectangles: the desktop Tool search card, the Categories/Compare/Blog/Wallet Reads frames, and the mobile Tool search card. **Source = each tool's own `image` favicon from the catalogue** (ImageKit, fetched with `?tr=f-png,w-128,h-128`). StreamlineHQ and Webflow ignored that and returned `.ico`, so they were converted with `sips`. The blog row uses the article's cover (`public/images/blog/…-cover.png`) as a 40×24 thumbnail; the book row uses its Amazon cover from `public_books` as a 24×34 portrait.
+  - Karthik meanwhile narrowed the flow cards in the showcase frames himself; that was left as is.
+
+## /mcp/ page built from the Figma design (2026-10-28)
+
+Karthik: *"These are the designs that you need to develop now"* (Figma section "Design Wallet MCP", `910:935`: desktop `885:70`, 7 tab states, 5 prompt states, FAQ answers, mobile `917:694`). **`✅ BUILT`** `mcp/index.html`, `mcp.css` and `mcp.js` were rewritten; the first-draft page is gone. **Not committed; ships with v3.**
+- **Structure:**
+  - The site header (`header.js`, with the MCP nav link), not the nav screenshot from Figma.
+  - A full-bleed pixel band: a 30px CSS grid, with the filled cells drawn by `mcp.js` from the **pattern exported from Figma band `887:67`**. The "*Design Wallet* MCP" label is Inter 600 italic + 300.
+  - A marquee ticker with ✦ (paused under reduced motion).
+  - The bracketed headline with a blinking caret.
+  - The stats line with Karthik's favicon stack (`public/icons/mcp/tool-stack.png`, exported from Figma).
+  - **Connect to Claude** (copies the URL and opens claude.ai connectors) and **How to connect**.
+  - **8 app tabs** (ARIA tabs with arrow keys) over a dotted setup panel. All 8 guides are in the HTML, including the steps, notes and code blocks with Copy, and the "How to connect in X?" headings in Inter Regular 30/60, −5%.
+  - **Showcase:** desktop prompt cards (ARIA tabs, Copy each); on mobile, capsules plus a fixed prompt box. Both drive the 6 vertical Ask → Search → Answer flows, with real favicons/covers from the catalogue.
+  - Two fill-only decorative bands (pattern from `885:366`).
+  - `<details>` FAQs with a +/− icon.
+- **Assets:** app logos as inline SVG `<symbol>`s exported from Figma (`exportAsync SVG_STRING`). White marks use `currentColor`, so they turn dark on the selected white tab. Gemini is `public/icons/mcp/gemini.png`, because Karthik's Gemini mark is a raster. Hermes is still the placeholder mark.
+- **Verified** with Puppeteer at 1440, 1024 and 390: no JS errors (only GA pings, blocked in headless), no horizontal overflow, the tab switch shows the right panel, the prompt switch shows the right flow and updates the mobile box, and the FAQ opens.
+- **Fixes found in testing:** the decorative bands bleed past the viewport, so `.mcp-page .page-shell { overflow-x: clip }` stops the 590–910px sideways scroll. On mobile the capsule row stretched the grid column, so the column is `minmax(0, 1fr)`.
+- **Still open before v3 ships:** the real Hermes logo; the privacy-page paragraph (drafted, not applied); clearing the test rows (`client = 'curl'`); `blog/posts.json` and the server going live together.
+- **2026-10-28 — Headline typewriter + glittering pixel band.**
+  - **Typewriter:** the bracketed headline types, pauses (1.8s), deletes and types the next phrase from Figma "Section 2" (`885:679`), in its top-to-bottom order: design tools · design portfolios · design inspirations · design communities · design jobs · design podcasts · color palettes · landing pages. Typing is 75ms per character, deleting 38ms. Screen readers get a static visually-hidden "design tools"; reduced motion keeps "design tools" still.
+  - **Width check:** the longest phrase ("design inspirations") is 675px on desktop against 736px available. On phones it is 466px against a 358px column, so **on ≤760px the bracketed line alone is 35px** (the other headline lines stay 48px).
+  - **Glitter:** Karthik asked for the band squares to "glitter". About half the filled cells in every band (hero and the fill-only decorations) get a random 2.5–6s cycle with a negative start offset: they hold, flash to full white, dip to 25% and settle. Off under reduced motion. Verified by sampling the computed opacity over time.
+- **2026-10-28 — Tab and prompt selection survives reloads.** Karthik: leaving the window and coming back reset the tab to Claude. **Cause:** the page kept no state, so any reload (back/forward, a discarded background tab, a dev server's auto-refresh) started fresh. **`✅ FIXED`** in `mcp.js`: the selected app and prompt are stored in `sessionStorage` (`dw-mcp-app`, `dw-mcp-prompt`; wrapped in try/catch for private mode) and restored on load, without page scroll or analytics events. Restoring only moves the tab strip and card list, never the page. New **`?app=<id>` deep link** (claude, chatgpt, cursor, claude-code, codex, vscode, gemini, hermes), which wins over the stored choice. Verified headless: ChatGPT + Compare survive a reload and back/forward; `?app=cursor` opens on Cursor at the top of the page.
+- **2026-10-28 — ChatGPT "Custom MCP servers introduce risk" notice.** Karthik saw it when pasting the URL. **Finding:** ChatGPT shows it for **every** custom MCP server; no server-side change removes it. The only way out is an official listing in ChatGPT's app directory (OpenAI review), the same route as Claude's directory. His screenshot also showed **Authentication defaulting to OAuth**, which fails for us; it must be "No authentication".
+  - **`✅ CHANGED`** the ChatGPT tab steps on `/mcp/`: a download link for `/public/Logo/favicon-img/icon128.png` as the connector icon (it is 256×256, 4.6 KB, inside ChatGPT's ≥256px / ≤10 KB PNG limit); a copyable description ("Search Design Wallet's hand-picked catalogue of 430+ design tools, plus designer salaries, articles and book picks."); an explicit "change OAuth to **No authentication**" step; and a line explaining the notice (read-only, searches only our catalogue, never chats, files or account).
+  - **Pending:** apply to ChatGPT's app directory, and Claude's, to remove the warning and the pasting entirely.
+- **2026-10-28 — Showcase panels separated.** Karthik: the left and right panels blended (white at 3.5% vs 4.5%). **`✅ CHANGED`** the left picker to `var(--surface-0)` (pure black) with a 1px `--mcp-line` divider on its right (a bottom divider on mobile, where the panels stack). The right stage is unchanged (white at 4.5%, about #121212).
+- **2026-10-28 — Supabase exposure check** (Karthik asked whether the project ref in the connector URL lets anyone into the database). The ref `ugjtyuikvdeymwsfsgfl` and the publishable key are public by design (already in `tools/tools.js`). Live probe with the public key: `public_tools` and `public_books` readable (intended); `tools`, `books`, `portfolios`, `subscribers`, `mcp_queries` and `mcp_gaps` give **permission denied**. A repo scan (excluding node_modules/.git) found **no service_role / sb_secret / JWT keys**. **Gotcha for future scripts:** in zsh, a loop variable named `path` overwrites `$PATH`.
+- **2026-10-28 — "Copy MCP for <app>" replaces the URL box.** Karthik: *"Rather than showing the code can we have a button there saying 'copy MCP for claude'."* **`✅ DONE`**: in all 8 setup panels, the "Connector URL" label and URL box became one white button with that app's logo, "Copy MCP for Claude / ChatGPT / Cursor / Claude Code / Codex / VS Code / Gemini / Hermes" (`.mcp-copy-mcp`, 52px tall, full width on mobile). It copies the URL, flips its label to "Copied" for 1.6s and shows the toast. The URL now lives on `<main data-mcp-url>` (still in the HTML for crawlers; `mcp.js` reads the attribute). Verified with a stubbed clipboard: the exact URL is copied. **Kept visible on purpose:** the CLI commands and config snippets in the steps (Claude Code, Codex, Cursor, VS Code, Gemini, Hermes), because people need to read what they paste. Offered to make those buttons too.
+- **2026-10-28 — Hermes removed from `/mcp/`.** Karthik pointed at the Hermes panel ("This section is not needed") and confirmed: remove the Hermes tab. **`✅ DONE`**: the tab, its setup panel and the `logo-hermes` symbol are deleted, and the FAQ "Where does it work?" now reads "…Cursor, Codex, VS Code and Gemini CLI." The tab grid is `repeat(7, 1fr)` (171px each at 1440). The 4-column layout at ≤1240px and the sideways scroll on mobile are unchanged. A stale `?app=hermes` link or a stored `hermes` choice falls back to Claude without errors (verified). **Not yet mirrored in Figma**, where the Hermes tab and its frame remain; this also makes the placeholder Hermes logo moot.
+- **2026-10-28 — Page title.** Karthik: `/mcp/` title is **"Design Wallet MCP | Find Design Tools using LLM"** (shortened from "…using any LLM tools"). `✅ DONE` for `<title>` and `og:title` (link previews).
+- **2026-10-28 — FAQ open/close animates.** Karthik asked for a smooth open and close. **`✅ DONE`** in `mcp.js`: each answer is wrapped in `.mcp-faq-body` and its height and opacity animate over 320ms (`cubic-bezier(0.2,0.7,0.2,1)`, Web Animations API); the summary click is handled in JS. The +/− is now a `.mcp-faq-icon` span whose vertical bar rotates flat (0.35s) instead of the old gradient swap. Interrupting mid-animation reverses from the current height. Reduced motion, or no `element.animate`, toggles instantly. **Gotcha:** a closed `<details>` still reports its content's height to `getBoundingClientRect`, so an open from fully closed must start at 0. Verified by sampling: opening 79/93px at 120ms, closing 14px at 120ms, three rapid clicks end open.
+
+## v3 release decisions (2026-10-28)
+
+Karthik's answers:
+1. **Privacy paragraph approved.** **`✅ APPLIED`**: "Design Wallet MCP" `<h3>` and paragraph in `/privacy/` §4 Recording of Data, after Contact / Email; "Last updated" moved from April 7 to October 28, 2026 (the policy promises a date change with each update).
+2. **`DECIDED` Ship batch A (site work since v2.4: mobile site, pop-up menu, Resources cards, 2.8s pre-loader, 4-across wall, Good deals removed, fixes) and batch B (Design Wallet MCP) together as v3.**
+3. **`PENDING` the v3 name.** Major versions are constellations (V1.0 Orion, V2.0 Ursa); options were offered and Karthik is choosing.
+4. Karthik asked the agent to run `delete from mcp_queries where client = 'curl'`. **It can't**: the publishable key can't write to that table (by design), the service key is deliberately not in this environment, and `supabase login` can't be completed non-interactively. **`PENDING` Karthik runs it in the SQL Editor.**
+5. **`DECIDED` Only the live website ships.** No Figma Hermes cleanup and no Sheet-hygiene pass for now. **Files outside A + B stay out of the release:** `hero-marks.js`, `public/hero/`, `public/reference/`, `.claude/DATA-SECURITY-PLAN.md`, `.claude/NEWSLETTER-PLAN.md`, `deno.lock`, `supabase/.temp/`, the `(1)` duplicates, and the restored `good-deals/` folder.
+- **2026-10-28 — v3.0 changelog entry.** **`✅ DONE`** a new `V3.0 Pegasus` group above V2.0 Ursa, with entry `v3-0` (Oct 28, 2026, `data-through="2026-10-28"`) covering **Oct 20–28**. Title: "Design Wallet MCP: find design tools inside your AI chat". Subheads "Design Wallet on your phone" and "Smaller updates" (Resources cards, under-3s intro, four-across wall, Good deals on a break, fixes). Screenshot `public/changelog/v3-0.webp` of `/mcp/`. The v2.4 image is now `loading="lazy"`.
+  - `DW_VERSION` = `v3.0`; `header.js?v=20261028-2` on all 20 live pages; `assetVersion` 20261028-2.
+  - **`scripts/changelog-screenshot.js` now emulates `prefers-reduced-motion: reduce`**, because the first /mcp/ shot caught the typewriter mid-word ("design por"); animated pages now settle on their resting state.
+  - Verified at 1440 and 390: V3.0 Pegasus first, image loads, capsule reads v3.0, no overflow, no errors.
+  - **Name note:** the skill's list reserved **Lyra** for V3.0; **Karthik chose Pegasus** (2026-10-28). The skill's table is not updated yet; awaiting his call.
+  - **Karthik plans one more v3 feature:** when it's built, **fold it into this v3.0 entry** rather than adding a version.
+
+## Marketing homepage, AIDA model, designed in Figma (2026-10-28)
+
+Karthik: *"the main objective of the homepage is to make the users sign up to Design Wallet. Develop a AIDA model home marketing page that is appealing to audience in Figma."* **Design only. Nothing is built in code.**
+
+- **Figma:** section "Marketing homepage — AIDA (2026-10-28)" (`954:834`) in the Design Wallet file (`ZQtGEp7Co9lyVelVcWiM4r`), Website Development page, below the Sign-in portal section. The page frame is `954:854` (1440 × 6170). There is a white note beside each AIDA stage.
+- **Structure:** Nav (the Auth / Nav signed-out instance) → **01 Attention**: hero "Your design toolkit, *finally* in one place." with CREATE FREE ACCOUNT + CONTINUE WITH GOOGLE, and a "My wallet" preview with three saved tools and a "saved" toast, then a proof strip → **02 Interest**: three problem cards, then a "What's inside" bento (catalogue, Know your money, mini tools, Wall of Portfolios, Wallet Reads) and an MCP strip → **03 Desire**: Just browsing vs With a free account, then How it works in 3 steps → **04 Action**: a final panel (email-link form + Google), a 4-question FAQ, and the footer.
+- **`DECIDED` Proof uses only verified numbers:** 430+ tools, 40 categories, 145 portfolios, 13 salary cities, 4 mini tools. **No testimonials and no avatars**, because the hero avatars are stock portraits (§ "Loved by" note). Add real quotes here when there are some.
+- **`DECIDED` The copy follows the sign-in scope:** browsing stays open, the account adds the wallet, favourites and portfolio submissions. Portfolio builder and job board are labelled **Coming soon**. The newsletter is described as opt-in (off unless ticked). Sign-in is passwordless (Google or email link).
+- **New local components** in "Homepage components": Home / Tool card (Name, Category, Price, Initial, Saved), Home / Stat, Home / Feature card (Title, Body, Link, Show link, Icon swap), Home / Step, plus icons wand, portfolio, tabs, price tag and question. It reuses Auth / Nav, Button / Primary, Button / Line and Input, MCP / FAQ item, the Icon / * set and the client Logo / * components.
+- **`⚠️ OPEN` This brings back a marketing homepage,** which §1 removed in favour of the catalogue shell at `/`. Still to decide: does it replace `/`, with the catalogue moving to `/tools/`, or live on its own route?
+- **`⚠️ OPEN`** The "under a minute" sign-up claim in the Action panel is unmeasured. Check it once the flow exists.
+- **`PENDING`** Karthik's review.
+- **2026-10-28 — `DECIDED` The second fold is the live catalogue dashboard, recreated** (Karthik, from a screenshot of designwallet.in v3.0). Frame "Dashboard preview" (`960:1486`) replaces the "My wallet" preview inside the hero. Inside it, "Dashboard (live catalogue)" (`960:1184`) is built as editable layers at native 1571×760 and scaled to 1200 wide, with a fade at the bottom. It has the sidebar (Hot trends + categories with real counts, All selected), the top nav with the MCP NEW pill and Sign in, the "All-in-one [M] design library / for [Dribbble] curious designers." headline with stars, the Product Hunt badge and Loved by row, search, and four Featured cards (Claude, ChatGPT, Midjourney, Lovable).
+  - New components: Home / Sidebar item (Label, Count, Icon swap), Home / Catalogue card (Name, Description, Price, Logo swap; recolour the badge purple for PAID), 11 Icon / Sidebar / * icons, and Logo tile / * components made from the hero tile sets (`857:4471`).
+  - **`⚠️ GOTCHA`** The PH badge is rebuilt as layers, because the old badge image (`854:4383`) carries a grey screenshot background. The avatars are still cropped from that image. **Midjourney has a placeholder "M" tile:** the file has no Midjourney mark, so paste the real one into "Logo tile / Midjourney (placeholder)".
+  - The "My wallet" Home / Tool card component is now unused. It stays in Homepage components.
+- **2026-10-28 — `DECIDED` Mobile (390) version:** frame "Homepage — AIDA mobile (390)" (`963:1104`), in the same section to the right of the components, about 7,500px tall. It uses the same components and copy, 16px gutters and one column.
+  - Nav: logo, a SIGN IN capsule and a menu icon.
+  - The hero CTAs are full width and stacked.
+  - **The second fold is a phone-sized catalogue, not the scaled desktop dashboard.** That would be about 23% scale and unreadable. It shows search, category chips (All selected) and two Featured cards.
+  - Stats sit two per row. Problem and feature cards stack, and the MCP strip stacks too.
+  - **"With a free account" comes BEFORE "Just browsing" on mobile**, so the sign-up column and its CTA appear first.
+  - The final panel's input and buttons are full width, then the FAQ and the footer, with links in a two-column wrap.
+  - Headline sizes: hero 38, H2 34, final panel 33.
+  - **`⚠️ GOTCHA`** The MCP / FAQ item shows "+" even when Open=true. That is in the shared component, so desktop has it too.
+
+## LinkedIn banner, in Figma (2026-11-01)
+
+Karthik asked for a LinkedIn banner in the Figma file, on the **Assets** page (`1121:6560`). Frame `1123:1959`, 1584×396, with a 1× PNG export set.
+
+- **Content:** the logo, the homepage's "*Design Asset Repository* for your next design project.", the proof line "430+ hand-picked tools · 40 categories · designwallet.in", five tool-logo tiles (Dribbble, Claude, Mobbin, ChatGPT, Lovable), and the footer's grainy dunes along the bottom.
+- **`DECIDED` (agent) Proof uses the verified 430+** (433 live on 2026-11-01), not the unverified "5000+ designers" or "500+ tools" from the homepage.
+- **`DECIDED` (agent) Copy starts at x 440,** to clear LinkedIn's profile photo, which covers the banner's lower left on a personal profile. Not yet tried on a live profile. A company page uses a different ratio (1128×191), so it would need its own version.
+
+## Paid agents: plan approved, nothing built (2026-11-01)
+
+Karthik's call: Design Wallet stays free and the agents are what we charge for. **Full plan, agent list, research and sources in `.claude/AGENTS-PLAN.md`.** This changes the revenue line in §1.
+
+- **`DECIDED` Agents are a paid revenue stream, alongside tool listings.** The directory stays free.
+- **`DECIDED` Audience priority: job seekers, then agency designers, then freelancers.** Recorded with the caveat on the plan: job seekers come first for fast feedback and early cash, while agencies have the largest revenue potential.
+- **`DECIDED` "Free" covers the directory, mini tools and salary data, and existing features never move behind payment.** Some pages already need a free account, so public copy says "free", not "no sign-up".
+- **`DECIDED` The website goes open source; agent prompts, scoring rubrics and the paid backend live in a private repo.**
+- **`DECIDED` Paid listings never silently influence agent recommendations.** Any sponsored suggestion is labelled.
+- **`DECIDED` Before any paid launch: retention and deletion rules, plus the DPDP/GDPR advice still pending in §20.**
+- **`DECIDED` No live interview copilot.** Agents are for practice only.
+- **`DECIDED` First paid launch is the job seeker set:** mock interview, portfolio critic, salary negotiation coach and presentation rehearsal. Google Ads adaptations is the first agency agent. Illustration and video are skipped; people get routed to listed tools. The tool-stack advisor is free.
+- **`DECIDED` Validate before building:** an Interview Sprint page and 10 portfolio critiques run by hand.
+- **Not decided yet:** the test prices (Interview Sprint ₹999, Agency Adapt about ₹4,000–8,000 per seat, Freelancer Toolkit about ₹299–499) and the go/no-go gates are starting points to adjust. Several competitor and voice cost figures come from third-party listings and need checking on vendor pages.
+- **`PENDING` Pre-orders, or a free beta first?**
+- **`PENDING` Which payment provider?** §6 still marks Lemon Squeezy as safe to cancel, so check it before cancelling.
+- **`PENDING` India only at first, or separate international pricing?**
+
+## Quick search pop-up, in Figma only (2026-11-01)
+
+Karthik shared a reference (a light "Quickly search or just ask" panel with search terms, questions and a category grid) and asked for this pop-up when a signed-in user clicks the search bar. **Design only. Nothing is built in code, and it is awaiting his review.**
+
+- **Figma:** the section "Quick search pop-up (2026-11-01)" (`1135:1959`) on the Website Development page, to the right of Section 4. Screens: `1136:1962` opened, `1136:2543` typing. Components: Quick search / Chip, Category tile, Result row and Key, plus an Icon / Category set made from `public/icons/`.
+- **The reference's layout is used, not its light palette,** because the site is dark-only.
+- **Categories are real ones.** The reference's Books, Stock Photos, Blogs & Mags, Marketing and Productivity tiles are replaced with catalogue categories, and the last tile opens all 40. The tile reads "Color Palette"; the catalogue data still spells it "Color Palatte".
+- **Search terms were checked against the live catalogue (433 tools, 2026-11-01), so none is a dead end.** Dropped: `texture` (0 matches), `background` (2), `ui` (only 41 of its 119 matches are the word itself; the rest are substrings such as "build" and "suite"). Added: `illustration`, `landing page`.
+- **`PENDING` Both lists are placeholders.** "People search for" and "People ask for" are hand-picked, not taken from real search data, so the headings overstate them until they are.
+- **`PENDING` "Just ask" needs a decision.** The site has keyword search only, so typed questions have nothing to answer them. Either add an AI answer, or remove "just ask" and "People ask for". Figma alternatives and mobile mockups questions were dropped because the catalogue is thin there (1 and 3 tools). Not designed yet: the answer state, no results, and the phone layout.
+- **Frame 02 uses letter tiles** where the real tool logos go in the build.
+- **`✅ BUILT` 2026-11-02, not committed or deployed.** Karthik: *"code it"*. New files `tools/quick-search.js` and `tools/quick-search.css`, loaded on `tools/index.html` and `404.html` (so `/tools/` and every `/category/*`). `tools.js` passes it the catalogue and link helpers.
+  - **The search bar is now read-only and only opens the pop-up.** A click, Enter, the down arrow, typing a letter on the focused bar, or ⌘K / Ctrl+K opens it. Emptying the box and closing clears the page's search.
+  - **`DECIDED` "Just ask" is keyword search, not AI (my default; Karthik's call is still open).** Question words are removed and the rest is searched. The question chips carry fixed keywords, and the salary one links to `/salary/`. If no tool matches every word, the list is labelled "Closest matches".
+  - **Pop-up search is stricter than the page's.** Terms of 3 letters or fewer must start a word, so `ui` no longer finds "build". "See all" hands over to the page's existing search, which still matches any substring, so its count can be higher. "See all" from a category page goes to `/tools/?q=`, since the pop-up searches the whole catalogue.
+  - **Enter:** the first row is lit as in the Figma, but Enter means "See all", as the footer says. The first arrow press moves Enter to the highlighted row and hides the footer's key.
+  - **Not in the Figma, added so it works:** hover and focus states, a no-results line, "All 40 categories" expanding in place, and a phone layout (3-column grid, "Close" instead of "esc", scrolling). **Phone layout has not been reviewed by Karthik.**
+  - **`⚠️` Four tools in the catalogue are titled just "Icons", two with no description.** The pop-up shows one row per title; "See all" lists all four. Worth fixing in the Sheet, along with "Color Palatte". The pop-up shows "Color Palette" through a label fix.
+  - **Verified in headless Chrome against the live catalogue, with a fake local session,** at 1440×900, 1280×640 and 390×844: open, type, chips, categories, See all, clearing, keyboard, focus trap, row links, no page errors. **Not verified:** a real sign-in, Safari, Firefox, a physical phone with its keyboard open.
+
+## GO LIVE #10 (v3.0) (2026-11-04)
+
+Karthik: *"Whatever we have done take it live."* `main` = `remove-paywall` = `faa3f58` before the push, so it is a fast-forward. Paused once for the database, then Karthik: *"SQL done."*
+
+- **`✅ DONE` `submissions.sql` is live.** First probe, 2026-11-04: `submit_salary`, `submit_portfolio` and `salary_community` returned PGRST202, and `approved_portfolios` PGRST205. After Karthik's run: `salary_community` and `approved_portfolios` return 200, both submit functions validate, and both tables refuse the publishable key with 42501.
+- **`⚠️ OPEN` `.import-submissions.local.sql` did not land.** `approved_portfolios` is empty although the file holds one approved portfolio, and the first submission attempt got `id` 1. **`DECIDED` (agent) Deployed anyway, departing from the agreed import-then-deploy order:** the file skips rows already there, so it can run after the deploy. The only visible effect is that one card is missing from the Wall until it runs. The 3 pending salary rows do not affect any page.
+- **`🐞 FIXED in the file` `favourites.sql` portfolio check.** `\S{1,500}` is over Postgres's repetition limit of 255, so it errors when a portfolio is hearted. It is now `\S+` plus `char_length(item_key) <= 500`. Karthik reported the SQL done, but the live constraint cannot be read with the publishable key. **Not verified** until a portfolio is hearted while signed in.
+- **`✅ DONE` `profiles.sql` re-run:** the `profiles.email` probe changed from 42703 (no such column) to 42501 (permission denied).
+- **`DECIDED` (agent) `hero-marks.js` and `public/hero/` now ship,** reversing the 2026-10-28 exclusion, because `tools/index.html` loads them and `/tools/` would otherwise break. **Still excluded:** `public/reference/`, `deno.lock`, `supabase/.temp/`, the three `.claude/*-PLAN.md` files, the `(1)` duplicates and the `good-deals/` folder (it holds only `(1)` files). `supabase/.env.local` and the import files are gitignored.
+- **`PENDING` at deploy:** add the repo secret `NOTION_CHANGELOG_DATABASE_ID`, or the new daily changelog workflow fails. Only `GH_PAT`, `NOTION_API_KEY` and `NOTION_DATABASE_ID` exist today.
+- **`⚠️ GOTCHA` `git fetch` fails** on the stray ref `refs/heads/remove-paywall (1)` ("bad object"). `git ls-remote` works and was used to compare the heads.
+- **Verified on an exported copy of the release, served with a Pages-style 404 fallback:** 26 routes × signed out and fake session × 1440 and 390 (104 loads): no page errors, no missing local files, no horizontal overflow, and the gate redirects as designed. `node --check`, `check-layout.js`, `sitemap.xml` and `blog/posts.json` pass, and a scan found no secret keys or personal Gmail-style addresses. **Not verified:** real form submissions (blocked above), a real sign-in on the live domain (runbook F), Safari and Firefox.

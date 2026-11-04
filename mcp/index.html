@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="/auth/gate.js?v=20261029-1"></script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HLX9Y7DQV7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Wallet MCP | Find Design Tools using LLM</title>
+    <meta name="description" content="Connect Design Wallet to Claude, ChatGPT, Cursor and more. Ask for a design tool in plain words and get answers from 430+ hand-picked tools. Free, no signup, no API key.">
+    <link rel="canonical" href="https://designwallet.in/mcp/">
+    <meta property="og:title" content="Design Wallet MCP | Find Design Tools using LLM">
+    <meta property="og:description" content="Find the right design tool using any LLM tool. Free, no signup, no API key.">
+    <meta property="og:url" content="https://designwallet.in/mcp/">
+    <meta property="og:image" content="https://designwallet.in/public/illustrations/Meta%20Image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://designwallet.in/public/illustrations/Meta%20Image.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
+    <link rel="stylesheet" href="/style.css?v=20261101-1">
+    <link rel="stylesheet" href="/mcp/mcp.css?v=20261028-2">
+</head>
+<body class="mcp-page">
+    <!-- Icons and app logos, referenced with <use>. White marks use currentColor
+         so they turn dark on the selected (white) tab. -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <symbol id="logo-claude" viewBox="0 0 24 24"><path fill="#D97757" d="M4.71433 15.9555L9.43173 13.3084L9.51073 13.0777L9.43173 12.9502H9.20103L8.41173 12.9016L5.71613 12.8287L3.37863 12.7316L1.11403 12.6102L0.543333 12.4887L0.0090332 11.7845L0.0636332 11.4323L0.543333 11.1105L1.22933 11.1713L2.74723 11.2745L5.02393 11.4323L6.67533 11.5295L9.12213 11.7845H9.51073L9.56533 11.6266L9.43173 11.5295L9.32853 11.4323L6.97293 9.8356L4.42293 8.1477L3.08733 7.1763L2.36483 6.6845L2.00053 6.2231L1.84273 5.2153L2.49843 4.4928L3.37873 4.5535L3.60333 4.6142L4.49583 5.3002L6.40223 6.7756L8.89153 8.6092L9.25583 8.9127L9.40153 8.8095L9.41973 8.7367L9.25573 8.4634L7.90183 6.0167L6.45683 3.5274L5.81333 2.4954L5.64333 1.876C5.58263 1.621 5.54013 1.4086 5.54013 1.1475L6.28693 0.1335L6.69963 0L7.69533 0.1336L8.11433 0.4978L8.73353 1.9125L9.73533 4.1407L11.2896 7.1703L11.7449 8.0688L11.9878 8.9006L12.0788 9.1556H12.2367V9.0099L12.3642 7.3039L12.601 5.2092L12.8317 2.5135L12.9106 1.7546L13.287 0.8439L14.0338 0.3521L14.6166 0.6314L15.0963 1.3174L15.0295 1.7607L14.7442 3.6124L14.1856 6.5145L13.8213 8.4574H14.0338L14.2767 8.2145L15.2602 6.9092L16.9116 4.8449L17.6402 4.0253L18.4902 3.1207L19.0366 2.6896H20.0687L20.8277 3.8189L20.4877 4.9846L19.4252 6.3324L18.5448 7.4738L17.282 9.1738L16.4927 10.5338L16.5656 10.6431L16.7538 10.6248L19.6073 10.0178L21.1494 9.7384L22.989 9.4227L23.8208 9.8113L23.9118 10.2059L23.584 11.0134L21.617 11.4991L19.3098 11.9605L15.8734 12.7741L15.8309 12.8045L15.8795 12.8652L17.4277 13.0109L18.0895 13.0473H19.7105L22.728 13.272L23.5172 13.794L23.9908 14.4316L23.9118 14.9173L22.6976 15.5366L21.0583 15.148L17.2333 14.2373L15.922 13.9094H15.7398V14.0187L16.8327 15.0873L18.8362 16.8965L21.3437 19.2279L21.4712 19.8047L21.1494 20.2601L20.8094 20.2115L18.6055 18.554L17.7555 17.8072L15.8309 16.1862H15.7034V16.3562L16.1466 17.0058L18.4902 20.5272L18.6116 21.6079L18.4416 21.96L17.8345 22.1725L17.1666 22.0511L15.7945 20.1265L14.3799 17.959L13.2385 16.0162L13.0988 16.0952L12.4248 23.3504L12.1092 23.7207L11.3806 24L10.7735 23.5386L10.4517 22.7918L10.7735 21.3165L11.1621 19.3919L11.4778 17.8619L11.7631 15.9615L11.9331 15.3301L11.921 15.2876L11.7813 15.3058L10.3485 17.273L8.16893 20.2176L6.44463 22.0632L6.03183 22.2272L5.31543 21.8568L5.38213 21.195L5.78293 20.6061L8.16893 17.5704L9.60783 15.6884L10.5368 14.6016L10.5306 14.4437H10.476L4.13753 18.5601L3.00823 18.7058L2.52253 18.2504L2.58333 17.5037L2.81403 17.2608L4.72043 15.9494L4.71433 15.9555Z"/></symbol>
+        <symbol id="logo-openai" viewBox="0 0 24 24"><path fill="currentColor" d="M22.2819 9.82108C22.5503 9.01295 22.6431 8.15687 22.5542 7.31001C22.4652 6.46315 22.1966 5.64502 21.7662 4.91028C21.1282 3.7997 20.154 2.92043 18.984 2.39923C17.8141 1.87804 16.5088 1.74184 15.2564 2.01028C14.5449 1.21884 13.6377 0.628547 12.6259 0.298687C11.6141 -0.0311717 10.5333 -0.088985 9.49202 0.131054C8.45078 0.351093 7.48577 0.841237 6.69391 1.55226C5.90204 2.26328 5.31121 3.17015 4.98074 4.18178C4.14641 4.35286 3.3582 4.70006 2.6688 5.20017C1.97939 5.70027 1.40467 6.34177 0.983043 7.08178C0.338078 8.1905 0.0624244 9.47561 0.195934 10.7513C0.329444 12.027 0.865199 13.2272 1.72574 14.1784C1.45641 14.9861 1.36267 15.842 1.45079 16.6889C1.53892 17.5358 1.80688 18.3541 2.23674 19.0891C2.87558 20.2001 3.85066 21.0795 5.02145 21.6007C6.19224 22.1219 7.49828 22.2579 8.75134 21.9892C9.31661 22.6257 10.0112 23.1344 10.7887 23.4811C11.5661 23.8279 12.4087 24.0048 13.2599 24C14.5436 24.0012 15.7944 23.5944 16.8318 22.8385C17.8692 22.0825 18.6396 21.0165 19.0317 19.7942C19.866 19.6228 20.6541 19.2755 21.3434 18.7754C22.0328 18.2753 22.6076 17.6339 23.0294 16.8941C23.6668 15.787 23.9377 14.5067 23.8034 13.2363C23.6692 11.966 23.1366 10.7705 22.2819 9.82108ZM13.2599 22.4292C12.2087 22.4308 11.1903 22.0624 10.3835 21.3884L10.5254 21.308L15.3037 18.5498C15.4227 18.48 15.5214 18.3805 15.5903 18.2611C15.6591 18.1416 15.6957 18.0063 15.6964 17.8685V11.1316L17.7164 12.3002C17.7264 12.3052 17.7351 12.3126 17.7417 12.3216C17.7483 12.3307 17.7527 12.3411 17.7544 12.3522V17.9348C17.7519 19.126 17.2776 20.2677 16.4352 21.11C15.5929 21.9523 14.4512 22.4267 13.2599 22.4292ZM3.59924 18.3038C3.07202 17.3934 2.88272 16.3263 3.06464 15.2901L3.20664 15.3753L7.98964 18.1335C8.10799 18.2029 8.24273 18.2395 8.37994 18.2395C8.51716 18.2395 8.6519 18.2029 8.77024 18.1335L14.613 14.765V17.0974C14.6125 17.1095 14.6092 17.1213 14.6035 17.1319C14.5977 17.1426 14.5896 17.1518 14.5798 17.1589L9.74004 19.9502C8.70717 20.5452 7.48039 20.706 6.32905 20.3973C5.17772 20.0886 4.19593 19.3357 3.59924 18.3038ZM2.34084 7.89558C2.87173 6.97934 3.70968 6.2805 4.70634 5.92278V11.6C4.70454 11.7371 4.73959 11.8723 4.80782 11.9912C4.87605 12.1102 4.97496 12.2087 5.09424 12.2765L10.9086 15.6308L8.88854 16.7993C8.87761 16.8051 8.86542 16.8081 8.85304 16.8081C8.84067 16.8081 8.82848 16.8051 8.81754 16.7993L3.98724 14.0128C2.95631 13.4152 2.20419 12.4334 1.89561 11.2825C1.58703 10.1315 1.74712 8.90514 2.34084 7.87198V7.89558ZM18.9371 11.7514L13.1038 8.36398L15.1192 7.19998C15.1302 7.19417 15.1424 7.19114 15.1547 7.19114C15.1671 7.19114 15.1793 7.19417 15.1902 7.19998L20.0205 9.99127C20.7591 10.4174 21.3612 11.0449 21.7565 11.8004C22.1518 12.5559 22.3241 13.4083 22.2531 14.258C22.1822 15.1077 21.871 15.9197 21.3559 16.5992C20.8408 17.2787 20.143 17.7977 19.344 18.0955V12.4183C19.3399 12.2814 19.3001 12.1479 19.2288 12.0309C19.1574 11.914 19.057 11.8177 18.9371 11.7514ZM20.9478 8.72828L20.8058 8.64307L16.0323 5.86128C15.9133 5.7914 15.7777 5.75456 15.6396 5.75456C15.5016 5.75456 15.366 5.7914 15.2469 5.86128L9.40904 9.22968V6.89738C9.4078 6.88552 9.40978 6.87354 9.41478 6.86272C9.41978 6.85189 9.42761 6.84262 9.43744 6.83588L14.2677 4.04928C15.0081 3.62279 15.8545 3.41591 16.7081 3.45283C17.5616 3.48975 18.3871 3.76895 19.0878 4.25776C19.7885 4.74657 20.3356 5.42479 20.665 6.21311C20.9944 7.00142 21.0925 7.86723 20.9479 8.70928L20.9478 8.72828ZM8.30654 12.863L6.28654 11.6992C6.27644 11.6931 6.26779 11.6849 6.26123 11.6751C6.25466 11.6653 6.25033 11.6541 6.24854 11.6425V6.07418C6.24966 5.21995 6.49393 4.38369 6.9528 3.66317C7.41166 2.94266 8.06617 2.36766 8.83978 2.00541C9.6134 1.64317 10.4742 1.50864 11.3214 1.61755C12.1687 1.72647 12.9674 2.07434 13.6242 2.62048L13.4822 2.70098L8.70404 5.45898C8.58512 5.52872 8.48638 5.62821 8.41753 5.74766C8.34868 5.8671 8.31209 6.00241 8.31134 6.14028L8.30654 12.863ZM9.40414 10.4976L12.0061 8.99778L14.613 10.4976V13.497L12.0156 14.9967L9.40894 13.497L9.40414 10.4976Z"/></symbol>
+        <symbol id="logo-cursor" viewBox="0 0 24 24"><path fill="currentColor" d="M11.5029 0.13131L1.89095 5.67831C1.76347 5.75191 1.65756 5.85772 1.58385 5.98514C1.51014 6.11256 1.4712 6.25711 1.47095 6.40431V17.5923C1.47095 17.8923 1.63295 18.1673 1.89095 18.3163L11.4999 23.8663C11.6517 23.9537 11.8238 23.9997 11.9989 23.9997C12.1741 23.9997 12.3462 23.9537 12.4979 23.8663L22.1079 18.3163C22.2351 18.2429 22.3409 18.1374 22.4145 18.0103C22.4882 17.8833 22.5273 17.7392 22.5279 17.5923V6.40431C22.5277 6.25711 22.4888 6.11256 22.415 5.98514C22.3413 5.85772 22.2354 5.75191 22.1079 5.67831L12.4969 0.13131C12.3451 0.0452409 12.1735 0 11.9989 0C11.8244 0 11.6528 0.0452409 11.5009 0.13131M2.65695 6.33831H21.2069C21.4699 6.33831 21.6369 6.62531 21.5039 6.85331L12.2299 22.9183C12.1679 23.0253 12.0009 22.9823 12.0009 22.8583V12.3353C12.0008 12.2319 11.9734 12.1304 11.9217 12.0409C11.8699 11.9513 11.7955 11.877 11.7059 11.8253L2.59595 6.56831C2.48695 6.50531 2.53195 6.33831 2.65695 6.33831Z"/></symbol>
+        <symbol id="logo-claude-code" viewBox="0 0 24 24"><path fill="#D97757" d="M21 10.5H24V13.5H21V16.5H19.5V19.5H18V16.5H16.5V19.5H15V16.5H9V19.5H7.5V16.5H6V19.5H4.5V16.5H3V13.5H0V10.5H3V4.5H21V10.5ZM6 10.5H7.5V7.5H6V10.5ZM16.5 10.5H18V7.5H16.5V10.5Z"/></symbol>
+        <symbol id="logo-vscode" viewBox="0 0 24 24"><path fill="#299FFF" d="M23.1503 2.58745L18.2103 0.210451C17.9312 0.0760071 17.6171 0.0316962 17.3116 0.0836541C17.0061 0.135612 16.7244 0.281268 16.5053 0.500451L7.04534 9.13045L2.92534 6.00245C2.73947 5.86146 2.51011 5.78998 2.27704 5.80039C2.04398 5.8108 1.82191 5.90245 1.64934 6.05945L0.327344 7.26145C0.224324 7.3551 0.141995 7.46923 0.0856271 7.59653C0.029259 7.72384 9.43624e-05 7.86151 2.28604e-07 8.00073C-9.39052e-05 8.13995 0.0288846 8.27766 0.0850804 8.40504C0.141276 8.53242 0.223451 8.64666 0.326344 8.74045L3.89934 12.0005L0.326344 15.2605C0.223451 15.3542 0.141276 15.4685 0.0850804 15.5959C0.0288846 15.7232 -9.39052e-05 15.8609 2.28604e-07 16.0002C9.43624e-05 16.1394 0.029259 16.2771 0.0856271 16.4044C0.141995 16.5317 0.224324 16.6458 0.327344 16.7395L1.65034 17.9405C1.82291 18.0974 2.04498 18.1891 2.27804 18.1995C2.51111 18.2099 2.74047 18.1384 2.92634 17.9974L7.04634 14.8695L16.5063 23.4995C16.7251 23.7187 17.0067 23.8644 17.3121 23.9163C17.6174 23.9683 17.9313 23.924 18.2103 23.7894L23.1523 21.4125C23.4066 21.2897 23.6211 21.0978 23.7711 20.8586C23.9211 20.6194 24.0006 20.3428 24.0003 20.0604V3.93945C24.0004 3.65692 23.9206 3.38012 23.7702 3.14093C23.6198 2.90174 23.405 2.70988 23.1503 2.58745ZM18.0043 17.4485L10.8263 12.0005L18.0043 6.55245V17.4485Z"/></symbol>
+        <symbol id="icon-copy" viewBox="0 0 16 16"><rect x="5" y="5" width="8.5" height="8.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 10.5V3.5a1 1 0 0 1 1-1h7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+        <symbol id="icon-check" viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="icon-down" viewBox="0 0 16 24"><path d="M8 1v21M2 16l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="icon-play" viewBox="0 0 12 12"><path d="M2.5 1.5 L10 6 L2.5 10.5 Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+        <symbol id="icon-star" viewBox="0 0 12 12"><path d="M6 0c.4 3 2.6 5.6 6 6-3.4.4-5.6 3-6 6-.4-3-2.6-5.6-6-6 3.4-.4 5.6-3 6-6z" fill="currentColor"/></symbol>
+    </svg>
+
+    <div class="page-shell">
+        <header class="site-header"></header>
+
+        <main class="mcp-main" data-mcp-url="https://ugjtyuikvdeymwsfsgfl.supabase.co/functions/v1/design-wallet-mcp">
+            <!-- ── First fold ─────────────────────────────────────────── -->
+            <section class="mcp-fold" aria-labelledby="mcp-title">
+                <div class="mcp-band mcp-band--hero" data-band="hero" aria-hidden="true">
+                    <p class="mcp-band-label"><em>Design Wallet</em> MCP</p>
+                </div>
+                <p class="mcp-band-label mcp-band-label--below" aria-hidden="true"><em>Design Wallet</em> MCP</p>
+
+                <div class="mcp-ticker" aria-hidden="true">
+                    <div class="mcp-ticker-track">
+                        <span>Introducing: Design Wallet MCP — Find design tools inside Claude</span><svg class="mcp-ticker-star"><use href="#icon-star"/></svg>
+                        <span>Introducing: Design Wallet MCP — Find design tools inside Claude</span><svg class="mcp-ticker-star"><use href="#icon-star"/></svg>
+                        <span>Introducing: Design Wallet MCP — Find design tools inside Claude</span><svg class="mcp-ticker-star"><use href="#icon-star"/></svg>
+                        <span>Introducing: Design Wallet MCP — Find design tools inside Claude</span><svg class="mcp-ticker-star"><use href="#icon-star"/></svg>
+                        <span>Introducing: Design Wallet MCP — Find design tools inside Claude</span><svg class="mcp-ticker-star"><use href="#icon-star"/></svg>
+                        <span>Introducing: Design Wallet MCP — Find design tools inside Claude</span><svg class="mcp-ticker-star"><use href="#icon-star"/></svg>
+                    </div>
+                </div>
+
+                <div class="mcp-wrap mcp-hero">
+                    <h1 class="mcp-headline" id="mcp-title">
+                        <span class="mcp-headline-line">Find the right</span>
+                        <span class="mcp-headline-line mcp-headline-mid"><span class="mcp-bracket" aria-hidden="true">[</span><span class="mcp-typed" aria-hidden="true" data-words="design tools|design portfolios|design inspirations|design communities|design jobs|design podcasts|color palettes|landing pages">design tools</span><span class="mcp-visually-hidden">design tools</span><span class="mcp-caret" aria-hidden="true"></span><span class="mcp-bracket" aria-hidden="true">]</span></span>
+                        <span class="mcp-headline-line">using any LLM tools.</span>
+                    </h1>
+                    <div class="mcp-hero-side">
+                        <p class="mcp-stats">
+                            <img src="/public/icons/mcp/tool-stack.png" width="42" height="18" alt="">
+                            <span>430+ hand-picked tools</span>
+                            <span class="mcp-stats-sep" aria-hidden="true">|</span>
+                            <strong>+ 40</strong>
+                            <span class="mcp-stats-muted">/categories</span>
+                        </p>
+                        <p class="mcp-hero-copy">Connect Design Wallet to Claude, ChatGPT or Cursor. Ask for a design tool in plain words and get answers from our hand-picked catalogue, each linked back to Design Wallet. Free, no signup, no API key.</p>
+                        <div class="mcp-hero-actions">
+                            <a class="mcp-btn mcp-btn--primary" href="https://claude.ai/settings/connectors" target="_blank" rel="noopener" data-connect="claude">
+                                <svg class="mcp-btn-logo" aria-hidden="true"><use href="#logo-claude"/></svg>
+                                <span>Connect to Claude</span>
+                            </a>
+                            <a class="mcp-btn mcp-btn--line" href="#connect">
+                                <svg class="mcp-btn-icon" aria-hidden="true"><use href="#icon-play"/></svg>
+                                <span>How to connect</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── How to connect: app tabs + setup panel ─────────── -->
+                <div class="mcp-wrap mcp-connect" id="connect">
+                    <h2 class="mcp-visually-hidden">How to connect Design Wallet MCP</h2>
+                    <div class="mcp-tabs" role="tablist" aria-label="Choose your app">
+                        <button class="mcp-tab" type="button" role="tab" id="tab-claude" aria-controls="panel-claude" aria-selected="true"><svg class="mcp-tab-logo" aria-hidden="true"><use href="#logo-claude"/></svg>Claude</button>
+                        <button class="mcp-tab" type="button" role="tab" id="tab-chatgpt" aria-controls="panel-chatgpt" aria-selected="false" tabindex="-1"><svg class="mcp-tab-logo" aria-hidden="true"><use href="#logo-openai"/></svg>ChatGPT</button>
+                        <button class="mcp-tab" type="button" role="tab" id="tab-cursor" aria-controls="panel-cursor" aria-selected="false" tabindex="-1"><svg class="mcp-tab-logo" aria-hidden="true"><use href="#logo-cursor"/></svg>Cursor</button>
+                        <button class="mcp-tab" type="button" role="tab" id="tab-claude-code" aria-controls="panel-claude-code" aria-selected="false" tabindex="-1"><svg class="mcp-tab-logo" aria-hidden="true"><use href="#logo-claude-code"/></svg>Claude Code</button>
+                        <button class="mcp-tab" type="button" role="tab" id="tab-codex" aria-controls="panel-codex" aria-selected="false" tabindex="-1"><svg class="mcp-tab-logo" aria-hidden="true"><use href="#logo-openai"/></svg>Codex</button>
+                        <button class="mcp-tab" type="button" role="tab" id="tab-vscode" aria-controls="panel-vscode" aria-selected="false" tabindex="-1"><svg class="mcp-tab-logo" aria-hidden="true"><use href="#logo-vscode"/></svg>VS Code</button>
+                        <button class="mcp-tab" type="button" role="tab" id="tab-gemini" aria-controls="panel-gemini" aria-selected="false" tabindex="-1"><img class="mcp-tab-logo" src="/public/icons/mcp/gemini.png" width="24" height="24" alt="">Gemini</button>
+                    </div>
+
+                    <div class="mcp-setup">
+                        <div class="mcp-setup-panel" role="tabpanel" id="panel-claude" aria-labelledby="tab-claude">
+                            <div class="mcp-setup-left">
+                                <h3>How to connect in Claude?</h3>
+                                <p class="mcp-note">Works on every Claude plan. Free plans can add one custom connector. Once added, it works in the mobile app too.</p>
+                                <button class="mcp-copy-mcp" type="button" data-copy="url"><svg aria-hidden="true"><use href="#logo-claude"/></svg><span data-label>Copy MCP for Claude</span></button>
+                            </div>
+                            <ol class="mcp-steps">
+                                <li>Open Claude on the web or desktop and go to Customize → Connectors.</li>
+                                <li>Click Add custom connector.</li>
+                                <li>Name it Design Wallet and paste the connector URL. There is nothing to sign in to.</li>
+                                <li>Click Add, then switch Design Wallet on from the tools menu in any chat.</li>
+                                <li>Ask: “Find me free icon sets for Figma in Design Wallet.”</li>
+                            </ol>
+                        </div>
+
+                        <div class="mcp-setup-panel" role="tabpanel" id="panel-chatgpt" aria-labelledby="tab-chatgpt" hidden>
+                            <div class="mcp-setup-left">
+                                <h3>How to connect in ChatGPT?</h3>
+                                <p class="mcp-note">OpenAI offers custom MCP servers on ChatGPT Business, Enterprise and Edu.</p>
+                                <button class="mcp-copy-mcp" type="button" data-copy="url"><svg aria-hidden="true"><use href="#logo-openai"/></svg><span data-label>Copy MCP for ChatGPT</span></button>
+                            </div>
+                            <ol class="mcp-steps">
+                                <li>In ChatGPT on the web, open Settings → Plugins (Apps &amp; Connectors on some plans) and add a custom MCP server.</li>
+                                <li>For the icon, use <a href="/public/Logo/favicon-img/icon128.png" download="design-wallet-icon.png">the Design Wallet logo</a> (256 × 256 PNG, under 10 KB). Name it Design Wallet, and for the description you can paste:
+                                    <div class="mcp-code"><pre><code>Search Design Wallet's hand-picked catalogue of 430+ design tools, plus designer salaries, articles and book picks.</code></pre><button class="mcp-chip" type="button" data-copy="code"><svg aria-hidden="true"><use href="#icon-copy"/></svg>Copy</button></div>
+                                </li>
+                                <li>Paste the connector URL. Under Authentication, change OAuth to <strong>No authentication</strong>. Design Wallet has nothing to sign in to.</li>
+                                <li>Tick “I understand and want to continue”, then pick Design Wallet in a new chat. ChatGPT shows that risk notice for every custom server; Design Wallet is read-only and can only search our catalogue, never your chats, files or account.</li>
+                                <li>Ask: “Find me free icon sets for Figma in Design Wallet.”</li>
+                            </ol>
+                        </div>
+
+                        <div class="mcp-setup-panel" role="tabpanel" id="panel-cursor" aria-labelledby="tab-cursor" hidden>
+                            <div class="mcp-setup-left">
+                                <h3>How to connect in Cursor?</h3>
+                                <p class="mcp-note">Works in Cursor’s Agent chat.</p>
+                                <button class="mcp-copy-mcp" type="button" data-copy="url"><svg aria-hidden="true"><use href="#logo-cursor"/></svg><span data-label>Copy MCP for Cursor</span></button>
+                            </div>
+                            <ol class="mcp-steps">
+                                <li>Open Cursor Settings → MCP and add a new MCP server. This opens mcp.json.</li>
+                                <li>Add Design Wallet and save:
+                                    <div class="mcp-code"><pre><code>{
+  "mcpServers": {
+    "design-wallet": { "url": "https://ugjtyuikvdeymwsfsgfl.supabase.co/functions/v1/design-wallet-mcp" }
+  }
+}</code></pre><button class="mcp-chip" type="button" data-copy="code"><svg aria-hidden="true"><use href="#icon-copy"/></svg>Copy</button></div>
+                                </li>
+                                <li>In Agent chat, ask: “Find me free icon sets for Figma in Design Wallet.”</li>
+                            </ol>
+                        </div>
+
+                        <div class="mcp-setup-panel" role="tabpanel" id="panel-claude-code" aria-labelledby="tab-claude-code" hidden>
+                            <div class="mcp-setup-left">
+                                <h3>How to connect in Claude Code?</h3>
+                                <p class="mcp-note">Needs Claude Code installed and signed in.</p>
+                                <button class="mcp-copy-mcp" type="button" data-copy="url"><svg aria-hidden="true"><use href="#logo-claude-code"/></svg><span data-label>Copy MCP for Claude Code</span></button>
+                            </div>
+                            <ol class="mcp-steps">
+                                <li>Open your terminal and run:
+                                    <div class="mcp-code"><pre><code>claude mcp add --transport http design-wallet https://ugjtyuikvdeymwsfsgfl.supabase.co/functions/v1/design-wallet-mcp</code></pre><button class="mcp-chip" type="button" data-copy="code"><svg aria-hidden="true"><use href="#icon-copy"/></svg>Copy</button></div>
+                                </li>
+                                <li>Start Claude Code and type /mcp to check Design Wallet is connected.</li>
+                                <li>Ask: “Find me an icon set in Design Wallet.”</li>
+                            </ol>
+                        </div>
+
+                        <div class="mcp-setup-panel" role="tabpanel" id="panel-codex" aria-labelledby="tab-codex" hidden>
+                            <div class="mcp-setup-left">
+                                <h3>How to connect in Codex?</h3>
+                                <p class="mcp-note">The Codex app, CLI and IDE extension share one setup, so adding it once is enough.</p>
+                                <button class="mcp-copy-mcp" type="button" data-copy="url"><svg aria-hidden="true"><use href="#logo-openai"/></svg><span data-label>Copy MCP for Codex</span></button>
+                            </div>
+                            <ol class="mcp-steps">
+                                <li>In the Codex app, open Settings → MCP servers → Add server.</li>
+                                <li>Name it design-wallet, choose Streamable HTTP and paste the connector URL.</li>
+                                <li>Save, then click Restart.</li>
+                                <li>Prefer the terminal? One command does the same:
+                                    <div class="mcp-code"><pre><code>codex mcp add design-wallet --url https://ugjtyuikvdeymwsfsgfl.supabase.co/functions/v1/design-wallet-mcp</code></pre><button class="mcp-chip" type="button" data-copy="code"><svg aria-hidden="true"><use href="#icon-copy"/></svg>Copy</button></div>
+                                </li>
+                            </ol>
+                        </div>
+
+                        <div class="mcp-setup-panel" role="tabpanel" id="panel-vscode" aria-labelledby="tab-vscode" hidden>
+                            <div class="mcp-setup-left">
+                                <h3>How to connect in VS Code?</h3>
+                                <p class="mcp-note">Use it from Copilot Chat in Agent mode.</p>
+                                <button class="mcp-copy-mcp" type="button" data-copy="url"><svg aria-hidden="true"><use href="#logo-vscode"/></svg><span data-label>Copy MCP for VS Code</span></button>
+                            </div>
+                            <ol class="mcp-steps">
+                                <li>Open the Command Palette (⇧⌘P / Ctrl+Shift+P) and run MCP: Add Server.</li>
+                                <li>Choose HTTP, paste the connector URL and name it design-wallet.</li>
+                                <li>Or add it to .vscode/mcp.json yourself:
+                                    <div class="mcp-code"><pre><code>{
+  "servers": {
+    "design-wallet": { "type": "http", "url": "https://ugjtyuikvdeymwsfsgfl.supabase.co/functions/v1/design-wallet-mcp" }
+  }
+}</code></pre><button class="mcp-chip" type="button" data-copy="code"><svg aria-hidden="true"><use href="#icon-copy"/></svg>Copy</button></div>
+                                </li>
+                                <li>In Copilot Chat (Agent mode), ask: “Find me free icon sets in Design Wallet.”</li>
+                            </ol>
+                        </div>
+
+                        <div class="mcp-setup-panel" role="tabpanel" id="panel-gemini" aria-labelledby="tab-gemini" hidden>
+                            <div class="mcp-setup-left">
+                                <h3>How to connect in Gemini?</h3>
+                                <p class="mcp-note">For Gemini CLI. Add -s user to use Design Wallet in every project.</p>
+                                <button class="mcp-copy-mcp" type="button" data-copy="url"><img src="/public/icons/mcp/gemini.png" width="22" height="22" alt=""><span data-label>Copy MCP for Gemini</span></button>
+                            </div>
+                            <ol class="mcp-steps">
+                                <li>Run this in your terminal:
+                                    <div class="mcp-code"><pre><code>gemini mcp add --transport http design-wallet https://ugjtyuikvdeymwsfsgfl.supabase.co/functions/v1/design-wallet-mcp</code></pre><button class="mcp-chip" type="button" data-copy="code"><svg aria-hidden="true"><use href="#icon-copy"/></svg>Copy</button></div>
+                                </li>
+                                <li>Or add it to ~/.gemini/settings.json:
+                                    <div class="mcp-code"><pre><code>{
+  "mcpServers": {
+    "design-wallet": { "httpUrl": "https://ugjtyuikvdeymwsfsgfl.supabase.co/functions/v1/design-wallet-mcp" }
+  }
+}</code></pre><button class="mcp-chip" type="button" data-copy="code"><svg aria-hidden="true"><use href="#icon-copy"/></svg>Copy</button></div>
+                                </li>
+                                <li>Restart Gemini CLI, type /mcp to check, then ask: “Find me free icon sets in Design Wallet.”</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── All of Design Wallet inside the chat ────────────────── -->
+            <section class="mcp-wrap mcp-showcase-section" aria-labelledby="showcase-title">
+                <div class="mcp-band mcp-band--deco mcp-band--deco-right" data-band="deco" aria-hidden="true"></div>
+                <div class="mcp-section-head">
+                    <h2 class="mcp-h2" id="showcase-title">All of Design Wallet inside the chat</h2>
+                    <p class="mcp-sub">Real prompts that work. Copy one, paste it into Claude, and make it yours.</p>
+                </div>
+
+                <div class="mcp-showcase">
+                    <div class="mcp-picker">
+                        <!-- Desktop: a scrolling list of prompt cards -->
+                        <div class="mcp-cards" role="tablist" aria-label="Example prompts" aria-orientation="vertical">
+                            <div class="mcp-card" role="tab" tabindex="0" aria-selected="true" aria-controls="flow-0" data-flow="0">
+                                <h3>Tool search</h3>
+                                <p data-prompt>Find me free icon sets for Figma in Design Wallet.</p>
+                                <button class="mcp-copy" type="button" data-copy="prompt">Copy<svg aria-hidden="true"><use href="#icon-copy"/></svg></button>
+                            </div>
+                            <div class="mcp-card" role="tab" tabindex="-1" aria-selected="false" aria-controls="flow-1" data-flow="1">
+                                <h3>Categories</h3>
+                                <p data-prompt>Show me the typography tools in Design Wallet.</p>
+                                <button class="mcp-copy" type="button" data-copy="prompt">Copy<svg aria-hidden="true"><use href="#icon-copy"/></svg></button>
+                            </div>
+                            <div class="mcp-card" role="tab" tabindex="-1" aria-selected="false" aria-controls="flow-2" data-flow="2">
+                                <h3>Compare</h3>
+                                <p data-prompt>Compare Figma, Framer and Webflow in Design Wallet for building my portfolio site.</p>
+                                <button class="mcp-copy" type="button" data-copy="prompt">Copy<svg aria-hidden="true"><use href="#icon-copy"/></svg></button>
+                            </div>
+                            <div class="mcp-card" role="tab" tabindex="-1" aria-selected="false" aria-controls="flow-3" data-flow="3">
+                                <h3>Know your money</h3>
+                                <p data-prompt>What does a senior product designer earn in Bangalore? Check in Design Wallet.</p>
+                                <button class="mcp-copy" type="button" data-copy="prompt">Copy<svg aria-hidden="true"><use href="#icon-copy"/></svg></button>
+                            </div>
+                            <div class="mcp-card" role="tab" tabindex="-1" aria-selected="false" aria-controls="flow-4" data-flow="4">
+                                <h3>Blog</h3>
+                                <p data-prompt>Find articles on freelancing in Design Wallet.</p>
+                                <button class="mcp-copy" type="button" data-copy="prompt">Copy<svg aria-hidden="true"><use href="#icon-copy"/></svg></button>
+                            </div>
+                            <div class="mcp-card" role="tab" tabindex="-1" aria-selected="false" aria-controls="flow-5" data-flow="5">
+                                <h3>Wallet Reads</h3>
+                                <p data-prompt>Recommend a book on branding in Design Wallet.</p>
+                                <button class="mcp-copy" type="button" data-copy="prompt">Copy<svg aria-hidden="true"><use href="#icon-copy"/></svg></button>
+                            </div>
+                        </div>
+
+                        <!-- Mobile: title capsules + one fixed prompt box -->
+                        <div class="mcp-caps">
+                            <button class="mcp-cap" type="button" data-flow="0" aria-pressed="true">Tool search</button>
+                            <button class="mcp-cap" type="button" data-flow="1" aria-pressed="false">Categories</button>
+                            <button class="mcp-cap" type="button" data-flow="2" aria-pressed="false">Compare</button>
+                            <button class="mcp-cap" type="button" data-flow="3" aria-pressed="false">Know your money</button>
+                            <button class="mcp-cap" type="button" data-flow="4" aria-pressed="false">Blog</button>
+                            <button class="mcp-cap" type="button" data-flow="5" aria-pressed="false">Wallet Reads</button>
+                        </div>
+                        <div class="mcp-pbox">
+                            <p data-prompt>Find me free icon sets for Figma in Design Wallet.</p>
+                            <button class="mcp-copy" type="button" data-copy="prompt">Copy<svg aria-hidden="true"><use href="#icon-copy"/></svg></button>
+                        </div>
+                    </div>
+
+                    <div class="mcp-stage">
+                        <ol class="mcp-stages" aria-label="What happens">
+                            <li>1. Ask<svg aria-hidden="true"><use href="#icon-check"/></svg></li>
+                            <li>2. Design Wallet searches<svg aria-hidden="true"><use href="#icon-check"/></svg></li>
+                            <li>3. Claude answers<svg aria-hidden="true"><use href="#icon-check"/></svg></li>
+                        </ol>
+
+                        <div class="mcp-flow" id="flow-0" role="tabpanel">
+                            <div class="mcp-fcard"><span class="mcp-tag">You</span><p>“Find me free icon sets for Figma in Design Wallet.”</p></div>
+                            <svg class="mcp-down" aria-hidden="true"><use href="#icon-down"/></svg>
+                            <div class="mcp-fcard"><span class="mcp-tag">Design Wallet MCP</span><p class="mcp-tool">search_tools</p><p class="mcp-params">query: free icon sets<br>platform: figma<br>free_only: yes</p><p class="mcp-result">4 matches</p></div>
+                            <svg class="mcp-down" aria-hidden="true"><use href="#icon-down"/></svg>
+                            <div class="mcp-fcard mcp-fcard--answer">
+                                <p class="mcp-from"><svg aria-hidden="true"><use href="#logo-claude"/></svg>Claude</p>
+                                <p class="mcp-intro">Free icon sets in Design Wallet that work in Figma:</p>
+                                <ul class="mcp-picks">
+                                    <li><img src="https://ik.imagekit.io/saasflix/tool-favicons/phosphoricons_jO1_fReOJ.png" alt="" loading="lazy"><span><strong>Phosphoricons</strong>Icon family · Figma plugin</span></li>
+                                    <li><img src="https://ik.imagekit.io/saasflix/tool-favicons/icons8_2KdY_nbwqF.png" alt="" loading="lazy"><span><strong>Icons8</strong>Icons &amp; illustrations · Figma plugin</span></li>
+                                    <li><img src="https://ik.imagekit.io/saasflix/favicons/go-streamlinehq-com-favicon.ico" alt="" loading="lazy"><span><strong>StreamlineHQ</strong>Icon library · Figma plugin</span></li>
+                                    <li><img src="https://ik.imagekit.io/saasflix/tool-favicons/flagpack_-kFP-uKbl.png" alt="" loading="lazy"><span><strong>Flagpack</strong>Flag icons · Figma plugin</span></li>
+                                </ul>
+                                <p class="mcp-foot">Each links to its page on designwallet.in</p>
+                            </div>
+                        </div>
+
+                        <div class="mcp-flow" id="flow-1" role="tabpanel" hidden>
+                            <div class="mcp-fcard"><span class="mcp-tag">You</span><p>“Show me the typography tools in Design Wallet.”</p></div>
+                            <svg class="mcp-down" aria-hidden="true"><use href="#icon-down"/></svg>
+                            <div class="mcp-fcard"><span class="mcp-tag">Design Wallet MCP</span><p class="mcp-tool">get_category</p><p class="mcp-params">category: Typography</p><p class="mcp-result">19 tools</p></div>
+                            <svg class="mcp-down" aria-hidden="true"><use href="#icon-down"/></svg>
+                            <div class="mcp-fcard mcp-fcard--answer">
+                                <p class="mcp-from"><svg aria-hidden="true"><use href="#logo-claude"/></svg>Claude</p>
+                                <p class="mcp-intro">Design Wallet has 19 typography tools. A few to start with:</p>
+                                <ul class="mcp-picks">
+                                    <li><img src="https://ik.imagekit.io/saasflix/saasflix/favicons/fonts-google-com-favicon.svg" alt="" loading="lazy"><span><strong>Google Fonts</strong>Free, open-source web fonts</span></li>
+                                    <li><img src="https://ik.imagekit.io/saasflix/saasflix/favicons/fonts-adobe-com-favicon.png" alt="" loading="lazy"><span><strong>Adobe Fonts</strong>Font library with Creative Cloud</span></li>
+                                    <li><img src="https://ik.imagekit.io/saasflix/saasflix/favicons/fontjoy-com-favicon.gif" alt="" loading="lazy"><span><strong>Fontjoy</strong>Font pairings in one click</span></li>
+                                    <li><img src="https://ik.imagekit.io/saasflix/saasflix/favicons/www-1001fonts-com-favicon.png" alt="" loading="lazy"><span><strong>1001 Fonts</strong>60,000+ free fonts</span></li>
+                                </ul>
+                                <p class="mcp-foot">Each links to its page on designwallet.in</p>
+                            </div>
+                        </div>
+
+                        <div class="mcp-flow" id="flow-2" role="tabpanel" hidden>
+                            <div class="mcp-fcard"><span class="mcp-tag">You</span><p>“Compare Figma, Framer and Webflow in Design Wallet for building my portfolio site.”</p></div>
+                            <svg class="mcp-down" aria-hidden="true"><use href="#icon-down"/></svg>
+                            <div class="mcp-fcard"><span class="mcp-tag">Design Wallet MCP</span><p class="mcp-tool">compare_tools</p><p class="mcp-params">tools: Figma, Framer, Webflow</p><p class="mcp-result">3 found</p></div>
+                            <svg class="mcp-down" aria-hidden="true"><use href="#icon-down"/></svg>
+                            <div class="mcp-fcard mcp-fcard--answer">
+                                <p class="mcp-from"><svg aria-hidden="true"><use href="#logo-claude"/></svg>Claude</p>
+                                <p class="mcp-intro">Side by side, from Design Wallet:</p>
+                                <ul class="mcp-picks">
+                                    <li><img src="https://ik.imagekit.io/saasflix/favicons/figma-com-favicon.png" alt="" loading="lazy"><span><strong>Figma</strong>Design &amp; prototyping · web, Mac, Windows</span></li>
+                                    <li><img src="https://ik.imagekit.io/saasflix/favicons/framer-com-favicon.png" alt="" loading="lazy"><span><strong>Framer</strong>No-code site builder + CMS · web, Mac, Windows</span></li>
+                                    <li><img src="https://ik.imagekit.io/saasflix/favicons/webflow-com-favicon.ico" alt="" loading="lazy"><span><strong>Webflow</strong>No-code site builder, CMS, interactions · web</span></li>
+                                </ul>
+                                <p class="mcp-intro">For a portfolio: design it in Figma, then publish with Framer or Webflow.</p>
+                                <p class="mcp-foot">Each links to its page on designwallet.in</p>
+                            </div>
+                        </div>
+
+                        <div class="mcp-flow" id="flow-3" role="tabpanel" hidden>
+                            <div class="mcp-fcard"><span class="mcp-tag">You</span><p>“What does a senior product designer earn in Bangalore? Check in Design Wallet.”</p></div>
+                            <svg class="mcp-down" aria-hidden="true"><use href="#icon-down"/></svg>
+                            <div class="mcp-fcard"><span class="mcp-tag">Design Wallet MCP</span><p class="mcp-tool">get_salary_benchmarks</p><p class="mcp-params">role: product-designer<br>level: senior<br>city: bangalore</p><p class="mcp-result">1 range</p></div>
+                            <svg class="mcp-down" aria-hidden="true"><use href="#icon-down"/></svg>
+                            <div class="mcp-fcard mcp-fcard--answer">
+                                <p class="mcp-from"><svg aria-hidden="true"><use href="#logo-claude"/></svg>Claude</p>
+                                <p class="mcp-intro">Senior Product Designer · Bangalore</p>
+                                <p class="mcp-big">₹28.3L</p>
+                                <p class="mcp-foot">median, per year (fixed pay)</p>
+                                <p class="mcp-range">₹22.4L – ₹35.4L</p>
+                                <p class="mcp-foot">25th to 75th percentile</p>
+                                <p class="mcp-foot">From Design Wallet’s Know your money page</p>
+                            </div>
+                        </div>
+
+                        <div class="mcp-flow" id="flow-4" role="tabpanel" hidden>
+                            <div class="mcp-fcard"><span class="mcp-tag">You</span><p>“Find articles on freelancing in Design Wallet.”</p></div>
+                            <svg class="mcp-down" aria-hidden="true"><use href="#icon-down"/></svg>
+                            <div class="mcp-fcard"><span class="mcp-tag">Design Wallet MCP</span><p class="mcp-tool">search_blog</p><p class="mcp-params">query: freelancing</p><p class="mcp-result">1 article</p></div>
+                            <svg class="mcp-down" aria-hidden="true"><use href="#icon-down"/></svg>
+                            <div class="mcp-fcard mcp-fcard--answer">
+                                <p class="mcp-from"><svg aria-hidden="true"><use href="#logo-claude"/></svg>Claude</p>
+                                <p class="mcp-intro">From the Design Wallet blog:</p>
+                                <ul class="mcp-picks">
+                                    <li><img class="mcp-pick-wide" src="/public/images/blog/how-to-become-a-graphic-design-freelancer-10-steps-in-2026/how-to-become-a-graphic-design-freelancer-10-steps-in-2026-cover.png" alt="" loading="lazy"><span><strong>How to Become a Graphic Design Freelancer: 10 Steps in 2026</strong>Freelancing · 9 min read</span></li>
+                                </ul>
+                                <p class="mcp-foot">Links to the article on designwallet.in</p>
+                            </div>
+                        </div>
+
+                        <div class="mcp-flow" id="flow-5" role="tabpanel" hidden>
+                            <div class="mcp-fcard"><span class="mcp-tag">You</span><p>“Recommend a book on branding in Design Wallet.”</p></div>
+                            <svg class="mcp-down" aria-hidden="true"><use href="#icon-down"/></svg>
+                            <div class="mcp-fcard"><span class="mcp-tag">Design Wallet MCP</span><p class="mcp-tool">list_books</p><p class="mcp-params">query: branding</p><p class="mcp-result">1 book</p></div>
+                            <svg class="mcp-down" aria-hidden="true"><use href="#icon-down"/></svg>
+                            <div class="mcp-fcard mcp-fcard--answer">
+                                <p class="mcp-from"><svg aria-hidden="true"><use href="#logo-claude"/></svg>Claude</p>
+                                <p class="mcp-intro">Design Wallet’s pick on branding:</p>
+                                <ul class="mcp-picks">
+                                    <li><img class="mcp-pick-tall" src="https://m.media-amazon.com/images/I/91v-QnOrLfL._UF1000,1000_QL80_.jpg" alt="" loading="lazy"><span><strong>Logos That Last</strong>Allan Peters · rated 4.2</span></li>
+                                </ul>
+                                <p class="mcp-intro">How to create iconic visual branding. Links to Wallet Reads and where to buy it.</p>
+                                <p class="mcp-foot">Links to Wallet Reads on designwallet.in</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── FAQs ────────────────────────────────────────────────── -->
+            <section class="mcp-wrap mcp-faq-section" aria-labelledby="faq-title">
+                <div class="mcp-faq-side">
+                    <h2 class="mcp-h2" id="faq-title">FAQs</h2>
+                    <div class="mcp-band mcp-band--deco mcp-band--deco-left" data-band="deco" aria-hidden="true"></div>
+                </div>
+                <div class="mcp-faqs">
+                    <details class="mcp-faq"><summary>Where does Design Wallet MCP work?</summary><p>Claude on the web, desktop and mobile, Claude Code, ChatGPT (Business, Enterprise and Edu), Cursor, Codex, VS Code and Gemini CLI. Any app that supports remote MCP servers over HTTP can use it.</p></details>
+                    <details class="mcp-faq"><summary>Is it free?</summary><p>Yes. No signup, no account and no API key. Your AI app’s own plan and usage limits still apply.</p></details>
+                    <details class="mcp-faq"><summary>Do I need a paid Claude plan?</summary><p>No. Free Claude plans can add one custom connector, which is all Design Wallet needs. Paid plans can add more.</p></details>
+                    <details class="mcp-faq"><summary>Why should my prompt say “in Design Wallet”?</summary><p>Claude chooses which connector to use. Saying “in Design Wallet” tells it to search our catalogue instead of answering from its own knowledge.</p></details>
+                    <details class="mcp-faq"><summary>What can I ask it?</summary><p>Find tools by what you need, browse all 40 categories, compare 2 to 5 tools, check designer salaries in India and around the world, find Design Wallet articles and get book recommendations.</p></details>
+                    <details class="mcp-faq"><summary>Will Claude suggest tools that aren’t on Design Wallet?</summary><p>No. Answers come only from Design Wallet’s hand-picked catalogue. If nothing fits, Claude says so instead of making one up.</p></details>
+                    <details class="mcp-faq"><summary>How fresh is the catalogue?</summary><p>It’s live. When we add or update a tool on Design Wallet, the connector has it within minutes.</p></details>
+                    <details class="mcp-faq"><summary>How is my data handled?</summary><p>We keep an anonymous log of what’s searched and what was found, so we know which tools to add. We never record who asked, and we never see your conversation with the AI app.</p></details>
+                    <details class="mcp-faq"><summary>Is it listed in Claude’s official directory?</summary><p>Not yet. For now, add it as a custom connector using the connector URL above.</p></details>
+                    <details class="mcp-faq"><summary>My tool isn’t listed. How do I get it in?</summary><p>Head to <a href="/list-your-tool/">List your tool</a> on Design Wallet and book a call. Searches that find nothing also tell us what designers are missing.</p></details>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="mcp-toast" role="status" aria-live="polite" hidden></div>
+
+    <script src="/content.js?v=20260508-6"></script>
+    <script src="/header.js?v=20261101-1"></script>
+    <script src="/newsletter.js?v=20261015-3"></script>
+    <script src="/mcp/mcp.js?v=20261028-2"></script>
+</body>
+</html>

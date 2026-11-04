@@ -2,23 +2,23 @@
  * submit-salary.js — anonymous salary submission.
  *
  * Structure follows submit-portfolio/submit-portfolio.js, which already solves
- * field-level errors and the no-cors POST into a Google Apps Script endpoint.
- * The differences here: the option lists are read from the same salaries.json
- * the dashboard uses, so the taxonomies cannot drift apart, and there is no
- * free-text field anywhere — every input is a select or a bounded number.
+ * field-level errors. The differences here: the option lists are read from the
+ * same salaries.json the dashboard uses, so the taxonomies cannot drift apart,
+ * and there is no free-text field anywhere — every input is a select or a
+ * bounded number.
  *
- * TO SWITCH SUBMISSIONS ON: deploy salary/submit/google-apps-script.js as a web
- * app ("execute as me", "anyone can access") and paste its /exec URL into
- * DW_SALARY_ENDPOINT in salary/endpoint.js — the dashboard reads the same URL.
- * Until it is set the form validates normally and tells the visitor
- * submissions aren't open yet.
+ * WHERE IT GOES (2026-11-01): Supabase, through submit_salary() in
+ * supabase/submissions.sql — not a Google Sheet any more. The function is the
+ * only thing the publishable key may call; it re-checks every field and stores
+ * the row as 'pending' until Karthik approves it in the Table Editor.
  */
 
 (function () {
     "use strict";
 
     var DATA_URL = "/salary/data/salaries.json?v=20260913-1";
-    var SUBMISSION_URL = typeof DW_SALARY_ENDPOINT === "string" ? DW_SALARY_ENDPOINT : "";
+    var SUPABASE_URL = "https://ugjtyuikvdeymwsfsgfl.supabase.co";
+    var SUPABASE_KEY = "sb_publishable_IOdPnIa_tf6DjQShp_gTZA_i36nRCTe";
 
     var form = null;
     var data = null;
@@ -235,12 +235,12 @@
 
     // ── submit ──────────────────────────────────────────────────────────────
 
-    function encodeFormData(formData) {
-        var pairs = [];
+    function toObject(formData) {
+        var out = {};
         formData.forEach(function (value, key) {
-            pairs.push(encodeURIComponent(key) + "=" + encodeURIComponent(value));
+            out[key] = String(value);
         });
-        return pairs.join("&");
+        return out;
     }
 
     function handleSubmit(event) {
@@ -256,11 +256,6 @@
             status.textContent = "Please check the highlighted fields.";
             var firstError = form.querySelector(".has-error");
             if (firstError) firstError.focus();
-            return;
-        }
-
-        if (!SUBMISSION_URL) {
-            status.textContent = "Submissions aren't switched on yet — check back shortly.";
             return;
         }
 
@@ -281,13 +276,15 @@
             }
         }
 
-        fetch(SUBMISSION_URL, {
+        // A real response now, unlike the old no-cors POST: a refused row
+        // (bad value, flood guard) no longer shows "thanks" to the visitor.
+        fetch(SUPABASE_URL + "/rest/v1/rpc/submit_salary", {
             method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: encodeFormData(payload)
+            headers: { "apikey": SUPABASE_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({ p: toObject(payload) })
         })
-            .then(function () {
+            .then(function (response) {
+                if (!response.ok) throw new Error("Supabase responded " + response.status);
                 form.hidden = true;
                 document.getElementById("sal-form-done").hidden = false;
                 window.scrollTo({ top: 0, behavior: "smooth" });

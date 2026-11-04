@@ -30,9 +30,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/style.css?v=20261015-3">
-    <link rel="stylesheet" href="/changelog/changelog.css?v=20261019-1">
-    <link rel="stylesheet" href="/mobile-gate.css?v=20260920-1">
+    <link rel="stylesheet" href="/style.css?v=20261101-1">
+    <link rel="stylesheet" href="/changelog/changelog.css?v=20261020-1">
 </head>
 <body>
     <div class="page-shell">
@@ -47,15 +46,117 @@
             </section>
 
             <!--
-              Versions are grouped by major number — one <section class="cl-major">
-              per major, newest major first — and inside each, one <li> per
-              version, newest at the top. Added by the
-              /update-change-log command (.claude/commands/update-change-log.md),
-              which consolidates everything since the previous version into one
-              entry. Screenshots come from `npm run changelog-shot`.
-              data-through is the last day the entry covers — the next version
-              starts from the day after.
+              The versions below are GENERATED from the Notion Changelog
+              database (the "Versions-log" page) by `npm run build-changelog`,
+              between the changelog:start / changelog:end markers. Edit them
+              in Notion, never here: the next build overwrites this part.
+              Only rows with Status "Published" appear. Grouped by major,
+              newest first; screenshots come from `npm run changelog-shot`.
+              changelog-live.js then redraws them from Notion on every visit
+              (via the changelog-feed function), so edits show without a build.
             -->
+            <!-- changelog:start -->
+            <section class="cl-major" id="version-3" aria-labelledby="version-3-title">
+                <h2 class="cl-major-title" id="version-3-title">V3.0 <span class="cl-major-name">Pegasus</span></h2>
+                <ol class="cl-list">
+
+                    <li class="cl-entry" id="v3-0" data-through="2026-11-01">
+                        <div class="cl-meta">
+                            <span class="cl-version">v3.0</span>
+                            <span class="cl-sep" aria-hidden="true">/</span>
+                            <time datetime="2026-11-01">Nov 1, 2026</time>
+                        </div>
+                        <article class="cl-body">
+                            <h3 class="cl-title"><a href="#v3-0">The Design Wallet Homepage</a></h3>
+                            <figure class="cl-shot">
+                                <a class="cl-shot-link" href="/" aria-label="Open the Design Wallet homepage">
+                                    <img src="/public/changelog/v3-0.webp" alt="The new Design Wallet homepage: a soft light beam over a starry sky, the headline Design Asset Repository for your next design project, Create account for free and Sign in buttons, tool icons floating either side, and the Design Wallet dashboard rising over a glowing horizon" width="1440" height="900">
+                                </a>
+                            </figure>
+                            <div class="cl-desc">
+                                <p>Design Wallet now has accounts. Sign up for free to browse the full catalogue, save the tools, books and portfolios you love, and come back to them on any device. You can also find design tools from inside your AI chat, and every page now works on your phone.</p>
+                                <ul>
+                                    <li><strong>Free accounts.</strong> Sign up with your email and a password, or with Google. No card details, ever.</li>
+                                    <li><strong>A quick welcome.</strong> Tell us your role, level, city and what you’re here for, so the salary data and picks line up with you. Opt in to the newsletter in the same step.</li>
+                                    <li><strong>Favourites.</strong> Tap the heart on any tool, book or portfolio to save it. Your saves sit behind the heart beside your name in the menu.</li>
+                                    <li><strong>See what designers love.</strong> Each tool shows how many people have saved it.</li>
+                                    <li><strong>You’re in charge of your data.</strong> Change your profile any time, or delete your account yourself in one step.</li>
+                                </ul>
+
+                                <h4 class="cl-subhead">Sign up and sign in</h4>
+                                <figure class="cl-shot cl-shot--natural">
+                                    <a class="cl-shot-link" href="/sign-up/">
+                                        <img src="/public/changelog/notion/40acf5f5-da8f-8136-bfd6-c4561e50f56d.webp" alt="The Design Wallet sign-up page: the headline Your wallet, your tools over a safe on a pedestal with name tags for six designer roles, beside a form for name, email and password, with Create account and Continue with Google" width="1440" height="900" loading="lazy">
+                                    </a>
+                                </figure>
+                                <p>New sign-up and sign-in pages, built around the Design Wallet safe.</p>
+                                <ul>
+                                    <li><strong>Two ways in.</strong> Your email and a password, or one click with Google.</li>
+                                    <li><strong>Forgot your password?</strong> Reset it from the sign-in page with a link sent to your inbox.</li>
+                                    <li><strong>A short welcome.</strong> Right after signing up, tell us your role, level and city, and what you’re here for.</li>
+                                    <li><strong>Emails that look like us.</strong> Confirmation and password emails now carry the Design Wallet look.</li>
+                                </ul>
+
+                                <h4 class="cl-subhead">A fresh look of homepage</h4>
+                                <figure class="cl-shot cl-shot--natural">
+                                    <a class="cl-shot-link" href="/">
+                                        <img src="/public/changelog/notion/40acf5f5-da8f-81e2-8f87-ea952e2ccb04.webp" alt="The What's inside section of the new homepage: five tabs, Premium collections, Know your money, Wall of Portfolios, Wallet Reads and Design Wallet MCP, above the Premium collections panel with category chips and tool cards" width="1440" height="900" loading="lazy">
+                                    </a>
+                                </figure>
+                                <p>A fresh front door that shows what’s inside before you sign up.</p>
+                                <ul>
+                                    <li><strong>What’s inside.</strong> Five tabs walk through the catalogue, salary data, Wall of Portfolios, Wallet Reads and Design Wallet MCP, each with its own small animation.</li>
+                                    <li><strong>Who is this for?</strong> Open a role (UI/UX, motion, visual, video or AI designer) to see the tools that designers in that role reach for.</li>
+                                    <li><strong>Voices that shape our wallet.</strong> What designers have said about Design Wallet, plus our Product Hunt launch.</li>
+                                    <li><strong>Answers up front.</strong> A short FAQ, including how to get your tool listed, and a sign-up box at the bottom of the page.</li>
+                                </ul>
+
+                                <h4 class="cl-subhead">Design Wallet MCP: find design tools inside your AI chat</h4>
+                                <figure class="cl-shot cl-shot--natural">
+                                    <a class="cl-shot-link" href="/mcp/">
+                                        <img src="/public/changelog/notion/40acf5f5-da8f-8110-9000-de33a4341939.webp" alt="The Design Wallet MCP page: the headline Find the right design tools using any LLM tools, a Connect to Claude button, and tabs for Claude, ChatGPT, Cursor, Claude Code, Codex, VS Code and Gemini" width="1440" height="900" loading="lazy">
+                                    </a>
+                                </figure>
+                                <p>Connect Design Wallet to Claude, ChatGPT, Cursor and more, and ask for a design tool in plain words.</p>
+                                <ul>
+                                    <li><strong>Ask in your AI app.</strong> Search tools, browse categories, compare tools, check designer salaries, and find articles and books without leaving the chat. Answers come only from Design Wallet's hand-picked list.</li>
+                                    <li><strong>Works in 7 apps.</strong> Claude, ChatGPT, Cursor, Claude Code, Codex, VS Code and Gemini. Free, with no signup and no API key.</li>
+                                    <li><strong>A page to get you set up.</strong> Step-by-step setup for each app with a one-click Copy MCP button, real prompts to try, and answers to common questions.</li>
+                                </ul>
+
+                                <h4 class="cl-subhead">Design Wallet: Mobile Version</h4>
+                                <figure class="cl-shot cl-shot--natural">
+                                    <a class="cl-shot-link" href="/category/">
+                                        <img src="/public/changelog/notion/40acf5f5-da8f-813d-9719-f8ed6eabaabb.webp" alt="Design Wallet on three phones: the catalogue with swipeable category chips, the pop-up mobile menu, and the Know your money world map" width="1440" height="900" loading="lazy">
+                                    </a>
+                                </figure>
+                                <p>The desktop-only screen is gone. Every page now works on phones.</p>
+                                <ul>
+                                    <li><strong>Swipe through categories.</strong> The catalogue's sidebar becomes a row of chips.</li>
+                                    <li><strong>A new mobile menu.</strong> A pop-up card with all the links in one place.</li>
+                                    <li><strong>Tap the maps.</strong> On Know your money, tap a state or country to see its figures.</li>
+                                </ul>
+
+                                <h4 class="cl-subhead">Smaller updates</h4>
+                                <figure class="cl-shot cl-shot--natural">
+                                    <a class="cl-shot-link" href="/books/">
+                                        <img src="/public/changelog/notion/40acf5f5-da8f-818f-b814-f90f50ea6970.webp" alt="The Resources menu open as cards: Wallet Reads and Wall of portfolios, each with an icon and a one-line description" width="1440" height="900" loading="lazy">
+                                    </a>
+                                </figure>
+                                <ul>
+                                    <li><strong>Open to everyone.</strong> Mini Tools, the Blog and List your tool need no account.</li>
+                                    <li><strong>Resources, as cards.</strong> Each one with an icon and a one-line description.</li>
+                                    <li><strong>Four across.</strong> The Wall of Portfolios shows four portfolios per row on laptops.</li>
+                                    <li><strong>Good deals is taking a break</strong> while we rethink it.</li>
+                                    <li><strong>Fixes.</strong> The salary submission form shows its labels and your choices again.</li>
+                                </ul>
+                            </div>
+                        </article>
+                    </li>
+
+                </ol>
+            </section>
+
             <section class="cl-major" id="version-2" aria-labelledby="version-2-title">
                 <h2 class="cl-major-title" id="version-2-title">V2.0 <span class="cl-major-name">Ursa</span></h2>
                 <ol class="cl-list">
@@ -70,7 +171,7 @@
                             <h3 class="cl-title"><a href="#v2-4">Know your money: salary maps for India and the world</a></h3>
                             <figure class="cl-shot">
                                 <a class="cl-shot-link" href="/salary/?employer=foreign" aria-label="Open Know your money with the world map">
-                                    <img src="/public/changelog/v2-4.webp" alt="Know your money with Foreign employer selected, showing a dotted world map under the filters, with an INR and USD switch beside the title Pay around the world" width="1440" height="900">
+                                    <img src="/public/changelog/v2-4.webp" alt="Know your money with Foreign employer selected, showing a dotted world map under the filters, with an INR and USD switch beside the title Pay around the world" width="1440" height="900" loading="lazy">
                                 </a>
                             </figure>
                             <div class="cl-desc">
@@ -93,7 +194,7 @@
 
                                 <h4 class="cl-subhead">Pre-loader added</h4>
                                 <figure class="cl-shot cl-shot--natural">
-                                    <a class="cl-shot-link" href="/" aria-label="Open the homepage to see the pre-loader">
+                                    <a class="cl-shot-link" href="/">
                                         <img src="/public/changelog/v2-4-preloader.webp" alt="The Design Wallet pre-loader: the white Design Wallet mark inside a thin square frame with small white squares at its corners, on a dark background, with the counter reading 100 in the bottom right" width="1440" height="819" loading="lazy">
                                     </a>
                                 </figure>
@@ -109,6 +210,7 @@
                             </div>
                         </article>
                     </li>
+
                     <li class="cl-entry" id="v2-3" data-through="2026-09-17">
                         <div class="cl-meta">
                             <span class="cl-version">v2.3</span>
@@ -306,12 +408,14 @@
 
                 </ol>
             </section>
+
+            <!-- changelog:end -->
         </main>
     </div>
 
     <script src="/content.js?v=20260508-6"></script>
-    <script src="/header.js?v=20261019-1"></script>
+    <script src="/header.js?v=20261101-1"></script>
     <script src="/stars.js?v=20260901-1"></script>
-    <script src="/mobile-gate.js?v=20260920-1"></script>
+    <script type="module" src="/changelog/changelog-live.js?v=20261101-2"></script>
 </body>
 </html>

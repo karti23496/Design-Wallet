@@ -388,6 +388,10 @@ function readTools(batch) {
                 pricing: rec.pricing || rec.price || "",
                 categories: rec.categories || rec.category || "",
                 thumbnails: thumbs.join(", "),
+                // MCP connector search enrichment. Optional; blank is fine.
+                use_cases: rec.use_cases || rec.use_case || "",
+                platforms: rec.platforms || rec.platform || "",
+                free_tier: rec.free_tier || "",
                 source_tab: tabName,
                 sync_batch: batch,
                 updated_at: new Date().toISOString()
@@ -420,8 +424,10 @@ function readTools(batch) {
 function mergeTool(into, extra) {
     into.categories = union(into.categories, extra.categories).join(", ");
     into.thumbnails = union(into.thumbnails, extra.thumbnails).join(", ");
+    into.use_cases = union(into.use_cases, extra.use_cases).join(", ");
+    into.platforms = union(into.platforms, extra.platforms).join(", ");
 
-    ["image", "link", "subtitle", "description", "pricing"].forEach(function (key) {
+    ["image", "link", "subtitle", "description", "pricing", "free_tier"].forEach(function (key) {
         if (!into[key] && extra[key]) into[key] = extra[key];
     });
 
@@ -566,4 +572,81 @@ function dryRun() {
     ];
     lines.forEach(function (l) { Logger.log(l); });
     return lines.join("\n");
+}
+
+/* ── One-off: MCP enrichment ────────────────────────────────────────────── */
+
+/**
+ * Fills the `use_cases`, `platforms` and `free_tier` columns from the reviewed
+ * draft in supabase/mcp-enrichment.csv.
+ *
+ *   1. File → Import → Upload mcp-enrichment.csv → "Insert new sheet(s)".
+ *      Rename the new tab to exactly: MCP enrichment
+ *   2. Run applyMcpEnrichment() once.
+ *   3. Check a few rows, then delete the "MCP enrichment" tab.
+ *
+ * It adds the three headers to any tool tab that lacks them, matches rows BY
+ * SLUG (the same slug readTools() builds), and fills ONLY EMPTY cells: anything
+ * already typed in the sheet wins and is never overwritten, so re-running it is
+ * safe. Script writes do not fire onEdit, so it finishes with one syncAll().
+ */
+function applyMcpEnrichment() {
+    var COLS = ["use_cases", "platforms", "free_tier"];
+    var source = sheetFor("MCP enrichment").getDataRange().getDisplayValues();
+    var head = source[0].map(normalizeHeader);
+    var draft = {};
+    source.slice(1).forEach(function (row) {
+        var slug = text(row[head.indexOf("slug")]);
+        if (!slug) return;
+        draft[slug] = {};
+        COLS.forEach(function (c) { draft[slug][c] = text(row[head.indexOf(c)]); });
+    });
+
+    var filled = 0;
+    TABS.tools.forEach(function (entry) {
+        var sheet = sheetFor(entry);
+        var lastCol = sheet.getLastColumn();
+        var lastRow = sheet.getLastRow();
+        if (lastRow < 2) return;
+
+        var headers = sheet.getRange(1, 1, 1, lastCol).getDisplayValues()[0].map(normalizeHeader);
+        if (headers.indexOf("title") === -1 && headers.indexOf("name") === -1) return;
+
+        COLS.forEach(function (c) {
+            if (headers.indexOf(c) === -1) {
+                lastCol++;
+                sheet.getRange(1, lastCol).setValue(c);
+                headers.push(c);
+            }
+        });
+
+        var range = sheet.getRange(2, 1, lastRow - 1, lastCol);
+        var data = range.getDisplayValues();
+        var changed = false;
+        data.forEach(function (row) {
+            var rec = {};
+            headers.forEach(function (h, i) { if (h) rec[h] = text(row[i]); });
+            var d = draft[slugify(rec.slug || rec.title || rec.name)];
+            if (!d) return;
+            COLS.forEach(function (c) {
+                var i = headers.indexOf(c);
+                if (!row[i] && d[c]) {
+                    row[i] = d[c];
+                    filled++;
+                    changed = true;
+                }
+            });
+        });
+        // Write back only the three columns, so formulas elsewhere in the row
+        // are never flattened into values.
+        if (changed) {
+            COLS.forEach(function (c) {
+                var i = headers.indexOf(c);
+                sheet.getRange(2, i + 1, data.length, 1).setValues(data.map(function (r) { return [r[i]]; }));
+            });
+        }
+    });
+
+    Logger.log("applyMcpEnrichment: filled " + filled + " cells.");
+    syncAll();
 }

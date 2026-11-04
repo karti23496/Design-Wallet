@@ -7,6 +7,8 @@
 supabase/.env.local
 # One-time subscriber import: real email addresses, never committed.
 supabase/.import-subscribers.local.sql
+# One-time submissions import: real personal data, never committed.
+supabase/.import-submissions.local.sql
 node_modules/
 dist/
 .netlify/

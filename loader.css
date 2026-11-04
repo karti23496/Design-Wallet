@@ -23,16 +23,16 @@
    white inside the SVG and this file, so a light version needs those changed
    too, not just the variables.
 
-   Phones never see it: mobile-gate.css hides every `body > *` except the gate
-   on narrow screens. */
+   Phones see it too since the mobile version (2026-10-20); the square,
+   the corners' ±34vw/±30vh start and the counter all fit a 390px screen. */
 
 :root {
-    --dw-lo-ground: #080808;               /* the screen the card sits on */
+    --dw-lo-ground: #030303;               /* the screen the card sits on */
     --dw-lo-ink: #f5f5f5;                  /* the mark and the counter */
     --dw-lo-line: rgba(255, 255, 255, 0.25); /* the border: a blackish grey, 25% white */
     --dw-lo-stage: 200px;                  /* the square */
-    --dw-lo-open: 0.9s;                    /* keep equal to OPEN_MS in loader.js */
-    --dw-lo-fade: 0.3s;                    /* keep equal to FADE_MS in loader.js */
+    --dw-lo-open: 0.6s;                    /* keep equal to OPEN_MS in loader.js */
+    --dw-lo-fade: 0.2s;                    /* keep equal to FADE_MS in loader.js */
 }
 
 html.dw-loading {
@@ -46,8 +46,8 @@ html.dw-loading {
     overflow: hidden;
     color: var(--dw-lo-ink);
     font-family: "Geist", "Inter", system-ui, sans-serif;
-    /* Fallback: with no script, leave by ~7s rather than cover the site forever. */
-    animation: dw-lo-out 0.4s ease-in 6.5s forwards;
+    /* Fallback: with no script, leave by ~4.5s rather than cover the site forever. */
+    animation: dw-lo-out 0.4s ease-in 4s forwards;
 }
 
 .dw-loader.is-done {
@@ -70,7 +70,7 @@ html.dw-loader-skip .dw-loader {
     background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.2) 0, rgba(255, 255, 255, 0) 86.23%);
     filter: blur(220px);
     opacity: 0;
-    animation: dw-lo-in 0.5s ease-out forwards;
+    animation: dw-lo-in 0.3s ease-out forwards;
 }
 
 /* ── The ground, which opens a square HOLE when the loader finishes ─────── */
@@ -107,7 +107,7 @@ html.dw-loader-skip .dw-loader {
 .dw-loader.is-opening .dw-lo-stage,
 .dw-loader.is-opening .dw-lo-glow,
 .dw-loader.is-opening .dw-lo-count {
-    animation: dw-lo-fade-out 0.25s ease-in forwards;
+    animation: dw-lo-fade-out 0.2s ease-in forwards;
 }
 
 /* 1. The four corner squares, white and 4px: far out -> the centre -> the square's corner. */
@@ -121,7 +121,7 @@ html.dw-loader-skip .dw-loader {
     margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
     background: #fff;
     opacity: 0;
-    animation: dw-lo-corner 1.35s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    animation: dw-lo-corner 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
 .dw-lo-corner--tl { --sx: -34vw; --sy: -30vh; --ex: calc(var(--dw-lo-stage) / -2); --ey: calc(var(--dw-lo-stage) / -2); }
@@ -141,7 +141,7 @@ html.dw-loader-skip .dw-loader {
     stroke-width: 1;
     stroke-dasharray: 100;
     stroke-dashoffset: 100;
-    animation: dw-lo-draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.95s forwards;
+    animation: dw-lo-draw 0.5s cubic-bezier(0.65, 0, 0.35, 1) 0.55s forwards;
 }
 
 /* 3. The mark. A mask of sixteen horizontal bands, each opening from alternate
@@ -159,8 +159,8 @@ html.dw-loader-skip .dw-loader {
     transform-box: fill-box;
     transform-origin: 0 50%;
     transform: scaleX(0);
-    animation: dw-lo-stripe 0.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-    animation-delay: calc(1.5s + var(--i) * 0.065s);
+    animation: dw-lo-stripe 0.3s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    animation-delay: calc(0.85s + var(--i) * 0.035s);
 }
 
 /* Sixteen bands that only touch leave hairline seams between them where the
@@ -169,7 +169,7 @@ html.dw-loader-skip .dw-loader {
 .dw-lo-solid {
     fill: #fff;
     opacity: 0;
-    animation: dw-lo-in 0.2s linear 3s forwards;
+    animation: dw-lo-in 0.1s linear 1.68s forwards;
 }
 
 .dw-lo-stripe:nth-child(even) { transform-origin: 100% 50%; }
@@ -189,7 +189,7 @@ html.dw-loader-skip .dw-loader {
     font-variant-numeric: tabular-nums;
     color: rgba(245, 245, 245, 0.92);
     opacity: 0;
-    animation: dw-lo-in 0.9s ease-out 0.3s forwards;
+    animation: dw-lo-in 0.5s ease-out 0.15s forwards;
 }
 
 /* ── Keyframes ────────────────────────────────────────────────────────────── */

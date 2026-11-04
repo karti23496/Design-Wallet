@@ -163,6 +163,8 @@
     font: inherit;
     font-size: 0.85rem;
     font-weight: 500;
+    white-space: nowrap;      /* it wrapped onto two lines beside the title on a phone */
+    flex: 0 0 auto;
     transition: transform 0.18s ease, opacity 0.18s ease;
 }
 
@@ -525,6 +527,12 @@
         grid-template-columns: minmax(0, 1fr);
         padding: 22px 16px;
     }
+}
+
+/* Phones: the section title gives way to the download button rather than
+   the other way round. */
+@media (max-width: 560px) {
+    .bk-section-head .bk-section-title { font-size: 1.6rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

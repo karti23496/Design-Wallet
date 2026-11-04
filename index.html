@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="/auth/landing.js?v=20261030-1"></script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
     <script>
@@ -12,10 +13,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Design Wallet™ — A curated library of design tools & resources</title>
-    <meta name="description" content="A free, curated library of design tools, assets, icons, UI kits and inspiration. Browse by category — no account needed.">
+    <meta name="description" content="Repository for your next design project: 430+ hand-picked design tools, real salary data and free mini tools, picked by designers. Create a free account to explore.">
     <link rel="canonical" href="https://designwallet.in/">
     <meta property="og:title" content="Design Wallet™ — A curated library of design tools & resources">
-    <meta property="og:description" content="A free, curated library of design tools, assets, icons, UI kits and inspiration. Browse by category — no account needed.">
+    <meta property="og:description" content="Repository for your next design project: 430+ hand-picked design tools, real salary data and free mini tools, picked by designers. Create a free account to explore.">
     <meta property="og:url" content="https://designwallet.in/">
     <meta property="og:image" content="https://designwallet.in/public/illustrations/Meta%20Image.jpg">
     <meta property="og:image:width" content="1200">
@@ -24,222 +25,628 @@
     <meta name="twitter:image" content="https://designwallet.in/public/illustrations/Meta%20Image.jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Geist+Mono:wght@400&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/style.css?v=20261015-3">
-    <link rel="stylesheet" href="/tools/dashboard.css?v=20260917-2">
-    <link rel="stylesheet" href="/ticker/ticker.css?v=20261003-3">
-    <link rel="stylesheet" href="/mobile-gate.css?v=20260920-1">
-    <link rel="stylesheet" href="/loader.css?v=20261022-3">
-    <script src="/loader.js?v=20261022-1"></script>
+    <link rel="stylesheet" href="/style.css?v=20261101-1">
+    <link rel="stylesheet" href="/auth/auth.css?v=20261030-2">
+    <link rel="stylesheet" href="/home.css?v=20261101-11">
 </head>
-<body>
-    <div class="dw-loader" id="dw-loader" aria-hidden="true">
-        <div class="dw-lo-ground"></div>
-        <div class="dw-lo-glow"></div>
-        <div class="dw-lo-stage">
-            <i class="dw-lo-corner dw-lo-corner--tl"></i>
-            <i class="dw-lo-corner dw-lo-corner--tr"></i>
-            <i class="dw-lo-corner dw-lo-corner--bl"></i>
-            <i class="dw-lo-corner dw-lo-corner--br"></i>
-            <svg class="dw-lo-frame" viewBox="0 0 200 200" width="200" height="200" fill="none">
-                <rect x="0.5" y="0.5" width="199" height="199" pathLength="100"/>
-            </svg>
-            <svg class="dw-lo-mark" viewBox="41 31 76 93.208" width="99" height="121" fill="none">
-                <defs>
-                    <linearGradient id="dw-lo-ink" x1="79" y1="31" x2="79" y2="124.208" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#fff"/>
-                        <stop offset="1" stop-color="#fff" stop-opacity="0.62"/>
-                    </linearGradient>
-                    <mask id="dw-lo-stripes" maskUnits="userSpaceOnUse" x="41" y="31" width="76" height="93.208">
-                    <rect class="dw-lo-stripe" style="--i:0" x="41" y="31.000" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:1" x="41" y="36.825" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:2" x="41" y="42.651" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:3" x="41" y="48.477" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:4" x="41" y="54.302" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:5" x="41" y="60.127" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:6" x="41" y="65.953" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:7" x="41" y="71.779" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:8" x="41" y="77.604" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:9" x="41" y="83.429" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:10" x="41" y="89.255" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:11" x="41" y="95.081" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:12" x="41" y="100.906" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:13" x="41" y="106.731" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:14" x="41" y="112.557" width="76" height="7.026"/>
-                    <rect class="dw-lo-stripe" style="--i:15" x="41" y="118.382" width="76" height="7.026"/>
-                    <rect class="dw-lo-solid" x="41" y="31" width="76" height="93.208"/>
-                </mask>
-                </defs>
-                <path mask="url(#dw-lo-stripes)" fill="url(#dw-lo-ink)" d="M117 77.6038C117 90.4727 111.783 102.125 103.353 110.557C94.9219 118.99 83.2722 124.208 70.4059 124.208H59.471C64.129 106.13 84.4746 87.9681 102.226 87.9681C82.0367 87.9681 58.4864 64.4697 58.4864 44.3282C58.4864 55.63 51.0734 67.9876 41 76.6568V31H70.4059C96.1385 31 117 51.8659 117 77.6038Z"/>
-            </svg>
-        </div>
-        <div class="dw-lo-count"><span id="dw-lo-pct">0</span></div>
-    </div>
-    <div class="page-shell">
+<body class="home-page" data-auth-page="sign-up">
+    <div class="page-shell home-shell">
         <header class="site-header"></header>
 
-        <main class="tool-page">
-            <div class="tool-loading" id="tool-loading">Loading tools...</div>
+        <main class="home">
+            <!-- ══ 01 Hero: centred, light beam + horizon (Figma 1008:3834, 2026-10-31) ══
+                 The beam, stars and logo tiles sit on a 1440px stage behind the
+                 copy; the dashboard rises out of the horizon below it. home.js
+                 scatters the stars and scales the dashboard to fit. -->
+            <section class="hx">
+                <div class="hx-stage" aria-hidden="true">
+                    <span class="hx-beam hx-beam--glow"><img src="/public/home/hero/beam-glow.svg" width="700" height="1180" alt=""></span>
+                    <span class="hx-beam hx-beam--core"><img src="/public/home/hero/beam-core.svg?v=20261031-2" width="260" height="1060" alt=""></span>
+                    <div class="hx-stars" data-stars="drift"></div>
+                    <span class="hx-tile hx-tile--mobbin"><img src="/public/home/hero/tile-mobbin.svg" alt=""></span>
+                    <span class="hx-tile hx-tile--pinterest"><span><img src="/public/home/hero/tile-pinterest.webp" alt=""></span></span>
+                    <span class="hx-tile hx-tile--openai"><img src="/public/home/hero/tile-openai.webp" alt=""></span>
+                    <span class="hx-tile hx-tile--claude"><img src="/public/home/hero/tile-claude.webp" alt=""></span>
+                    <span class="hx-tile hx-tile--behance"><img src="/public/home/hero/tile-behance.svg" alt=""></span>
+                    <span class="hx-tile hx-tile--dribbble"><img src="/public/home/hero/tile-dribbble.webp" alt=""></span>
+                </div>
 
-            <!-- ══ DASHBOARD: category browsing (two-panel) ══ -->
-            <div class="dashboard" id="dashboard-view" hidden>
-                <aside class="dash-sidebar">
-                    <!-- Promoted shortcuts, built from DW_TRENDS in tools.js.
-                         Hidden until it has at least one row with tools behind it. -->
-                    <div class="dash-trends-section" id="dash-trends-section" hidden>
-                        <p class="dash-sidebar-label">Hot trends</p>
-                        <nav class="dash-trends" id="dash-trends" aria-label="Hot trends"></nav>
+                <div class="hx-copy">
+                    <p class="hx-eyebrow"><img src="/public/home/eyebrow-dot.svg" width="6" height="6" alt="">TRUSTED BY 5000+ DESIGNERS</p>
+                    <h1 class="hx-title"><em>Design Asset Repository</em> <span>for your next design project.</span></h1>
+                    <p class="hx-sub">500+ real use case tools, real salary data and free mini tools, all picked by designers. Sign up and save your favourites and build a wallet that’s yours.</p>
+                    <div class="hx-ctas">
+                        <a class="home-btn home-btn--primary" href="/sign-up/">Create account for free</a>
+                        <a class="home-btn home-btn--glass" href="/sign-in/">Sign in</a>
                     </div>
-                    <p class="dash-sidebar-label">Categories</p>
-                    <!-- Only this list scrolls; the trends block above and the
-                         footer strip below are pinned. -->
-                    <nav class="dash-nav" id="dash-nav" aria-label="Tool categories"></nav>
-                    <div class="dash-sidebar-foot">
-                        <span class="dash-sidebar-copy">&copy; Design Wallet</span>
-                        <!-- Drop-up: hover or focus the CTA to reveal the three ways
-                             to contribute. The trigger still links to /list-your-tool/,
-                             so a tap on touch screens goes somewhere useful. -->
-                        <div class="dash-sidebar-menu">
-                            <a class="dash-sidebar-cta" href="/list-your-tool/" aria-haspopup="true">
-                                <svg class="dash-sidebar-cta-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.00005 19L19 5.99996M19 5.99996V18.48M19 5.99996H6.52005"/></svg>
-                                List your tool
-                            </a>
-                            <div class="dash-dropup" aria-label="Contribute to Design Wallet">
-                                <a class="dash-dropup-link" href="/list-your-tool/">List your tool <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.00005 19L19 5.99996M19 5.99996V18.48M19 5.99996H6.52005"/></svg></a>
-                                <a class="dash-dropup-link" href="/submit-portfolio/">Submit your portfolio <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.00005 19L19 5.99996M19 5.99996V18.48M19 5.99996H6.52005"/></svg></a>
-                                <a class="dash-dropup-link" href="/salary/submit/">Add your salary <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.00005 19L19 5.99996M19 5.99996V18.48M19 5.99996H6.52005"/></svg></a>
+                    <p class="hx-note">Create free account. No card details required.</p>
+                </div>
+
+                <!-- A picture of the product: decorative, so hidden from screen readers. -->
+                <div class="hx-device-wrap" aria-hidden="true">
+                    <span class="hx-horizon"><img src="/public/home/hero/horizon.svg" width="3899" height="2171" alt=""></span>
+                    <div class="hx-device" id="hx-device">
+                        <div class="hx-screen">
+                            <div class="hp">
+                                <div class="hp-stars" id="home-preview-stars"></div>
+
+                                <img class="hp-logo" src="/public/home/preview-logo.svg" width="118" height="22" alt="">
+                                <span class="hp-version">v3.0</span>
+                                <span class="hp-rule"></span>
+
+                                <p class="hp-label hp-label--trends"><img src="/public/home/icon-flame.svg" width="10" height="10" alt="">HOT TRENDS</p>
+                                <div class="hp-item hp-item--1"><img src="/public/home/icon-plug.svg" alt=""><span>MCP Connectors</span><em>11</em></div>
+                                <div class="hp-item hp-item--2"><img src="/public/home/icon-folder-code.svg" alt=""><span>Vibe Coding Tools</span><em>10</em></div>
+                                <div class="hp-item hp-item--3"><img src="/public/home/icon-sparkles.svg" alt=""><span>AI Creative Suites</span><em>21</em></div>
+                                <span class="hp-divider hp-divider--1"></span>
+                                <p class="hp-label hp-label--cats"><img src="/public/home/icon-grid-sm.svg" width="10" height="10" alt="">CATEGORIES</p>
+                                <div class="hp-item hp-item--4 is-active"><img src="/public/home/icon-grid.svg" alt=""><span>All</span><em>433</em></div>
+                                <div class="hp-item hp-item--5"><img src="/public/home/icon-3d.svg" alt=""><span>3D Tools</span><em>8</em></div>
+                                <div class="hp-item hp-item--6"><img src="/public/home/icon-accessibility.svg" alt=""><span>Accessibility</span><em>16</em></div>
+                                <div class="hp-item hp-item--7"><img src="/public/home/icon-monitor.svg" alt=""><span>Ad design</span><em>7</em></div>
+                                <div class="hp-item hp-item--8"><img src="/public/home/icon-sparkles.svg" alt=""><span>AI Creative Suites</span><em>21</em></div>
+                                <div class="hp-item hp-item--9"><img src="/public/home/icon-ai.svg" alt=""><span>AI Tools</span><em>43</em></div>
+                                <div class="hp-item hp-item--10"><img src="/public/home/icon-voice.svg" alt=""><span>AI Voiceover</span><em>2</em></div>
+                                <div class="hp-item hp-item--11"><img src="/public/home/icon-branding.svg" alt=""><span>Branding</span><em>9</em></div>
+                                <span class="hp-divider hp-divider--2"></span>
+                                <p class="hp-copy">© Design Wallet</p>
+                                <p class="hp-list"><img src="/public/home/icon-list-tool.svg" width="11" height="11" alt="">List your tool</p>
+
+                                <div class="hp-nav">
+                                    <span class="hp-nav-item">Design Wallet MCP<b class="hp-new">NEW</b></span>
+                                    <span class="hp-nav-item hp-nav-item--chev">Resources<img src="/public/home/icon-chevron.svg" width="9" height="9" alt=""></span>
+                                    <span class="hp-nav-item">Know your money</span>
+                                    <span class="hp-nav-item hp-nav-item--chev">Mini Tools<img src="/public/home/icon-chevron-2.svg" width="9" height="9" alt=""></span>
+                                    <span class="hp-nav-item">Blog</span>
+                                    <span class="hp-nav-signin">Sign in</span>
+                                </div>
+
+                                <div class="hp-search"><img src="/public/home/icon-search.svg" width="12" height="12" alt="">Search tools...</div>
+
+                                <p class="hp-featured"><img src="/public/home/icon-featured.svg" width="14" height="14" alt="">Featured</p>
+                                <div class="hp-card hp-card--1">
+                                    <div class="hp-card-top"><span class="hp-logo-tile hp-logo-tile--claude"><img src="/public/home/logo-claude.png" alt=""></span><span class="hp-price">$<b>FREE</b></span></div>
+                                    <p class="hp-card-title">Claude</p>
+                                    <p class="hp-card-desc">Claude is an AI assistant developed by Anthropic that helps with writing, coding, research, and problem-solving.</p>
+                                </div>
+                                <div class="hp-card hp-card--2">
+                                    <div class="hp-card-top"><span class="hp-logo-tile hp-logo-tile--openai"><img src="/public/home/logo-openai.png" alt=""></span><span class="hp-price">$<b>FREE</b></span></div>
+                                    <p class="hp-card-title">ChatGPT</p>
+                                    <p class="hp-card-desc">AI Assistant for Writing, Coding &amp; Creativity</p>
+                                </div>
+                                <div class="hp-card hp-card--3">
+                                    <div class="hp-card-top"><span class="hp-logo-tile hp-logo-tile--letter">M</span><span class="hp-price hp-price--paid">$<b>PAID</b></span></div>
+                                    <p class="hp-card-title">Midjourney</p>
+                                    <p class="hp-card-desc">An independent research lab exploring new mediums of thought</p>
+                                </div>
+                                <div class="hp-card hp-card--4">
+                                    <div class="hp-card-top"><span class="hp-logo-tile hp-logo-tile--lovable"><img src="/public/home/logo-lovable.png" alt=""></span></div>
+                                    <p class="hp-card-title">Lovable App</p>
+                                    <p class="hp-card-desc">Build something Lovable</p>
+                                </div>
+
+                                <p class="hp-featured hp-featured--insp"><img src="/public/home/icon-sparkles.svg" width="14" height="14" alt="">Design Inspirations</p>
+                                <div class="hp-card hp-card--1 hp-card--row2">
+                                    <div class="hp-card-top"><span class="hp-logo-tile hp-logo-tile--dribbble"><img src="/public/home/logo-dribbble.png" alt=""></span><span class="hp-price">$<b>FREE</b></span></div>
+                                    <p class="hp-card-title">Dribbble</p>
+                                    <p class="hp-card-desc">Hire top designers from dribbble</p>
+                                </div>
+                                <div class="hp-card hp-card--2 hp-card--row2">
+                                    <div class="hp-card-top"><span class="hp-logo-tile hp-logo-tile--mobbin"><img src="/public/home/logo-mobbin.svg" alt=""></span><span class="hp-price hp-price--paid">$<b>PAID</b></span></div>
+                                    <p class="hp-card-title">Mobbin</p>
+                                    <p class="hp-card-desc">Discover real-world design inspiration.</p>
+                                </div>
+                                <div class="hp-card hp-card--3 hp-card--row2">
+                                    <div class="hp-card-top"><span class="hp-logo-tile hp-logo-tile--letter">D</span><span class="hp-price">$<b>FREE</b></span></div>
+                                    <p class="hp-card-title">Design Vault</p>
+                                    <p class="hp-card-desc">UX patterns from exceptional products</p>
+                                </div>
+                                <div class="hp-card hp-card--4 hp-card--row2">
+                                    <div class="hp-card-top"><span class="hp-logo-tile hp-logo-tile--letter">L</span><span class="hp-price">$<b>FREE</b></span></div>
+                                    <p class="hp-card-title">Layers.to</p>
+                                    <p class="hp-card-desc">Explore the latest design layers from the community</p>
+                                </div>
                             </div>
+                            <span class="hx-screen-fade"></span>
                         </div>
                     </div>
-                </aside>
+                </div>
+                <span class="hx-fade" aria-hidden="true"></span>
+            </section>
 
-                <section class="dash-main" id="dash-main">
-                    <!-- ══ FIRST FOLD — identical on every catalogue view ══ -->
-                    <div class="dash-hero" id="dash-hero">
-                        <!-- Orbiting starfield, populated by stars.js -->
-                        <div class="stars-field" id="stars-field" aria-hidden="true"></div>
+            <!-- ══ What's inside: five tabs (Figma 995:2878, 2026-10-30) ══ -->
+            <section class="wi" aria-labelledby="wi-title">
+                <div class="wi-head">
+                    <p class="wi-eyebrow">WHAT’S INSIDE</p>
+                    <h2 class="wi-title" id="wi-title">Everything you reach for,<br> in <em>one wallet.</em></h2>
+                    <p class="wi-sub">One place for the tools, the money talk and the inspiration. Each pick is checked by a designer before it’s listed.</p>
+                </div>
 
-                        <div class="dash-hero-content">
-                            <h1>All-in-one design library for curious designers.</h1>
-                            <!-- Social proof, side by side: the avatars and the
-                                 Product Hunt badge make the same kind of claim,
-                                 so they share one row and wrap together. -->
-                            <div class="dash-hero-proof">
-                                <!-- Product Hunt launch badge, first in the row.
-                                     theme=dark (#221D21) to sit on the dark hero.
-                                     Homepage only — deliberately not in header.js,
-                                     which would put it on all 17 pages. -->
-                                <a class="dash-hero-ph"
-                                   href="https://www.producthunt.com/products/design-wallet?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-design-wallet"
-                                   target="_blank" rel="noopener noreferrer">
-                                    <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1252711&amp;theme=dark"
-                                         alt="Design Wallet — All-in-one design library for curious designers. Featured on Product Hunt"
-                                         width="250" height="54">
-                                </a>
+                <div class="wi-tabs" role="tablist" aria-label="What’s inside Design Wallet">
+                    <button class="wi-tab" type="button" role="tab" id="wi-tab-1" aria-controls="wi-panel-1" aria-selected="true"><span class="wi-tab-icon wi-icon--grid" aria-hidden="true"></span>Premium collections</button>
+                    <button class="wi-tab" type="button" role="tab" id="wi-tab-2" aria-controls="wi-panel-2" aria-selected="false" tabindex="-1"><span class="wi-tab-icon wi-icon--money" aria-hidden="true"></span>Know your money</button>
+                    <button class="wi-tab" type="button" role="tab" id="wi-tab-3" aria-controls="wi-panel-3" aria-selected="false" tabindex="-1"><span class="wi-tab-icon wi-icon--portfolio" aria-hidden="true"></span>Wall of Portfolios</button>
+                    <button class="wi-tab" type="button" role="tab" id="wi-tab-4" aria-controls="wi-panel-4" aria-selected="false" tabindex="-1"><span class="wi-tab-icon wi-icon--book" aria-hidden="true"></span>Wallet Reads</button>
+                    <button class="wi-tab" type="button" role="tab" id="wi-tab-5" aria-controls="wi-panel-5" aria-selected="false" tabindex="-1"><span class="wi-tab-icon wi-icon--plug" aria-hidden="true"></span>Design Wallet MCP</button>
+                </div>
 
-                                <div class="dash-hero-loved">
-                                    <span class="dash-hero-loved-label">Loved by designers</span>
-                                    <div class="dash-hero-avatars">
-                                        <img src="/public/avatars/aarav-nair.webp" alt="" width="36" height="36" decoding="async">
-                                        <img src="/public/avatars/isha-kapoor.webp" alt="" width="36" height="36" decoding="async">
-                                        <img src="/public/avatars/kabir-sheikh.webp" alt="" width="36" height="36" decoding="async">
-                                        <img src="/public/avatars/priya-menon.webp" alt="" width="36" height="36" decoding="async">
-                                        <img src="/public/avatars/nikhil-varma.webp" alt="" width="36" height="36" decoding="async">
-                                        <img src="/public/avatars/meera-iyer.webp" alt="" width="36" height="36" decoding="async">
-                                    </div>
+                <!-- 1 · Catalogue -->
+                <div class="wi-panel" role="tabpanel" id="wi-panel-1" aria-labelledby="wi-tab-1">
+                    <div class="wi-content">
+                        <span class="wi-badge"><img src="/public/home/tab-grid.svg" width="20" height="20" alt=""></span>
+                        <p class="wi-kicker">PREMIUM COLLECTIONS</p>
+                        <h3 class="wi-h">500+ hand-picked tools, 40 categories</h3>
+                        <p class="wi-body">From AI tools and 3D to accessibility and UX research. Every listing shows its price up front, so you can filter to free, freemium or paid before you click.</p>
+                        <a class="wi-cta" id="wi-explore-cat" href="/category/">Explore&nbsp;&nbsp;→</a>
+                    </div>
+                    <div class="wi-art">
+                        <div class="wi-cat">
+                            <p class="wi-art-label">BROWSE 40 CATEGORIES</p>
+                            <!-- Filters: each chip swaps the two cards below for tools from that
+                                 category, loaded live by home.js. "All" shows the original pair. -->
+                            <div class="wi-chips" role="group" aria-label="Filter by category">
+                                <button class="wi-chip is-on" type="button" data-cat="" aria-pressed="true">All <i>433</i></button>
+                                <button class="wi-chip" type="button" data-cat="ai-tools" aria-pressed="false">AI Tools <i>43</i></button>
+                                <button class="wi-chip" type="button" data-cat="design-communities" aria-pressed="false">Design Communities <i>28</i></button>
+                                <button class="wi-chip" type="button" data-cat="color-palatte" aria-pressed="false">Color Palette <i>27</i></button>
+                                <button class="wi-chip" type="button" data-cat="ai-creative-suites" aria-pressed="false">AI Creative Suites <i>21</i></button>
+                                <button class="wi-chip" type="button" data-cat="accessibility" aria-pressed="false">Accessibility <i>16</i></button>
+                                <button class="wi-chip" type="button" data-cat="mcp-connectors" aria-pressed="false">MCP Connectors <i>11</i></button>
+                                <button class="wi-chip" type="button" data-cat="vibe-coding" aria-pressed="false">Vibe Coding <i>10</i></button>
+                                <button class="wi-chip" type="button" data-cat="branding" aria-pressed="false">Branding <i>9</i></button>
+                                <button class="wi-chip" type="button" data-cat="3d-tools" aria-pressed="false">3D Tools <i>8</i></button>
+                            </div>
+                            <div class="wi-cards" id="wi-cards" aria-live="polite">
+                                <div class="wi-card">
+                                    <div class="wi-card-top"><span class="wi-tile wi-tile--claude"><img src="/public/home/logo-claude.png" alt=""></span><span class="wi-price">$ <b>FREE</b></span></div>
+                                    <p class="wi-card-name">Claude</p>
+                                    <p class="wi-card-desc">Claude is an AI assistant developed by Anthropic that helps with writing, coding, research, and problem-solving.</p>
+                                </div>
+                                <div class="wi-card">
+                                    <div class="wi-card-top"><span class="wi-tile wi-tile--openai"><img src="/public/home/logo-openai.png" alt=""></span><span class="wi-price">$ <b>FREE</b></span></div>
+                                    <p class="wi-card-name">ChatGPT</p>
+                                    <p class="wi-card-desc">AI Assistant for Writing, Coding &amp; Creativity</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="dash-search" id="dash-search">
-                        <div class="dash-search-field">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-                            <input id="dash-search-input" class="dash-search-input" type="search" placeholder="Search tools..." autocomplete="off" aria-label="Search tools">
-                        </div>
-                    </div>
-
-                    <div class="dash-context">
-                        <h2 id="dash-title">All Tools</h2>
-                        <p id="dash-count" aria-live="polite"></p>
-                    </div>
-
-                    <div class="dash-grid" id="dash-grid" aria-live="polite"></div>
-                </section>
-            </div>
-
-            <div class="tool-container">
-                <!-- ══ TOOL DETAIL ══ -->
-                <div class="tool-content" id="tool-content" hidden>
-                    <div class="tool-layout">
-                        <div class="tool-info-panel">
-                            <a href="/category/" class="tool-back-link" id="tool-back-link">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M5 12L12 19M5 12L12 5"/></svg>
-                                Back to categories
-                            </a>
-
-                            <div class="tool-header">
-                                <div class="tool-header-left">
-                                    <div class="tool-icon" id="tool-icon"></div>
-                                    <div class="tool-header-info">
-                                        <h1 id="tool-title"></h1>
-                                        <p class="tool-subtitle" id="tool-subtitle"></p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="tool-meta">
-                                <div class="tool-meta-item" id="tool-categories-wrap">
-                                    <div class="tool-meta-tags" id="tool-categories"></div>
-                                </div>
-                            </div>
-
-                            <div class="tool-header-right">
-                                <a class="tool-visit-btn" id="tool-visit-btn" href="#" target="_blank" rel="noreferrer">
-                                    Visit Website
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="tool-preview-panel">
-                            <div class="tool-screenshot" id="tool-screenshot"></div>
-                        </div>
-                    </div>
-
-                    <div class="tool-nav" id="tool-nav">
-                        <a class="tool-nav-link tool-nav-prev" id="tool-prev" href="#">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M5 12L12 19M5 12L12 5"/></svg>
-                            <span id="tool-prev-name"></span>
-                        </a>
-                        <a class="tool-nav-link tool-nav-next" id="tool-next" href="#">
-                            <span id="tool-next-name"></span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12H19M19 12L12 5M19 12L12 19"/></svg>
-                        </a>
+                        <span class="wi-cat-fade"></span>
                     </div>
                 </div>
 
-                <div class="tool-not-found" id="tool-not-found" hidden>
-                    <h2>Tool not found</h2>
-                    <p>The tool you're looking for doesn't exist or has been removed.</p>
-                    <a href="/category/" class="tool-visit-btn">Browse categories</a>
+                <!-- 2 · Know your money (real figures: salary/data/salaries.json) -->
+                <div class="wi-panel" role="tabpanel" id="wi-panel-2" aria-labelledby="wi-tab-2" hidden>
+                    <div class="wi-content">
+                        <span class="wi-badge"><img src="/public/home/tab-money.svg" width="20" height="20" alt=""></span>
+                        <p class="wi-kicker">KNOW YOUR MONEY</p>
+                        <h3 class="wi-h">What your role really pays</h3>
+                        <p class="wi-body">Designer salaries by role, level and city, so your next negotiation starts from data, not hearsay.</p>
+                        <a class="wi-cta" href="/salary/">Explore&nbsp;&nbsp;→</a>
+                    </div>
+                    <div class="wi-art" aria-hidden="true">
+                        <div class="wi-salary">
+                            <div class="wi-chips"><span class="wi-chip">Product Designer</span><span class="wi-chip">Senior</span><span class="wi-chip">Bangalore</span></div>
+                            <p class="wi-art-label">MEDIAN FIXED PAY · SENIOR</p>
+                            <p class="wi-salary-big">₹28.3L</p>
+                            <p class="wi-salary-range">₹22.4L – ₹35.4L a year · middle half of reports</p>
+                            <div class="wi-bars">
+                                <div class="wi-bar"><small>₹7.1L</small><span class="wi-bar-fill wi-bh-10"></span><b>Junior</b></div>
+                                <div class="wi-bar"><small>₹15.3L</small><span class="wi-bar-fill wi-bh-21"></span><b>Mid</b></div>
+                                <div class="wi-bar is-on"><small>₹28.3L</small><span class="wi-bar-fill wi-bh-40"></span><b>Senior</b></div>
+                                <div class="wi-bar"><small>₹44.8L</small><span class="wi-bar-fill wi-bh-63"></span><b>Lead</b></div>
+                                <div class="wi-bar"><small>₹49.6L</small><span class="wi-bar-fill wi-bh-69"></span><b>Manager</b></div>
+                                <div class="wi-bar"><small>₹80.2L</small><span class="wi-bar-fill wi-bh-112"></span><b>Director</b></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+
+                <!-- 3 · Wall of Portfolios -->
+                <div class="wi-panel" role="tabpanel" id="wi-panel-3" aria-labelledby="wi-tab-3" hidden>
+                    <div class="wi-content">
+                        <span class="wi-badge"><img src="/public/home/tab-portfolio.svg" width="20" height="20" alt=""></span>
+                        <p class="wi-kicker">WALL OF PORTFOLIOS</p>
+                        <h3 class="wi-h">145 portfolios worth studying</h3>
+                        <p class="wi-body">145 designer portfolios to study, borrow from and get noticed beside. Submit yours to be featured.</p>
+                        <a class="wi-cta" href="/wall-of-portfolios/">Explore&nbsp;&nbsp;→</a>
+                    </div>
+                    <!-- Interactive deck (home.js): click a back card to bring it forward.
+                         Not aria-hidden: the back cards are buttons. -->
+                    <div class="wi-art wi-deck" role="group" aria-label="Three portfolios from the Wall">
+                        <img class="wi-pf-glow" src="/public/home/pf-glow.svg" width="580" height="480" alt="">
+                        <article class="wi-pf is-right" aria-label="Sanskriti Negi, product designer">
+                            <div class="wi-pf-top"><span>WALL OF PORTFOLIOS</span></div>
+                            <p class="wi-pf-name">Sanskriti Negi</p>
+                            <img class="wi-pf-thumb" src="/public/home/pf-sanskriti.jpg" alt="">
+                            <span class="wi-pf-role">Product designer</span>
+                            <p class="wi-pf-note">One of 145 portfolios on the Wall.<br>Study it, then submit yours.</p>
+                        </article>
+                        <article class="wi-pf is-left" aria-label="Ben Shih, staff product designer">
+                            <div class="wi-pf-top"><span>WALL OF PORTFOLIOS</span></div>
+                            <p class="wi-pf-name">Ben Shih</p>
+                            <img class="wi-pf-thumb" src="/public/home/pf-ben.png" alt="">
+                            <span class="wi-pf-role">Staff Product Designer</span>
+                            <p class="wi-pf-note">One of 145 portfolios on the Wall.<br>Study it, then submit yours.</p>
+                        </article>
+                        <article class="wi-pf is-front" aria-label="Gina Chee, product designer">
+                            <div class="wi-pf-top"><span>WALL OF PORTFOLIOS</span></div>
+                            <p class="wi-pf-name">Gina Chee</p>
+                            <img class="wi-pf-thumb" src="/public/home/pf-gina.jpg" alt="Gina Chee’s portfolio homepage">
+                            <span class="wi-pf-role">Product Designer</span>
+                            <p class="wi-pf-note">One of 145 portfolios on the Wall.<br>Study it, then submit yours.</p>
+                        </article>
+                    </div>
+                </div>
+
+                <!-- 4 · Wallet Reads: built by home.js from the BOOKS list (13 spines) -->
+                <div class="wi-panel" role="tabpanel" id="wi-panel-4" aria-labelledby="wi-tab-4" hidden>
+                    <div class="wi-content">
+                        <span class="wi-badge"><img src="/public/home/tab-book.svg" width="20" height="20" alt=""></span>
+                        <p class="wi-kicker">WALLET READS</p>
+                        <h3 class="wi-h wi-h--351">Books designers wants to read</h3>
+                        <p class="wi-body">21 books designers actually recommend, from craft to career, picked so your wallet doesn’t cry.</p>
+                        <a class="wi-cta" href="/books/">Explore&nbsp;&nbsp;→</a>
+                    </div>
+                    <div class="wi-art" aria-hidden="true">
+                        <div class="wi-shelf" id="wi-shelf"></div>
+                        <span class="wi-plank"></span>
+                        <span class="wi-plank-shadow"></span>
+                        <p class="wi-shelf-cap">21 books · from craft to career</p>
+                    </div>
+                </div>
+
+                <!-- 5 · Design Wallet MCP -->
+                <div class="wi-panel" role="tabpanel" id="wi-panel-5" aria-labelledby="wi-tab-5" hidden>
+                    <div class="wi-content">
+                        <span class="wi-badge"><img src="/public/home/tab-plug.svg" width="20" height="20" alt=""></span>
+                        <p class="wi-kicker">DESIGN WALLET MCP</p>
+                        <h3 class="wi-h wi-h--340">Ask for tools inside your AI app</h3>
+                        <p class="wi-body">Connect Design Wallet to Claude, ChatGPT or Cursor and ask for a tool in plain words. Every answer links back to the catalogue.</p>
+                        <a class="wi-cta" href="/mcp/">Explore&nbsp;&nbsp;→</a>
+                    </div>
+                    <div class="wi-art" aria-hidden="true">
+                        <div class="wi-chat">
+                            <div class="wi-works">Works in
+                                <span><img src="/public/home/app-claude.svg" width="18" height="18" alt=""></span>
+                                <span><img src="/public/home/app-openai.svg" width="18" height="18" alt=""></span>
+                                <span><img src="/public/home/app-cursor.svg" width="18" height="18" alt=""></span>
+                                <span><img src="/public/home/app-claude-code.svg" width="18" height="18" alt=""></span>
+                                <span><img src="/public/home/app-vscode.svg" width="18" height="18" alt=""></span>
+                            </div>
+                            <div class="wi-you"><p>Find me free AI tools for UI design in Design Wallet</p></div>
+                            <span class="wi-typing"><i></i><i></i><i></i></span>
+                            <div class="wi-answer">
+                                <img src="/public/home/app-claude.svg" width="22" height="22" alt="">
+                                <div>
+                                    <p class="wi-answer-text">Two free picks from Design Wallet’s catalogue:</p>
+                                    <div class="wi-result"><span class="wi-tile wi-tile--sq wi-tile--claude"><img src="/public/home/logo-claude.png" alt=""></span><span class="wi-result-text"><b>Claude</b><small>designwallet.in/category/ai-tools/claude/</small></span><span class="wi-free">$ FREE</span></div>
+                                    <div class="wi-result"><span class="wi-tile wi-tile--sq wi-tile--openai"><img src="/public/home/logo-openai.png" alt=""></span><span class="wi-result-text"><b>ChatGPT</b><small>designwallet.in/category/ai-tools/chatgpt/</small></span><span class="wi-free">$ FREE</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- ══ Use cases: five roles in an accordion (Figma 1023:5392, after stewdio.ai) ══
+                 One card is open at a time; the others are strips with their
+                 four tools' logos. home.js opens a strip when it's pressed. -->
+            <section class="uc" aria-labelledby="uc-title">
+                <span class="uc-beam" aria-hidden="true"></span>
+                <div class="uc-head">
+                    <p class="uc-eyebrow">WHO IS THIS FOR?</p>
+                    <h2 class="uc-h2" id="uc-title">Every <em>designer</em> works<br>with their own kit.</h2>
+                </div>
+
+                <div class="uc-acc">
+                    <article class="uc-item is-open">
+                        <button class="uc-hit" type="button" aria-expanded="true" aria-controls="uc-uiux"><span class="uc-label">UI/UX designer</span></button>
+                        <div class="uc-logos" aria-hidden="true">
+                            <img src="/public/home/uc/figma.png" alt=""><img class="uc-mobbin" src="/public/home/logo-mobbin.svg" alt=""><img class="uc-dark" src="/public/home/uc/laws-of-ux.svg" alt=""><img src="/public/home/uc/magic-patterns.png" alt="">
+                        </div>
+                        <div class="uc-panel" id="uc-uiux">
+                            <div class="uc-art" aria-hidden="true">
+                                <span class="uc-glow"></span>
+                                <div class="uc-card uc-card--1"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/figma.png" alt=""></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Figma</p><p class="uc-card-desc">The leading collaborative design platform for building meaningful products.</p></div>
+                                <div class="uc-card uc-card--2"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/logo-mobbin.svg" alt=""></span><span class="wi-price wi-price--paid">$ <b>PAID</b></span></div><p class="uc-card-name">Mobbin</p><p class="uc-card-desc">Discover real-world design inspiration.</p></div>
+                                <div class="uc-card uc-card--3"><div class="uc-card-top"><span class="uc-logo uc-logo--dark"><img src="/public/home/uc/laws-of-ux.svg" alt=""></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Laws of UX</p><p class="uc-card-desc">Best practices to consider when building user interfaces.</p></div>
+                                <div class="uc-card uc-card--4"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/magic-patterns.png" alt=""></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Magic Patterns</p><p class="uc-card-desc">AI prototyping tool to turn prompts into production-ready UI.</p></div>
+                            </div>
+                            <span class="uc-shade" aria-hidden="true"></span>
+                            <h3 class="uc-title">UI/UX designer</h3>
+                            <p class="uc-desc">Find the prototyping, research and handoff tools product teams actually ship with.</p>
+                        </div>
+                    </article>
+
+                    <article class="uc-item">
+                        <button class="uc-hit" type="button" aria-expanded="false" aria-controls="uc-motion"><span class="uc-label">Motion Designer</span></button>
+                        <div class="uc-logos" aria-hidden="true">
+                            <img src="/public/home/uc/spline.png" alt=""><img src="/public/home/uc/blender.png" alt=""><img src="/public/home/uc/maxon.png" alt=""><img src="/public/home/uc/morflax.png" alt="">
+                        </div>
+                        <div class="uc-panel" id="uc-motion" aria-hidden="true">
+                            <div class="uc-art">
+                                <span class="uc-glow"></span>
+                                <div class="uc-card uc-card--1"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/spline.png" alt="" loading="lazy"></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Spline</p><p class="uc-card-desc">3D design tool in the browser with real-time collaboration.</p></div>
+                                <div class="uc-card uc-card--2"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/blender.png" alt="" loading="lazy"></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Blender</p><p class="uc-card-desc">The freedom to create.</p></div>
+                                <div class="uc-card uc-card--3"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/maxon.png" alt="" loading="lazy"></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Maxon</p><p class="uc-card-desc">The Cinema 4D suite of 3D modeling, simulation and animation tools.</p></div>
+                                <div class="uc-card uc-card--4"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/morflax.png" alt="" loading="lazy"></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Morflax</p><p class="uc-card-desc">Browser-based 3D mockups and motion tools for designers.</p></div>
+                            </div>
+                            <span class="uc-shade"></span>
+                            <h3 class="uc-title">Motion Designer</h3>
+                            <p class="uc-desc">Animation, 3D and motion tools for titles, explainers and brand loops.</p>
+                        </div>
+                    </article>
+
+                    <article class="uc-item">
+                        <button class="uc-hit" type="button" aria-expanded="false" aria-controls="uc-visual"><span class="uc-label">Visual Designer</span></button>
+                        <div class="uc-logos" aria-hidden="true">
+                            <img src="/public/home/uc/coolors.png" alt=""><img src="/public/home/uc/fontshare.png" alt=""><img src="/public/home/uc/kittl-ai.png" alt=""><img src="/public/home/uc/livesurface.png" alt="">
+                        </div>
+                        <div class="uc-panel" id="uc-visual" aria-hidden="true">
+                            <div class="uc-art">
+                                <span class="uc-glow"></span>
+                                <div class="uc-card uc-card--1"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/coolors.png" alt="" loading="lazy"></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Coolors</p><p class="uc-card-desc">Generate or browse beautiful color combinations for your designs.</p></div>
+                                <div class="uc-card uc-card--2"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/fontshare.png" alt="" loading="lazy"></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Fontshare</p><p class="uc-card-desc">Quality free fonts from the Indian Type Foundry.</p></div>
+                                <div class="uc-card uc-card--3"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/kittl-ai.png" alt="" loading="lazy"></span><span class="wi-price wi-price--paid">$ <b>PAID</b></span></div><p class="uc-card-name">Kittl AI</p><p class="uc-card-desc">Turn ideas into designs, fast.</p></div>
+                                <div class="uc-card uc-card--4"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/livesurface.png" alt="" loading="lazy"></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">LiveSurface</p><p class="uc-card-desc">The professional standard for photo-real mockups.</p></div>
+                            </div>
+                            <span class="uc-shade"></span>
+                            <h3 class="uc-title">Visual Designer</h3>
+                            <p class="uc-desc">Type, colour, mockups and brand kits to take an identity from sketch to system.</p>
+                        </div>
+                    </article>
+
+                    <article class="uc-item">
+                        <button class="uc-hit" type="button" aria-expanded="false" aria-controls="uc-video"><span class="uc-label">Video Editor</span></button>
+                        <div class="uc-logos" aria-hidden="true">
+                            <img src="/public/home/uc/descript.png" alt=""><img src="/public/home/uc/runway.png" alt=""><img src="/public/home/uc/invideo-ai.png" alt=""><img src="/public/home/uc/fliki-ai.png" alt="">
+                        </div>
+                        <div class="uc-panel" id="uc-video" aria-hidden="true">
+                            <div class="uc-art">
+                                <span class="uc-glow"></span>
+                                <div class="uc-card uc-card--1"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/descript.png" alt="" loading="lazy"></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Descript</p><p class="uc-card-desc">AI video and podcast editing tool.</p></div>
+                                <div class="uc-card uc-card--2"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/runway.png" alt="" loading="lazy"></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Runway</p><p class="uc-card-desc">Building AI to simulate the world.</p></div>
+                                <div class="uc-card uc-card--3"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/invideo-ai.png" alt="" loading="lazy"></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Invideo AI</p><p class="uc-card-desc">Make professional videos from premium templates.</p></div>
+                                <div class="uc-card uc-card--4"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/fliki-ai.png" alt="" loading="lazy"></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Fliki AI</p><p class="uc-card-desc">Create AI videos and voiceovers in minutes.</p></div>
+                            </div>
+                            <span class="uc-shade"></span>
+                            <h3 class="uc-title">Video Editor</h3>
+                            <p class="uc-desc">Editing, colour, sound and stock tools for cuts that hold attention.</p>
+                        </div>
+                    </article>
+
+                    <article class="uc-item">
+                        <button class="uc-hit" type="button" aria-expanded="false" aria-controls="uc-ai"><span class="uc-label">AI Designer</span></button>
+                        <div class="uc-logos" aria-hidden="true">
+                            <img src="/public/home/uc/midjourney.png" alt=""><img src="/public/home/uc/krea-ai.png" alt=""><img src="/public/home/uc/adobe-firefly.png" alt=""><img src="/public/home/uc/higgsfield-ai.png" alt="">
+                        </div>
+                        <div class="uc-panel" id="uc-ai" aria-hidden="true">
+                            <div class="uc-art">
+                                <span class="uc-glow"></span>
+                                <div class="uc-card uc-card--1"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/midjourney.png" alt="" loading="lazy"></span><span class="wi-price wi-price--paid">$ <b>PAID</b></span></div><p class="uc-card-name">Midjourney</p><p class="uc-card-desc">An independent research lab exploring new mediums of thought.</p></div>
+                                <div class="uc-card uc-card--2"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/krea-ai.png" alt="" loading="lazy"></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Krea AI</p><p class="uc-card-desc">AI creative suite for images, video and 3D.</p></div>
+                                <div class="uc-card uc-card--3"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/adobe-firefly.png" alt="" loading="lazy"></span><span class="wi-price wi-price--paid">$ <b>PAID</b></span></div><p class="uc-card-name">Adobe Firefly</p><p class="uc-card-desc">The industry-leading generative AI tools for images.</p></div>
+                                <div class="uc-card uc-card--4"><div class="uc-card-top"><span class="uc-logo"><img src="/public/home/uc/higgsfield-ai.png" alt="" loading="lazy"></span><span class="wi-price">$ <b>FREE</b></span></div><p class="uc-card-name">Higgsfield AI</p><p class="uc-card-desc">Create images, videos and voice content from text prompts.</p></div>
+                            </div>
+                            <span class="uc-shade"></span>
+                            <h3 class="uc-title">AI Designer</h3>
+                            <p class="uc-desc">Image, video and voice models, plus the AI suites designers actually use.</p>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- ══ Proof: "Voices that shape our wallet" (Figma 1035:1599, after gladia.io) ══
+                 Real LinkedIn comments, greetings and calls to action trimmed. -->
+            <section class="tm" aria-labelledby="tm-title">
+                <div class="tm-stars" data-stars aria-hidden="true"></div>
+                <div class="tm-head">
+                    <p class="uc-eyebrow">TESTIMONIALS</p>
+                    <h2 class="tm-h2" id="tm-title">Voices that shape <em>our wallet.</em></h2>
+                    <p class="tm-sub">Designers who found Design Wallet,<br> in their own words.</p>
+                </div>
+
+                <div class="tm-bento">
+                    <figure class="tm-card tm-portrait">
+                        <img class="tm-photo" src="/public/home/voices/chirobhi-portrait.webp" width="960" height="960" alt="" loading="lazy">
+                        <span class="tm-mono" aria-hidden="true">CC</span>
+                        <span class="tm-shade tm-shade--top" aria-hidden="true"></span>
+                        <span class="tm-shade" aria-hidden="true"></span>
+                        <p class="tm-source"><img src="/public/home/voices/linkedin.svg" width="18" height="18" alt="LinkedIn"></p>
+                        <div class="tm-bottom">
+                            <blockquote class="tm-quote">“Love the idea of having all these design resources in one place. As a designer, I know how helpful it is to have good-quality assets easily accessible while working on different projects.”</blockquote>
+                            <figcaption class="tm-person"><img src="/public/home/voices/avatar-chirobhi.png" width="35" height="35" alt=""><span><b>Chirobhi Chakraborty</b></span></figcaption>
+                        </div>
+                    </figure>
+
+                    <figure class="tm-card tm-quote-card tm-shamil">
+                        <div class="tm-top"><p class="tm-source"><img src="/public/home/voices/linkedin.svg" width="18" height="18" alt="LinkedIn"></p><span class="tm-tag">THE CATALOGUE</span></div>
+                        <blockquote class="tm-quote">Thanks for sharing this goldmine resource… Keep doing the great work and all the best.</blockquote>
+                        <figcaption class="tm-person"><img src="/public/home/voices/avatar-shamil.png" width="35" height="35" alt=""><span><b>Mohammed Shamil</b></span></figcaption>
+                    </figure>
+
+                    <figure class="tm-card tm-quote-card tm-nikhil">
+                        <div class="tm-top"><p class="tm-source"><img src="/public/home/voices/linkedin.svg" width="18" height="18" alt="LinkedIn"></p><span class="tm-tag">KNOW YOUR MONEY</span></div>
+                        <blockquote class="tm-quote tm-quote--long">This is so cool and very helpful. Be it someone who is on job hunt, for freshers, freelancers, every designer irrespective of their role in their career. What I loved the most is the growth with experience chart and the detail explanation of how you have put these numbers instead of gatekeeping them. 🙌</blockquote>
+                        <figcaption class="tm-person"><img src="/public/home/voices/avatar-nikhil.png" width="35" height="35" alt=""><span><b>Nikhil Raj</b><small>Product Designer · UX/UI &amp; Industrial Design</small></span></figcaption>
+                    </figure>
+
+                    <figure class="tm-card tm-quote-card tm-anima">
+                        <div class="tm-top"><p class="tm-source"><img src="/public/home/voices/linkedin.svg" width="18" height="18" alt="LinkedIn"></p><span class="tm-tag">THE CATALOGUE</span></div>
+                        <blockquote class="tm-quote">This is really good. Having all the resources at one place.</blockquote>
+                        <figcaption class="tm-person"><img src="/public/home/voices/avatar-anima.png" width="35" height="35" alt=""><span><b>Anima Agrawal</b></span></figcaption>
+                    </figure>
+
+                    <!-- ⚠️ The second sentence is Karthik's wording, not Anish's comment
+                         (shipped at Karthik's call, 2026-10-31). His original: "Good initiative 🙌". -->
+                    <figure class="tm-card tm-quote-card tm-anish">
+                        <div class="tm-top"><p class="tm-source"><img src="/public/home/voices/linkedin.svg" width="18" height="18" alt="LinkedIn"></p></div>
+                        <blockquote class="tm-quote tm-quote--loose">“Good initiative 🙌 This is definitely going to be a go-to platform for designers.”</blockquote>
+                        <figcaption class="tm-person"><img src="/public/home/voices/avatar-anish.png" width="35" height="35" alt=""><span><b>Anish G</b></span></figcaption>
+                    </figure>
+
+                    <figure class="tm-card tm-quote-card tm-joyal">
+                        <div class="tm-top"><p class="tm-source"><img src="/public/home/voices/linkedin.svg" width="18" height="18" alt="LinkedIn"></p><span class="tm-tag">THE WEBSITE</span></div>
+                        <blockquote class="tm-quote">“Design Wallet is amazing and loved it.”</blockquote>
+                        <figcaption class="tm-person"><img src="/public/home/voices/avatar-joyal.png" width="35" height="35" alt=""><span><b>Joyal</b></span></figcaption>
+                    </figure>
+
+                    <div class="tm-card tm-ph">
+                        <img class="tm-ph-light" src="/public/home/voices/ph-light.svg" width="419" height="419" alt="" aria-hidden="true">
+                        <img class="tm-ph-logo" src="/public/home/voices/ph-logo.png" width="52" height="52" alt="Product Hunt">
+                        <p class="tm-ph-title">Upvoted by designers<br>on Product Hunt.</p>
+                        <a class="tm-ph-cta" href="https://www.producthunt.com/products/design-wallet" target="_blank" rel="noopener">See us on Product Hunt&nbsp;&nbsp;↗</a>
+                        <div class="tm-ph-listing" aria-hidden="true">
+                            <div class="tm-ph-ghost tm-ph-ghost--1"><span></span><span></span><span></span><span></span></div>
+                            <div class="tm-ph-ghost tm-ph-ghost--2"><span></span><span></span><span></span><span></span></div>
+                            <div class="tm-ph-row">
+                                <img src="/public/home/voices/ph-tile.svg" width="55" height="55" alt="">
+                                <div class="tm-ph-text"><b>Design Wallet</b><small>A curated library of design tools &amp; resources</small><span><i>Design Tools</i><i>Free</i></span></div>
+                                <span class="tm-ph-vote"><img src="/public/home/voices/ph-upvote-arrow.svg" width="13" height="10" alt="">UPVOTE</span>
+                            </div>
+                            <img class="tm-ph-cat" src="/public/home/voices/ph-cat.webp" width="320" height="320" alt="" loading="lazy">
+                            <span class="tm-ph-cursor"><img src="/public/home/voices/ph-cursor.svg" width="23" height="24" alt=""><b>You</b></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ══ Action: FAQ + the sign-up box (Figma 956:1138, 2026-10-31) ══
+                 The box is the sign-up page's two panels (Figma 1072:1621). The form
+                 is the real one: auth/auth.js runs it, as on /sign-up/. -->
+            <section class="act">
+                <div class="faq">
+                    <div class="faq-head">
+                        <p class="uc-eyebrow">FREQUENTLY ASKED QUESTIONS</p>
+                        <h2 class="faq-h2">Any questions?<br><em>We got you covered.</em></h2>
+                    </div>
+                    <div class="faq-list">
+                        <details class="faq-item is-open" open>
+                            <summary>Is Design Wallet really free?</summary>
+                            <div class="faq-a"><p>Yes. The catalogue, salary data, mini tools and the account itself are all free.</p></div>
+                        </details>
+                        <details class="faq-item">
+                            <summary>Do I need an account to browse?</summary>
+                            <div class="faq-a"><p>Yes. The catalogue, salary data, Wall of Portfolios and Wallet Reads open once you’re signed in. The account is free and takes a minute.</p></div>
+                        </details>
+                        <details class="faq-item">
+                            <summary>Can I sign up with Google?</summary>
+                            <div class="faq-a"><p>Yes. Choose Continue with Google, or sign up with your name, email and a password.</p></div>
+                        </details>
+                        <details class="faq-item">
+                            <summary>What do you do with my email?</summary>
+                            <div class="faq-a"><p>We use it for your account: confirming your address and resetting your password. Newsletters only go out if you tick the box when you set up your account, and you can unsubscribe at any time.</p></div>
+                        </details>
+                        <details class="faq-item">
+                            <summary>How can I get listed in Design Wallet?</summary>
+                            <div class="faq-a"><p>Book a call with us on the <a href="/list-your-tool/">List your tool</a> page, and we’ll help you find the right way to get your tool listed.</p></div>
+                        </details>
+                    </div>
+                </div>
+
+                <div class="cta-box" id="join">
+                    <div class="cta-stage">
+                        <p class="auth-headline"><em>Your wallet,</em> your tools</p>
+                        <div class="auth-art" aria-hidden="true">
+                            <img class="auth-safe" src="/public/auth/safe.webp" alt="" width="732" height="549" loading="lazy">
+                            <span class="auth-cursor auth-cursor--ui"><svg class="auth-cursor-arrow" viewBox="0 0 14.24 15.45"><path d="M13.6 2.07c.22-1.02-.88-1.82-1.79-1.3L1.21 6.84c-.92.52-.77 1.9.25 2.2l4.67 1.44c.27.08.5.26.66.5l2.16 3.31c.59.91 1.98.65 2.2-.41L13.6 2.07Z" fill="currentColor" stroke="#fff" stroke-width="1.2"/></svg>UI Designer</span>
+                            <span class="auth-cursor auth-cursor--web"><svg class="auth-cursor-arrow" viewBox="0 0 14.24 15.45"><path d="M13.6 2.07c.22-1.02-.88-1.82-1.79-1.3L1.21 6.84c-.92.52-.77 1.9.25 2.2l4.67 1.44c.27.08.5.26.66.5l2.16 3.31c.59.91 1.98.65 2.2-.41L13.6 2.07Z" fill="currentColor" stroke="#fff" stroke-width="1.2"/></svg>Web Designer</span>
+                            <span class="auth-cursor auth-cursor--ux"><svg class="auth-cursor-arrow" viewBox="0 0 14.24 15.45"><path d="M13.6 2.07c.22-1.02-.88-1.82-1.79-1.3L1.21 6.84c-.92.52-.77 1.9.25 2.2l4.67 1.44c.27.08.5.26.66.5l2.16 3.31c.59.91 1.98.65 2.2-.41L13.6 2.07Z" fill="currentColor" stroke="#fff" stroke-width="1.2"/></svg>UX Designer</span>
+                            <span class="auth-cursor auth-cursor--right auth-cursor--video"><svg class="auth-cursor-arrow" viewBox="0 0 14.24 15.45"><path d="M13.6 2.07c.22-1.02-.88-1.82-1.79-1.3L1.21 6.84c-.92.52-.77 1.9.25 2.2l4.67 1.44c.27.08.5.26.66.5l2.16 3.31c.59.91 1.98.65 2.2-.41L13.6 2.07Z" fill="currentColor" stroke="#fff" stroke-width="1.2"/></svg>Video Editor</span>
+                            <span class="auth-cursor auth-cursor--right auth-cursor--illus"><svg class="auth-cursor-arrow" viewBox="0 0 14.24 15.45"><path d="M13.6 2.07c.22-1.02-.88-1.82-1.79-1.3L1.21 6.84c-.92.52-.77 1.9.25 2.2l4.67 1.44c.27.08.5.26.66.5l2.16 3.31c.59.91 1.98.65 2.2-.41L13.6 2.07Z" fill="currentColor" stroke="#fff" stroke-width="1.2"/></svg>Illustration Artist</span>
+                            <span class="auth-cursor auth-cursor--right auth-cursor--visual"><svg class="auth-cursor-arrow" viewBox="0 0 14.24 15.45"><path d="M13.6 2.07c.22-1.02-.88-1.82-1.79-1.3L1.21 6.84c-.92.52-.77 1.9.25 2.2l4.67 1.44c.27.08.5.26.66.5l2.16 3.31c.59.91 1.98.65 2.2-.41L13.6 2.07Z" fill="currentColor" stroke="#fff" stroke-width="1.2"/></svg>Visual Designer</span>
+                        </div>
+                    </div>
+
+                    <div class="auth-panel cta-panel">
+                        <div class="auth-col">
+                            <form class="auth-view" data-view="form" novalidate>
+                                <h2 class="auth-title">Create your account for free</h2>
+                                <p class="auth-sub">Save the tools and get first access to what we build next.</p>
+                                <p class="auth-msg" data-msg role="status" hidden></p>
+                                <div class="auth-fields">
+                                    <label class="auth-field">
+                                        <input class="auth-input" type="text" name="name" placeholder="Your name" autocomplete="name" aria-label="Your name" maxlength="80" required>
+                                    </label>
+                                    <label class="auth-field">
+                                        <input class="auth-input" type="email" name="email" placeholder="Email" autocomplete="email" aria-label="Email" required>
+                                    </label>
+                                    <label class="auth-field auth-field--password">
+                                        <input class="auth-input" type="password" name="password" placeholder="Password" autocomplete="new-password" aria-label="Password" minlength="8" required>
+                                        <button class="auth-reveal" type="button" data-reveal aria-label="Show password">Show</button>
+                                    </label>
+                                </div>
+                                <p class="auth-hint">At least 8 characters.</p>
+                                <button class="auth-btn auth-btn--primary" type="submit">Create account</button>
+                                <div class="auth-or">OR</div>
+                                <button class="auth-btn auth-btn--line" type="button" data-google>
+                                    <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+                                    Continue with Google
+                                </button>
+                                <p class="auth-fine">By continuing you agree to the <a href="/terms/">Terms</a> and <a href="/privacy/">Privacy Policy</a>.</p>
+                                <p class="auth-switch">Already have an account? <a class="auth-link" href="/sign-in/" data-keep-next>Sign in</a></p>
+                            </form>
+
+                            <div class="auth-view" data-view="sent" hidden>
+                                <span class="auth-badge"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="1"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
+                                <h2 class="auth-title">Check your inbox</h2>
+                                <p class="auth-sub">We sent a confirmation link to <strong data-sent-to></strong>. Open it to finish creating your account. It can take a minute to arrive.</p>
+                                <p class="auth-msg" data-msg-sent role="status" hidden></p>
+                                <button class="auth-btn auth-btn--line" type="button" data-resend>Resend the email</button>
+                                <p class="auth-fine">Can’t find it? Check spam or promotions.</p>
+                                <p class="auth-switch"><button class="auth-text-btn auth-text-btn--underline" type="button" data-back>Use a different email</button></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
 
+        <!-- ══ Footer (Figma 956:1188) ══ -->
+        <footer class="home-footer">
+            <div class="hf-top">
+                <div class="hf-brand">
+                    <a href="/" aria-label="Design Wallet home"><img src="/public/home/footer-logo.svg" width="124" height="23" alt="Design Wallet"></a>
+                    <p class="hf-tagline">The all-in-one design library<br>for curious designers.</p>
+                    <p class="hf-copy">© 2026 Design Wallet</p>
+                </div>
+                <nav class="hf-links" aria-label="Footer">
+                    <div class="hf-col">
+                        <p class="hf-head">PRODUCT</p>
+                        <a href="/category/">Catalogue</a>
+                        <a href="/salary/">Know your money</a>
+                        <a href="/dw-tools/">Mini Tools</a>
+                        <a href="/mcp/">Design Wallet MCP</a>
+                    </div>
+                    <div class="hf-col">
+                        <p class="hf-head">RESOURCES</p>
+                        <a href="/wall-of-portfolios/">Wall of Portfolios</a>
+                        <a href="/books/">Wallet Reads</a>
+                        <a href="/blog/">Blog</a>
+                        <a href="/changelog/">Changelog</a>
+                    </div>
+                    <div class="hf-col">
+                        <p class="hf-head">COMPANY</p>
+                        <a href="/list-your-tool/">List your tool</a>
+                        <a href="/privacy/">Privacy</a>
+                        <a href="/terms/">Terms</a>
+                    </div>
+                </nav>
+            </div>
+            <!-- The wordmark sits behind the dunes, which fade in from the top (the frame's mask). -->
+            <p class="hf-wordmark" aria-hidden="true">Design Wallet</p>
+            <img class="hf-dunes" src="/public/home/footer-dunes.webp" width="1444" height="891" alt="" loading="lazy">
+        </footer>
     </div>
 
-    <script src="/content.js?v=20260508-6"></script>
-    <script src="/ticker/edit-ticker.js?v=20261003-3"></script>
-    <script src="/ticker/ticker-bar.js?v=20261003-3"></script>
-    <script src="/header.js?v=20261019-1"></script>
+    <script src="/header.js?v=20261101-1"></script>
     <script src="/newsletter.js?v=20261015-3"></script>
-    <script src="/stars.js?v=20260901-1"></script>
-    <script src="/tools/tools.js?v=20261015-3"></script>
-    <script src="/mobile-gate.js?v=20260920-1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+    <script src="/auth/auth.js?v=20261031-2"></script>
+    <script src="/home.js?v=20261101-1"></script>
 </body>
 </html>

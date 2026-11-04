@@ -40,6 +40,28 @@ document.addEventListener("DOMContentLoaded", function () {
         { label: "AI Creative Suites", slug: "ai-creative-suites", query: "creative suite" }
     ];
 
+    // ── "Featured": the row at the top of the All view ──────────────────────
+    // Tool slugs, in display order. Edit this array to change it. A slug that
+    // isn't in the live catalogue is skipped, and the section hides itself if
+    // none are left, so a typo or a removed tool can't leave a hole.
+    var DW_FEATURED = [
+        "claude",
+        "chatgpt",
+        "midjourney",
+        "lovable",
+        "figmamake",
+        "cursorai",
+        "mobbin",
+        "framer"
+    ];
+
+    // The All view groups tools by category, most tools first. A category with
+    // fewer tools than this is left to the sidebar: a carousel of one or two
+    // cards reads as a mistake. Each carousel shows at most CATEGORY_ROW_LIMIT
+    // cards, and "View category" leads to the rest.
+    var CATEGORY_ROW_MIN = 4;
+    var CATEGORY_ROW_LIMIT = 12;
+
     var loadingEl = document.getElementById("tool-loading");
     var contentEl = document.getElementById("tool-content");
     var notFoundEl = document.getElementById("tool-not-found");
@@ -64,7 +86,19 @@ document.addEventListener("DOMContentLoaded", function () {
     var dashSearchEl = document.getElementById("dash-search");
     var dashSearchInputEl = document.getElementById("dash-search-input");
     var dashMainEl = document.getElementById("dash-main");
-    var dashState = { selected: "", base: [] };
+    var dashContextEl = dashTitleEl && dashTitleEl.closest(".dash-context");
+    // Created here rather than written into the three catalogue shells
+    // (index.html, 404.html, tools/index.html), which would otherwise all need
+    // the same markup by hand.
+    var dashSectionsEl = null;
+    if (dashGridEl) {
+        dashSectionsEl = document.createElement("div");
+        dashSectionsEl.className = "dash-sections";
+        dashSectionsEl.id = "dash-sections";
+        dashSectionsEl.hidden = true;
+        dashGridEl.parentNode.insertBefore(dashSectionsEl, dashContextEl || dashGridEl);
+    }
+    var dashState = { selected: "", base: [], all: [] };
     var categorySearchGroups = [];
     var categorySearchPreviousFocus = null;
     var CATEGORY_SLUG_ALIASES = {
@@ -423,6 +457,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // The heart. tools/favourites.js fills it in, paints its state and count,
+    // and handles the click; this only says which tool it belongs to.
+    function favButtonMarkup(tool, extraClass) {
+        return '<button class="dw-fav' + (extraClass ? " " + extraClass : "") + '" type="button" data-fav="' +
+            escapeHtml(tool.slug) + '" data-fav-name="' + escapeHtml(tool.title) + '"></button>';
+    }
+
     function createToolCardMarkup(tool, categorySlug) {
         var logo = tool.icon
             ? '<span class="logo-badge has-image"><img src="' + escapeHtml(iconUrl(tool.icon)) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>'
@@ -448,6 +489,7 @@ document.addEventListener("DOMContentLoaded", function () {
             '">',
             escapeHtml(tool.priceLabel || formatPrice(tool.price)),
             '</span>',
+            favButtonMarkup(tool),
             '</div>',
             tool.thumbnail
                 ? '<div class="card-thumb-wrap"><img class="card-thumb" src="' + escapeHtml(tool.thumbnail) + '" alt="" loading="lazy"></div>'
@@ -518,7 +560,7 @@ document.addEventListener("DOMContentLoaded", function () {
             '<a class="dash-card-hit" href="', detailUrl, '" aria-label="Open ', escapeHtml(tool.title), '"></a>',
             '<div class="dash-card-top">',
             logo,
-            '<div class="dash-card-badges"><span class="dash-badge ', priceClassName(tool.price), '">', dollar, escapeHtml(tool.priceLabel || formatPrice(tool.price)), '</span></div>',
+            '<div class="dash-card-badges">', favButtonMarkup(tool), '<span class="dash-badge ', priceClassName(tool.price), '">', dollar, escapeHtml(tool.priceLabel || formatPrice(tool.price)), '</span></div>',
             '</div>',
             '<h3 class="dash-card-title">', escapeHtml(tool.title), '</h3>',
             '<p class="dash-card-desc">', escapeHtml(tool.description), '</p>',
@@ -605,9 +647,23 @@ document.addEventListener("DOMContentLoaded", function () {
             'px;-webkit-mask-image:url(\'' + url + '\');mask-image:url(\'' + url + '\')"></span>';
     }
 
+    // On a phone the sidebar is one sideways-scrolling row of chips
+    // (dashboard.css, max-width 767px). Scroll it so the selected category's
+    // chip is in view, rather than leaving it off to the right. The sidebar
+    // only scrolls sideways at that width, so this is a no-op on desktop.
+    function revealActiveChip() {
+        var sidebar = dashNavEl && dashNavEl.closest(".dash-sidebar");
+        if (!sidebar || sidebar.scrollWidth <= sidebar.clientWidth) return;
+        var active = sidebar.querySelector('.dash-nav [aria-current="true"]');
+        if (!active || active.textContent.indexOf("All") === 0) return;
+        sidebar.scrollLeft += active.getBoundingClientRect().left - sidebar.getBoundingClientRect().left - 16;
+    }
+
     function dashNavRowMarkup(label, href, count, isActive, isAll, slug) {
         var icon;
-        if (isAll) {
+        if (slug === FAVOURITES_SLUG) {
+            icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>';
+        } else if (isAll) {
             icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>';
         } else {
             icon = categoryIconMarkup(slug, 16, '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>');
@@ -670,12 +726,244 @@ document.addEventListener("DOMContentLoaded", function () {
         if (dashTrendsSectionEl) dashTrendsSectionEl.hidden = rows.length === 0;
     }
 
+    // ── Favourites view: /category/favourites/ ──────────────────────────────
+    // A pseudo-category, so it reuses the whole dashboard: sidebar, search,
+    // grid. It holds everything this person hearted (tools/favourites.js),
+    // split into sections: their tools grouped by category, then Books, then
+    // Portfolios (Karthik, 2026-10-31).
+    var FAVOURITES_SLUG = "favourites";
+
+    function favourites() {
+        return window.DWFavourites || null;
+    }
+
+    // Books and portfolios aren't in the tool data, so the view fetches them
+    // the first time it needs them, once per page load. Both views are public
+    // reads with the publishable key, as on /books/ and the Wall.
+    var savedExtras = {
+        book: { path: "public_books?select=slug,title,author,rating,thumbnail,link&limit=1000", rows: null, loading: false },
+        portfolio: { path: "public_portfolios?select=link,title,image&limit=2000", rows: null, loading: false }
+    };
+
+    function loadSavedExtras(kind) {
+        var extra = savedExtras[kind];
+        if (extra.rows || extra.loading) return;
+        extra.loading = true;
+        fetchSupabase(extra.path, function (rows) {
+            extra.rows = rows;
+            extra.loading = false;
+            if (dashState.selected === FAVOURITES_SLUG) renderDashboard(dashState.all, dashState.selected);
+        }, function () {
+            // Show the tools anyway; the next visit tries again.
+            extra.rows = [];
+            extra.loading = false;
+            if (dashState.selected === FAVOURITES_SLUG) renderDashboard(dashState.all, dashState.selected);
+        });
+    }
+
+    // The saved books or portfolios this person still has, in the order the
+    // data has them. `null` while their data is on its way.
+    function savedExtraRows(kind) {
+        var fav = favourites();
+        var keys = fav ? fav.keys(kind) : [];
+        if (!keys.length) return [];
+        var extra = savedExtras[kind];
+        if (!extra.rows) {
+            loadSavedExtras(kind);
+            return null;
+        }
+        var wanted = {};
+        keys.forEach(function (key) { wanted[key] = true; });
+        return extra.rows.filter(function (row) {
+            return wanted[kind === "book" ? row.slug : row.link];
+        });
+    }
+
+    // The same cleaning wall.js does: the Sheet's portfolio titles are page
+    // titles ("Tanmay Kashyap • UX/UI Designer • Portfolio"), so keep the name.
+    function portfolioName(title) {
+        var cleaned = String(title || "").split(/\s*[•|·]\s*| [-–—] |\s*,\s*/)[0].trim();
+        cleaned = cleaned.replace(/\s*[-–—|]\s*(home|portfolio)$/i, "").trim();
+        return cleaned.length >= 2 ? cleaned : String(title || "").trim();
+    }
+
+    function hostOf(link) {
+        try { return new URL(link).hostname.replace(/^www\./, ""); } catch (e) { return ""; }
+    }
+
+    var SAVED_KIND = {
+        book: { label: "Books", tag: "Book", href: "/books/", icon: "/public/icons/nav/wallet-reads.svg" },
+        portfolio: { label: "Portfolios", tag: "Portfolio", href: "/wall-of-portfolios/", icon: "/public/icons/nav/wall-of-portfolios.svg" }
+    };
+
+    // A saved book is the same card as on /books/ (books/book-card.js), with
+    // the Best Seller tag if it's in the books list's first five, as there.
+    // A saved portfolio is drawn as a dash card and opens its own link.
+    function savedExtraCardMarkup(kind, row) {
+        if (kind === "book" && typeof window.DWBookCard === "function") {
+            return window.DWBookCard(row, savedExtras.book.rows.indexOf(row));
+        }
+        var meta = SAVED_KIND[kind];
+        var isBook = kind === "book";
+        var key = isBook ? row.slug : row.link;
+        var title = isBook ? row.title : (portfolioName(row.title) || hostOf(row.link));
+        var desc = isBook ? row.author : hostOf(row.link);
+        var image = isBook ? row.thumbnail : row.image;
+        var link = row.link || meta.href;
+        var external = /^https?:\/\//i.test(link);
+        var target = external ? ' target="_blank" rel="noopener noreferrer"' : "";
+        var arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>';
+        var tagIcon = '<span class="dash-icon-mask" style="width:13px;height:13px;-webkit-mask-image:url(\'' + meta.icon + '\');mask-image:url(\'' + meta.icon + '\')"></span>';
+        var logo = '<span class="dash-card-logo' + (isBook ? ' dash-card-logo--book' : '') + '">' +
+            (image ? '<img src="' + escapeHtml(image) + '" alt="" loading="lazy" referrerpolicy="no-referrer">' : escapeHtml(getInitials(title))) +
+            '</span>';
+
+        return [
+            '<div class="dash-card">',
+            '<a class="dash-card-hit" href="', escapeHtml(link), '"', target, ' aria-label="Open ', escapeHtml(title), '"></a>',
+            '<div class="dash-card-top">',
+            logo,
+            '<div class="dash-card-badges"><button class="dw-fav" type="button" data-fav-kind="', kind, '" data-fav="', escapeHtml(key),
+            '" data-fav-name="', escapeHtml(title), '"></button></div>',
+            '</div>',
+            '<h3 class="dash-card-title">', escapeHtml(title), '</h3>',
+            '<p class="dash-card-desc">', escapeHtml(desc), '</p>',
+            '<div class="dash-card-footer">',
+            '<a class="dash-card-tag" href="', meta.href, '">', tagIcon, '<span>', meta.tag, '</span></a>',
+            external
+                ? '<a class="dash-card-visit" href="' + escapeHtml(link) + '"' + target + ' aria-label="Open ' + escapeHtml(title) + '">' + arrow + '</a>'
+                : '<span></span>',
+            '</div>',
+            '</div>'
+        ].join("");
+    }
+
+    function savedExtraMatches(kind, row, words) {
+        if (!words.length) return true;
+        var haystack = (kind === "book"
+            ? [row.title, row.author, "book"]
+            : [row.title, hostOf(row.link), "portfolio"]).join(" ").toLowerCase();
+        return words.every(function (word) { return haystack.indexOf(word) !== -1; });
+    }
+
+    // Which section the chips above the Favourites view show: "all", or a
+    // section's id ("cat:<category>", "book", "portfolio").
+    var favFilter = "all";
+
+    function savedSectionMarkup(section) {
+        return [
+            '<section class="dash-section">',
+            '<div class="dash-section-head">',
+            '<h2 class="dash-section-title">', escapeHtml(section.title), '<span class="dash-fav-count">', section.cards.length, '</span></h2>',
+            '</div>',
+            carouselMarkup(section.title, section.cards, 1, section.kind),
+            '</section>'
+        ].join("");
+    }
+
+    function favFilterChipMarkup(id, label, count) {
+        return '<button type="button" class="dash-fav-chip" data-fav-filter="' + escapeHtml(id) + '" aria-pressed="' +
+            String(favFilter === id) + '">' + escapeHtml(label) + '<span>' + count + '</span></button>';
+    }
+
+    // The Favourites grid: a row of filter chips (Karthik, 2026-10-31), then
+    // one sideways-scrolling row per section: each category the saved tools
+    // belong to (by each tool's first category, so a tool appears once), then
+    // the saved books and portfolios. Returns the number of items shown.
+    function renderFavouritesGrid(tools, words) {
+        var byCategory = {};
+        tools.forEach(function (tool) {
+            var category = (tool.categories && tool.categories[0]) || "Other";
+            (byCategory[category] = byCategory[category] || []).push(tool);
+        });
+        var sections = Object.keys(byCategory).sort().map(function (category) {
+            var list = byCategory[category].sort(function (a, b) { return a.title.localeCompare(b.title); });
+            return {
+                id: "cat:" + category,
+                title: category,
+                kind: "tool",
+                cards: list.map(function (tool) { return createDashCardMarkup(tool, FAVOURITES_SLUG); })
+            };
+        });
+
+        var pending = false;
+        ["book", "portfolio"].forEach(function (kind) {
+            var rows = savedExtraRows(kind);
+            if (rows === null) { pending = true; return; }
+            rows = rows.filter(function (row) { return savedExtraMatches(kind, row, words); });
+            if (!rows.length) return;
+            sections.push({
+                id: kind,
+                title: SAVED_KIND[kind].label,
+                kind: kind,
+                cards: rows.map(function (row) { return savedExtraCardMarkup(kind, row); })
+            });
+        });
+
+        var fav = favourites();
+        var total = sections.reduce(function (sum, section) { return sum + section.cards.length; }, 0);
+        if (!total) {
+            dashGridEl.innerHTML = pending || (fav && !fav.loaded())
+                ? '<div class="dash-empty"><p>Loading your favourites…</p></div>'
+                : words.length
+                    ? '<div class="dash-empty"><p>No favourites match your search.</p>' +
+                      '<button type="button" class="dash-empty-clear" data-dash-clear>Clear search</button></div>'
+                    : '<div class="dash-empty"><p>No favourites yet. Tap the heart on any tool, book or portfolio to save it here.</p>' +
+                      '<a class="dash-empty-clear" href="/category/">Browse all tools</a></div>';
+            return 0;
+        }
+
+        // A filter whose section has gone (un-hearted, or searched away) falls back to All.
+        if (!sections.some(function (section) { return section.id === favFilter; })) favFilter = "all";
+        var shown = favFilter === "all" ? sections : sections.filter(function (section) { return section.id === favFilter; });
+
+        var chips = [favFilterChipMarkup("all", "All", total)].concat(sections.map(function (section) {
+            return favFilterChipMarkup(section.id, section.title, section.cards.length);
+        }));
+
+        dashGridEl.innerHTML =
+            '<div class="dash-fav-filters" role="group" aria-label="Filter favourites">' + chips.join("") + '</div>' +
+            shown.map(savedSectionMarkup).join("");
+        updateCarouselButtons();
+        return shown.reduce(function (sum, section) { return sum + section.cards.length; }, 0);
+    }
+
+    // Everything saved, of every kind: the sidebar's Favourites count.
+    function favouritesTotal(tools) {
+        var fav = favourites();
+        return fav ? favouritesGroup(tools).tools.length + fav.keys("book").length + fav.keys("portfolio").length : 0;
+    }
+
+    function favouritesGroup(tools) {
+        var fav = favourites();
+        return {
+            title: "Your favourites",
+            slug: FAVOURITES_SLUG,
+            tools: fav ? tools.filter(function (tool) { return fav.has(tool.slug); }) : []
+        };
+    }
+
+    // When the set changes: the Favourites view re-renders (so un-hearting
+    // removes the card); anywhere else only the sidebar count moves. A full
+    // re-render there would throw away the carousels' scroll position.
+    document.addEventListener("dw:favourites", function () {
+        if (!dashState.all.length || (dashboardViewEl && dashboardViewEl.hidden)) return;
+        if (dashState.selected === FAVOURITES_SLUG) {
+            renderDashboard(dashState.all, dashState.selected);
+            return;
+        }
+        var count = dashNavEl && dashNavEl.querySelector('.dash-nav-row[href="/category/' + FAVOURITES_SLUG + '/"] .dash-nav-count');
+        if (count) count.textContent = favouritesTotal(dashState.all);
+    });
+
     function renderDashboard(tools, categorySlug) {
         var groups = getCategoryGroups(tools);
         categorySearchGroups = groups;
 
         var selected = categorySlug || "";
-        var group = selected ? findCategoryGroup(tools, selected) : null;
+        var group = selected === FAVOURITES_SLUG
+            ? favouritesGroup(tools)
+            : (selected ? findCategoryGroup(tools, selected) : null);
         if (selected && !group) {
             showNotFound("Category not found", "This category does not exist yet.");
             return;
@@ -689,7 +977,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // At the root the authored homepage title/description are the better
         // SEO surface, so leave them alone; only route-specific views override.
         if (!isRootRoute() || group) {
-            document.title = (group ? group.title + " Tools" : "Tool Categories") + " — Design Wallet™";
+            document.title = (group ? group.title + (selected === FAVOURITES_SLUG ? "" : " Tools") : "Tool Categories") + " — Design Wallet™";
             var metaDesc = document.querySelector('meta[name="description"]');
             if (metaDesc) {
                 metaDesc.setAttribute("content", group
@@ -700,6 +988,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (dashNavEl) {
             var rows = [dashNavRowMarkup("All", "/category/", tools.length, !selected, true)];
+            var fav = favourites();
+            if (fav && fav.signedIn()) {
+                rows.push(dashNavRowMarkup("Favourites", "/category/" + FAVOURITES_SLUG + "/",
+                    favouritesTotal(tools), selected === FAVOURITES_SLUG, false, FAVOURITES_SLUG));
+            }
             groups.forEach(function (g) {
                 rows.push(dashNavRowMarkup(g.title, "/category/?category=" + encodeURIComponent(g.slug), g.tools.length, g.slug === selected, false, g.slug));
             });
@@ -707,11 +1000,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         renderTrendsNav(tools, selected, new URLSearchParams(window.location.search).get("q") || "");
+        revealActiveChip();
 
         if (dashTitleEl) dashTitleEl.textContent = title;
 
         dashState.selected = selected;
         dashState.base = gridTools;
+        dashState.all = tools;
+        if (window.DWQuickSearch) window.DWQuickSearch.refresh();
 
         hideAllViews();
         if (dashboardViewEl) dashboardViewEl.hidden = false;
@@ -757,14 +1053,150 @@ document.addEventListener("DOMContentLoaded", function () {
         }).join("");
     }
 
+    // ── All view: Featured, then one carousel per category ───────────────────
+    var FEATURED_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6-4.5-4.2 6.1-.7z"/></svg>';
+    var CHEVRON_RIGHT = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+
+    // `cards` is an array of card markup, so any kind of card can ride in a
+    // carousel. `kind` (optional) lets the CSS size a track's columns.
+    function carouselMarkup(label, cards, rows, kind) {
+        var arrow = function (dir, path) {
+            return '<button type="button" class="dash-carousel-btn" data-carousel-dir="' + dir + '" aria-label="' +
+                (dir < 0 ? "Previous" : "Next") + ' ' + escapeHtml(label) + '">' +
+                '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="' + path + '"/></svg></button>';
+        };
+        return [
+            '<div class="dash-carousel" data-carousel>',
+            '<div class="dash-carousel-track" data-rows="', rows, '"', kind ? ' data-kind="' + kind + '"' : '', '>',
+            cards.join(""),
+            '</div>',
+            '<div class="dash-carousel-nav">',
+            arrow(-1, "M19 12H5M5 12l6-6M5 12l6 6"),
+            arrow(1, "M5 12h14M19 12l-6-6M19 12l-6 6"),
+            '</div>',
+            '</div>'
+        ].join("");
+    }
+
+    function renderDashSections(tools) {
+        if (!dashSectionsEl) return;
+
+        var bySlug = {};
+        tools.forEach(function (tool) { bySlug[tool.slug] = tool; });
+        var featured = DW_FEATURED.map(function (slug) { return bySlug[slug]; }).filter(Boolean);
+
+        var groups = getCategoryGroups(tools)
+            .filter(function (g) { return g.tools.length >= CATEGORY_ROW_MIN; })
+            .sort(function (a, b) { return b.tools.length - a.tools.length || a.title.localeCompare(b.title); });
+
+        var html = [];
+        if (featured.length) {
+            html.push(
+                '<section class="dash-section dash-section--featured" aria-labelledby="dash-featured-title">',
+                '<div class="dash-section-head">',
+                '<h2 class="dash-section-title" id="dash-featured-title"><span class="dash-section-icon">', FEATURED_ICON, '</span>Featured</h2>',
+                '</div>',
+                carouselMarkup("Featured", featured.map(function (tool) { return createDashCardMarkup(tool, ""); }), 1),
+                '</section>'
+            );
+        }
+
+        if (groups.length) {
+            html.push('<h2 class="dash-sections-heading">Popular categories</h2>');
+            groups.forEach(function (g) {
+                var href = "/category/?category=" + encodeURIComponent(g.slug);
+                var icon = categoryIconMarkup(g.slug, 18, "");
+                var list = g.tools.slice().sort(function (a, b) { return a.title.localeCompare(b.title); });
+                html.push(
+                    '<section class="dash-section">',
+                    '<div class="dash-section-head">',
+                    '<h3 class="dash-section-title">', icon ? '<span class="dash-section-icon">' + icon + '</span>' : '', escapeHtml(g.title), '</h3>',
+                    '<a class="dash-section-link" href="', href, '">View category', CHEVRON_RIGHT, '</a>',
+                    '</div>',
+                    carouselMarkup(g.title, list.slice(0, CATEGORY_ROW_LIMIT).map(function (tool) { return createDashCardMarkup(tool, ""); }), 2),
+                    '</section>'
+                );
+            });
+        }
+
+        dashSectionsEl.innerHTML = html.join("");
+        updateCarouselButtons();
+    }
+
+    // Disables an arrow when its track can't scroll that way any further, and
+    // hides both when everything already fits.
+    function updateCarouselButtons(track) {
+        var tracks = track ? [track] : document.querySelectorAll("#dash-sections .dash-carousel-track, #dash-grid .dash-carousel-track");
+        Array.prototype.forEach.call(tracks, function (t) {
+            var carousel = t.closest("[data-carousel]");
+            var max = t.scrollWidth - t.clientWidth;
+            carousel.classList.toggle("is-static", max <= 1);
+            carousel.querySelector('[data-carousel-dir="-1"]').disabled = t.scrollLeft <= 1;
+            carousel.querySelector('[data-carousel-dir="1"]').disabled = t.scrollLeft >= max - 1;
+        });
+    }
+
+    // On the All view's sections and on the Favourites grid, which has its own
+    // carousels.
+    function attachCarouselListeners() {
+        [dashSectionsEl, dashGridEl].forEach(function (root) {
+            if (root) attachCarouselListenersTo(root);
+        });
+
+        var resizeTimer;
+        window.addEventListener("resize", function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(function () { updateCarouselButtons(); }, 150);
+        });
+    }
+
+    function attachCarouselListenersTo(root) {
+        var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        root.addEventListener("click", function (event) {
+            var btn = event.target.closest ? event.target.closest("[data-carousel-dir]") : null;
+            if (!btn) return;
+            var track = btn.closest("[data-carousel]").querySelector(".dash-carousel-track");
+            // A page is the visible width less one card's peek, so the last
+            // card on screen becomes the first on the next.
+            var step = Math.max(track.clientWidth * 0.85, 200);
+            track.scrollBy({ left: Number(btn.getAttribute("data-carousel-dir")) * step, behavior: reduceMotion ? "auto" : "smooth" });
+        });
+
+        // scroll doesn't bubble, so listen in the capture phase.
+        root.addEventListener("scroll", function (event) {
+            if (event.target.classList && event.target.classList.contains("dash-carousel-track")) {
+                updateCarouselButtons(event.target);
+            }
+        }, true);
+    }
+
     function applyDashSearch(query) {
         var q = String(query || "").trim();
         var words = q.toLowerCase().split(/\s+/).filter(Boolean);
         var filtered = dashState.base.filter(function (tool) { return toolMatchesQuery(tool, words); });
 
-        renderDashGrid(filtered);
+        // The All view with no search shows the grouped sections; a category
+        // or a search shows the flat grid as before.
+        var showSections = !!dashSectionsEl && !dashState.selected && !words.length;
+        if (dashSectionsEl) dashSectionsEl.hidden = !showSections;
+        if (dashContextEl) dashContextEl.hidden = showSections;
+        if (dashGridEl) dashGridEl.hidden = showSections;
+        var saved = -1;
+        if (dashGridEl) dashGridEl.classList.toggle("is-favourites", dashState.selected === FAVOURITES_SLUG);
+        if (showSections) {
+            renderDashSections(dashState.all);
+        } else if (dashState.selected === FAVOURITES_SLUG) {
+            if (dashGridEl) saved = renderFavouritesGrid(filtered, words);
+        } else {
+            renderDashGrid(filtered);
+        }
 
-        if (dashCountEl) {
+        if (dashCountEl && saved >= 0) {
+            dashCountEl.textContent = words.length
+                ? "Showing " + saved + " result" + (saved === 1 ? "" : "s") + " for “" + q + "”"
+                : saved ? saved + " saved" : "";
+        } else if (dashCountEl) {
             dashCountEl.textContent = words.length
                 ? "Showing " + filtered.length + " result" + (filtered.length === 1 ? "" : "s") + " for “" + q + "”"
                 : dashState.base.length + " tool" + (dashState.base.length === 1 ? "" : "s");
@@ -878,6 +1310,14 @@ document.addEventListener("DOMContentLoaded", function () {
         // Visit button
         var visitBtn = document.getElementById("tool-visit-btn");
         if (visitBtn) visitBtn.href = addReferralParam(tool.link);
+
+        // The heart, beside Visit. Rebuilt per tool so favourites.js paints
+        // it fresh (it only paints buttons it hasn't seen).
+        if (visitBtn) {
+            var oldFav = document.getElementById("tool-fav-btn");
+            if (oldFav) oldFav.remove();
+            visitBtn.insertAdjacentHTML("afterend", favButtonMarkup(tool, "dw-fav--large").replace("<button ", '<button id="tool-fav-btn" '));
+        }
 
         var backLink = document.getElementById("tool-back-link");
         if (backLink) {
@@ -1045,10 +1485,36 @@ document.addEventListener("DOMContentLoaded", function () {
         var categorySlug = getCategorySlugFromUrl();
 
         attachCategorySearchListeners();
+        attachCarouselListeners();
 
         if (dashMainEl && dashSearchEl) {
             dashMainEl.addEventListener("scroll", function () {
                 dashSearchEl.classList.toggle("is-stuck", dashMainEl.scrollTop > 4);
+            });
+        }
+
+        // The search bar opens the pop-up (tools/quick-search.js). It searches
+        // the whole catalogue, so "See all" leaves a category for the All view,
+        // where the grid can show every match.
+        if (dashSearchInputEl && window.DWQuickSearch) {
+            window.DWQuickSearch.attach({
+                trigger: dashSearchInputEl,
+                getTools: function () { return dashState.all; },
+                getGroups: getCategoryGroups,
+                categoryHref: categoryHref,
+                toolHref: toolHref,
+                iconMarkup: categoryIconMarkup,
+                logoUrl: iconUrl,
+                onSearch: function (q) {
+                    var onAllView = !dashState.selected && dashboardViewEl && !dashboardViewEl.hidden;
+                    if (q && !onAllView) {
+                        window.location.href = "/tools/?q=" + encodeURIComponent(q);
+                        return;
+                    }
+                    dashSearchInputEl.value = q;
+                    applyDashSearch(q);
+                    if (dashMainEl) dashMainEl.scrollTop = 0;
+                }
             });
         }
 
@@ -1064,6 +1530,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (dashGridEl) {
             dashGridEl.addEventListener("click", function (event) {
+                var chip = event.target.closest ? event.target.closest("[data-fav-filter]") : null;
+                if (chip) {
+                    favFilter = chip.getAttribute("data-fav-filter");
+                    applyDashSearch(dashSearchInputEl ? dashSearchInputEl.value : "");
+                    return;
+                }
                 var clear = event.target.closest ? event.target.closest("[data-dash-clear]") : null;
                 if (clear && dashSearchInputEl) {
                     dashSearchInputEl.value = "";

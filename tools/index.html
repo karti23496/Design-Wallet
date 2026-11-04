@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="/auth/gate.js?v=20261029-1"></script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
     <script>
@@ -25,9 +26,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/style.css?v=20261015-3">
-    <link rel="stylesheet" href="/tools/dashboard.css?v=20260917-2">
-    <link rel="stylesheet" href="/mobile-gate.css?v=20260920-1">
+    <link rel="stylesheet" href="/style.css?v=20261101-1">
+    <link rel="stylesheet" href="/tools/dashboard.css?v=20261031-2">
+    <link rel="stylesheet" href="/tools/quick-search.css?v=20261102-1">
 </head>
 <body>
     <div class="page-shell">
@@ -75,7 +76,25 @@
                         <div class="stars-field" id="stars-field" aria-hidden="true"></div>
 
                         <div class="dash-hero-content">
-                            <h1>All-in-one design library for curious designers.</h1>
+                            <h1>
+                                <!-- Each slot shuffles through its own set of tiles (hero-marks.js).
+                                     The first tile is active in the markup, so without JS the
+                                     headline reads exactly as the design's still frame. -->
+                                <span class="dash-hero-line">All-in-one <span class="dash-hero-mark" data-hero-mark aria-hidden="true">
+                                    <span class="dash-hero-tile tile-1a is-active"><img src="/public/hero/logomark-1.svg" alt=""></span>
+                                    <span class="dash-hero-tile tile-1b"><img src="/public/hero/slot1-2.png" alt=""></span>
+                                    <span class="dash-hero-tile tile-1c"><img src="/public/hero/slot1-3.png" alt=""></span>
+                                    <span class="dash-hero-tile tile-1d"><img src="/public/hero/slot1-4.png" alt=""></span>
+                                    <span class="dash-hero-tile tile-1e"><img src="/public/hero/slot1-5.png" alt=""></span>
+                                </span> design library</span>
+                                <span class="dash-hero-line">for <span class="dash-hero-mark" data-hero-mark aria-hidden="true">
+                                    <span class="dash-hero-tile tile-2a is-active"><img src="/public/hero/logomark-2.svg" alt=""></span>
+                                    <span class="dash-hero-tile tile-2b"><img src="/public/hero/slot2-2.png" alt=""></span>
+                                    <span class="dash-hero-tile tile-2c"><span class="dash-hero-tile-crop"><img src="/public/hero/slot2-3.png" alt=""></span></span>
+                                    <span class="dash-hero-tile tile-2d"><img src="/public/hero/slot2-4.png" alt=""></span>
+                                    <span class="dash-hero-tile tile-2e"><img src="/public/hero/slot2-5.png" alt=""></span>
+                                </span> curious designers.</span>
+                            </h1>
                             <p class="dash-hero-copy">Built to help designers discover better tools, workflows, and inspirations faster.</p>
                             <!-- Social proof, side by side: the Product Hunt badge
                                  and the avatars make the same kind of claim, so they
@@ -184,10 +203,13 @@
     </div>
 
     <script src="/content.js?v=20260508-6"></script>
-    <script src="/header.js?v=20261019-1"></script>
+    <script src="/header.js?v=20261101-1"></script>
     <script src="/newsletter.js?v=20261015-3"></script>
     <script src="/stars.js?v=20260901-1"></script>
-    <script src="/tools/tools.js?v=20261015-3"></script>
-    <script src="/mobile-gate.js?v=20260920-1"></script>
+    <script src="/hero-marks.js?v=20261023-1"></script>
+    <script src="/books/book-card.js?v=20261031-2"></script>
+    <script src="/tools/favourites.js?v=20261031-1"></script>
+    <script src="/tools/quick-search.js?v=20261102-1"></script>
+    <script src="/tools/tools.js?v=20261102-1"></script>
 </body>
 </html>

@@ -12,17 +12,18 @@
      + OPEN_MS         `is-opening`: the box opens out to fill the screen
      + FADE_MS         `is-done`: a last short fade onto the page, then removal
 
-   COUNT_MS + DWELL_MS + OPEN_MS + FADE_MS is how long a visitor waits: 5.2s. It was
-   3.8s until Karthik said it was too fast (2026-10-22); the 1s pause on 100 stays. OPEN_MS and
+   COUNT_MS + DWELL_MS + OPEN_MS + FADE_MS is how long a visitor waits: 2.8s. It was
+   5.2s until Karthik asked for 2-3s (2026-10-20); every step, CSS included, was
+   compressed by about the same ratio, and the pause on 100 is now 0.3s. OPEN_MS and
    FADE_MS must match --dw-lo-open and --dw-lo-fade in loader.css. */
 
 (function () {
     "use strict";
 
-    var COUNT_MS = 3000;
-    var DWELL_MS = 1000;
-    var OPEN_MS = 900;
-    var FADE_MS = 300;
+    var COUNT_MS = 1700;
+    var DWELL_MS = 300;
+    var OPEN_MS = 600;
+    var FADE_MS = 200;
     var root = document.documentElement;
 
     // Every load of the homepage, refresh and hard refresh included. Other

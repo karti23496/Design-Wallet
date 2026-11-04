@@ -1806,7 +1806,10 @@
 
 .sal-level-btn:disabled { opacity: 0.2; }
 
-/* ── filter pills: the field's name sits inside the pill until a value is chosen ── */
+/* ── filter pills: the field's name sits inside the pill until a value is chosen ──
+   Scoped to .sal-filter-grid: /salary/submit/ shares this stylesheet and its
+   .sal-field, and unscoped these rules laid its labels over its inputs and
+   made its chosen values transparent (found 2026-10-20). */
 
 .sal-filter-grid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 248px));
@@ -1814,12 +1817,12 @@
     margin-top: 24px;
 }
 
-.sal-field {
+.sal-filter-grid .sal-field {
     position: relative;
     display: block;
 }
 
-.sal-field select {
+.sal-filter-grid .sal-field select {
     height: 45px;
     padding: 0 56px 0 24.7px;
     background-color: var(--sal-pill-bg);
@@ -1834,14 +1837,14 @@
     letter-spacing: -0.04em;
 }
 
-.sal-field select:not(.is-set) { color: transparent; }   /* the label below shows instead */
+.sal-filter-grid .sal-field select:not(.is-set) { color: transparent; }   /* the label below shows instead */
 
-.sal-field select option {
+.sal-filter-grid .sal-field select option {
     background: var(--sal-pill-bg);
     color: var(--text);
 }
 
-.sal-field label {
+.sal-filter-grid .sal-field label {
     position: absolute;
     top: 50%;
     left: 24.7px;
@@ -1853,7 +1856,7 @@
     pointer-events: none;
 }
 
-.sal-field select.is-set + label { display: none; }
+.sal-filter-grid .sal-field select.is-set + label { display: none; }
 
 /* ── headline: on the page, not in a card ────────────────────────────────── */
 
@@ -2114,10 +2117,41 @@
         justify-content: space-between;
     }
 
-    .sal-card--hero .sal-card-head {
+    /* Every card's title and legend stack: side by side they squeezed the
+       subtitle into a narrow column and pushed the legend off the screen. */
+    .sal-card-head {
         flex-direction: column;
         gap: 12px;
     }
+
+    .sal-legend {
+        flex-wrap: wrap;
+        white-space: normal;
+        gap: 6px 14px;
+    }
+
+    /* Two filters a row, filling the width, instead of 248px pills. */
+    .sal-filter-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .sal-filter-grid .sal-field select {
+        padding-left: 16px;
+        padding-right: 36px;
+        background-position: right 14px center;
+    }
+
+    .sal-filter-grid .sal-field label { left: 16px; }
+
+    /* The headline and its INR/USD switch share one row; at 3.45rem a
+       foreign-employer figure ("₹129 LPA") broke onto two lines. */
+    .sal-hero-figure {
+        font-size: 2.5rem;
+        white-space: nowrap;
+    }
+
+    .sal-hero-row { gap: 14px; }
 
     .sal-bar-row {
         grid-template-columns: 84px minmax(0, 1fr) 62px;

@@ -10,7 +10,7 @@ const notion = new Client({
 });
 
 const databaseId = process.env.NOTION_DATABASE_ID;
-const assetVersion = "20261019-1";
+const assetVersion = "20261030-10";
 const siteUrl = "https://designwallet.in";
 const fallbackAuthor = "Karthik S Krishnan";
 const fallbackCoverImages = [
@@ -243,8 +243,7 @@ function siteHead(title, description, meta = {}) {
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/style.css?v=${assetVersion}">
-    <link rel="stylesheet" href="/mobile-gate.css?v=${assetVersion}">`;
+    <link rel="stylesheet" href="/style.css?v=${assetVersion}">`;
 }
 
 async function getBlocks(blockId) {
@@ -495,7 +494,6 @@ ${siteHead(`${title} - Design Wallet`, metaDescription, {
     </div>
 
     <script src="/header.js?v=${assetVersion}"></script>
-    <script src="/mobile-gate.js?v=${assetVersion}"></script>
     <script src="/script.js?v=${assetVersion}"></script>
 </body>
 </html>
@@ -592,13 +590,26 @@ ${siteHead("Blog - Design Wallet", "Field notes, ideas, and essays for curious d
     </div>
 
     <script src="/header.js?v=${assetVersion}"></script>
-    <script src="/mobile-gate.js?v=${assetVersion}"></script>
     <script src="/script.js?v=${assetVersion}"></script>
 </body>
 </html>
 `;
 
   fs.writeFileSync(path.join(blogDir, "index.html"), blogIndexHtml);
+
+  // Read by the Design Wallet MCP connector (search_blog), so Claude can find posts.
+  const postsIndex = {
+    generated_at: new Date().toISOString().slice(0, 10),
+    posts: generatedPosts.map((post) => ({
+      title: post.title,
+      url: `/blog/${post.slug}/`,
+      date: post.date,
+      category: post.category,
+      excerpt: post.excerpt,
+      readTime: post.readTime,
+    })),
+  };
+  fs.writeFileSync(path.join(blogDir, "posts.json"), JSON.stringify(postsIndex, null, 2) + "\n");
   console.log("Blog generated successfully");
 }
 

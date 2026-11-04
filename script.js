@@ -1098,7 +1098,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var SHEET_ID = "1tebheLiV_HPN7cqIQ4xvXEr9LWd5a72tlQIHRQQQvF8";
     var SHEET_GID = "0";
-    var PORTFOLIO_FEED_URL = "https://script.google.com/macros/s/AKfycbzMPNRG2J7SEQOKHG8rAJatbIkXK9yus_9w-tZdAkBwCkArd2S-p85KHyNxHsdRWiHzWQ/exec";
+    // Empty since 2026-11-01: this old Apps Script deployment answered with salary
+    // figures, so the feed always failed. Approved portfolios live in Supabase now.
+    var PORTFOLIO_FEED_URL = "";
 
     function buildSheetUrl() {
         var sheetId = (catalogSection && catalogSection.dataset.sheetId) || SHEET_ID;
@@ -1731,7 +1733,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // publishable and can only read the `public_*` views — see DECISIONS §20a.
     var SUPABASE_URL = "https://ugjtyuikvdeymwsfsgfl.supabase.co";
     var SUPABASE_KEY = "sb_publishable_IOdPnIa_tf6DjQShp_gTZA_i36nRCTe";
-    var CACHE_KEY = "dw_books_cache";
+    var CACHE_KEY = "dw_books_cache_v2";   // v2 keeps each book's slug, for its heart
     var CACHE_TTL = 10 * 60 * 1000;
 
     function getCached() {
@@ -1764,6 +1766,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // named columns now and a reordered sheet cannot reach this code.
     function toBook(row) {
         return {
+            slug: row.slug || "",
             thumbnail: row.thumbnail || "",
             title: row.title || "",
             author: row.author || "",
@@ -1772,49 +1775,15 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    function buildStars(rating) {
-        var html = '<div class="book-stars">';
-        var clipId = "star-clip-" + Math.random().toString(36).substr(2, 9);
-        for (var i = 0; i < 5; i++) {
-            var fill = Math.min(1, Math.max(0, rating - i));
-            var pct = (fill * 100).toFixed(1);
-            var uid = clipId + "-" + i;
-            html += '<svg class="book-star" width="12" height="12" viewBox="0 0 24 24">' +
-                '<defs><clipPath id="' + uid + '"><rect x="0" y="0" width="' + pct + '%" height="100%"/></clipPath></defs>' +
-                '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#333" stroke="none"/>' +
-                '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#F59E0B" clip-path="url(#' + uid + ')"/>' +
-                '</svg>';
-        }
-        html += '<span class="book-rating-num">' + rating.toFixed(2) + '</span></div>';
-        return html;
-    }
-
     var PAGE_SIZE = 20;
     var allBooks = [];
     var currentPage = 0;
     var isLoading = false;
     var allLoaded = false;
 
+    // The card itself is books/book-card.js, shared with the Favourites view.
     function buildCardHtml(b, index) {
-        var thumbHtml = b.thumbnail
-            ? '<img src="' + b.thumbnail + '" alt="' + b.title + '" loading="lazy">'
-            : '';
-        var linkOpen = b.link ? '<a href="' + b.link + '" target="_blank" rel="noopener noreferrer" class="book-card-link">' : '<div class="book-card-link">';
-        var linkClose = b.link ? '</a>' : '</div>';
-        var tagHtml = index < 5 ? '<span class="book-bestseller-tag">Best Seller</span>' : '';
-
-        return linkOpen +
-            '<div class="book-card">' +
-                '<div class="book-thumb">' + tagHtml + thumbHtml + '<span class="book-buy-btn">Buy Now</span></div>' +
-                '<div class="book-info">' +
-                    '<h3 class="book-title">' + b.title + '</h3>' +
-                    '<div class="book-meta">' +
-                        '<p class="book-author">' + b.author.toUpperCase() + '</p>' +
-                        buildStars(b.rating) +
-                    '</div>' +
-                '</div>' +
-            '</div>' +
-            linkClose;
+        return window.DWBookCard(b, index);
     }
 
     function buildSkeletonHtml(count) {

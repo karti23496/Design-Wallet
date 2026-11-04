@@ -1,0 +1,66 @@
+<!--
+  Supabase → Authentication → Emails → Templates → "Confirm signup".
+  Subject: Confirm your Design Wallet account
+
+  Paste everything below this comment into the "Message body" box.
+  Email clients ignore <style> blocks and external CSS, so every style here is
+  inline, and the layout is tables. That is the one place in the repo where
+  inline styles are the rule rather than the exception.
+
+  {{ .ConfirmationURL }} is filled in by Supabase. {{ .Data.full_name }} is the
+  name from the sign-up form.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<meta name="supported-color-schemes" content="dark">
+<title>Confirm your Design Wallet account</title>
+</head>
+<body style="margin:0; padding:0; background:#050505;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#050505;">
+  <tr>
+    <td align="center" style="padding:40px 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;">
+        <tr>
+          <td style="padding:0 4px 28px;">
+            <a href="{{ .SiteURL }}" style="text-decoration:none;">
+              <img src="https://designwallet.in/public/Logo/Website-logo.png" width="140" height="26" alt="Design Wallet" style="display:block; border:0; width:140px; height:auto;">
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:36px 32px; background:#0a0a0a; border:1px solid #1f1f1f; border-radius:24px; font-family:Inter, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color:#f5f5f5;">
+            <p style="margin:0 0 12px; font-size:26px; line-height:1.25; font-weight:400; letter-spacing:-0.02em; color:#f5f5f5;">
+              {{ if .Data.full_name }}Hi {{ .Data.full_name }}, one click to go.{{ else }}One click to go.{{ end }}
+            </p>
+            <p style="margin:0 0 28px; font-size:15px; line-height:1.6; color:#9a9a9a;">
+              Confirm your email to finish creating your Design Wallet account. Then save the tools you love and get first access to what we build next.
+            </p>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="border-radius:999px; background:#ffffff;">
+                  <a href="{{ .ConfirmationURL }}" style="display:inline-block; padding:15px 32px; font-family:Inter, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#050505; text-decoration:none; border-radius:999px;">Confirm my email</a>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:28px 0 0; font-size:13px; line-height:1.6; color:#686868;">
+              The link works once and expires in an hour. If the button doesn't work, paste this into your browser:<br>
+              <a href="{{ .ConfirmationURL }}" style="color:#9a9a9a; word-break:break-all;">{{ .ConfirmationURL }}</a>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:24px 4px 0; font-family:Inter, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size:12px; line-height:1.6; color:#686868;">
+            Didn't sign up? Ignore this email and no account will be created.<br>
+            Design Wallet · All-in-one design library for curious designers · <a href="https://designwallet.in" style="color:#9a9a9a;">designwallet.in</a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
