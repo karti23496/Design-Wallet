@@ -737,7 +737,11 @@ function logQuery(tool: string, log: Result["log"], client: string) {
 const hits = new Map<string, { start: number; n: number }>();
 
 function limited(req: Request): boolean {
-    const ip = (req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for") || "local").split(",")[0].trim();
+    // x-dw-client-ip is set by the mcp.designwallet.in Cloudflare Worker from the caller's
+    // address. Without it, every user going through the Worker would share one bucket.
+    // Used only for this limit, never stored.
+    const ip = (req.headers.get("x-dw-client-ip") || req.headers.get("cf-connecting-ip") ||
+        req.headers.get("x-forwarded-for") || "local").split(",")[0].trim();
     const now = Date.now();
     const h = hits.get(ip);
     if (!h || now - h.start > RATE_WINDOW_MS) {

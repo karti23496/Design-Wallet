@@ -2940,3 +2940,75 @@ Karthik: *"Whatever we have done take it live."* `main` = `remove-paywall` = `fa
 - **`⚠️ Test row to delete`:** the live portfolio form returned 204 for a real submission, `GO LIVE TEST - delete me` (`golive-test@example.com`), so `portfolio_submissions` holds it as `pending`; it did not appear in `approved_portfolios`. **Salary submission was not tested end to end**, only its function's validation. **Still not verified:** a real sign-up and Google sign-in on the live domain (runbook F), a real save of each favourite kind, Safari and Firefox.
 - **`⚠️ GOTCHA` `git fetch` fails** on the stray ref `refs/heads/remove-paywall (1)` ("bad object"). `git ls-remote` works and was used to compare the heads.
 - **Verified on an exported copy of the release, served with a Pages-style 404 fallback:** 26 routes × signed out and fake session × 1440 and 390 (104 loads): no page errors, no missing local files, no horizontal overflow, and the gate redirects as designed. `node --check`, `check-layout.js`, `sitemap.xml` and `blog/posts.json` pass, and a scan found no secret keys or personal Gmail-style addresses. **Not verified:** real form submissions (blocked above), a real sign-in on the live domain (runbook F), Safari and Firefox.
+
+## Paid agents: audience narrowed, job seeker agents kept (2026-11-07)
+
+Karthik: *"Our audience is going to be only freelancers, agency designers."* Then, on the agents agreed on 2026-11-01: *"the Mock interview, portfolio critique and negotiation coach is something that we can actually build across. So keep this one in mind for now."* Discussion only. Nothing built, and `.claude/AGENTS-PLAN.md` has not been rewritten yet.
+
+- **`DECIDED` New agent exploration covers only freelancers and agency designers.** This replaces the 2026-11-01 order (job seekers → agencies → freelancers) for any agent not yet agreed.
+- **`DECIDED` Mock interview, portfolio critic and salary negotiation coach stay in the plan** as agents to build across the audience. They were agreed on 2026-11-01.
+- **`PENDING` Presentation rehearsal**, the fourth agent in the 2026-11-01 launch set, was not mentioned. It is not confirmed or dropped.
+- **`PENDING` Whether the job seeker set is still the first paid launch**, and whether the Interview Sprint validation still runs first.
+- **Explored, not decided (the agent's research, for the next session):**
+  - Agency designers: the main pain is production volume, and the agency pays (seats, NDA, layered source files). Strongest fits: adaptation into many sizes, brand guardian (run automatically after adaptation), preflight checker, feedback consolidator, brief interrogator, and regional language adaptation.
+  - Freelancers: the main pain is running the business, and they pay themselves (price-sensitive). Strongest fits: rate and quote calculator using Design Wallet salary data, brief → scope → proposal, feedback translator, scope creep guard, payment chaser, contract explainer (not legal advice), and project wrap-up.
+  - The agent suggested freelancers first (Brief → Scope → Quote), with an agency adaptation pilot alongside. **Not agreed.**
+  - **`⚠️` Riskiest assumption:** our salary data covers employment salaries, not freelance rates. A quote agent needs a defined way to convert one into the other.
+
+### Paid only; testing with invited designers (2026-11-07)
+
+Karthik: *"This entire AI agents project is going to be a paid one for sure. I am not going to have it for free. For the testing purpose, we will ask few designers to review it and add feedback on the AI agents."*
+
+- **`DECIDED` Every agent is paid. No free tier and no free taster.** This replaces the 2026-11-01 line "The tool-stack advisor is free", and the agent's suggestion of a free first-impression check for the portfolio critic.
+- **`DECIDED` Testing means inviting a few designers to use the agents and give feedback.** Their feedback improves the agents. Testing is not a free public release.
+- **Explored, not decided:** the agents need an LLM, which our server calls through an API. There is no chatbot widget on the site. The agent suggested Claude Opus 5.5 through the Anthropic API ($4 per million input tokens, $20 per million output, as of 2026-10). Its rough estimate is ₹15–35 per portfolio review, to be measured during testing.
+
+### Portfolio critic is the first agent to build (2026-11-07)
+
+Karthik: *"Let's build this portfolio critic ai agent first. Plan it."* There's no API budget (*"I dont have budget for the apis"*). **Plan in `.claude/PORTFOLIO-CRITIC-PLAN.md`. Nothing built yet.**
+
+- **`DECIDED` The portfolio critic is built first.**
+- **`DECIDED` (follows from the no-budget call) Each step costs ₹0 until customers' money pays for the API.** Step 2 is manual reviews through Karthik's existing Claude subscription. The test version uses a free model. The paid API starts only after pre-orders and has a monthly spending cap. A personal subscription can't be the engine behind the live product.
+- **Plan order:** scoring rules → 10 manual reviews with invited freelancers → Figma screens → test version for invited testers only → improve from feedback → paid launch.
+- **`PENDING` Client view first?** The plan assumes yes, since the audience is freelancers and agency designers.
+- **`PENDING` Ask the Wall of Portfolios designers to be testers?** Their consent covered display only.
+- **`PENDING` Gemini free tier or a model on Karthik's Mac for the test version?** The plan assumes Gemini, with testers told their data may be used by Google.
+- **`DECIDED` (Karthik, 2026-11-07) Test with Claude on Karthik's subscription first.** *"If that works we will see which api to buy to take it live."* This replaces the PENDING "Gemini free tier or a model on Karthik's Mac". No free-tier model is planned. The API is chosen after the manual test (Step 2) and before any build (Step 4).
+- **`✅ BUILT` (2026-11-07) The test version is a Claude Code skill in this workspace, running on Karthik's subscription.** Karthik: *"build an AI agent for portfolio critic in this workspace itself we will test it out."* Run it as `/portfolio-critic <url or PDF> [discipline] [level] [case study urls]`.
+  - Files in `.claude/skills/portfolio-critic/`:
+    - `SKILL.md`: the steps the agent follows
+    - `rubric.md`: v0.1 scoring rules, client view. **Karthik to edit; the rules are the product.**
+    - `report-template.md`: the report layout
+    - `capture.mjs`: uses Puppeteer (already in `node_modules`) to capture the homepage and up to 3 case studies, at 1440×900 and 390×844, as viewport-sized JPEG slices. It collects text and headings, contact signals, page weight and load time, sideways scroll on phone, and checks up to 40 internal links.
+  - Reports go to `portfolio-reviews/<slug>-<date>/` (`report.md`, `capture.json`, `shots/`). A second review of the same site compares against the last one.
+  - **`DECIDED` (agent) The skill folder and `portfolio-reviews/` are in `.gitignore`.** The rubric stays out of the open-source repo, as agreed on 2026-11-01, and testers' screenshots are personal data. **`⚠️` This means the rubric has no backup in git;** a private repo is still to be set up.
+  - **Verified:** a capture of designwallet.in got 3/3 pages and 24 screenshots in about 34 seconds, readable at both widths. **Not verified:** a full review of a real portfolio, Behance or Dribbble profiles, and password-protected sites.
+  - **`⚠️` The capture found `https://designwallet.in/category/` returning 404**, linked from the homepage. Worth checking.
+  - **`⚠️` Known limits:** the case study picker can choose non-project pages on unusual sites (the skill re-runs with `--pages`). Very long pages are cut off at 8 desktop and 3 phone screenshots. A site that only works through a 404 fallback (GitHub Pages) reports its pages as broken links.
+- **`⚠️` Correction (2026-11-07): the skill was not what Karthik asked for.** Karthik: *"I was talking about we will create this ai agent using python project and add it in our website. Not create skill in claude to use it."* **`DECIDED` The portfolio critic is a Python project, added to the website.** The skill in `.claude/skills/portfolio-critic/` stays for now, because its rubric, report template and capture logic carry over to the Python version. **`PENDING` Karthik to say whether to delete it.**
+- **`PENDING` Which model powers the Python version while testing.** A Claude subscription can't power a website. The options put to Karthik: Gemini free API, a small Claude API top-up, or a local-only run through his Claude Code login.
+- **`DECIDED` (Karthik, 2026-11-07) Option C first, then A.** *"First let's go with C then we will Shift to A when we have working functional product."* The Python version runs on Karthik's Mac through his Claude Code login. It moves to the Gemini API once it works well.
+- **`✅ BUILT` (2026-11-07) Python project `../design-wallet-agents/`,** a separate local git repo (private, not pushed anywhere) next to the website folder. It sits outside the open-source repo, as agreed on 2026-11-01. Run it as `.venv/bin/python -m portfolio_critic <url|pdf> --discipline --level --name --pages`.
+  - **Capture:** Playwright, using the Chrome that Puppeteer already downloaded.
+  - **Model:** the Claude Agent SDK on Karthik's login. **The agent gets the Read tool only, with no settings loaded.** `ANTHROPIC_API_KEY` is ignored on purpose, so the subscription is used rather than API billing.
+  - **Provider switch:** `PORTFOLIO_CRITIC_PROVIDER`. `gemini` is a placeholder until Step A.
+  - **Output:** `reviews/<slug>-<date>/report.md` and `result.json` (scores, top fixes, and what the model was unsure of).
+  - **`server.py`:** a FastAPI endpoint ready for the website. **It has no sign-in or payment check yet, so it must not be exposed.**
+  - The rubric and template were copied from the skill. **Edit them in `design-wallet-agents/portfolio_critic/prompts/` from now on.**
+  - **`⚠️` The agent made 2 commits in the new repo without being asked** (`6ee35b1`, `157065a`).
+  - **Verified:** a full review of designwallet.in (homepage plus one page) took 2.4 minutes. The report cites screenshots for every point, and `result.json` parsed. **Fixed from that run:** a sign-up form was flagged as a password-locked page. It now counts as locked only when a password box sits on a near-empty page. **Not verified:** a real freelancer portfolio, a PDF input, a re-review, Behance or Dribbble, and the FastAPI endpoint.
+
+## MCP connector moves to `https://mcp.designwallet.in` (2026-11-07, supersedes "keep the Supabase link" of 2026-10-28)
+
+Karthik: *"I want to change the mcp url link to mcp.designwallet.in."* **`DECIDED`** Option 3 from 2026-10-28: DNS moves to Cloudflare, plus a Cloudflare Worker. Karthik asked to keep DNS at GoDaddy and use Deno Deploy instead, was told why that needs another hosting account, and chose Cloudflare. **Cost: ₹0.** Cloudflare Free plan; Workers free tier is 100,000 requests a day, and requests over that fail rather than bill.
+- **`✅ DONE` DNS for designwallet.in is on Cloudflare** (account 23krish96@gmail.com, Free plan). Nameservers are `fish.ns.cloudflare.com` and `gerald.ns.cloudflare.com`, set at GoDaddy. The domain **stays registered at GoDaddy**. The `.in` registry switched at 15:42 IST. DNSSEC was already off.
+  - **All 12 records are DNS only (grey cloud), on purpose.** The site stays on GitHub Pages, which handles its own HTTPS; proxying would risk certificate conflicts. Ignore Cloudflare's "Proxy DNS records" and "not fully protected" prompts. **Bot Preference Sync is off**, so Cloudflare doesn't touch `robots.txt`.
+  - **`⚠️ GOTCHA` Cloudflare's scan missed both Resend email records:** CNAME `send` → `send.forge.rmta.net` and CNAME `rsend` → `rsend-apne1.forge.rmta.net`. Both were added by hand. Without them, sign-in and other emails would have stopped. **Any future DNS move: compare every record against the old provider, page by page.**
+  - **Verified on Cloudflare's nameservers:** apex → 4 GitHub Pages IPs, `www` → `karti23496.github.io`, `send`/`rsend` → Resend. designwallet.in returns 200 from `server: GitHub.com`.
+- **`✅ DONE` Worker `design-wallet-mcp`** (also at `design-wallet-mcp.23krish96.workers.dev`), custom domain **`mcp.designwallet.in`**. It forwards every request unchanged to the Supabase function, which is not changed and still answers at its own URL, so existing users keep working. A browser visit (`GET` + `Accept: text/html`) gets a 302 to `https://designwallet.in/mcp/`. It removes `content-encoding`/`content-length` from replies (the 2026-10-28 lesson) and sets `x-dw-client-ip` from `cf-connecting-ip`. **The code lives only in the Cloudflare dashboard**, not in this repo.
+  - **Verified on `https://mcp.designwallet.in`:** `initialize`, `tools/list` (8 tools), `list_categories` complete (4,008 bytes), `search_tools` "color palette" (39 matches), browser 302, CORS preflight 204.
+  - **`⚠️ GOTCHA`** The Worker "Add Domain" dialog said "No zones match" until the zone was Active **and the Worker page was refreshed**.
+- **`✅ DONE` Karthik's own Claude connector was re-added with `https://mcp.designwallet.in`.** **The icon in Claude is now the Design Wallet logo**, not Supabase's green bolt. That confirms Claude uses the favicon of the connector URL's domain, and resolves the 2026-10-28 icon question.
+- **`✅ CHANGED` `mcp/index.html`:** all 7 Supabase URLs (`data-mcp-url` and the snippets for Claude Code, Codex, Cursor, VS Code and Gemini) are now `https://mcp.designwallet.in`. **Not live until committed and pushed.**
+- **`✅ CHANGED` `design-wallet-mcp` rate limit** reads `x-dw-client-ip` first, so users coming through the Worker don't share one 60/min bucket. **`✅` Redeployed by Karthik (2026-11-07)** with `npx supabase functions deploy design-wallet-mcp --no-verify-jwt --project-ref ugjtyuikvdeymwsfsgfl`. Verified afterwards through both URLs: 8 tools, search works. Known gap: someone calling the Supabase URL directly could fake this header to dodge the limit. Acceptable for a read-only, soft limit.
+- **`PENDING` Phase E: submit to the Claude connector directory** ("Submit to the directory" in Claude → Customize → Connectors) with `https://mcp.designwallet.in` as the URL. Tools already carry read-only annotations.
