@@ -52,6 +52,12 @@
                     </div>
                     <h1 class="auth-title">Welcome<span data-first-name></span>. What do you do?</h1>
                     <p class="auth-sub">This tailors the tools we show you. It uses the same roles as Know your money.</p>
+                    <div data-name-field hidden>
+                        <label class="auth-field">
+                            <span class="auth-eyebrow">Your name</span>
+                            <input class="auth-input" type="text" name="name" autocomplete="name" maxlength="80" required>
+                        </label>
+                    </div>
                     <fieldset class="auth-chips" data-chips="role">
                         <legend class="auth-eyebrow">Role</legend>
                             <button class="auth-chip" type="button" aria-pressed="false" data-value="Product Designer (UI/UX)">Product Designer (UI/UX)</button>
@@ -79,11 +85,12 @@
                             <button class="auth-chip" type="button" aria-pressed="false" data-value="Director / Head of Design">Director / Head of Design</button>
                             <button class="auth-chip" type="button" aria-pressed="false" data-value="VP of Design">VP of Design</button>
                     </fieldset>
+                    <p class="auth-msg" data-msg role="status" hidden></p>
                     <div class="auth-actions">
                         <span class="auth-spacer"></span>
-                        <button class="auth-text-btn auth-text-btn--underline" type="button" data-skip>Skip for now</button>
                         <button class="auth-btn auth-btn--primary auth-btn--auto" type="submit">Continue</button>
                     </div>
+                    <p class="auth-switch">Wrong account? <a class="auth-link" href="/sign-in/?signout=1">Sign out</a></p>
                     <p class="auth-switch" data-edit-only hidden><button class="auth-text-btn auth-text-btn--underline" type="button" data-delete-open>Delete my account</button></p>
                 </form>
 
@@ -93,7 +100,7 @@
                         <div class="auth-progress-bar" aria-hidden="true"><span class="is-done"></span><span class="is-done"></span><span></span></div>
                     </div>
                     <h1 class="auth-title">What brings you to Design Wallet?</h1>
-                    <p class="auth-sub">Pick all that apply. It tells us what to build next.</p>
+                    <p class="auth-sub">Pick at least one. It tells us what to build next.</p>
                     <fieldset class="auth-chips" data-chips="goals" data-multi>
                         <legend class="auth-eyebrow">Goals</legend>
                             <button class="auth-chip" type="button" aria-pressed="false" data-value="Find tools for my work">Find tools for my work</button>
@@ -104,10 +111,10 @@
                             <button class="auth-chip" type="button" aria-pressed="false" data-value="Read and learn">Read and learn</button>
                             <button class="auth-chip" type="button" aria-pressed="false" data-value="Just exploring">Just exploring</button>
                     </fieldset>
+                    <p class="auth-msg" data-msg role="status" hidden></p>
                     <div class="auth-actions">
                         <button class="auth-text-btn" type="button" data-prev>Back</button>
                         <span class="auth-spacer"></span>
-                        <button class="auth-text-btn auth-text-btn--underline" type="button" data-skip>Skip for now</button>
                         <button class="auth-btn auth-btn--primary auth-btn--auto" type="submit">Continue</button>
                     </div>
                 </form>
@@ -123,11 +130,11 @@
                     <div class="auth-fields-row">
                         <label class="auth-field">
                             <span class="auth-eyebrow">City</span>
-                            <input class="auth-input" type="text" name="city" placeholder="Bangalore" autocomplete="address-level2" maxlength="80">
+                            <input class="auth-input" type="text" name="city" placeholder="Bangalore" autocomplete="address-level2" maxlength="80" required>
                         </label>
                         <label class="auth-field">
                             <span class="auth-eyebrow">Country</span>
-                            <input class="auth-input" type="text" name="country" placeholder="India" autocomplete="country-name" maxlength="80">
+                            <input class="auth-input" type="text" name="country" placeholder="India" autocomplete="country-name" maxlength="80" required>
                         </label>
                     </div>
                     <label class="auth-check">
@@ -137,7 +144,6 @@
                     <div class="auth-actions">
                         <button class="auth-text-btn" type="button" data-prev>Back</button>
                         <span class="auth-spacer"></span>
-                        <button class="auth-text-btn auth-text-btn--underline" type="button" data-skip>Skip for now</button>
                         <button class="auth-btn auth-btn--primary auth-btn--auto" type="submit">Finish</button>
                     </div>
                 </form>
@@ -166,6 +172,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-    <script src="/auth/auth.js?v=20261029-1"></script>
+    <script src="/auth/auth.js?v=20261108-1"></script>
 </body>
 </html>

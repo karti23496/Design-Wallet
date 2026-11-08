@@ -16,16 +16,23 @@
 // chose this level on purpose; locking the data itself is a separate change.
 //
 // Same session check as header.js: Supabase's own localStorage entry.
+//
+// Signed in isn't enough either (Karthik, 2026-11-08): the product opens only
+// once onboarding is finished. This file can't reach the database, so it reads
+// the note auth/auth.js leaves (`dw_onboarded`, the account's id). No note, and
+// /welcome/ asks the database: it sends finished accounts straight back here
+// and shows everyone else the form.
 // ============================================================================
 (function () {
     var signedIn = false;
+    var onboarded = false;
     try {
         var session = JSON.parse(localStorage.getItem("sb-ugjtyuikvdeymwsfsgfl-auth-token") || "null");
         signedIn = !!(session && session.user && session.refresh_token);
+        onboarded = signedIn && localStorage.getItem("dw_onboarded") === session.user.id;
     } catch (e) { /* storage blocked: treat as signed out */ }
 
-    if (!signedIn) {
-        var here = location.pathname + location.search + location.hash;
-        location.replace("/sign-in/?next=" + encodeURIComponent(here));
-    }
+    if (onboarded) return;
+    var here = encodeURIComponent(location.pathname + location.search + location.hash);
+    location.replace((signedIn ? "/welcome/" : "/sign-in/") + "?next=" + here);
 }());

@@ -15,6 +15,7 @@
     var SUPABASE_URL = "https://ugjtyuikvdeymwsfsgfl.supabase.co";
     var SUPABASE_KEY = "sb_publishable_IOdPnIa_tf6DjQShp_gTZA_i36nRCTe";
     var LAST_NAME_KEY = "dw_last_name";
+    var ONBOARDED_KEY = "dw_onboarded";
 
     var page = document.body.getAttribute("data-auth-page");
     var params = new URLSearchParams(location.search);
@@ -124,6 +125,21 @@
         return "Something went wrong. Please try again.";
     }
 
+    // Onboarding is mandatory (Karthik, 2026-11-08). `onboarded_at` alone isn't
+    // enough: "Skip for now" used to stamp it on empty rows, and those people
+    // have to come back and finish too. The newsletter stays a free choice.
+    function isOnboarded(profile) {
+        return !!(profile && profile.onboarded_at && profile.full_name && profile.role && profile.level &&
+            profile.goals && profile.goals.length && profile.city && profile.country);
+    }
+
+    // auth/gate.js has no database access, so it reads this note on every
+    // gated page. It holds the account's id, so a different account on the
+    // same browser gets checked afresh.
+    function markOnboarded(user) {
+        try { localStorage.setItem(ONBOARDED_KEY, user.id); } catch (e) { /* private mode */ }
+    }
+
     function validEmail(value) {
         return /^[^@\s]+@[^@\s.]+\.[^@\s]{2,}$/.test(value);
     }
@@ -182,9 +198,9 @@
 
     // Onboarded people go where they were headed; everyone else to /welcome/.
     function continueAfterSignIn(user) {
-        return sb.from("profiles").select("onboarded_at").eq("id", user.id).maybeSingle().then(function (result) {
-            var done = result.data && result.data.onboarded_at;
-            if (!done) return location.replace("/welcome/" + nextQuery());
+        return sb.from("profiles").select("*").eq("id", user.id).maybeSingle().then(function (result) {
+            if (!isOnboarded(result.data)) return location.replace("/welcome/" + nextQuery());
+            markOnboarded(user);
             var next = nextPath();
             forgetNext();
             location.replace(next);
@@ -387,6 +403,7 @@
     // ── /welcome/ (onboarding) ──────────────────────────────────────────────
     function welcome() {
         var user = null;
+        var knownName = "";
 
         sb.auth.getSession().then(function (result) {
             var session = result.data.session;
@@ -403,14 +420,25 @@
             remember(LAST_NAME_KEY, meta.full_name || meta.name);
 
             sb.from("profiles").select("*").eq("id", user.id).maybeSingle().then(function (r) {
+                // Not knowing isn't the same as not done: don't ask someone
+                // who's finished to fill it all in again over a network blip.
+                if (r.error) {
+                    document.querySelector('[data-view="loading"] .auth-sub').textContent = "We couldn’t load your account. Refresh the page to try again.";
+                    return;
+                }
                 var profile = r.data || {};
-                if (profile.onboarded_at && !params.has("edit")) {
+                var onboarded = isOnboarded(profile);
+                if (onboarded) markOnboarded(user);
+                if (onboarded && !params.has("edit")) {
                     var next = nextPath();
                     forgetNext();
                     location.replace(next);
                     return;
                 }
-                var first = firstName(profile.full_name || meta.full_name || meta.name);
+                // Google doesn't always send a name; only then do we ask.
+                knownName = String(profile.full_name || meta.full_name || meta.name || "").trim();
+                document.querySelector("[data-name-field]").hidden = !!knownName;
+                var first = firstName(knownName);
                 document.querySelectorAll("[data-first-name]").forEach(function (el) {
                     el.textContent = first ? ", " + first : "";
                 });
@@ -447,6 +475,7 @@
                     try {
                         localStorage.removeItem("sb-ugjtyuikvdeymwsfsgfl-auth-token");
                         localStorage.removeItem(LAST_NAME_KEY);
+                        localStorage.removeItem(ONBOARDED_KEY);
                     } catch (e) { /* private mode */ }
                     forgetNext();
                     track("account_deleted");
@@ -496,11 +525,12 @@
             var msg = step3.querySelector("[data-msg]");
             var newsletter = field(step3, "newsletter").checked;
             var answers = {
-                role: picked("role")[0] || null,
-                level: picked("level")[0] || null,
+                full_name: (knownName || field(document.querySelector('[data-view="step-1"]'), "name").value.trim()).slice(0, 80),
+                role: picked("role")[0],
+                level: picked("level")[0],
                 goals: picked("goals"),
-                city: field(step3, "city").value.trim() || null,
-                country: field(step3, "country").value.trim() || null,
+                city: field(step3, "city").value.trim(),
+                country: field(step3, "country").value.trim(),
                 newsletter: newsletter,
                 onboarded_at: new Date().toISOString()
             };
@@ -512,6 +542,7 @@
                     show(msg, "We couldn’t save your answers. Please try again in a moment.", "error");
                     return;
                 }
+                markOnboarded(user);
                 // The same door the nav's old Subscribe used. Publishable key
                 // only: `subscribe` is the one thing it may call, and it answers
                 // the same whether or not the address was already on the list.
@@ -522,25 +553,40 @@
                         body: JSON.stringify({ p_email: user.email, p_source: "/welcome/" })
                     }).catch(function () { /* the profile already records the choice */ });
                 }
-                track("onboarding_complete", { role: answers.role || "skipped" });
+                track("onboarding_complete", { role: answers.role });
                 document.querySelector("[data-continue]").href = nextPath();
                 forgetNext();
                 showView("done");
             });
         }
 
+        // What's still missing on a step, or "" when it's all there.
+        function missing(n, form) {
+            if (n === 1) {
+                var name = flag(field(form, "name"), !knownName && !field(form, "name").value.trim());
+                var chips = !picked("role").length || !picked("level").length;
+                if (name && chips) return "Enter your name, and pick your role and level.";
+                if (name) return "Enter your name to continue.";
+                return chips ? "Pick your role and your level to continue." : "";
+            }
+            if (n === 2) return picked("goals").length ? "" : "Pick at least one to continue.";
+            var city = flag(field(form, "city"), !field(form, "city").value.trim());
+            var country = flag(field(form, "country"), !field(form, "country").value.trim());
+            return city || country ? "Enter your city and country to continue." : "";
+        }
+
         [1, 2, 3].forEach(function (n) {
             var form = document.querySelector('[data-view="step-' + n + '"]');
             form.addEventListener("submit", function (event) {
                 event.preventDefault();
+                var problem = missing(n, form);
+                show(form.querySelector("[data-msg]"), problem, problem ? "error" : "");
+                if (problem) return;
                 if (n < 3) showView("step-" + (n + 1));
                 else finish(form.querySelector('button[type="submit"]'));
             });
             var prev = form.querySelector("[data-prev]");
             if (prev) prev.addEventListener("click", function () { showView("step-" + (n - 1)); });
-            form.querySelector("[data-skip]").addEventListener("click", function (event) {
-                finish(event.currentTarget);
-            });
         });
     }
 
