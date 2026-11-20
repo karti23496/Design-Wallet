@@ -6,6 +6,10 @@
 //   verify_code  { email, code }                    -> { token } (single use, 15 min)
 //   send_report  { token, pdf_base64, filename, role, level, location }
 //                emails the PDF, to the address that owns the token, and nobody else
+//   send_report_account  { pdf_base64, filename, role, level, location, newsletter }
+//                + header `x-user-jwt: <Supabase access token>`. For SIGNED-IN visitors
+//                (Karthik, 2026-11-20): no code. The recipient is the verified email of
+//                the session, never anything the browser sends.
 //
 // WHY IT IS BUILT THIS WAY (Karthik, 2026-11-20, "Option 2"):
 // The PDF is built in the browser. A server that emails whatever PDF a browser
@@ -29,6 +33,7 @@ export const RESEND_COOLDOWN_S = 60;
 export const MAX_SENDS_PER_EMAIL_PER_HOUR = 5;
 export const MAX_SENDS_PER_IP_PER_HOUR = 15;
 export const MAX_PDF_BYTES = 3_000_000;
+export const MAX_ACCOUNT_SENDS_PER_HOUR = 5;
 
 const SITE = "https://designwallet.in";
 const FROM_CODE = "Design Wallet <no-reply@designwallet.in>";
@@ -58,6 +63,8 @@ export interface Deps {
     env: Env;
     fetch: typeof fetch;
     now: () => number;
+    /** Resolves a Supabase access token to its owner, or null. Only a CONFIRMED email counts. */
+    getUser: (jwt: string) => Promise<{ email: string; confirmed: boolean } | null>;
 }
 
 export function readEnv(get: (k: string) => string | undefined): Env {
@@ -200,6 +207,17 @@ export function makeHandler(deps: Deps) {
         return json(req, 200, { ok: true, retry_after: RESEND_COOLDOWN_S });
     }
 
+    /** Adds (or re-confirms) a subscriber. Call only for an address that is proven and a box that was ticked. */
+    async function subscribe(email: string, now: number): Promise<string | null> {
+        const e = encodeURIComponent(email);
+        const existing = await db.select("subscribers", `email=eq.${e}&select=email`);
+        const stamped = existing.length
+            // Explicit consent again clears an earlier unsubscribe.
+            ? await db.patch("subscribers", `email=eq.${e}`, { confirmed_at: iso(now), unsubscribed_at: null })
+            : await db.insert("subscribers", { email, source: "salary-report", confirmed_at: iso(now) });
+        return (stamped[0]?.unsubscribe_token as string) ?? null;
+    }
+
     // ── verify_code ─────────────────────────────────────────────────────
     async function verifyCode(req: Request, body: Record<string, unknown>): Promise<Response> {
         const email = String(body.email ?? "").trim().toLowerCase();
@@ -230,15 +248,7 @@ export function makeHandler(deps: Deps) {
         if (!used.length) return json(req, 409, { error: "retry" });
 
         // The newsletter only if the box was ticked, and only now the address is proven.
-        let unsubscribeToken: string | null = null;
-        if (otp.newsletter_opt_in === true) {
-            const existing = await db.select("subscribers", `email=eq.${e}&select=email`);
-            const stamped = existing.length
-                // Explicit consent again clears an earlier unsubscribe.
-                ? await db.patch("subscribers", `email=eq.${e}`, { confirmed_at: iso(now), unsubscribed_at: null })
-                : await db.insert("subscribers", { email, source: "salary-report", confirmed_at: iso(now) });
-            unsubscribeToken = (stamped[0]?.unsubscribe_token as string) ?? null;
-        }
+        const unsubscribeToken = otp.newsletter_opt_in === true ? await subscribe(email, now) : null;
 
         const token = randomToken();
         await db.insert("report_tokens", {
@@ -300,6 +310,62 @@ export function makeHandler(deps: Deps) {
         return json(req, 200, { ok: true });
     }
 
+    // ── send_report_account ─────────────────────────────────────────────
+    // A signed-in visitor already proved their address when they signed in, so
+    // no code. The recipient comes ONLY from the verified session.
+    async function sendReportAccount(req: Request, body: Record<string, unknown>): Promise<Response> {
+        const jwt = (req.headers.get("x-user-jwt") || "").trim();
+        if (jwt.length < 20 || jwt.length > 4096) return json(req, 401, { error: "not_signed_in" });
+        const user = await deps.getUser(jwt);
+        if (!user || !user.confirmed || !EMAIL_RE.test(user.email)) return json(req, 401, { error: "not_signed_in" });
+        const email = user.email.trim().toLowerCase();
+
+        const bad = checkPdf(body.pdf_base64);
+        if (bad) return json(req, 400, { error: bad });
+
+        // Rate limit per account. Each send leaves a spent row in report_tokens, so
+        // the existing table doubles as the audit trail (no schema change).
+        const now = deps.now();
+        const e = encodeURIComponent(email);
+        const hourAgo = encodeURIComponent(iso(now - 3600_000));
+        if ((await db.count("report_tokens", `email=eq.${e}&used_at=gte.${hourAgo}`)) >= MAX_ACCOUNT_SENDS_PER_HOUR) {
+            return json(req, 429, { error: "rate_limited" });
+        }
+
+        const newsletter = body.newsletter === true;
+        const unsubscribeToken = newsletter ? await subscribe(email, now) : null;
+
+        const mail = reportEmail({
+            role: clean(body.role, 60, "Design"),
+            level: clean(body.level, 40, "All levels"),
+            location: clean(body.location, 60, "India"),
+            newsletter,
+            unsubscribeUrl: `${SITE}/unsubscribe/?t=${unsubscribeToken ?? ""}`,
+        });
+        const payload: Record<string, unknown> = {
+            from: FROM_REPORT,
+            to: [email],
+            reply_to: REPLY_TO,
+            subject: mail.subject,
+            html: mail.html,
+            text: mail.text,
+            attachments: [{ filename: safeFilename(body.filename), content: body.pdf_base64 }],
+        };
+        if (newsletter && unsubscribeToken) payload.headers = { "List-Unsubscribe": `<${SITE}/unsubscribe/?t=${unsubscribeToken}>` };
+
+        if (!(await sendEmail(payload))) return json(req, 502, { error: "send_failed" });
+
+        await db.insert("report_tokens", {
+            token_hash: "acct:" + await hmac(env.pepper, `acct:${email}:${now}:${randomToken()}`),
+            email,
+            newsletter_opt_in: newsletter,
+            unsubscribe_token: unsubscribeToken,
+            expires_at: iso(now),
+            used_at: iso(now),
+        });
+        return json(req, 200, { ok: true, email });
+    }
+
     // ── routing ─────────────────────────────────────────────────────────
     return async (req: Request): Promise<Response> => {
         if (req.method === "OPTIONS") {
@@ -308,7 +374,7 @@ export function makeHandler(deps: Deps) {
                 headers: {
                     ...cors(req),
                     "Access-Control-Allow-Methods": "POST, OPTIONS",
-                    "Access-Control-Allow-Headers": "content-type, apikey, authorization, x-client-info",
+                    "Access-Control-Allow-Headers": "content-type, apikey, authorization, x-client-info, x-user-jwt",
                     "Access-Control-Max-Age": "86400",
                 },
             });
@@ -334,6 +400,7 @@ export function makeHandler(deps: Deps) {
                 case "send_code": return await sendCode(req, body, ip);
                 case "verify_code": return await verifyCode(req, body);
                 case "send_report": return await sendReport(req, body);
+                case "send_report_account": return await sendReportAccount(req, body);
                 default: return json(req, 400, { error: "unknown_action" });
             }
         } catch (error) {

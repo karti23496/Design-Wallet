@@ -95,6 +95,7 @@ function setup(opts: { turnstileSecret?: string; resendFails?: boolean } = {}) {
     const handler = makeHandler({
         db, fetch: fakeFetch, now: clock,
         env: { pepper: "test-pepper", resendKey: "re_test", turnstileSecret: opts.turnstileSecret || "", origins: ["https://designwallet.in", "http://localhost:8123"] },
+        getUser: (jwt) => Promise.resolve(USERS[jwt] ?? null),
     });
 
     async function call(body: unknown, headers: Record<string, string> = {}) {
@@ -107,9 +108,16 @@ function setup(opts: { turnstileSecret?: string; resendFails?: boolean } = {}) {
 }
 
 const EMAIL = "designer@example.com";
+// Fake Supabase sessions: access token -> who it belongs to.
+const USERS: Record<string, { email: string; confirmed: boolean }> = {
+    "jwt-signed-in-designer-0001": { email: "Account@Example.com", confirmed: true },
+    "jwt-unconfirmed-designer-001": { email: "pending@example.com", confirmed: false },
+};
+const GOOD_JWT = "jwt-signed-in-designer-0001";
 const codeFrom = (s: Sent) => /(\d{6})/.exec(s.subject)![1];
 // A minimal, valid-looking PDF.
 const PDF = btoa("%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n");
+const REPORT = { action: "send_report_account", pdf_base64: PDF, filename: "design-wallet-salary-product-designer.pdf", role: "Product Designer", level: "Senior", location: "Pune" };
 
 async function getToken(h: ReturnType<typeof setup>, newsletter = false, email = EMAIL) {
     await h.call({ action: "send_code", email, newsletter });
@@ -347,10 +355,58 @@ Deno.test("text from the browser is sanitised before it reaches an email", () =>
     eq(checkPdf(PDF), "");
 });
 
+Deno.test("signed in: no code, the report goes to the session's email, nobody else's", async () => {
+    const h = setup();
+    // The body names a different address; it must be ignored.
+    const r = await h.call({ ...REPORT, email: "victim@example.com", to: "victim@example.com" }, { "x-user-jwt": GOOD_JWT });
+    eq(r.status, 200);
+    eq(h.sent.length, 1, "one email, no code email");
+    eq(h.sent[0].to, ["account@example.com"]);
+    eq(h.sent[0].from, "Karthik from Design Wallet <hello@designwallet.in>");
+    ok(h.sent[0].attachments![0].filename.endsWith(".pdf"));
+    eq(h.sent[0].headers, undefined, "no List-Unsubscribe when the box was not ticked");
+    eq(h.t("subscribers").length, 0, "not subscribed unless the box was ticked");
+});
+
+Deno.test("signed in: the newsletter only when the box is ticked", async () => {
+    const h = setup();
+    const r = await h.call({ ...REPORT, newsletter: true }, { "x-user-jwt": GOOD_JWT });
+    eq(r.status, 200);
+    eq(h.t("subscribers").length, 1);
+    eq(h.t("subscribers")[0].email, "account@example.com");
+    ok(h.sent[0].headers!["List-Unsubscribe"]);
+});
+
+Deno.test("signed in: no session, a bad session or an unconfirmed email is refused and sends nothing", async () => {
+    const h = setup();
+    eq((await h.call(REPORT)).body.error, "not_signed_in");
+    eq((await h.call(REPORT, { "x-user-jwt": "jwt-forged-by-somebody-else" })).status, 401);
+    eq((await h.call(REPORT, { "x-user-jwt": "jwt-unconfirmed-designer-001" })).status, 401);
+    // The publishable key in Authorization is not a session.
+    eq((await h.call(REPORT, { authorization: "Bearer " + GOOD_JWT })).status, 401);
+    eq(h.sent.length, 0);
+});
+
+Deno.test("signed in: a bad PDF is refused, and sends are rate limited per account", async () => {
+    const h = setup();
+    eq((await h.call({ ...REPORT, pdf_base64: btoa("hello") }, { "x-user-jwt": GOOD_JWT })).body.error, "bad_pdf");
+    for (let i = 0; i < 5; i++) eq((await h.call(REPORT, { "x-user-jwt": GOOD_JWT })).status, 200);
+    eq((await h.call(REPORT, { "x-user-jwt": GOOD_JWT })).body.error, "rate_limited");
+    h.advance(61 * 60 * 1000);
+    eq((await h.call(REPORT, { "x-user-jwt": GOOD_JWT })).status, 200, "the hour passes");
+});
+
+Deno.test("signed in: a Resend failure is reported and does not use up the allowance", async () => {
+    const h = setup({ resendFails: true });
+    eq((await h.call(REPORT, { "x-user-jwt": GOOD_JWT })).body.error, "send_failed");
+    eq(h.t("report_tokens").length, 0);
+});
+
 Deno.test("an unconfigured function refuses to run", async () => {
     const h = makeHandler({
         db: memoryDb(() => 0).db, fetch, now: () => 0,
         env: { pepper: "", resendKey: "", turnstileSecret: "", origins: [] },
+        getUser: () => Promise.resolve(null),
     });
     const res = await h(new Request("https://x/", { method: "POST", body: "{}" }));
     eq(res.status, 500);

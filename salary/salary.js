@@ -868,9 +868,11 @@
         });
 
         dom.exportBtn.addEventListener("click", function () {
-            // Reading is free; the report asks for an email, not a sign-in
-            // (2026-11-20, replaces the 2026-11-13 sign-in wall).
-            if (!buildReportModel() || !window.DWReportMail) return;
+            // Reading is free; the export asks for sign-in (Karthik, 2026-11-20).
+            // Signed out goes to /sign-in/ with ?next= keeping the filters.
+            // Signed in gets the "email me the report" pop-up, no code.
+            if (window.DWGate && !window.DWGate.require()) return;
+            if (!window.DWReportMail || !buildReportModel()) return;
             window.DWReportMail.open({ build: buildReportFile });
         });
 

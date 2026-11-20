@@ -56,16 +56,11 @@ var DW_RESOURCES = [
     }
 ];
 
-// The homepage nav "Product" panel (Karthik, 2026-11-13): the two products
-// that need an account, in the same cards as Resources. Icons are the
+// The homepage nav "Product" panel (Karthik, 2026-11-13): products that need
+// an account, in the same cards as Resources. Know your money left it for its
+// own nav link (Karthik, 2026-11-20); only the MCP is here now. Icons are the
 // homepage "What's inside" tab icons.
 var DW_PRODUCTS = [
-    {
-        name: "Know your money",
-        href: "/salary/",
-        description: "Designer salaries by role, level and city, from real designers.",
-        icon: "/public/home/tab-money.svg"
-    },
     {
         name: "Design Wallet MCP",
         href: "/mcp/",
@@ -106,6 +101,13 @@ function dwEscape(text) {
 }
 
 // "Sign in", or the signed-in account pill and its menu (Figma 934:1399).
+// Where the logo leads. Inside the dashboard (/category/... and /tools/...) it
+// returns to the dashboard's own home, /category/; everywhere else, including
+// the homepage itself, it goes to /. (Karthik, 2026-11-20)
+function dwLogoHref() {
+    return /^\/(category|tools)(\/|$)/.test(location.pathname) ? '/category/' : '/';
+}
+
 function dwAccountNav(user, isLanding) {
     var here = encodeURIComponent(location.pathname + location.search);
     // Signed out (Karthik, 2026-11-13, reading is free): the homepage shows
@@ -219,6 +221,7 @@ function loadHeader() {
             '</div>' +
         '</div>' +
         resourcesDropdown +
+        '<a href="/salary/">Know your money</a>' +
         '<a href="/list-your-tool/">List your tool</a><a href="/blog/">Blog</a>';
 
     // The full nav, on every page but the homepage.
@@ -251,7 +254,7 @@ function loadHeader() {
 
     var html =
         '<div class="brand-group">' +
-            '<a class="brand" href="/" aria-label="Design Wallet home">' +
+            '<a class="brand" href="' + dwLogoHref() + '" aria-label="Design Wallet home">' +
                 '<img class="brand-logo" src="/public/Logo/Website-logo.svg" alt="Design Wallet">' +
             '</a>' +
             '<a class="brand-version" href="/changelog/" aria-label="Version ' + DW_VERSION.slice(1) + ', see the changelog">' + DW_VERSION + '</a>' +
@@ -361,7 +364,7 @@ function buildMobileMenu(user, isLanding) {
     wrap.innerHTML =
         '<div class="mnav-backdrop" data-mnav-close></div>' +
         '<div class="mnav-card" role="dialog" aria-modal="true" aria-label="Menu">' +
-            '<a class="mnav-logo" href="/" aria-label="Design Wallet home">' +
+            '<a class="mnav-logo" href="' + dwLogoHref() + '" aria-label="Design Wallet home">' +
                 '<img src="/public/Logo/Website-logo.svg" alt="Design Wallet" width="162" height="30">' +
             '</a>' +
             '<nav class="mnav-links" aria-label="Main">' +
@@ -371,6 +374,7 @@ function buildMobileMenu(user, isLanding) {
                       '</button>' +
                       '<div class="mnav-sublist" id="dw-mnav-products" hidden>' + products + '</div>' +
                       resourcesExpand +
+                      '<a class="mnav-link" href="/salary/">Know your money</a>' +
                       '<a class="mnav-link" href="/list-your-tool/">List your tool</a>'
                     : '<a class="mnav-link" href="/mcp/">Design Wallet MCP</a>' +
                       resourcesExpand +
