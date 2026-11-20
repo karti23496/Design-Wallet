@@ -1,19 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="/auth/gate.js?v=20261108-1"></script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.googletagmanager.com https://accounts.google.com https://challenges.cloudflare.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://ugjtyuikvdeymwsfsgfl.supabase.co wss://ugjtyuikvdeymwsfsgfl.supabase.co https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://accounts.google.com https://docs.google.com https://api.microlink.io https://image.thum.io https://cdn.jsdelivr.net https://huggingface.co https://*.huggingface.co https://*.hf.co https://challenges.cloudflare.com http://localhost:8787; frame-src https://accounts.google.com https://challenges.cloudflare.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+    <script src="/auth/gate.js?v=20261113-1"></script>
+    <link rel="stylesheet" href="/site-prefs.css?v=20261113-1">
+    <script src="/site-prefs.js?v=20261113-1" defer></script>
+    <script src="/consent.js?v=20261113-1"></script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-HLX9Y7DQV7');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Design Wallet MCP | Find Design Tools using LLM</title>
-    <meta name="description" content="Connect Design Wallet to Claude, ChatGPT, Cursor and more. Ask for a design tool in plain words and get answers from 430+ hand-picked tools. Free, no signup, no API key.">
+    <meta name="description" content="Connect Design Wallet to Claude, ChatGPT, Cursor and more. Ask for a design tool in plain words and get answers from 500+ hand-picked tools. Free, no signup, no API key.">
     <link rel="canonical" href="https://designwallet.in/mcp/">
     <meta property="og:title" content="Design Wallet MCP | Find Design Tools using LLM">
     <meta property="og:description" content="Find the right design tool using any LLM tool. Free, no signup, no API key.">
@@ -30,7 +28,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/style.css?v=20261101-1">
+    <link rel="stylesheet" href="/style.css?v=20261113-1">
     <link rel="stylesheet" href="/mcp/mcp.css?v=20261028-2">
 </head>
 <body class="mcp-page">
@@ -80,7 +78,7 @@
                     <div class="mcp-hero-side">
                         <p class="mcp-stats">
                             <img src="/public/icons/mcp/tool-stack.png" width="42" height="18" alt="">
-                            <span>430+ hand-picked tools</span>
+                            <span>500+ hand-picked tools</span>
                             <span class="mcp-stats-sep" aria-hidden="true">|</span>
                             <strong>+ 40</strong>
                             <span class="mcp-stats-muted">/categories</span>
@@ -117,7 +115,8 @@
                             <div class="mcp-setup-left">
                                 <h3>How to connect in Claude?</h3>
                                 <p class="mcp-note">Works on every Claude plan. Free plans can add one custom connector. Once added, it works in the mobile app too.</p>
-                                <button class="mcp-copy-mcp" type="button" data-copy="url"><svg aria-hidden="true"><use href="#logo-claude"/></svg><span data-label>Copy MCP for Claude</span></button>
+                                <p class="mcp-label">Connector URL</p>
+                                <div class="mcp-url"><code>https://mcp.designwallet.in</code><button class="mcp-copy-icon" type="button" data-copy="url" aria-label="Copy the connector URL" title="Copy"><svg aria-hidden="true"><use href="#icon-copy"/></svg></button></div>
                             </div>
                             <ol class="mcp-steps">
                                 <li>Open Claude on the web or desktop and go to Customize → Connectors.</li>
@@ -132,12 +131,13 @@
                             <div class="mcp-setup-left">
                                 <h3>How to connect in ChatGPT?</h3>
                                 <p class="mcp-note">OpenAI offers custom MCP servers on ChatGPT Business, Enterprise and Edu.</p>
-                                <button class="mcp-copy-mcp" type="button" data-copy="url"><svg aria-hidden="true"><use href="#logo-openai"/></svg><span data-label>Copy MCP for ChatGPT</span></button>
+                                <p class="mcp-label">Connector URL</p>
+                                <div class="mcp-url"><code>https://mcp.designwallet.in</code><button class="mcp-copy-icon" type="button" data-copy="url" aria-label="Copy the connector URL" title="Copy"><svg aria-hidden="true"><use href="#icon-copy"/></svg></button></div>
                             </div>
                             <ol class="mcp-steps">
                                 <li>In ChatGPT on the web, open Settings → Plugins (Apps &amp; Connectors on some plans) and add a custom MCP server.</li>
                                 <li>For the icon, use <a href="/public/Logo/favicon-img/icon128.png" download="design-wallet-icon.png">the Design Wallet logo</a> (256 × 256 PNG, under 10 KB). Name it Design Wallet, and for the description you can paste:
-                                    <div class="mcp-code"><pre><code>Search Design Wallet's hand-picked catalogue of 430+ design tools, plus designer salaries, articles and book picks.</code></pre><button class="mcp-chip" type="button" data-copy="code"><svg aria-hidden="true"><use href="#icon-copy"/></svg>Copy</button></div>
+                                    <div class="mcp-code"><pre><code>Search Design Wallet's hand-picked catalogue of 500+ design tools, plus designer salaries, articles and book picks.</code></pre><button class="mcp-chip" type="button" data-copy="code"><svg aria-hidden="true"><use href="#icon-copy"/></svg>Copy</button></div>
                                 </li>
                                 <li>Paste the connector URL. Under Authentication, change OAuth to <strong>No authentication</strong>. Design Wallet has nothing to sign in to.</li>
                                 <li>Tick “I understand and want to continue”, then pick Design Wallet in a new chat. ChatGPT shows that risk notice for every custom server; Design Wallet is read-only and can only search our catalogue, never your chats, files or account.</li>
@@ -149,7 +149,8 @@
                             <div class="mcp-setup-left">
                                 <h3>How to connect in Cursor?</h3>
                                 <p class="mcp-note">Works in Cursor’s Agent chat.</p>
-                                <button class="mcp-copy-mcp" type="button" data-copy="url"><svg aria-hidden="true"><use href="#logo-cursor"/></svg><span data-label>Copy MCP for Cursor</span></button>
+                                <p class="mcp-label">Connector URL</p>
+                                <div class="mcp-url"><code>https://mcp.designwallet.in</code><button class="mcp-copy-icon" type="button" data-copy="url" aria-label="Copy the connector URL" title="Copy"><svg aria-hidden="true"><use href="#icon-copy"/></svg></button></div>
                             </div>
                             <ol class="mcp-steps">
                                 <li>Open Cursor Settings → MCP and add a new MCP server. This opens mcp.json.</li>
@@ -168,7 +169,8 @@
                             <div class="mcp-setup-left">
                                 <h3>How to connect in Claude Code?</h3>
                                 <p class="mcp-note">Needs Claude Code installed and signed in.</p>
-                                <button class="mcp-copy-mcp" type="button" data-copy="url"><svg aria-hidden="true"><use href="#logo-claude-code"/></svg><span data-label>Copy MCP for Claude Code</span></button>
+                                <p class="mcp-label">Connector URL</p>
+                                <div class="mcp-url"><code>https://mcp.designwallet.in</code><button class="mcp-copy-icon" type="button" data-copy="url" aria-label="Copy the connector URL" title="Copy"><svg aria-hidden="true"><use href="#icon-copy"/></svg></button></div>
                             </div>
                             <ol class="mcp-steps">
                                 <li>Open your terminal and run:
@@ -183,7 +185,8 @@
                             <div class="mcp-setup-left">
                                 <h3>How to connect in Codex?</h3>
                                 <p class="mcp-note">The Codex app, CLI and IDE extension share one setup, so adding it once is enough.</p>
-                                <button class="mcp-copy-mcp" type="button" data-copy="url"><svg aria-hidden="true"><use href="#logo-openai"/></svg><span data-label>Copy MCP for Codex</span></button>
+                                <p class="mcp-label">Connector URL</p>
+                                <div class="mcp-url"><code>https://mcp.designwallet.in</code><button class="mcp-copy-icon" type="button" data-copy="url" aria-label="Copy the connector URL" title="Copy"><svg aria-hidden="true"><use href="#icon-copy"/></svg></button></div>
                             </div>
                             <ol class="mcp-steps">
                                 <li>In the Codex app, open Settings → MCP servers → Add server.</li>
@@ -199,7 +202,8 @@
                             <div class="mcp-setup-left">
                                 <h3>How to connect in VS Code?</h3>
                                 <p class="mcp-note">Use it from Copilot Chat in Agent mode.</p>
-                                <button class="mcp-copy-mcp" type="button" data-copy="url"><svg aria-hidden="true"><use href="#logo-vscode"/></svg><span data-label>Copy MCP for VS Code</span></button>
+                                <p class="mcp-label">Connector URL</p>
+                                <div class="mcp-url"><code>https://mcp.designwallet.in</code><button class="mcp-copy-icon" type="button" data-copy="url" aria-label="Copy the connector URL" title="Copy"><svg aria-hidden="true"><use href="#icon-copy"/></svg></button></div>
                             </div>
                             <ol class="mcp-steps">
                                 <li>Open the Command Palette (⇧⌘P / Ctrl+Shift+P) and run MCP: Add Server.</li>
@@ -219,7 +223,8 @@
                             <div class="mcp-setup-left">
                                 <h3>How to connect in Gemini?</h3>
                                 <p class="mcp-note">For Gemini CLI. Add -s user to use Design Wallet in every project.</p>
-                                <button class="mcp-copy-mcp" type="button" data-copy="url"><img src="/public/icons/mcp/gemini.png" width="22" height="22" alt=""><span data-label>Copy MCP for Gemini</span></button>
+                                <p class="mcp-label">Connector URL</p>
+                                <div class="mcp-url"><code>https://mcp.designwallet.in</code><button class="mcp-copy-icon" type="button" data-copy="url" aria-label="Copy the connector URL" title="Copy"><svg aria-hidden="true"><use href="#icon-copy"/></svg></button></div>
                             </div>
                             <ol class="mcp-steps">
                                 <li>Run this in your terminal:
@@ -434,8 +439,8 @@
     <div class="mcp-toast" role="status" aria-live="polite" hidden></div>
 
     <script src="/content.js?v=20260508-6"></script>
-    <script src="/header.js?v=20261101-1"></script>
+    <script src="/header.js?v=20261114-2"></script>
     <script src="/newsletter.js?v=20261015-3"></script>
-    <script src="/mcp/mcp.js?v=20261028-2"></script>
+    <script src="/mcp/mcp.js?v=20261113-1"></script>
 </body>
 </html>

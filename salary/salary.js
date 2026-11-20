@@ -868,7 +868,10 @@
         });
 
         dom.exportBtn.addEventListener("click", function () {
-            exportReport(this, this.querySelector(".sal-export-label"));
+            // Reading is free; the report asks for an email, not a sign-in
+            // (2026-11-20, replaces the 2026-11-13 sign-in wall).
+            if (!buildReportModel() || !window.DWReportMail) return;
+            window.DWReportMail.open({ build: buildReportFile });
         });
 
         dom.collapseBtn.addEventListener("click", function () {
@@ -1083,14 +1086,11 @@
         return logoPromise;
     }
 
-    /** Builds the PDF in the page and hands it to the browser as a download. */
-    function downloadReport(model, fonts) {
-        var blob = new Blob([DWReport.build(model, fonts)], { type: "application/pdf" });
-        var url = URL.createObjectURL(blob);
-        var link = document.createElement("a");
-
-        // Filters belong in the name, or two different reports collide in the
-        // downloads folder and the second silently overwrites the first.
+    /**
+     * The file name carries the filters, or two different reports collide in
+     * a downloads folder or an inbox and the second hides the first.
+     */
+    function reportFilename() {
         var name = ["design-wallet-salary", state.role, state.level];
         if (state.city !== "all") name.push(state.city);
         if (state.country !== "all") name.push(state.country);
@@ -1098,41 +1098,34 @@
         if (state.employer !== "all") name.push(state.employer);
         if (state.companyType !== "all") name.push(state.companyType);
         if (state.currency !== "inr") name.push(state.currency);
-
-        link.href = url;
-        link.download = name.join("-") + ".pdf";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        // Revoking straight away cancels the download in some browsers.
-        window.setTimeout(function () {
-            URL.revokeObjectURL(url);
-        }, 10000);
-
-        if (typeof window.gtag === "function") {
-            window.gtag("event", "salary_report_download", { role: state.role, level: state.level });
-        }
+        return name.join("-") + ".pdf";
     }
 
-    function exportReport(button, label) {
+    /** "Bengaluru", or the country, or India: what the email says the report covers. */
+    function reportLocation() {
+        if (state.city !== "all") return labelFor(data.cities, state.city);
+        if (state.country !== "all") return labelFor(data.countries, state.country);
+        return "India";
+    }
+
+    /**
+     * Builds the PDF in the page and resolves with its bytes. Export PDF no
+     * longer downloads it: report-gate.js emails it, after the visitor proves
+     * the address with a code (Karthik, 2026-11-20).
+     */
+    function buildReportFile() {
         var model = buildReportModel();
-        if (!model) return;
+        if (!model) return Promise.reject(new Error("no figure to report"));
 
-        button.disabled = true;
-        if (label) label.textContent = "Preparing…";
-
-        Promise.all([loadReportFonts(), loadReportLogo()]).then(function (assets) {
+        return Promise.all([loadReportFonts(), loadReportLogo()]).then(function (assets) {
             model.logo = assets[1];
-            downloadReport(model, assets[0]);
-        }).catch(function (error) {
-            if (window.console) console.error("salary report export failed:", error);
-            if (label) label.textContent = "Export failed";
-        }).then(function () {
-            button.disabled = false;
-            window.setTimeout(function () {
-                if (label) label.textContent = "Export PDF";
-            }, label && label.textContent === "Export failed" ? 2600 : 0);
+            return {
+                bytes: DWReport.build(model, assets[0]),
+                filename: reportFilename(),
+                role: model.role,
+                level: model.level,
+                location: reportLocation()
+            };
         });
     }
 

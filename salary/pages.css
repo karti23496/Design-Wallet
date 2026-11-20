@@ -1,0 +1,299 @@
+/* ============================================================================
+   Public salary pages (/salary/<role>/<level>/), built by
+   scripts/build-salary-pages.js. Values follow the Figma template
+   "Salary guide pages (2026-11-13)" (node 1230:3592): desktop frame 1232:3592,
+   mobile frame 1234:3794. Uses the site tokens from style.css; the dashboard's
+   own salary.css is not loaded here.
+   ============================================================================ */
+
+/* Light beam + horizon behind the top of the page (Figma 1229:4364). The art
+   is 1440 × 1193, centred; on a phone the 665 × 740 crop sits 235px up
+   (Figma 1229:4479). */
+.sp-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1193px;
+    overflow: hidden;
+    pointer-events: none;
+}
+.sp-bg img {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1440px;
+    height: 1193px;
+    max-width: none;
+    transform: translateX(-50%);
+}
+.salary-public-page .page-shell { z-index: 1; }
+
+.sp {
+    width: 100%;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 40px 0 96px;
+    font-family: "Inter", sans-serif;
+    color: var(--text);
+}
+
+.sp-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    font-size: 13px;
+    color: var(--muted);
+}
+.sp-crumbs a { color: var(--muted); text-decoration: none; }
+.sp-crumbs a:hover { color: var(--text); }
+.sp-crumbs [aria-current] { color: var(--muted-strong); }
+
+/* Breadcrumb with "View full report" on its right; title and lede below. */
+.sp-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 24px;
+    align-items: start;
+}
+.sp-top .sp-crumbs { grid-row: 1; grid-column: 1; }
+.sp-report { grid-row: 1; grid-column: 2; width: 180px; padding: 0 22px; }
+.sp-head { grid-row: 2; grid-column: 1 / -1; margin-top: 32px; }
+.sp-title {
+    margin: 0;
+    font-family: "Inter", sans-serif;
+    font-size: 52px;
+    font-weight: 300;
+    line-height: 1.08;
+    letter-spacing: -0.07em;
+}
+.sp-lede {
+    margin: 18px 0 0;
+    max-width: 640px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: rgba(var(--fg-rgb), 0.62);
+}
+
+/* Lead card takes the rest; the other three are 196px (Figma). */
+.sp-stats {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) repeat(3, 196px);
+    gap: 12px;
+    margin-top: 36px;
+}
+.sp-stat,
+.sp-card {
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--panel);
+}
+.sp-stat--lead { background: var(--panel-strong); border-color: var(--border-strong); }
+.sp-stat-label {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+.sp-stat-value {
+    margin: 6px 0 0;
+    font-family: "Geist", sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: normal;
+}
+.sp-stat--lead .sp-stat-value { margin-top: 10px; font-size: 40px; }
+.sp-stat-value--sm { font-size: 22px; }
+.sp-stat-note { margin: 6px 0 0; font-size: 12px; line-height: 1.5; color: var(--muted); }
+
+.sp-section { margin-top: 56px; }
+.sp-h2 {
+    margin: 0;
+    font-family: "Geist", sans-serif;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+}
+.sp-h3 { margin: 0 0 14px; font-size: 16px; font-weight: 600; }
+.sp-sub { margin: 8px 0 0; font-size: 14px; line-height: 1.6; color: rgba(var(--fg-rgb), 0.55); }
+.sp-muted { color: var(--muted); font-weight: 400; font-size: 13px; }
+
+/* Tables: 44px rows, 18px side padding, 16px between columns, median 140px
+   and range 180px (Salary / Table / Header and Row). */
+.sp-table-wrap {
+    margin-top: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+}
+.sp-table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: auto; }
+.sp-table th,
+.sp-table td {
+    height: 44px;
+    box-sizing: border-box;
+    padding: 0 8px;
+    text-align: left;
+    border-top: 1px solid var(--border);
+    white-space: nowrap;
+    line-height: normal;
+}
+.sp-table th:first-child,
+.sp-table td:first-child { padding-left: 18px; }
+.sp-table th:last-child,
+.sp-table td:last-child { padding-right: 18px; }
+.sp-table th:nth-child(2),
+.sp-table td:nth-child(2) { width: 140px; }
+.sp-table th:nth-child(3),
+.sp-table td:nth-child(3) { width: 180px; }
+.sp-table thead th {
+    border-top: 0;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--panel);
+}
+.sp-table tbody th { font-weight: 500; }
+.sp-table tbody td { font-weight: 400; }
+.sp-table .sp-num { text-align: right; font-variant-numeric: tabular-nums; }
+.sp-table a { color: var(--text); text-decoration: underline; text-decoration-color: rgba(var(--fg-rgb), 0.3); text-underline-offset: 3px; }
+.sp-table a:hover { text-decoration-color: var(--text); }
+.sp-here {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.sp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sp-grid .sp-h3 { font-size: 15px; }
+.sp-pair {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+    font-size: 14px;
+    line-height: normal;
+    color: rgba(var(--fg-rgb), 0.62);
+}
+.sp-pair b { color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* CTA (Figma 1232:3879): text 352px wide, button on the right, the embossed
+   logo peeking up from the bottom edge between them. */
+.sp-cta {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-top: 56px;
+    padding: 28px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    overflow: hidden;
+}
+.sp-cta-text { width: 352px; max-width: 100%; }
+.sp-cta .sp-h3 { margin: 0; line-height: normal; }
+.sp-cta-btns { position: relative; z-index: 1; display: flex; gap: 10px; flex-shrink: 0; }
+.sp-cta-art {
+    position: absolute;
+    left: 450px;
+    top: 21px;
+    width: 145px;
+    height: 156px;
+    pointer-events: none;
+}
+.sp-cta-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* Between phone and full width the logo would run into the button. */
+@media (min-width: 761px) and (max-width: 959px) {
+    .sp-cta-art { display: none; }
+}
+.sp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.sp-btn--primary { background: var(--pure); color: #050505; }
+.sp-btn--primary:hover { background: #e6e6e6; }
+.sp-btn--line { border-color: rgba(var(--fg-rgb), 0.35); color: var(--text); }
+.sp-btn--line:hover { border-color: rgba(var(--fg-rgb), 0.6); }
+
+.sp-method p { margin: 0; max-width: 680px; font-size: 14px; line-height: 1.7; color: rgba(var(--fg-rgb), 0.55); }
+
+.sp-links { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.sp-links a {
+    display: inline-block;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 13px;
+    color: var(--muted-strong);
+    text-decoration: none;
+}
+.sp-links a:hover { border-color: var(--border-strong); color: var(--text); }
+
+/* Copy and buttons that differ between the desktop and phone frames. */
+.sp .sp-phone-only { display: none; }
+
+/* Phone (Figma frame 1234:3794, 390 wide). */
+@media (max-width: 760px) {
+    .sp-bg img {
+        top: -234.933px;
+        width: 665.432px;
+        height: 740.356px;
+    }
+    .sp { padding: 24px 0 72px; }
+    .sp-top { grid-template-columns: minmax(0, 1fr); }
+    .sp-head { margin-top: 24px; }
+    .sp-report { grid-row: 3; grid-column: 1; justify-self: start; margin-top: 16px; }
+    .sp .sp-desk-only { display: none; }
+    .sp .sp-phone-only { display: inline; }
+    .sp .sp-btn.sp-phone-only { display: inline-flex; }
+    .sp-title { font-size: 32px; }
+    .sp-lede { margin-top: 16px; }
+    .sp-stats { grid-template-columns: 1fr 1fr; margin-top: 28px; }
+    .sp-stat--lead { grid-column: 1 / -1; }
+    .sp-section,
+    .sp-cta { margin-top: 48px; }
+    .sp-h2 { font-size: 22px; }
+    .sp-grid { grid-template-columns: 1fr; gap: 48px; }
+    /* Tables keep 560px rows and scroll sideways inside the box. */
+    .sp-table { min-width: 560px; }
+    /* Phone CTA (Figma 1234:4063): buttons stacked full width, then the logo
+       278 × 298, 44px below them and cut off by the bottom edge at 244px. */
+    .sp-cta { flex-direction: column; align-items: stretch; gap: 18px; padding: 22px 22px 0; }
+    .sp-cta-text { width: auto; }
+    .sp-cta-btns { flex-direction: column; gap: 18px; }
+    .sp-cta-art {
+        position: static;
+        align-self: center;
+        width: 278px;
+        height: 244px;
+        margin-top: 26px;
+        overflow: hidden;
+    }
+    .sp-cta-art img { width: 278px; height: 298px; max-width: none; }
+}

@@ -41,7 +41,8 @@
     white-space: nowrap;
     transition: background 0.15s ease, border-color 0.15s ease;
 }
-.home-btn--primary { width: 240px; background: #fff; color: #050505; }
+/* 157px, the same as Sign in, since the label became "Explore" (2026-11-13). */
+.home-btn--primary { width: 157px; background: #fff; color: #050505; }
 .home-btn--primary:hover { background: #e6e6e6; }
 /* SIGN IN: frosted glass. A translucent fill that blurs and brightens what's
    behind it, a lit top rim, a darker lower edge and a soft drop. */

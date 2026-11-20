@@ -166,15 +166,25 @@
             .replace(/"/g, "&quot;");
     }
 
+    // A broken avatar or thumbnail falls back to the letter / plain tile.
+    // One listener in the capture phase (image errors don't bubble) instead
+    // of inline onerror="", which the Content Security Policy blocks.
+    document.addEventListener("error", function (event) {
+        var img = event.target;
+        if (!img || img.tagName !== "IMG" || !img.dataset || !img.dataset.fallback) return;
+        var box = img.closest(img.dataset.fallback);
+        if (box) box.classList.add("is-fallback");
+    }, true);
+
     function cardHtml(entry) {
         var avatar = entry.image
             ? '<img class="wop-avatar-img" src="' + escapeHtml(entry.image) + '" alt="" loading="lazy" ' +
-              'referrerpolicy="no-referrer" onerror="this.closest(\'.wop-avatar\').classList.add(\'is-fallback\')">'
+              'referrerpolicy="no-referrer" data-fallback=".wop-avatar">'
             : "";
 
         var thumb = entry.thumbnail
             ? '<img class="wop-thumb-img" src="' + escapeHtml(entry.thumbnail) + '" alt="" loading="lazy" ' +
-              'referrerpolicy="no-referrer" onerror="this.closest(\'.wop-thumb\').classList.add(\'is-fallback\')">'
+              'referrerpolicy="no-referrer" data-fallback=".wop-thumb">'
             : "";
 
         // The whole card is one <a>, so everything inside has to be inline-level.

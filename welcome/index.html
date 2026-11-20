@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.googletagmanager.com https://accounts.google.com https://challenges.cloudflare.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://ugjtyuikvdeymwsfsgfl.supabase.co wss://ugjtyuikvdeymwsfsgfl.supabase.co https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://accounts.google.com https://docs.google.com https://api.microlink.io https://image.thum.io https://cdn.jsdelivr.net https://huggingface.co https://*.huggingface.co https://*.hf.co https://challenges.cloudflare.com http://localhost:8787; frame-src https://accounts.google.com https://challenges.cloudflare.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+    <link rel="stylesheet" href="/site-prefs.css?v=20261113-1">
+    <script src="/site-prefs.js?v=20261113-1" defer></script>
+    <script src="/consent.js?v=20261113-1"></script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-HLX9Y7DQV7');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome — Design Wallet™</title>
@@ -21,7 +19,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/auth/auth.css?v=20261030-2">
+    <link rel="stylesheet" href="/auth/auth.css?v=20261113-1">
 </head>
 <body class="auth-page" data-auth-page="welcome">
     <div class="auth-shell">
@@ -45,13 +43,9 @@
                     <p class="auth-sub">Loading your account…</p>
                 </div>
 
-                <form class="auth-view" data-view="step-1" novalidate hidden>
-                    <div class="auth-progress">
-                        <p class="auth-eyebrow">Step 1 of 3</p>
-                        <div class="auth-progress-bar" aria-hidden="true"><span class="is-done"></span><span></span><span></span></div>
-                    </div>
-                    <h1 class="auth-title">Welcome<span data-first-name></span>. What do you do?</h1>
-                    <p class="auth-sub">This tailors the tools we show you. It uses the same roles as Know your money.</p>
+                <form class="auth-view" data-view="profile" novalidate hidden>
+                    <h1 class="auth-title">Welcome<span data-first-name></span>. Tell us about you.</h1>
+                    <p class="auth-sub">One quick page. It tailors the tools we show you.</p>
                     <div data-name-field hidden>
                         <label class="auth-field">
                             <span class="auth-eyebrow">Your name</span>
@@ -85,24 +79,8 @@
                             <button class="auth-chip" type="button" aria-pressed="false" data-value="Director / Head of Design">Director / Head of Design</button>
                             <button class="auth-chip" type="button" aria-pressed="false" data-value="VP of Design">VP of Design</button>
                     </fieldset>
-                    <p class="auth-msg" data-msg role="status" hidden></p>
-                    <div class="auth-actions">
-                        <span class="auth-spacer"></span>
-                        <button class="auth-btn auth-btn--primary auth-btn--auto" type="submit">Continue</button>
-                    </div>
-                    <p class="auth-switch">Wrong account? <a class="auth-link" href="/sign-in/?signout=1">Sign out</a></p>
-                    <p class="auth-switch" data-edit-only hidden><button class="auth-text-btn auth-text-btn--underline" type="button" data-delete-open>Delete my account</button></p>
-                </form>
-
-                <form class="auth-view" data-view="step-2" novalidate hidden>
-                    <div class="auth-progress">
-                        <p class="auth-eyebrow">Step 2 of 3</p>
-                        <div class="auth-progress-bar" aria-hidden="true"><span class="is-done"></span><span class="is-done"></span><span></span></div>
-                    </div>
-                    <h1 class="auth-title">What brings you to Design Wallet?</h1>
-                    <p class="auth-sub">Pick at least one. It tells us what to build next.</p>
                     <fieldset class="auth-chips" data-chips="goals" data-multi>
-                        <legend class="auth-eyebrow">Goals</legend>
+                        <legend class="auth-eyebrow">What brings you here? Pick any</legend>
                             <button class="auth-chip" type="button" aria-pressed="false" data-value="Find tools for my work">Find tools for my work</button>
                             <button class="auth-chip" type="button" aria-pressed="false" data-value="Get design inspiration">Get design inspiration</button>
                             <button class="auth-chip" type="button" aria-pressed="false" data-value="Build or improve my portfolio">Build or improve my portfolio</button>
@@ -111,22 +89,6 @@
                             <button class="auth-chip" type="button" aria-pressed="false" data-value="Read and learn">Read and learn</button>
                             <button class="auth-chip" type="button" aria-pressed="false" data-value="Just exploring">Just exploring</button>
                     </fieldset>
-                    <p class="auth-msg" data-msg role="status" hidden></p>
-                    <div class="auth-actions">
-                        <button class="auth-text-btn" type="button" data-prev>Back</button>
-                        <span class="auth-spacer"></span>
-                        <button class="auth-btn auth-btn--primary auth-btn--auto" type="submit">Continue</button>
-                    </div>
-                </form>
-
-                <form class="auth-view" data-view="step-3" novalidate hidden>
-                    <div class="auth-progress">
-                        <p class="auth-eyebrow">Step 3 of 3</p>
-                        <div class="auth-progress-bar" aria-hidden="true"><span class="is-done"></span><span class="is-done"></span><span class="is-done"></span></div>
-                    </div>
-                    <h1 class="auth-title">Where are you based?</h1>
-                    <p class="auth-sub">It helps with salary comparisons and, later, jobs near you.</p>
-                    <p class="auth-msg" data-msg role="status" hidden></p>
                     <div class="auth-fields-row">
                         <label class="auth-field">
                             <span class="auth-eyebrow">City</span>
@@ -137,16 +99,53 @@
                             <input class="auth-input" type="text" name="country" placeholder="India" autocomplete="country-name" maxlength="80" required>
                         </label>
                     </div>
+                    <label class="auth-field">
+                        <span class="auth-eyebrow">LinkedIn profile</span>
+                        <input class="auth-input" type="text" name="linkedin" placeholder="linkedin.com/in/yourname" inputmode="url" autocomplete="url" maxlength="200" spellcheck="false" required>
+                    </label>
                     <label class="auth-check">
                         <input type="checkbox" name="newsletter" checked>
                         <span><strong>Send me the Design Wallet newsletter</strong><span>New tools and articles, straight to your inbox. Unsubscribe anytime.</span></span>
                     </label>
-                    <div class="auth-actions">
-                        <button class="auth-text-btn" type="button" data-prev>Back</button>
-                        <span class="auth-spacer"></span>
-                        <button class="auth-btn auth-btn--primary auth-btn--auto" type="submit">Finish</button>
+                    <div class="auth-2fa" data-edit-only hidden>
+                        <p class="auth-eyebrow">Two-step login</p>
+                        <div class="auth-2fa-row">
+                            <p class="auth-2fa-status" data-2fa-status>Off. Turn it on to also ask for a 6-digit code from an authenticator app when you sign in.</p>
+                            <button class="auth-btn auth-btn--line auth-btn--auto" type="button" data-2fa-toggle>Turn on</button>
+                        </div>
+                        <p class="auth-msg" data-msg-2fa role="status" hidden></p>
                     </div>
+                    <p class="auth-msg" data-msg role="status" hidden></p>
+                    <button class="auth-btn auth-btn--primary" type="submit">Finish</button>
+                    <p class="auth-switch">Wrong account? <a class="auth-link" href="/sign-in/?signout=1">Sign out</a></p>
+                    <p class="auth-switch" data-edit-only hidden>Cookies: <span data-cookie-choice>not chosen yet</span> · <button class="auth-text-btn auth-text-btn--underline" type="button" data-cookie-reset>Change</button></p>
+                    <p class="auth-switch" data-edit-only hidden><button class="auth-text-btn auth-text-btn--underline" type="button" data-delete-open>Delete my account</button></p>
                 </form>
+
+                <form class="auth-view" data-view="mfa-setup" novalidate hidden>
+                    <h1 class="auth-title">Turn on two-step login</h1>
+                    <ol class="auth-steps">
+                        <li>Open an authenticator app: Google Authenticator, Microsoft Authenticator, Authy or 1Password.</li>
+                        <li>Scan this code with it, or type the key below.</li>
+                        <li>Enter the 6-digit code the app shows.</li>
+                    </ol>
+                    <img class="auth-qr" data-qr alt="QR code to add Design Wallet to your authenticator app" width="180" height="180">
+                    <p class="auth-secret">Key: <code data-secret></code></p>
+                    <p class="auth-msg" data-msg-setup role="status" hidden></p>
+                    <label class="auth-field">
+                        <input class="auth-input auth-input--code" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="000000" aria-label="6-digit code" required>
+                    </label>
+                    <button class="auth-btn auth-btn--primary" type="submit">Turn on</button>
+                    <button class="auth-btn auth-btn--line" type="button" data-setup-cancel>Cancel</button>
+                </form>
+
+                <div class="auth-view" data-view="mfa-off" hidden>
+                    <h1 class="auth-title">Turn off two-step login?</h1>
+                    <p class="auth-sub">You’ll only need your password or Google to sign in. You can turn it back on any time.</p>
+                    <p class="auth-msg" data-msg-off role="status" hidden></p>
+                    <button class="auth-btn auth-btn--danger" type="button" data-off-confirm>Turn off</button>
+                    <button class="auth-btn auth-btn--line" type="button" data-off-cancel>Keep it on</button>
+                </div>
 
                 <div class="auth-view" data-view="delete" hidden>
                     <h1 class="auth-title">Delete your account?</h1>
@@ -172,6 +171,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-    <script src="/auth/auth.js?v=20261108-1"></script>
+    <script src="/auth/auth.js?v=20261113-1"></script>
 </body>
 </html>

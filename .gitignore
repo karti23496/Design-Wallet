@@ -16,3 +16,9 @@ dist/
 
 *.crdownload
 *.part
+
+# Portfolio critic: the scoring rules are the paid product and stay private
+# (DECISIONS 2026-11-01: prompts and rubrics live outside the open-source repo).
+.claude/skills/portfolio-critic/
+# Testers' screenshots and reports: personal data, never committed.
+portfolio-reviews/

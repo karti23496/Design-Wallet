@@ -332,10 +332,6 @@ body.auth-page {
 .auth-badge--solid { border-color: #fff; background: #fff; color: #050505; }
 
 /* ── Onboarding (/welcome/) ──────────────────────────────────────────────── */
-.auth-progress { display: flex; flex-direction: column; gap: 12px; }
-.auth-progress-bar { display: flex; gap: 6px; }
-.auth-progress-bar span { flex: 1; height: 2px; background: rgba(255, 255, 255, 0.14); }
-.auth-progress-bar span.is-done { background: #fff; }
 
 .auth-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; border: 0; }
 .auth-chips legend { margin-bottom: 10px; padding: 0; }
@@ -437,3 +433,48 @@ body.auth-page {
     .auth-title { font-size: 26px; }
     .auth-fields-row { flex-direction: column; }
 }
+
+/* Headings get focus when a view opens (for screen readers); no ring for that. */
+.auth-title:focus { outline: none; }
+
+/* A required chip group left empty on /welcome/: its label and chips go red. */
+.auth-chips.is-missing legend { color: var(--auth-danger); }
+.auth-chips.is-missing .auth-chip { border-color: rgba(255, 138, 122, 0.45); }
+
+/* ── Two-step login (2026-11-12) ── */
+.auth-input--code { font-size: 22px; letter-spacing: 0.4em; text-align: center; font-variant-numeric: tabular-nums; }
+.auth-2fa {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+    border: 1px solid var(--auth-line);
+    border-radius: 20px;
+}
+.auth-2fa[hidden] { display: none; }
+.auth-2fa-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.auth-2fa-status { margin: 0; color: var(--auth-muted); font-size: 13px; line-height: 1.5; }
+.auth-steps { margin: 0; padding-left: 20px; color: var(--auth-muted); font-size: 14px; line-height: 1.6; }
+.auth-qr { display: block; width: 180px; height: 180px; padding: 12px; border-radius: 16px; background: #fff; }
+.auth-secret { margin: 0; color: var(--auth-muted); font-size: 12px; }
+.auth-secret code { color: var(--auth-text); font-size: 13px; letter-spacing: 0.05em; word-break: break-all; }
+@media (max-width: 480px) {
+    .auth-2fa-row { flex-direction: column; align-items: stretch; }
+}
+
+/* Trust note under the sign-in / sign-up buttons (2026-11-12). */
+.auth-trust {
+    display: flex;
+    gap: 10px;
+    margin: 0;
+    padding: 12px 14px;
+    color: var(--auth-muted);
+    font-size: 12px;
+    line-height: 1.55;
+}
+.auth-trust svg { flex: none; margin-top: 2px; color: var(--auth-text); }
+
+/* Bot check (Turnstile). Invisible for most people; when Cloudflare wants a
+   click, its box appears here, above the main button. */
+.auth-captcha:empty { display: none; }
+.auth-captcha iframe { max-width: 100%; }

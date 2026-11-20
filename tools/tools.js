@@ -110,6 +110,11 @@ document.addEventListener("DOMContentLoaded", function () {
         "web-builders": "website-builder-tools"
     };
 
+    // build-catalogue.js writes real pages with their own title and description
+    // and marks them <html data-prerendered>. Those are the SEO copy, so the
+    // renderers below leave them alone on such pages.
+    var PRERENDERED = document.documentElement.hasAttribute("data-prerendered");
+
     function getPathParts() {
         return window.location.pathname.split("/").filter(Boolean).map(function (part) {
             return slugify(decodeURIComponent(part));
@@ -550,7 +555,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var dollar = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>';
         var primaryCat = (tool.categories && tool.categories[0]) || "";
         var catSlug = primaryCat ? normalizeCategorySlug(slugify(primaryCat)) : "";
-        var catHref = primaryCat ? "/category/?category=" + encodeURIComponent(catSlug) : "/category/";
+        var catHref = primaryCat ? categoryHref(catSlug) : "/category/";
         var arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>';
         var tagIcon = categoryIconMarkup(catSlug, 13,
             '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>');
@@ -694,7 +699,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (group) {
                 rows.push(dashNavRowMarkup(
                     trend.label,
-                    "/category/?category=" + encodeURIComponent(group.slug),
+                    categoryHref(group.slug),
                     group.tools.length,
                     group.slug === selectedSlug,
                     false,
@@ -976,7 +981,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // At the root the authored homepage title/description are the better
         // SEO surface, so leave them alone; only route-specific views override.
-        if (!isRootRoute() || group) {
+        if (!PRERENDERED && (!isRootRoute() || group)) {
             document.title = (group ? group.title + (selected === FAVOURITES_SLUG ? "" : " Tools") : "Tool Categories") + " — Design Wallet™";
             var metaDesc = document.querySelector('meta[name="description"]');
             if (metaDesc) {
@@ -994,7 +999,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     favouritesTotal(tools), selected === FAVOURITES_SLUG, false, FAVOURITES_SLUG));
             }
             groups.forEach(function (g) {
-                rows.push(dashNavRowMarkup(g.title, "/category/?category=" + encodeURIComponent(g.slug), g.tools.length, g.slug === selected, false, g.slug));
+                rows.push(dashNavRowMarkup(g.title, categoryHref(g.slug), g.tools.length, g.slug === selected, false, g.slug));
             });
             dashNavEl.innerHTML = rows.join("");
         }
@@ -1104,7 +1109,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (groups.length) {
             html.push('<h2 class="dash-sections-heading">Popular categories</h2>');
             groups.forEach(function (g) {
-                var href = "/category/?category=" + encodeURIComponent(g.slug);
+                var href = categoryHref(g.slug);
                 var icon = categoryIconMarkup(g.slug, 18, "");
                 var list = g.tools.slice().sort(function (a, b) { return a.title.localeCompare(b.title); });
                 html.push(
@@ -1285,9 +1290,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderTool(tool, allTools) {
         var currentCategorySlug = getCategorySlugFromUrl();
         var routeCategorySlug = getToolCategorySlug(tool, currentCategorySlug);
-        document.title = tool.title + " — Design Wallet™";
-        var metaDesc = document.querySelector('meta[name="description"]');
-        if (metaDesc) metaDesc.setAttribute("content", tool.subtitle || "Discover " + tool.title + " on Design Wallet.");
+        if (!PRERENDERED) {
+            document.title = tool.title + " — Design Wallet™";
+            var metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) metaDesc.setAttribute("content", tool.subtitle || "Discover " + tool.title + " on Design Wallet.");
+        }
 
         // Icon
         var iconEl = document.getElementById("tool-icon");
@@ -1353,13 +1360,23 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Prev/Next navigation
+        // Neighbours come from the SAME category, A to Z, matching the static
+        // pages from scripts/build-catalogue.js. Walking the whole catalogue
+        // would link to tools with no page under this category's URL.
+        var peers = allTools.filter(function (t) {
+            return (t.categories || []).some(function (c) {
+                return normalizeCategorySlug(slugify(c)) === routeCategorySlug;
+            });
+        }).sort(function (a, b) { return a.title.localeCompare(b.title); });
+        if (!peers.length) peers = allTools;
+
         var currentIndex = -1;
-        for (var i = 0; i < allTools.length; i++) {
-            if (allTools[i].slug === tool.slug) { currentIndex = i; break; }
+        for (var i = 0; i < peers.length; i++) {
+            if (peers[i].slug === tool.slug) { currentIndex = i; break; }
         }
 
-        var prevTool = currentIndex > 0 ? allTools[currentIndex - 1] : null;
-        var nextTool = currentIndex < allTools.length - 1 ? allTools[currentIndex + 1] : null;
+        var prevTool = currentIndex > 0 ? peers[currentIndex - 1] : null;
+        var nextTool = currentIndex !== -1 && currentIndex < peers.length - 1 ? peers[currentIndex + 1] : null;
 
         var prevLink = document.getElementById("tool-prev");
         var nextLink = document.getElementById("tool-next");

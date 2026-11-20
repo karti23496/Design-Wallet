@@ -78,10 +78,15 @@ function getNetworkUrls(port) {
   return urls;
 }
 
+// Served as a file, not inlined: every page has a Content Security Policy
+// that forbids inline scripts (2026-11-13), and an inline snippet would be
+// blocked, so live reload would silently stop working.
 function getLiveReloadSnippet() {
-  return `
-<script>
-(() => {
+  return `\n<script src="/__live-reload.js"></script>`;
+}
+
+function getLiveReloadScript() {
+  return `(() => {
   const versionEndpoint = "/__live-reload-version";
   let currentVersion = "${reloadVersion}";
   let reloading = false;
@@ -120,7 +125,7 @@ function getLiveReloadSnippet() {
 
   setInterval(checkForChanges, 750);
 })();
-</script>`;
+`;
 }
 
 function getRelativePath(filePath) {
@@ -305,6 +310,17 @@ function handleRequest(request, response) {
       console.warn(`Live reload connection closed: ${error.message}`);
     });
     request.on("close", () => clients.delete(response));
+    return;
+  }
+
+  if (request.url?.startsWith("/__live-reload.js")) {
+    const body = shouldUseLiveReload ? getLiveReloadScript() : "";
+    response.writeHead(200, {
+      "Cache-Control": "no-cache",
+      "Content-Length": Buffer.byteLength(body),
+      "Content-Type": "text/javascript; charset=utf-8",
+    });
+    response.end(body);
     return;
   }
 

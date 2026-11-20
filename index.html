@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.googletagmanager.com https://accounts.google.com https://challenges.cloudflare.com 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://ugjtyuikvdeymwsfsgfl.supabase.co wss://ugjtyuikvdeymwsfsgfl.supabase.co https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://accounts.google.com https://docs.google.com https://api.microlink.io https://image.thum.io https://cdn.jsdelivr.net https://huggingface.co https://*.huggingface.co https://*.hf.co https://challenges.cloudflare.com http://localhost:8787; frame-src https://accounts.google.com https://challenges.cloudflare.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
     <script src="/auth/landing.js?v=20261030-1"></script>
+    <link rel="stylesheet" href="/site-prefs.css?v=20261113-1">
+    <script src="/site-prefs.js?v=20261113-1" defer></script>
+    <script src="/consent.js?v=20261113-1"></script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLX9Y7DQV7"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-HLX9Y7DQV7');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Design Wallet™ — A curated library of design tools & resources</title>
@@ -31,9 +29,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/Logo/favicon-img/icon32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/Logo/favicon-img/icon16.png">
     <link rel="apple-touch-icon" sizes="128x128" href="/public/Logo/favicon-img/icon128.png">
-    <link rel="stylesheet" href="/style.css?v=20261101-1">
-    <link rel="stylesheet" href="/auth/auth.css?v=20261030-2">
-    <link rel="stylesheet" href="/home.css?v=20261101-11">
+    <link rel="stylesheet" href="/style.css?v=20261113-1">
+    <link rel="stylesheet" href="/auth/auth.css?v=20261113-1">
+    <link rel="stylesheet" href="/home.css?v=20261113-1">
 </head>
 <body class="home-page" data-auth-page="sign-up">
     <div class="page-shell home-shell">
@@ -62,7 +60,7 @@
                     <h1 class="hx-title"><em>Design Asset Repository</em> <span>for your next design project.</span></h1>
                     <p class="hx-sub">500+ real use case tools, real salary data and free mini tools, all picked by designers. Sign up and save your favourites and build a wallet that’s yours.</p>
                     <div class="hx-ctas">
-                        <a class="home-btn home-btn--primary" href="/sign-up/">Create account for free</a>
+                        <a class="home-btn home-btn--primary" href="/category/">Explore</a>
                         <a class="home-btn home-btn--glass" href="/sign-in/">Sign in</a>
                     </div>
                     <p class="hx-note">Create free account. No card details required.</p>
@@ -576,11 +574,11 @@
                                         <input class="auth-input" type="email" name="email" placeholder="Email" autocomplete="email" aria-label="Email" required>
                                     </label>
                                     <label class="auth-field auth-field--password">
-                                        <input class="auth-input" type="password" name="password" placeholder="Password" autocomplete="new-password" aria-label="Password" minlength="8" required>
+                                        <input class="auth-input" type="password" name="password" placeholder="Password" autocomplete="new-password" aria-label="Password" minlength="10" required>
                                         <button class="auth-reveal" type="button" data-reveal aria-label="Show password">Show</button>
                                     </label>
                                 </div>
-                                <p class="auth-hint">At least 8 characters.</p>
+                                <p class="auth-hint">At least 10 characters, with a letter and a number.</p>
                                 <button class="auth-btn auth-btn--primary" type="submit">Create account</button>
                                 <div class="auth-or">OR</div>
                                 <button class="auth-btn auth-btn--line" type="button" data-google>
@@ -643,10 +641,10 @@
         </footer>
     </div>
 
-    <script src="/header.js?v=20261101-1"></script>
+    <script src="/header.js?v=20261114-2"></script>
     <script src="/newsletter.js?v=20261015-3"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-    <script src="/auth/auth.js?v=20261108-1"></script>
+    <script src="/auth/auth.js?v=20261113-1"></script>
     <script src="/home.js?v=20261101-1"></script>
 </body>
 </html>

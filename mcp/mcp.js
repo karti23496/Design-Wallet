@@ -116,6 +116,9 @@
         event.stopPropagation();
 
         var kind = button.getAttribute("data-copy");
+        // Reading is free; connecting asks for sign-in (2026-11-13). The URL
+        // and setup code are the connect step. Example prompts stay free.
+        if ((kind === "url" || kind === "code") && window.DWGate && !window.DWGate.require()) return;
         var text = "";
         if (kind === "url") {
             text = MCP_URL;
@@ -146,7 +149,8 @@
     // connector form the link opens.
     var connect = document.querySelector('[data-connect="claude"]');
     if (connect) {
-        connect.addEventListener("click", function () {
+        connect.addEventListener("click", function (event) {
+            if (window.DWGate && !window.DWGate.require()) { event.preventDefault(); return; }
             copy(MCP_URL).then(function () {
                 showToast("Connector URL copied. Paste it in Claude.");
             }, function () {});

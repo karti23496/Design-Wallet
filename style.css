@@ -9058,7 +9058,8 @@ body.converter-export-open {
     white-space: nowrap;
     transition: background 0.15s ease, border-color 0.15s ease;
 }
-.site-nav a.nav-cta--primary { min-width: 240px; background: var(--pure); }
+/* 140px, the same as Sign in, since the label became "Explore" (2026-11-13). */
+.site-nav a.nav-cta--primary { min-width: 140px; background: var(--pure); }
 .site-nav a.nav-cta--primary span { color: #050505; }
 .site-nav a.nav-cta--primary:hover { background: #e6e6e6; transform: none; }
 .site-nav a.nav-cta--line { min-width: 140px; border-color: rgba(var(--fg-rgb), 0.35); }

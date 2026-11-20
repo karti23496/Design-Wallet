@@ -948,7 +948,7 @@ body.is-dashboard main {
 .dash-hero h1 {
     margin: 0 auto 14px;
     font-family: "Inter", sans-serif;
-    font-weight: 400;
+    font-weight: 100;
     font-size: clamp(2rem, 5.36vw, 14rem);
     line-height: 1.19;
     letter-spacing: -0.08em;

@@ -387,6 +387,33 @@
 
 .mcp-chip svg { width: 12px; height: 12px; }
 
+/* Connector URL box: a plain grey copy icon, no button chrome */
+.mcp-copy-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 32px;
+    height: 32px;
+    margin: -6px -4px -6px 0;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--mcp-muted);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.mcp-copy-icon:hover { color: var(--text); }
+
+.mcp-copy-icon:focus-visible {
+    outline: 2px solid var(--text);
+    outline-offset: 2px;
+}
+
+.mcp-copy-icon svg { width: 18px; height: 18px; }
+
 .mcp-steps {
     margin: 0;
     padding: 0;
@@ -977,39 +1004,3 @@
 /* Inline links and emphasis inside setup steps */
 .mcp-steps a { color: var(--text); text-underline-offset: 3px; }
 .mcp-steps strong { font-weight: 500; color: var(--text); }
-
-/* "Copy MCP for <app>": replaces the URL box in each setup panel. Dark text,
-   so the white logos (currentColor) turn dark on the white button. */
-.mcp-copy-mcp {
-    display: inline-flex;
-    align-items: center;
-    gap: 14px;
-    height: 52px;
-    padding: 0 24px 0 18px;
-    border: 0;
-    background: var(--pure);
-    color: var(--surface-2);
-    font: 500 12px/1 "Inter", sans-serif;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-}
-
-.mcp-copy-mcp:hover { opacity: 0.88; }
-
-.mcp-copy-mcp:focus-visible {
-    outline: 2px solid var(--text);
-    outline-offset: 3px;
-}
-
-.mcp-copy-mcp svg,
-.mcp-copy-mcp img {
-    width: 22px;
-    height: 22px;
-    flex: none;
-}
-
-@media (max-width: 760px) {
-    .mcp-copy-mcp { width: 100%; }
-}

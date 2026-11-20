@@ -1,0 +1,34 @@
+/* The page an unsubscribe link lands on. */
+.unsub {
+    display: grid;
+    place-items: center;
+    min-height: 60vh;
+    padding: 40px 16px 80px;
+}
+
+.unsub-card {
+    width: min(100%, 460px);
+    padding: 36px 30px 30px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--panel);
+    text-align: center;
+}
+
+.unsub-card h1 {
+    margin: 0 0 12px;
+    font-family: "Geist", sans-serif;
+    font-weight: 500;
+    font-size: 1.6rem;
+    color: var(--text);
+}
+
+.unsub-card p {
+    margin: 0 0 24px;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.55;
+}
+
+.unsub-card a { text-decoration: none; }
+.unsub-card p a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }

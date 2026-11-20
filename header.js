@@ -56,6 +56,24 @@ var DW_RESOURCES = [
     }
 ];
 
+// The homepage nav "Product" panel (Karthik, 2026-11-13): the two products
+// that need an account, in the same cards as Resources. Icons are the
+// homepage "What's inside" tab icons.
+var DW_PRODUCTS = [
+    {
+        name: "Know your money",
+        href: "/salary/",
+        description: "Designer salaries by role, level and city, from real designers.",
+        icon: "/public/home/tab-money.svg"
+    },
+    {
+        name: "Design Wallet MCP",
+        href: "/mcp/",
+        description: "Ask Claude, ChatGPT or Cursor for design tools in plain words.",
+        icon: "/public/home/icon-mcp.svg"
+    }
+];
+
 // The latest changelog version, shown as a capsule beside the logo and linked
 // to /changelog/. /update-change-log bumps this with every new version.
 var DW_VERSION = "v3.0";
@@ -88,13 +106,14 @@ function dwEscape(text) {
 }
 
 // "Sign in", or the signed-in account pill and its menu (Figma 934:1399).
-function dwAccountNav(user) {
+function dwAccountNav(user, isLanding) {
     var here = encodeURIComponent(location.pathname + location.search);
-    // Signed out: the two capsules from the homepage design (Figma 982:2557).
+    // Signed out (Karthik, 2026-11-13, reading is free): the homepage shows
+    // "Explore" + "Sign in"; every other page shows "Sign in" only, with no
+    // "Create account for free" (sign-up is still linked from /sign-in/).
     if (!user) {
         return '<span class="nav-ctas">' +
-            // The short label takes over below 1280px, where the full one crowds the links.
-            '<a class="nav-cta nav-cta--primary" href="/sign-up/?next=' + here + '"><span class="nav-cta-long">Create account for free</span><span class="nav-cta-short">Sign up free</span></a>' +
+            (isLanding ? '<a class="nav-cta nav-cta--primary" href="/category/"><span>Explore</span></a>' : '') +
             '<a class="nav-cta nav-cta--line" href="/sign-in/?next=' + here + '"><span>Sign in</span></a>' +
         '</span>';
     }
@@ -130,9 +149,9 @@ function loadHeader() {
     // everywhere else uses the floating pill. That is purely a layout variant —
     // the nav itself is identical on every page.
     var isCollection = /^\/(category|tools)(\/|$)/.test(location.pathname);
-    // The homepage is the signed-out landing page: its nav drops Design Wallet
-    // MCP, Resources, Know your money and Mini Tools for "List your tool"
-    // (Karthik, 2026-10-31). Every other page keeps the full nav.
+    // The homepage is the signed-out landing page: its nav is Product,
+    // Resources, List your tool and Blog (Karthik, 2026-10-31, 2026-11-13,
+    // 2026-11-14). Every other page keeps the full nav.
     var isLanding = document.body.classList.contains('home-page');
 
     // One template for both panels — Mini Tools and Resources — so they cannot
@@ -169,26 +188,45 @@ function loadHeader() {
 
     var toolsMenu = megaItems(DW_TOOLS);
     var resourcesMenu = resourceItems(DW_RESOURCES);
+    var productMenu = resourceItems(DW_PRODUCTS);
     var user = dwSignedInUser();
 
-    // The full nav, on every page but the homepage.
-    var fullNav =
-        // The NEW pill rides inside the link so it moves with it and is
-        // still part of the same tap target.
-        '<a href="/mcp/">Design Wallet MCP<span class="nav-new">NEW</span></a>' +
-        // A plain dropdown, anchored to its own trigger. It keeps the base
-        // .nav-dropdown geometry, which is why the mobile stacked sheet
-        // needs no special casing for it.
+    // The Resources dropdown: Wallet Reads and Wall of portfolios. Shared by the
+    // homepage and the full nav.
+    // A plain dropdown, anchored to its own trigger. It keeps the base
+    // .nav-dropdown geometry, which is why the mobile stacked sheet needs no
+    // special casing for it. No href on the trigger: it opens the menu rather
+    // than navigating; tabindex keeps it keyboard-reachable for :focus-within.
+    var resourcesDropdown =
         '<div class="nav-dropdown nav-dropdown--res">' +
-            // No href: the trigger opens the menu rather than navigating.
-            // tabindex keeps it keyboard-reachable for :focus-within.
             '<a class="nav-dropdown-trigger" tabindex="0" role="button" aria-haspopup="true">Resources' +
                 '<svg class="nav-dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' +
             '</a>' +
             '<div class="nav-dropdown-menu nav-res" aria-label="Design Wallet resources">' +
                 resourcesMenu +
             '</div>' +
+        '</div>';
+
+    // The homepage nav (2026-11-13): a Product dropdown, built like Resources,
+    // then Resources itself (Karthik, 2026-11-14).
+    var landingNav =
+        '<div class="nav-dropdown nav-dropdown--res">' +
+            '<a class="nav-dropdown-trigger" tabindex="0" role="button" aria-haspopup="true">Product' +
+                '<svg class="nav-dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' +
+            '</a>' +
+            '<div class="nav-dropdown-menu nav-res" aria-label="Design Wallet products">' +
+                productMenu +
+            '</div>' +
         '</div>' +
+        resourcesDropdown +
+        '<a href="/list-your-tool/">List your tool</a><a href="/blog/">Blog</a>';
+
+    // The full nav, on every page but the homepage.
+    var fullNav =
+        // The NEW pill rides inside the link so it moves with it and is
+        // still part of the same tap target.
+        '<a href="/mcp/">Design Wallet MCP<span class="nav-new">NEW</span></a>' +
+        resourcesDropdown +
         '<a href="/salary/">Know your money</a>' +
         '<div class="nav-dropdown nav-dropdown--wide">' +
             // No href: the trigger opens the menu rather than navigating.
@@ -222,10 +260,10 @@ function loadHeader() {
             '<span></span><span></span><span></span>' +
         '</button>' +
         '<nav class="site-nav" id="primary-nav">' +
-            (isLanding ? '<a href="/list-your-tool/">List your tool</a><a href="/blog/">Blog</a>' : fullNav) +
+            (isLanding ? landingNav : fullNav) +
             // Replaced Subscribe, 2026-10-28: the newsletter opt-in moved into
             // onboarding (/welcome/ step 3).
-            dwAccountNav(user) +
+            dwAccountNav(user, isLanding) +
         '</nav>';
 
     var headers = document.querySelectorAll('.site-header');
@@ -233,6 +271,7 @@ function loadHeader() {
         header.innerHTML = html;
         header.classList.toggle('site-header--collection', isCollection);
         bindNavToggle(header);
+        bindDropdownHandoff(header);
     });
 
     if (headers.length) buildMobileMenu(user, isLanding);
@@ -240,6 +279,21 @@ function loadHeader() {
     // Tell script.js not to bind its own copy. It queries the document once at
     // DOMContentLoaded, after this runs, so the flag is always set in time.
     window.DW_NAV_TOGGLE_BOUND = true;
+}
+
+// A dropdown opens on :hover or :focus-within (style.css). Clicking a trigger
+// focuses it, so that menu stayed open while the pointer moved to the next
+// dropdown, and both showed on top of each other (Karthik, 2026-11-14:
+// Product and Resources overlapping). Pointing at a dropdown now drops focus
+// from any other one, so only the menu under the pointer is open.
+function bindDropdownHandoff(header) {
+    header.querySelectorAll('.site-nav .nav-dropdown').forEach(function (dropdown) {
+        dropdown.addEventListener('mouseenter', function () {
+            var active = document.activeElement;
+            var owner = active && active.closest ? active.closest('.nav-dropdown') : null;
+            if (owner && owner !== dropdown) active.blur();
+        });
+    });
 }
 
 // The hamburger used to be wired up in script.js, which only 10 of the 17
@@ -274,15 +328,29 @@ function buildMobileMenu(user, isLanding) {
     var here = encodeURIComponent(location.pathname + location.search);
     // The big bottom button is "Sign in", or "Sign out" with a profile link
     // joining the list above it.
+    // Signed out (2026-11-13): the homepage's big button is "Explore" with
+    // "Sign in" in the list; elsewhere the big button is "Sign in" itself.
     var accountLink = user
         ? '<a class="mnav-link" href="/category/favourites/">Favourites</a>' +
           '<a class="mnav-link" href="/welcome/?edit=1&amp;next=' + here + '">Profile &amp; preferences</a>'
-        : '<a class="mnav-link" href="/sign-in/?next=' + here + '">Sign in</a>';
+        : (isLanding ? '<a class="mnav-link" href="/sign-in/?next=' + here + '">Sign in</a>' : '');
     var accountButton = user
         ? '<a class="mnav-subscribe" href="/sign-in/?signout=1&amp;next=' + here + '">Sign out</a>'
-        : '<a class="mnav-subscribe" href="/sign-up/?next=' + here + '">Create account for free</a>';
+        : isLanding
+            ? '<a class="mnav-subscribe" href="/category/">Explore</a>'
+            : '<a class="mnav-subscribe" href="/sign-in/?next=' + here + '">Sign in</a>';
 
     var resources = DW_RESOURCES.map(function (entry) {
+        return '<a class="mnav-sublink" href="' + entry.href + '">' + entry.name + '</a>';
+    }).join('');
+
+    var resourcesExpand =
+        '<button type="button" class="mnav-link mnav-expand" aria-expanded="false" aria-controls="dw-mnav-resources">' +
+            'Resources<img class="mnav-chevron" src="/public/icons/nav/chevron-down.svg" width="13" height="13" alt="">' +
+        '</button>' +
+        '<div class="mnav-sublist" id="dw-mnav-resources" hidden>' + resources + '</div>';
+
+    var products = DW_PRODUCTS.map(function (entry) {
         return '<a class="mnav-sublink" href="' + entry.href + '">' + entry.name + '</a>';
     }).join('');
 
@@ -298,12 +366,14 @@ function buildMobileMenu(user, isLanding) {
             '</a>' +
             '<nav class="mnav-links" aria-label="Main">' +
                 (isLanding
-                    ? '<a class="mnav-link" href="/list-your-tool/">List your tool</a>'
-                    : '<a class="mnav-link" href="/mcp/">Design Wallet MCP</a>' +
-                      '<button type="button" class="mnav-link mnav-expand" aria-expanded="false" aria-controls="dw-mnav-resources">' +
-                          'Resources<img class="mnav-chevron" src="/public/icons/nav/chevron-down.svg" width="13" height="13" alt="">' +
+                    ? '<button type="button" class="mnav-link mnav-expand" aria-expanded="false" aria-controls="dw-mnav-products">' +
+                          'Product<img class="mnav-chevron" src="/public/icons/nav/chevron-down.svg" width="13" height="13" alt="">' +
                       '</button>' +
-                      '<div class="mnav-sublist" id="dw-mnav-resources" hidden>' + resources + '</div>' +
+                      '<div class="mnav-sublist" id="dw-mnav-products" hidden>' + products + '</div>' +
+                      resourcesExpand +
+                      '<a class="mnav-link" href="/list-your-tool/">List your tool</a>'
+                    : '<a class="mnav-link" href="/mcp/">Design Wallet MCP</a>' +
+                      resourcesExpand +
                       '<a class="mnav-link" href="/salary/">Know your money</a>' +
                       '<a class="mnav-link" href="/dw-tools/">Mini Tools</a>') +
                 '<a class="mnav-link" href="/blog/">Blog</a>' +
@@ -314,12 +384,14 @@ function buildMobileMenu(user, isLanding) {
     document.body.appendChild(wrap);
     mobileMenu = wrap;
 
-    var expand = wrap.querySelector('.mnav-expand');
-    var sublist = wrap.querySelector('.mnav-sublist');
-    if (expand) expand.addEventListener('click', function () {      // not on the homepage
-        var open = expand.getAttribute('aria-expanded') !== 'true';
-        expand.setAttribute('aria-expanded', String(open));
-        sublist.hidden = !open;
+    // Resources (product pages) or Product (homepage): each expands its own list.
+    wrap.querySelectorAll('.mnav-expand').forEach(function (expand) {
+        var sublist = document.getElementById(expand.getAttribute('aria-controls'));
+        expand.addEventListener('click', function () {
+            var open = expand.getAttribute('aria-expanded') !== 'true';
+            expand.setAttribute('aria-expanded', String(open));
+            sublist.hidden = !open;
+        });
     });
 
     // The backdrop closes it, and so does any link: Subscribe included, whose
